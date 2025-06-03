@@ -1,0 +1,721 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="mx-auto max-w-8xl px-2 sm:px-4 lg:px-8 py-2 sm:py-6">
+    <div class="rounded-xl border-2 border-[hsl(var(--border))] bg-[hsl(var(--background))] shadow-xl p-4 sm:p-8 mb-6 relative">
+        <!-- Decorative Elements -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[hsl(var(--primary))] to-transparent opacity-10 rounded-bl-full"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-[hsl(var(--primary))] to-transparent opacity-10 rounded-tr-full"></div>
+        
+        <!-- Form Header - Optimized for mobile -->
+        <div class="mb-8 border-b border-[hsl(var(--border))] pb-6 relative z-10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-icon">
+                        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 8.5H22M5 14.5H8M12 14.5H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6 19L18 19C20.2091 19 22 17.2091 22 15L22 9C22 6.79086 20.2091 5 18 5L6 5C3.79086 5 2 6.79086 2 9L2 15C2 17.2091 3.79086 19 6 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-foreground))] bg-clip-text text-transparent">{{ title }}</h3>
+                        <p class="text-xs text-[hsl(var(--muted-foreground))]">{{ subtitle }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-center px-4 py-2 text-xs font-bold rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-badge">
+                    {% if action_buttons %}
+                    {% for button in action_buttons %}
+                    <a href="{{ button.url }}" class="">
+                        {% if button.icon %}
+                        <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                            <path d="{{ button.icon_path }}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% endif %}
+                        {{ button.text }}
+                    </a>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-4" id="paymentForm">
+            {% csrf_token %}
+            
+            {% include 'common/toast.html'%}
+
+            <!-- Form Errors Summary -->
+            {% include 'common/form-details-error.html'%}
+
+            <!-- Form Fields - Mobile optimized -->
+            <div class="space-y-4">
+                <!-- Payment Information -->
+                <div class="p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))] shadow-sm">
+                    <h3 class="text-base font-semibold mb-3 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[hsl(var(--primary))]" viewBox="0 0 24 24" fill="none">
+                            <path d="M2 8.5H22M5 14.5H8M12 14.5H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6 19L18 19C20.2091 19 22 17.2091 22 15L22 9C22 6.79086 20.2091 5 18 5L6 5C3.79086 5 2 6.79086 2 9L2 15C2 17.2091 3.79086 19 6 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Payment Information
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% include 'common/form-loop.html'%}
+                    </div>
+                </div>
+
+                <!-- Payment Lines - Mobile optimized table -->
+                <div class="p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))] shadow-sm">
+                    <h3 class="text-base font-semibold mb-3 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[hsl(var(--primary))]" viewBox="0 0 24 24" fill="none">
+                            <path d="M16 3H8C6.89543 3 6 3.89543 6 5V19C6 20.1046 6.89543 21 8 21H16C17.1046 21 18 20.1046 18 19V5C18 3.89543 17.1046 3 16 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 18H12.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Payment Lines
+                    </h3>
+
+                    <!-- IMPORTANT: Include management form only once -->
+                    {{ formset.management_form }}
+
+                    <!-- Mobile display view -->
+                    <div class="md:hidden space-y-3" id="mobileFormsetContainer">
+                        {% for form in formset.forms %}
+                        <div class="mobile-formset-row p-3 border border-[hsl(var(--border))] rounded-lg relative" data-index="{{ forloop.counter0 }}">
+                            <button type="button" class="mobile-context-btn absolute top-2 right-2 w-6 h-6 rounded-full bg-[hsl(var(--muted))] flex items-center justify-center">
+                                <svg class="w-4 h-4 text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 5V5.01M12 12V12.01M12 19V19.01M12 6C11.4477 6 11 5.55228 11 5C11 4.44772 11.4477 4 12 4C12.5523 4 13 4.44772 13 5C13 5.55228 12.5523 6 12 6ZM12 13C11.4477 13 11 12.5523 11 12C11 11.4477 11.4477 11 12 11C12.5523 11 13 11.4477 13 12C13 12.5523 12.5523 13 12 13ZM12 20C11.4477 20 11 19.5523 11 19C11 18.4477 11.4477 18 12 18C12.5523 18 13 18.4477 13 19C13 19.5523 12.5523 20 12 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            
+                            <div class="space-y-2">
+                                <!-- Hidden fields -->
+                                {% if form.id %}
+                                <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
+                                {% endif %}
+                                
+                                <!-- Account and Description -->
+                                <div class="grid grid-cols-1 gap-2">
+                                    <div class="account-input-wrapper relative">
+                                        <label class="text-xs font-medium mb-1 block">Account</label>
+                                        <select name="{{ form.account.html_name }}" 
+                                            class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--background))] account-input" 
+                                            id="{{ form.account.id_for_label }}">
+                                            <option value="">Select Account</option>
+                                            {% for account in accounts %}
+                                            <option value="{{ account.id }}" {% if form.account.value == account.id %}selected{% endif %}>{{ account.code }} - {{ account.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-medium mb-1 block">Description</label>
+                                        <input type="text" name="{{ form.description.html_name }}" value="{{ form.description.value|default:'' }}"
+                                            class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--background))] description-input" 
+                                            id="{{ form.description.id_for_label }}">
+                                    </div>
+                                </div>
+                                
+                                <!-- Amount -->
+                                <div>
+                                    <label class="text-xs font-medium mb-1 block">Amount</label>
+                                    <input type="number" name="{{ form.amount.html_name }}" value="{{ form.amount.value|default:'0.00' }}"
+                                        min="0" step="0.01"
+                                        class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--background))] amount-input" 
+                                        id="{{ form.amount.id_for_label }}">
+                                </div>
+                                
+                                <!-- Delete Button -->
+                                <div class="flex justify-end mt-2">
+                                    <button type="button" class="delete-row mobile-delete-row inline-flex items-center px-2 py-1 text-xs font-medium text-red-600 hover:text-red-700">
+                                        <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                            <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        Delete
+                                    </button>
+                                    {% if form.DELETE %}
+                                    <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" class="delete-checkbox hidden">
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Mobile context menu -->
+                    <div id="mobileContextMenu" class="hidden fixed z-[100] w-40 sm:w-48 bg-[hsl(var(--background))] rounded-md shadow-lg border border-[hsl(var(--border))]">
+                        <div class="py-1">
+                            <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors" id="mobileAddRowAboveBtn">
+                                Add Row Above
+                            </button>
+                            <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors" id="mobileAddRowBelowBtn">
+                                Add Row Below
+                            </button>
+                            <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--destructive))] hover:bg-[hsl(var(--accent))] transition-colors" id="mobileDeleteRowBtn">
+                                Delete Row
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Desktop display view -->
+                    <div class="hidden md:block">
+                        <!-- Formset Table with Horizontal and Vertical Scrolling -->
+                        <div class="overflow-x-auto overflow-y-auto max-h-[250px] sm:max-h-[350px] md:max-h-[400px] rounded-lg border border-[hsl(var(--border))] shadow-inner">
+                            <div class="min-w-full md:min-w-[800px]"> <!-- Responsive minimum width -->
+                                <table class="w-full">
+                                    <thead class="sticky top-0 bg-[hsl(var(--secondary))] z-10">
+                                        <tr>
+                                            <th scope="col" class="py-2 sm:py-3 px-2 sm:px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Account</th>
+                                            <th scope="col" class="py-2 sm:py-3 px-2 sm:px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Description</th>
+                                            <th scope="col" class="py-2 sm:py-3 px-2 sm:px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Amount</th>
+                                            <th scope="col" class="py-2 sm:py-3 px-2 sm:px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="formsetBody" class="formset-container divide-y divide-[hsl(var(--border))]">
+                                        {% for form in formset.forms %}
+                                        <tr class="formset-row group hover:bg-[hsl(var(--accent))] transition-colors duration-150" data-index="{{ forloop.counter0 }}">
+                                            <!-- Hidden fields -->
+                                            {% if form.id %}
+                                            <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
+                                            {% endif %}
+                                            
+                                            <td class="py-1 sm:py-2 px-1 sm:px-3 md:px-4">
+                                                <div class="account-input-wrapper relative">
+                                                    <select name="{{ form.account.html_name }}" 
+                                                        class="w-full px-1 sm:px-2 md:px-3 py-1 text-xs sm:text-sm border border-[hsl(var(--border))] rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))] focus:border-[hsl(var(--border))] account-input" 
+                                                        id="{{ form.account.id_for_label }}">
+                                                        <option value="">Select Account</option>
+                                                        {% for account in accounts %}
+                                                        <option value="{{ account.id }}" {% if form.account.value == account.id %}selected{% endif %}>{{ account.code }} - {{ account.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td class="py-1 sm:py-2 px-1 sm:px-3 md:px-4">
+                                                <input type="text" name="{{ form.description.html_name }}" value="{{ form.description.value|default:'' }}" 
+                                                    class="w-full px-1 sm:px-2 md:px-3 py-1 text-xs sm:text-sm border border-[hsl(var(--border))] rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))] focus:border-[hsl(var(--border))] description-input" 
+                                                    id="{{ form.description.id_for_label }}">
+                                            </td>
+                                            <td class="py-1 sm:py-2 px-1 sm:px-3 md:px-4">
+                                                <input type="number" name="{{ form.amount.html_name }}" value="{{ form.amount.value|default:'0.00' }}" min="0" step="0.01" 
+                                                    class="w-full px-1 sm:px-2 md:px-3 py-1 text-xs sm:text-sm border border-[hsl(var(--border))] rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))] focus:border-[hsl(var(--border))] amount-input" 
+                                                    id="{{ form.amount.id_for_label }}">
+                                            </td>
+                                            <td class="py-1 sm:py-2 px-1 sm:px-3 md:px-4 relative">
+                                                <button type="button" class="delete-row desktop-delete-row opacity-0 group-hover:opacity-100 transition-opacity duration-150 inline-flex items-center justify-center rounded-full w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-[hsl(var(--destructive))] text-[hsl(var(--destructive-foreground))] hover:bg-[hsl(var(--destructive))/90] shadow-md">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-3 h-3 sm:w-4 sm:h-4">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                    </svg>
+                                                </button>
+                                                {% if form.DELETE %}
+                                                <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" class="delete-checkbox hidden">
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Context Menu -->
+                        <div id="contextMenu" class="hidden fixed z-[100] w-40 sm:w-48 bg-[hsl(var(--background))] rounded-md shadow-lg border border-[hsl(var(--border))]">
+                            <div class="py-1">
+                                <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors" id="addRowAboveBtn">
+                                    Add Row Above
+                                </button>
+                                <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors" id="addRowBelowBtn">
+                                    Add Row Below
+                                </button>
+                                <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--destructive))] hover:bg-[hsl(var(--accent))] transition-colors" id="deleteRowBtn">
+                                    Delete Row
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Row Button -->
+                    <button type="button" id="addRowBtn" class="w-full mt-3 px-3 py-2 rounded-lg text-xs font-medium bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Add New Line
+                    </button>
+                </div>
+
+                <!-- Additional Information and Financial Information sections -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Additional Information -->
+                    <div class="p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))] shadow-sm">
+                        <h3 data-collapse-toggle="additional-info-content" data-collapse-default="true" class="text-base font-semibold mb-3 flex items-center justify-between cursor-pointer select-none">
+                            <div class="flex items-center">
+                                <svg class="w-4 h-4 mr-2 text-[hsl(var(--primary))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M11 5H6C4.89543 5 4 5.89543 4 7V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M15 3L21 9M21 3L15 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Additional Information
+                            </div>
+                            <!-- Arrow will be added automatically by collapse.js -->
+                        </h3>
+                        <div id="additional-info-content" class="space-y-4">
+                            <!-- Reference Field -->
+                            <div class="relative">
+                                <input type="text" id="{{ extra_form.reference.id_for_label }}" 
+                                    name="{{ extra_form.reference.html_name }}" 
+                                    value="{{ extra_form.reference.value|default:'' }}"
+                                    class="premium-input peer w-full px-3 py-3 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent" 
+                                    placeholder="{{ extra_form.reference.label|default:'Reference' }}">
+                                <label for="{{ extra_form.reference.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                    {{ extra_form.reference.label|default:"Reference" }}
+                                </label>
+                            </div>
+                            
+                            <!-- Remarks Field -->
+                            <div class="relative">
+                                <textarea id="{{ extra_form.remarks.id_for_label }}" 
+                                    name="{{ extra_form.remarks.html_name }}" 
+                                    rows="4" 
+                                    class="premium-input peer w-full px-3 py-3 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent" 
+                                    placeholder="{{ extra_form.remarks.label|default:'Remarks' }}">{{ extra_form.remarks.value|default:'' }}</textarea>
+                                <label for="{{ extra_form.remarks.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                    {{ extra_form.remarks.label|default:"Remarks" }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Financial Information -->
+                    <div class="p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))] shadow-sm">
+                        <h3 data-collapse-toggle="financial-info-content" data-collapse-default="true" class="text-base font-semibold mb-3 flex items-center justify-between cursor-pointer select-none">
+                            <div class="flex items-center">
+                                <svg class="w-4 h-4 mr-2 text-[hsl(var(--primary))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 1V23M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Financial Information
+                            </div>
+                            <!-- Arrow will be added automatically by collapse.js -->
+                        </h3>
+                        <div id="financial-info-content" class="space-y-2">
+                            <!-- Total Amount -->
+                            <div class="relative rounded-[calc(var(--radius)-2px)] border border-[hsl(var(--border))]">
+                                <div class="flex items-center">
+                                    <label for="{{ extra_form.total_amount.id_for_label }}" 
+                                        class="text-xs font-medium text-[hsl(var(--foreground))] min-w-[110px] px-2 py-1 bg-[hsl(var(--muted))]">
+                                        {{ extra_form.total_amount.label|default:"Total Amount" }}:
+                                    </label>
+                                    <input type="number" id="{{ extra_form.total_amount.id_for_label }}" name="{{ extra_form.total_amount.html_name }}" 
+                                        value="{{ extra_form.total_amount.value|default:'0.00' }}" step="0.01" min="0" readonly
+                                        class="premium-input w-full h-7 px-2 py-0 rounded-r-[calc(var(--radius)-2px)] border-0 border-l border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] text-sm transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                                </div>
+                            </div>
+                            
+                            <div class="border-t border-[hsl(var(--border))] my-2"></div>
+                            
+                            <!-- Is Reconciled -->
+                            <div class="flex items-center space-x-2 py-2">
+                                <input type="checkbox" id="{{ form.is_reconciled.id_for_label }}" name="{{ form.is_reconciled.html_name }}" 
+                                    {% if form.is_reconciled.value %}checked{% endif %}
+                                    class="form-checkbox h-5 w-5 text-[hsl(var(--primary))]">
+                                <label for="{{ form.is_reconciled.id_for_label }}" class="text-sm font-medium text-[hsl(var(--foreground))]">
+                                    {{ form.is_reconciled.label|default:"Is Reconciled" }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Footer -->
+            <div class="border-t pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div class="text-xs text-[hsl(var(--muted-foreground))]">
+                    <span class="flex items-center">
+                        <svg class="w-4 h-4 mr-1 text-green-500" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Your data is secure and encrypted
+                    </span>
+                </div>
+                <div class="flex gap-3 w-full sm:w-auto">
+                    {% if cancel_url %}
+                    <a href="{{ cancel_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                        {% if is_detail_view %}Back{% else %}Cancel{% endif %}
+                    </a>
+                    {% endif %}
+                    
+                    {% if is_detail_view %}
+                        {% if update_url %}
+                        <a href="{{ update_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Edit
+                        </a>
+                        {% endif %}
+                        {% if delete_url %}
+                        <a href="{{ delete_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 h-9 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Delete
+                        </a>
+                        {% endif %}
+                    {% else %}
+                        <button type="reset" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                            Reset
+                        </button>
+                        <button type="submit" id="submitBtn" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 12L10 17L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            {% if submit_text %}{{ submit_text }}{% else %}Submit{% endif %}
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get references to the form elements
+        const mobileContainer = document.getElementById('mobileFormsetContainer');
+        const desktopBody = document.getElementById('formsetBody');
+        const totalForms = document.querySelector('[name$="-TOTAL_FORMS"]');
+        const addRowBtn = document.getElementById('addRowBtn');
+        const contextMenu = document.getElementById('contextMenu');
+        const mobileContextMenu = document.getElementById('mobileContextMenu');
+        
+        let currentRow = null;
+        let currentMobileRow = null;
+        
+        // Add Row button
+        addRowBtn.addEventListener('click', function() {
+            addNewRow();
+        });
+        
+        // Function to add a new row
+        function addNewRow(position = null, referenceIndex = null) {
+            // Get the template from the first row
+            let template;
+            
+            // Try to get template from desktop view first
+            if (desktopBody && desktopBody.querySelector('.formset-row')) {
+                template = desktopBody.querySelector('.formset-row').cloneNode(true);
+            } 
+            // If no desktop template, try mobile view
+            else if (mobileContainer && mobileContainer.querySelector('.mobile-formset-row')) {
+                template = mobileContainer.querySelector('.mobile-formset-row').cloneNode(true);
+            }
+            
+            if (!template) {
+                console.error("Could not find template row");
+                return;
+            }
+            
+            // Get current form count
+            const currentFormCount = parseInt(totalForms.value);
+            const newIndex = currentFormCount;
+            
+            // Update form indices
+            template.querySelectorAll('input, select').forEach(input => {
+                if (input.name) {
+                    input.name = input.name.replace(/-\d+-/, `-${newIndex}-`);
+                }
+                if (input.id) {
+                    input.id = input.id.replace(/-\d+-/, `-${newIndex}-`);
+                }
+                
+                // Clear values except for hidden fields
+                if (input.type !== 'hidden' && !input.classList.contains('delete-checkbox')) {
+                    input.value = '';
+                }
+            });
+            
+            // Reset DELETE checkbox
+            const deleteCheckbox = template.querySelector('.delete-checkbox');
+            if (deleteCheckbox) {
+                deleteCheckbox.checked = false;
+            }
+            
+            // Update data-index attribute
+            template.dataset.index = newIndex;
+            
+            // Insert at the specified position in desktop view
+            if (desktopBody) {
+                if (position === 'above' && referenceIndex !== null) {
+                    const referenceRow = desktopBody.querySelector(`.formset-row[data-index="${referenceIndex}"]`);
+                    if (referenceRow) {
+                        desktopBody.insertBefore(template, referenceRow);
+                    } else {
+                        desktopBody.appendChild(template);
+                    }
+                } else if (position === 'below' && referenceIndex !== null) {
+                    const referenceRow = desktopBody.querySelector(`.formset-row[data-index="${referenceIndex}"]`);
+                    if (referenceRow && referenceRow.nextSibling) {
+                        desktopBody.insertBefore(template, referenceRow.nextSibling);
+                    } else {
+                        desktopBody.appendChild(template);
+                    }
+                } else {
+                    desktopBody.appendChild(template);
+                }
+            }
+            
+            // Also add to mobile view
+            if (mobileContainer) {
+                // Clone the mobile template
+                let mobileTemplate;
+                if (mobileContainer.querySelector('.mobile-formset-row')) {
+                    mobileTemplate = mobileContainer.querySelector('.mobile-formset-row').cloneNode(true);
+                    
+                    // Update form indices
+                    mobileTemplate.querySelectorAll('input, select').forEach(input => {
+                        if (input.name) {
+                            input.name = input.name.replace(/-\d+-/, `-${newIndex}-`);
+                        }
+                        if (input.id) {
+                            input.id = input.id.replace(/-\d+-/, `-${newIndex}-`);
+                        }
+                        
+                        // Clear values except for hidden fields
+                        if (input.type !== 'hidden' && !input.classList.contains('delete-checkbox')) {
+                            input.value = '';
+                        }
+                    });
+                    
+                    // Reset DELETE checkbox
+                    const mobileDeleteCheckbox = mobileTemplate.querySelector('.delete-checkbox');
+                    if (mobileDeleteCheckbox) {
+                        mobileDeleteCheckbox.checked = false;
+                    }
+                    
+                    // Update data-index attribute
+                    mobileTemplate.dataset.index = newIndex;
+                    
+                    // Insert at the specified position in mobile view
+                    if (position === 'above' && referenceIndex !== null) {
+                        const referenceRow = mobileContainer.querySelector(`.mobile-formset-row[data-index="${referenceIndex}"]`);
+                        if (referenceRow) {
+                            mobileContainer.insertBefore(mobileTemplate, referenceRow);
+                        } else {
+                            mobileContainer.appendChild(mobileTemplate);
+                        }
+                    } else if (position === 'below' && referenceIndex !== null) {
+                        const referenceRow = mobileContainer.querySelector(`.mobile-formset-row[data-index="${referenceIndex}"]`);
+                        if (referenceRow && referenceRow.nextSibling) {
+                            mobileContainer.insertBefore(mobileTemplate, referenceRow.nextSibling);
+                        } else {
+                            mobileContainer.appendChild(mobileTemplate);
+                        }
+                    } else {
+                        mobileContainer.appendChild(mobileTemplate);
+                    }
+                }
+            }
+            
+            // Update the form count
+            totalForms.value = currentFormCount + 1;
+            
+            // Initialize the new row with event handlers
+            setupRowEventHandlers();
+            
+            // Trigger financial calculations
+            calculateTotals();
+        }
+        
+        // Setup event handlers for rows
+        function setupRowEventHandlers() {
+            // Setup delete buttons
+            document.querySelectorAll('.delete-row').forEach(button => {
+                button.addEventListener('click', function() {
+                    const row = this.closest('.formset-row, .mobile-formset-row');
+                    if (row) {
+                        const index = row.dataset.index;
+                        const deleteCheckbox = row.querySelector('.delete-checkbox');
+                        if (deleteCheckbox) {
+                            deleteCheckbox.checked = true;
+                            row.style.display = 'none';
+                            
+                            // Also hide the corresponding row in the other view
+                            if (row.classList.contains('formset-row') && mobileContainer) {
+                                const mobileRow = mobileContainer.querySelector(`.mobile-formset-row[data-index="${index}"]`);
+                                if (mobileRow) {
+                                    mobileRow.style.display = 'none';
+                                }
+                            } else if (row.classList.contains('mobile-formset-row') && desktopBody) {
+                                const desktopRow = desktopBody.querySelector(`.formset-row[data-index="${index}"]`);
+                                if (desktopRow) {
+                                    desktopRow.style.display = 'none';
+                                }
+                            }
+                            
+                            // Trigger financial calculations
+                            calculateTotals();
+                        }
+                    }
+                });
+            });
+            
+            // Setup context menu for desktop rows
+            if (desktopBody) {
+                desktopBody.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    const row = e.target.closest('.formset-row');
+                    if (row) {
+                        currentRow = row;
+                        
+                        // Position and show context menu
+                        contextMenu.style.left = `${e.pageX}px`;
+                        contextMenu.style.top = `${e.pageY}px`;
+                        contextMenu.style.display = 'block';
+                    }
+                });
+            }
+            
+            // Setup context menu buttons for mobile rows
+            document.querySelectorAll('.mobile-context-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const mobileRow = this.closest('.mobile-formset-row');
+                    if (mobileRow) {
+                        currentMobileRow = mobileRow;
+                        
+                        // Position and show mobile context menu
+                        const rect = this.getBoundingClientRect();
+                        mobileContextMenu.style.left = `${rect.left}px`;
+                        mobileContextMenu.style.top = `${rect.bottom + window.scrollY + 5}px`;
+                        mobileContextMenu.style.display = 'block';
+                    }
+                });
+            });
+            
+            // Setup amount input handlers
+            document.querySelectorAll('.amount-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    calculateTotals();
+                });
+            });
+        }
+        
+        // Calculate totals
+        function calculateTotals() {
+            let totalAmount = 0;
+            
+            // Get all visible rows
+            const rows = document.querySelectorAll('.formset-row:not([style*="display: none"])');
+            
+            rows.forEach(row => {
+                const amountInput = row.querySelector('.amount-input');
+                
+                if (amountInput) {
+                    const amount = parseFloat(amountInput.value) || 0;
+                    totalAmount += amount;
+                }
+            });
+            
+            // Update total field
+            const totalAmountField = document.getElementById('{{ extra_form.total_amount.id_for_label }}');
+            
+            if (totalAmountField) {
+                totalAmountField.value = totalAmount.toFixed(2);
+            }
+        }
+        
+        // Desktop context menu actions
+        document.getElementById('addRowAboveBtn').addEventListener('click', function() {
+            if (currentRow) {
+                const index = currentRow.dataset.index;
+                addNewRow('above', index);
+                contextMenu.style.display = 'none';
+            }
+        });
+        
+        document.getElementById('addRowBelowBtn').addEventListener('click', function() {
+            if (currentRow) {
+                const index = currentRow.dataset.index;
+                addNewRow('below', index);
+                contextMenu.style.display = 'none';
+            }
+        });
+        
+        document.getElementById('deleteRowBtn').addEventListener('click', function() {
+            if (currentRow) {
+                const deleteButton = currentRow.querySelector('.delete-row');
+                if (deleteButton) {
+                    deleteButton.click();
+                }
+                contextMenu.style.display = 'none';
+            }
+        });
+        
+        // Mobile context menu actions
+        document.getElementById('mobileAddRowAboveBtn').addEventListener('click', function() {
+            if (currentMobileRow) {
+                const index = currentMobileRow.dataset.index;
+                addNewRow('above', index);
+                mobileContextMenu.style.display = 'none';
+            }
+        });
+        
+        document.getElementById('mobileAddRowBelowBtn').addEventListener('click', function() {
+            if (currentMobileRow) {
+                const index = currentMobileRow.dataset.index;
+                addNewRow('below', index);
+                mobileContextMenu.style.display = 'none';
+            }
+        });
+        
+        document.getElementById('mobileDeleteRowBtn').addEventListener('click', function() {
+            if (currentMobileRow) {
+                const deleteButton = currentMobileRow.querySelector('.delete-row');
+                if (deleteButton) {
+                    deleteButton.click();
+                }
+                mobileContextMenu.style.display = 'none';
+            }
+        });
+        
+        // Hide context menus on click outside
+        document.addEventListener('click', function(e) {
+            if (!contextMenu.contains(e.target)) {
+                contextMenu.style.display = 'none';
+            }
+            if (!mobileContextMenu.contains(e.target)) {
+                mobileContextMenu.style.display = 'none';
+            }
+        });
+        
+        // Hide context menus on scroll
+        document.addEventListener('scroll', function() {
+            contextMenu.style.display = 'none';
+            mobileContextMenu.style.display = 'none';
+        });
+        
+        // Form submission validation
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            // Add any validation logic here if needed
+        });
+        
+        // Initialize existing rows
+        setupRowEventHandlers();
+        
+        // Calculate initial totals
+        calculateTotals();
+    });
+</script>
+<script src="{% static 'js/formset-cleanup.js' %}"></script>
+<script src="{% static 'js/collapse.js' %}"></script>
+<script src="{% static 'js/select-search.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        makeSelectSearchable('account');
+    });
+</script>
+{% endblock %}

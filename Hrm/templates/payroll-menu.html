@@ -1,0 +1,264 @@
+            {% if show_payroll_menu %}
+            <div class="relative">
+                <button data-dropdown-toggle="payrollMenu" class="relative w-full flex items-center px-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:salary' in request.path or 'hrm:bonus' in request.path or 'hrm:advance' in request.path or 'hrm:promotion' in request.path or 'hrm:increment' in request.path or 'hrm:deduction' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                    <!-- Active indicator line with animation -->
+                    <div class="absolute left-[-4px] top-0 bottom-0 w-[3px] bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.7)] rounded-r-full {% if 'hrm:salary' in request.path or 'hrm:bonus' in request.path or 'hrm:advance' in request.path or 'hrm:promotion' in request.path or 'hrm:increment' in request.path or 'hrm:deduction' in request.path %}opacity-100{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-all duration-300 shadow-[0_0_8px_rgba(var(--primary),0.5)]"></div>
+                    
+                    <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-md group-hover:shadow-[0_0_12px_rgba(var(--primary),0.4)] transition-all duration-300 group-hover:scale-105">
+                        <!-- Payroll Module icon -->
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9.5 13.75C9.5 14.72 10.25 15.5 11.17 15.5H13.05C13.85 15.5 14.5 14.82 14.5 13.97C14.5 13.06 14.1 12.73 13.51 12.52L10.5 11.47C9.91 11.26 9.51001 10.94 9.51001 10.02C9.51001 9.18 10.16 8.49001 10.96 8.49001H12.84C13.76 8.49001 14.51 9.27001 14.51 10.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 7.5V16.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <span class="sidebar-text font-medium group-hover:translate-x-0.5 transition-transform">Payroll</span>
+                    <svg class="w-4 h-4 ml-auto transition-transform duration-200" id="payrollArrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                
+                <!-- Payroll Submenu -->
+                <div id="payrollMenu" class="{% if 'hrm:salary' in request.path or 'hrm:bonus' in request.path or 'hrm:advance' in request.path or 'hrm:promotion' in request.path or 'hrm:increment' in request.path or 'hrm:deduction' in request.path %}block animate-fade-in{% else %}hidden{% endif %} mt-2 space-y-1 ml-11 relative">
+                    <!-- Premium submenu vertical line indicator with gradient and glow -->
+                    <div class="absolute left-[-14px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-[hsl(var(--primary))] via-[hsl(var(--primary)/0.6)] to-[hsl(var(--primary)/0.2)] rounded-full shadow-[0_0_8px_rgba(var(--primary),0.3)]"></div>
+                    
+                    <!-- Salary Management -->
+                    <div class="space-y-1">
+                        <span class="px-4 py-2 text-xs font-bold rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-badge">Salary Management</span>
+                        
+                        <!-- Salary Components -->
+                        <a href="{% url 'hrm:salary_component_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:salary_component_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:salary_component_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:salary_component_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 15V18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M10.07 2.82L3.14 8.37C2.36 8.99 1.86 10.3 2.03 11.28L3.36 19.24C3.6 20.66 4.96 21.81 6.4 21.81H17.6C19.03 21.81 20.4 20.65 20.64 19.24L21.97 11.28C22.13 10.3 21.63 8.99 20.86 8.37L13.93 2.83C12.86 1.97 11.13 1.97 10.07 2.82Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Salary Components</span>
+                            </div>
+                        </a>
+            
+                        <!-- Employee Salary Structure -->
+                        <a href="{% url 'hrm:employee_salary_structure_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:employee_salary_structure_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:employee_salary_structure_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:employee_salary_structure_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M22 6V8.42C22 10 21 11 19.42 11H16V4.01C16 2.9 16.91 2 18.02 2C19.11 2.01 20.11 2.45 20.83 3.17C21.55 3.9 22 4.9 22 6Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M2 7V21C2 21.83 2.94 22.3 3.6 21.8L5.31 20.52C5.71 20.22 6.27 20.26 6.63 20.62L8.29 22.29C8.68 22.68 9.32 22.68 9.71 22.29L11.39 20.61C11.74 20.26 12.3 20.22 12.69 20.52L14.4 21.8C15.06 22.29 16 21.82 16 21V4C16 2.9 16.9 2 18 2H7H6C3 2 2 3.79 2 6V7Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M9 13.01H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M6 13.01H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M9 9.01001H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M6 9.01001H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M9 17.01H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M6 17.01H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Salary Structure</span>
+                            </div>
+                        </a>
+            
+                        <!-- Salary Month -->
+                        <a href="{% url 'hrm:salary_month_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:salary_month_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:salary_month_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:salary_month_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3.5 9.09H20.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M9.5 15H14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Salary Month</span>
+                            </div>
+                        </a>
+            
+                        <!-- Employee Salary -->
+                        <a href="{% url 'hrm:employee_salary_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:employee_salary_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:employee_salary_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:employee_salary_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9.5 13.75C9.5 14.72 10.25 15.5 11.17 15.5H13.05C13.85 15.5 14.5 14.82 14.5 13.97C14.5 13.06 14.1 12.73 13.51 12.52L10.5 11.47C9.91 11.26 9.51001 10.94 9.51001 10.02C9.51001 9.18 10.16 8.49001 10.96 8.49001H12.84C13.76 8.49001 14.51 9.27001 14.51 10.24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 7.5V16.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Employee Salary</span>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <!-- Bonus Management -->
+                    <div class="space-y-1 mt-4">
+                        <span class="px-4 py-2 text-xs font-bold rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-badge">Bonus Management</span>
+                        
+                        <!-- Bonus Setup -->
+                        <a href="{% url 'hrm:bonus_setup_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:bonus_setup_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:bonus_setup_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:bonus_setup_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9.5 13.75C9.5 14.72 10.25 15.5 11.17 15.5H13.05C13.85 15.5 14.5 14.82 14.5 13.97C14.5 13.06 14.1 12.73 13.51 12.52L10.5 11.47C9.91 11.26 9.51001 10.94 9.51001 10.02C9.51001 9.18 10.16 8.49001 10.96 8.49001H12.84C13.76 8.49001 14.51 9.27001 14.51 10.24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 7.5V16.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2C17.52 2 22 6.48 22 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Bonus Setup</span>
+                            </div>
+                        </a>
+            
+                        <!-- Bonus Month -->
+                        <a href="{% url 'hrm:bonus_month_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:bonus_month_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:bonus_month_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:bonus_month_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3.5 9.09H20.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M11.995 13.7H12.005" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M8.294 13.7H8.304" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M8.294 16.7H8.304" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Bonus Month</span>
+                            </div>
+                        </a>
+            
+                        <!-- Employee Bonus -->
+                        <a href="{% url 'hrm:employee_bonus_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:employee_bonus_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:employee_bonus_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:employee_bonus_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 14.5C14.21 14.5 16 12.71 16 10.5C16 8.29 14.21 6.5 12 6.5C9.79 6.5 8 8.29 8 10.5C8 12.71 9.79 14.5 12 14.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M18.5 19.5C18.5 21.5 15.5 22 12 22C8.5 22 5.5 21.5 5.5 19.5C5.5 17.5 8.5 17 12 17C15.5 17 18.5 17.5 18.5 19.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M20 6H18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M20 10H18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M20 14H18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M6 6H4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M6 10H4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M6 14H4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Employee Bonus</span>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <!-- Career Management -->
+                    <div class="space-y-1 mt-4">
+                        <span class="px-4 py-2 text-xs font-bold rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-badge">Career Management</span>
+                        
+                        <!-- Promotion -->
+                        <a href="{% url 'hrm:promotion_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:promotion_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:promotion_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:promotion_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 22V18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 6V2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M8 8L5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 8L19 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Promotion</span>
+                            </div>
+                        </a>
+            
+                        <!-- Increment -->
+                        <a href="{% url 'hrm:increment_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:increment_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:increment_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:increment_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 8V16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 12H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Increment</span>
+                            </div>
+                        </a>
+            
+                        <!-- Deduction -->
+                        <a href="{% url 'hrm:deduction_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:deduction_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:deduction_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:deduction_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16 12H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Deduction</span>
+                            </div>
+                        </a>
+                    </div>
+            
+                    <!-- Advance Management -->
+                    <div class="space-y-1 mt-4">
+                        <span class="px-4 py-2 text-xs font-bold rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-badge">Advance Management</span>
+                        
+                        <!-- Advance Setup -->
+                        <a href="{% url 'hrm:advance_setup_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:advance_setup_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:advance_setup_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:advance_setup_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9.5 13.75C9.5 14.72 10.25 15.5 11.17 15.5H13.05C13.85 15.5 14.5 14.82 14.5 13.97C14.5 13.06 14.1 12.73 13.51 12.52L10.5 11.47C9.91 11.26 9.51001 10.94 9.51001 10.02C9.51001 9.18 10.16 8.49001 10.96 8.49001H12.84C13.76 8.49001 14.51 9.27001 14.51 10.24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 7.5V16.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2C17.52 2 22 6.48 22 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Advance Setup</span>
+                            </div>
+                        </a>
+            
+                        <!-- Employee Advance -->
+                        <a href="{% url 'hrm:employee_advance_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:employee_advance_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:employee_advance_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:employee_advance_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 14.5C14.21 14.5 16 12.71 16 10.5C16 8.29 14.21 6.5 12 6.5C9.79 6.5 8 8.29 8 10.5C8 12.71 9.79 14.5 12 14.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M18.5 19.5C18.5 21.5 15.5 22 12 22C8.5 22 5.5 21.5 5.5 19.5C5.5 17.5 8.5 17 12 17C15.5 17 18.5 17.5 18.5 19.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M20 6H18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M20 10H18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M20 14H18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M6 6H4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M6 10H4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M6 14H4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Employee Advance</span>
+                            </div>
+                        </a>
+            
+                        <!-- Advance Installment -->
+                        <a href="{% url 'hrm:advance_installment_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:advance_installment_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:advance_installment_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:advance_installment_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9.5 13.75C9.5 14.72 10.25 15.5 11.17 15.5H13.05C13.85 15.5 14.5 14.82 14.5 13.97C14.5 13.06 14.1 12.73 13.51 12.52L10.5 11.47C9.91 11.26 9.51001 10.94 9.51001 10.02C9.51001 9.18 10.16 8.49001 10.96 8.49001H12.84C13.76 8.49001 14.51 9.27001 14.51 10.24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 7.5V16.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M8 18L16 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2C17.52 2 22 6.48 22 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Advance Installment</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}

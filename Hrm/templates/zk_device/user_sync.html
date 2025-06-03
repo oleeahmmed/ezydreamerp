@@ -1,0 +1,165 @@
+{% extends "common/base-list-modern.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block list_icon %}
+<svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+</svg>
+{% endblock %}
+
+{% block list_title %}{{ title }}{% endblock %}
+{% block list_subtitle %}{{ subtitle }}{% endblock %}
+
+{% block list_actions %}
+<a href="{% url 'hrm:zk_user_simple_list' %}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-sm font-medium bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:opacity-90 h-10 px-4 py-2 shadow-md">
+    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+    </svg>
+    View Users
+</a>
+{% endblock %}
+
+{% block search_filter %}
+<div class="mb-6">
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium mb-2">Select Devices</label>
+                {{ form.devices }}
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="w-full inline-flex items-center justify-center rounded-lg text-sm font-medium bg-gradient-to-r from-green-500 to-green-600 text-white hover:opacity-90 h-10 px-4 py-2 shadow-md">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    Sync Users
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block table_headers %}
+<th class="px-3 sm:px-6 py-3">
+    <input type="checkbox" id="select-all" class="rounded">
+</th>
+<th class="px-3 sm:px-6 py-3">User ID</th>
+<th class="px-3 sm:px-6 py-3">Name</th>
+<th class="px-3 sm:px-6 py-3">Card Number</th>
+<th class="px-3 sm:px-6 py-3">Device</th>
+<th class="px-3 sm:px-6 py-3">Status</th>
+{% endblock %}
+
+{% block table_body %}
+{% if sync_performed and users_data %}
+    {% for user in users_data %}
+    <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]">
+        <td class="px-3 sm:px-6 py-4">
+            <input type="checkbox" class="user-checkbox rounded" value="{{ user.user_id }}" data-device="{{ user.device.id }}" data-name="{{ user.name }}" data-card-no="{{ user.card_no }}">
+        </td>
+        <td class="px-3 sm:px-6 py-4 font-medium">{{ user.user_id }}</td>
+        <td class="px-3 sm:px-6 py-4">{{ user.name }}</td>
+        <td class="px-3 sm:px-6 py-4">{{ user.card_no|default:"N/A" }}</td>
+        <td class="px-3 sm:px-6 py-4">
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                {{ user.device.name }}
+            </span>
+        </td>
+        <td class="px-3 sm:px-6 py-4">
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                New
+            </span>
+        </td>
+    </tr>
+    {% endfor %}
+    
+    <tr class="bg-green-50">
+        <td colspan="6" class="px-3 sm:px-6 py-4 text-center">
+            <button id="save-selected" class="inline-flex items-center justify-center rounded-lg text-sm font-medium bg-gradient-to-r from-green-500 to-green-600 text-white hover:opacity-90 h-10 px-6 py-2 shadow-md" disabled>
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+                </svg>
+                Save Selected Users
+            </button>
+        </td>
+    </tr>
+{% else %}
+    <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+        <td colspan="6" class="px-3 sm:px-6 py-4 text-center text-[hsl(var(--muted-foreground))]">
+            Select devices above and click "Sync Users" to load user data.
+        </td>
+    </tr>
+{% endif %}
+{% endblock %}
+
+{% block empty_colspan %}6{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('select-all');
+    const userCheckboxes = document.querySelectorAll('.user-checkbox');
+    const saveButton = document.getElementById('save-selected');
+    
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            userCheckboxes.forEach(cb => cb.checked = this.checked);
+            updateSaveButton();
+        });
+    }
+    
+    userCheckboxes.forEach(cb => {
+        cb.addEventListener('change', updateSaveButton);
+    });
+    
+    function updateSaveButton() {
+        const checked = document.querySelectorAll('.user-checkbox:checked').length;
+        if (saveButton) {
+            saveButton.disabled = checked === 0;
+            saveButton.textContent = checked > 0 ? `Save Selected Users (${checked})` : 'Save Selected Users';
+        }
+    }
+    
+    if (saveButton) {
+        saveButton.addEventListener('click', function() {
+            const selectedUsers = Array.from(document.querySelectorAll('.user-checkbox:checked'))
+                .map(cb => ({
+                    user_id: cb.value,
+                    name: cb.dataset.name,
+                    card_no: cb.dataset.cardNo
+                }));
+            
+            if (selectedUsers.length === 0) {
+                alert('Please select users to save');
+                return;
+            }
+            
+            if (!confirm(`Save ${selectedUsers.length} users to Employee table?`)) {
+                return;
+            }
+            
+            fetch('{% url "hrm:zk_user_save" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({users: selectedUsers})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

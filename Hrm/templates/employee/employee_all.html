@@ -1,0 +1,711 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "All Employees" %}{% endblock %}
+{% block page_title %}{% trans "All Employees" %}{% endblock %}
+
+{% block custom_css %}
+<style>
+    /* ShadCN-like Table UI */
+    .table-container {
+        background: white;
+        border-radius: 0.5rem;
+        border: 1px solid hsl(var(--border));
+        max-height: 500px;
+        overflow-y: auto;
+        margin-top: 1.5rem;
+    }
+    .table-wrapper {
+        overflow-x: auto;
+        width: 100%;
+    }
+    .table {
+        width: 100%;
+        min-width: 1200px;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+        color: hsl(var(--foreground));
+    }
+    .table th {
+        background: hsl(var(--muted)/0.5);
+        color: hsl(var(--muted-foreground));
+        text-align: left;
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid hsl(var(--border));
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        white-space: nowrap;
+    }
+    .table th:hover {
+        background: hsl(var(--muted));
+        cursor: pointer;
+    }
+    .table th .sort-icon {
+        display: inline-block;
+        margin-left: 0.5rem;
+        opacity: 0.5;
+        transition: transform 0.2s ease;
+    }
+    .table th.asc .sort-icon { transform: rotate(180deg); opacity: 1; }
+    .table th.desc .sort-icon { opacity: 1; }
+    .table td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid hsl(var(--border)/0.5);
+        vertical-align: middle;
+    }
+    .table tr:last-child td {
+        border-bottom: none;
+    }
+    .table tr:hover td {
+        background: hsl(var(--muted)/0.3);
+    }
+    .table .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        line-height: 1;
+    }
+    .status-active { background: hsl(160, 84%, 39%, 0.1); color: hsl(160, 84%, 39%); }
+    .status-inactive { background: hsl(0, 84%, 60%, 0.1); color: hsl(0, 84%, 60%); }
+    .leave-balance {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.375rem;
+        font-size: 0.75rem;
+        background: hsl(var(--muted)/0.5);
+        margin-right: 0.5rem;
+        line-height: 1;
+    }
+
+    /* Filter Section */
+    .filter-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        background: hsl(var(--background));
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        border: 1px solid hsl(var(--border));
+        margin-bottom: 1.5rem;
+    }
+    .filter-section label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 0.25rem;
+    }
+    .filter-section input,
+    .filter-section select {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.375rem;
+        border: 1px solid hsl(var(--border));
+        background: hsl(var(--background));
+        color: hsl(var(--foreground));
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+    }
+    .filter-section input:focus,
+    .filter-section select:focus {
+        outline: none;
+        border-color: hsl(var(--primary));
+        box-shadow: 0 0 0 3px hsl(var(--primary)/0.1);
+    }
+
+    /* Action Buttons */
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        border: 1px solid hsl(var(--border));
+        transition: all 0.2s ease;
+    }
+    .action-btn:hover {
+        background: hsl(var(--muted));
+        border-color: hsl(var(--primary));
+    }
+    .action-btn.delete:hover {
+        background: hsl(0, 84%, 60%, 0.1);
+        border-color: hsl(0, 84%, 60%);
+    }
+
+    /* Loading Effect */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        transition: opacity 0.3s ease;
+    }
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid hsl(var(--primary)/0.2);
+        border-top: 4px solid hsl(var(--primary));
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .hidden { opacity: 0; visibility: hidden; }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: hsl(var(--muted-foreground));
+        background: hsl(var(--background));
+        border-radius: 0.5rem;
+        border: 1px solid hsl(var(--border));
+    }
+
+    /* Column Show/Hide Dropdown */
+    .dropdown-container {
+        position: relative;
+        display: inline-block;
+    }
+    .dropdown-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        border: 1px solid hsl(var(--border));
+        background: hsl(var(--background));
+        color: hsl(var(--foreground));
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .dropdown-btn:hover {
+        background: hsl(var(--muted));
+        border-color: hsl(var(--primary));
+    }
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border-radius: 0.375rem;
+        border: 1px solid hsl(var(--border));
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 0.5rem 0;
+        min-width: 200px;
+        z-index: 10;
+        display: none;
+    }
+    .dropdown-menu.show {
+        display: block;
+    }
+    .dropdown-menu label {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        color: hsl(var(--foreground));
+        cursor: pointer;
+    }
+    .dropdown-menu label:hover {
+        background: hsl(var(--muted));
+    }
+    .dropdown-menu input[type="checkbox"] {
+        margin-right: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4">
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-[hsl(var(--foreground))]">{% trans "All Employees" %}</h1>
+            <p class="text-sm text-[hsl(var(--muted-foreground))] mt-1">{% trans "Detailed view of all employee records" %}</p>
+        </div>
+        <div class="flex flex-wrap gap-3 mt-4 sm:mt-0">
+            {% if can_export %}
+            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:bg-[hsl(var(--secondary)/0.8)] h-10 px-4 py-2" data-format="csv" id="export-csv">
+                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                {% trans "Export CSV" %}
+            </button>
+            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:bg-[hsl(var(--secondary)/0.8)] h-10 px-4 py-2" data-format="pdf" id="export-pdf">
+                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 17H11M6 13H14M6 9H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 21H22M17 21V3H7V21H2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                {% trans "Export PDF" %}
+            </button>
+            {% endif %}
+            {% if can_create %}
+            <a href="{% url 'hrm:employee_create' %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:bg-[hsl(var(--primary)/0.8)] h-10 px-4 py-2">
+                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                {% trans "Add New" %}
+            </a>
+            {% endif %}
+            {% if can_bulk_delete %}
+            <button id="bulk-delete-button" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-red-50 text-red-700 hover:bg-red-100 h-10 px-4 py-2">
+                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                {% trans "Bulk Delete" %}
+            </button>
+            {% endif %}
+            <!-- Column Show/Hide Button -->
+            <div class="dropdown-container">
+                <button id="column-toggle-btn" class="dropdown-btn">
+                    <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 6H21M3 12H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    {% trans "Columns" %}
+                </button>
+                <div id="column-toggle-menu" class="dropdown-menu">
+                    <label><input type="checkbox" data-column="0" checked> {% trans "Select" %}</label>
+                    <label><input type="checkbox" data-column="1" checked> {% trans "Employee ID" %}</label>
+                    <label><input type="checkbox" data-column="2" checked> {% trans "Name" %}</label>
+                    <label><input type="checkbox" data-column="3" checked> {% trans "Email" %}</label>
+                    <label><input type="checkbox" data-column="4" checked> {% trans "Department" %}</label>
+                    <label><input type="checkbox" data-column="5" checked> {% trans "Designation" %}</label>
+                    <label><input type="checkbox" data-column="6" checked> {% trans "Joining Date" %}</label>
+                    <label><input type="checkbox" data-column="7" checked> {% trans "Status" %}</label>
+                    <label><input type="checkbox" data-column="8" checked> {% trans "Leave Balances" %}</label>
+                    <label><input type="checkbox" data-column="9" checked> {% trans "Actions" %}</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="flex-grow min-w-[200px]">
+            <label for="search">{% trans "Search" %}</label>
+            <input type="text" id="search" placeholder="{% trans 'Search by ID, Name, Email...' %}" class="w-full">
+        </div>
+        <div class="flex-grow min-w-[200px]">
+            <label for="department">{% trans "Department" %}</label>
+            <select id="department" class="w-full">
+                <option value="">{% trans "All Departments" %}</option>
+                {% for dept in filter_form.department.field.queryset %}
+                <option value="{{ dept.name }}">{{ dept.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex-grow min-w-[200px]">
+            <label for="designation">{% trans "Designation" %}</label>
+            <select id="designation" class="w-full">
+                <option value="">{% trans "All Designations" %}</option>
+                {% for desig in filter_form.designation.field.queryset %}
+                <option value="{{ desig.name }}">{{ desig.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex-grow min-w-[200px]">
+            <label for="is_active">{% trans "Status" %}</label>
+            <select id="is_active" class="w-full">
+                <option value="">{% trans "All Status" %}</option>
+                <option value="true">{% trans "Active" %}</option>
+                <option value="false">{% trans "Inactive" %}</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="table-container">
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th data-column="0">
+                            <input type="checkbox" id="select-all" class="rounded border-[hsl(var(--input))] text-[hsl(var(--primary))] focus:ring-[hsl(var(--primary))] h-4 w-4">
+                        </th>
+                        <th data-column="1" data-sort="employee_id">{% trans "Employee ID" %}<span class="sort-icon">▼</span></th>
+                        <th data-column="2" data-sort="first_name">{% trans "Name" %}<span class="sort-icon">▼</span></th>
+                        <th data-column="3" data-sort="email">{% trans "Email" %}<span class="sort-icon">▼</span></th>
+                        <th data-column="4" data-sort="department__name">{% trans "Department" %}<span class="sort-icon">▼</span></th>
+                        <th data-column="5" data-sort="designation__name">{% trans "Designation" %}<span class="sort-icon">▼</span></th>
+                        <th data-column="6" data-sort="joining_date">{% trans "Joining Date" %}<span class="sort-icon">▼</span></th>
+                        <th data-column="7" data-sort="is_active">{% trans "Status" %}<span class="sort-icon">▼</span></th>
+                        <th data-column="8">{% trans "Leave Balances" %}</th>
+                        <th data-column="9" class="text-right">{% trans "Actions" %}</th>
+                    </tr>
+                </thead>
+                <tbody id="employee-table-body">
+                    {% for object in objects %}
+                    <tr class="employee-row" 
+                        data-employee-id="{{ object.employee_id|lower }}" 
+                        data-first-name="{{ object.first_name|lower }} {{ object.last_name|lower }}" 
+                        data-email="{{ object.email|lower|default:'--' }}" 
+                        data-department="{{ object.department.name|lower }}" 
+                        data-designation="{{ object.designation.name|lower }}" 
+                        data-joining-date="{{ object.joining_date|date:'Y-m-d' }}" 
+                        data-is-active="{{ object.is_active|yesno:'true,false' }}">
+                        <td data-column="0">
+                            <input type="checkbox" name="ids" value="{{ object.id }}" class="item-checkbox rounded border-[hsl(var(--input))] text-[hsl(var(--primary))] focus:ring-[hsl(var(--primary))] h-4 w-4">
+                        </td>
+                        <td data-column="1">{{ object.employee_id }}</td>
+                        <td data-column="2">{{ object.first_name }} {{ object.last_name }}</td>
+                        <td data-column="3">{{ object.email|default:"--" }}</td>
+                        <td data-column="4">{{ object.department.name }}</td>
+                        <td data-column="5">{{ object.designation.name }}</td>
+                        <td data-column="6">{{ object.joining_date|date:"M d, Y" }}</td>
+                        <td data-column="7">
+                            <span class="status-badge {% if object.is_active %}status-active{% else %}status-inactive{% endif %}">
+                                {% if object.is_active %}{% trans "Active" %}{% else %}{% trans "Inactive" %}{% endif %}
+                            </span>
+                        </td>
+                        <td data-column="8">
+                            <div class="flex flex-wrap gap-2">
+                                {% for balance in object.leave_balances.all %}
+                                <span class="leave-balance">
+                                    {{ balance.leave_type.name }}: {{ balance.available_days }}
+                                </span>
+                                {% empty %}
+                                <span class="text-[hsl(var(--muted-foreground))]">{% trans "No leave balances" %}</span>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td data-column="9" class="text-right">
+                            <div class="flex justify-end gap-2">
+                                {% if can_view %}
+                                <a href="{% url 'hrm:employee_detail' object.pk %}" class="action-btn">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M2 12C2 12 5.63636 5 12 5C18.3636 5 22 12 22 12C22 12 18.3636 19 12 19C5.63636 19 2 12 2 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </a>
+                                {% endif %}
+                                {% if can_update %}
+                                <a href="{% url 'hrm:employee_update' object.pk %}" class="action-btn">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </a>
+                                {% endif %}
+                                {% if can_delete %}
+                                <a href="{% url 'hrm:employee_delete' object.pk %}" class="action-btn delete">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10" class="empty-state">
+                            {% trans "No employees found." %} {% if can_create %}<a href="{% url 'hrm:employee_create' %}" class="text-[hsl(var(--primary))] hover:underline">{% trans "Add one now" %}</a>.{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const selectAllCheckbox = document.getElementById('select-all');
+    const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+    const bulkDeleteButton = document.getElementById('bulk-delete-button');
+    const exportCsvButton = document.getElementById('export-csv');
+    const exportPdfButton = document.getElementById('export-pdf');
+    const searchInput = document.getElementById('search');
+    const departmentSelect = document.getElementById('department');
+    const designationSelect = document.getElementById('designation');
+    const statusSelect = document.getElementById('is_active');
+    const tableBody = document.getElementById('employee-table-body');
+    const rows = Array.from(document.querySelectorAll('.employee-row'));
+    const columnToggleBtn = document.getElementById('column-toggle-btn');
+    const columnToggleMenu = document.getElementById('column-toggle-menu');
+    const columnCheckboxes = columnToggleMenu.querySelectorAll('input[type="checkbox"]');
+
+    // Show loading effect on initial load
+    setTimeout(() => {
+        loadingOverlay.classList.add('hidden');
+    }, 500);
+
+    // Handle "Select All" checkbox
+    selectAllCheckbox.addEventListener('change', function() {
+        itemCheckboxes.forEach(checkbox => {
+            if (checkbox.closest('tr').style.display !== 'none') {
+                checkbox.checked = selectAllCheckbox.checked;
+            }
+        });
+    });
+
+    // Handle bulk delete button click
+    bulkDeleteButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        const checkedBoxes = Array.from(document.querySelectorAll('.item-checkbox:checked'));
+        if (checkedBoxes.length === 0) {
+            alert('{% trans "Please select at least one employee to delete." %}');
+            return;
+        }
+        if (confirm('{% trans "Are you sure you want to delete the selected employees?" %}')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{% url "hrm:employee_bulk_delete" %}';
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = 'csrfmiddlewaretoken';
+            csrfToken.value = '{{ csrf_token }}';
+            form.appendChild(csrfToken);
+            checkedBoxes.forEach(checkbox => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ids';
+                input.value = checkbox.value;
+                form.appendChild(input);
+            });
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+
+    // Client-side filtering
+    function applyFilters() {
+        loadingOverlay.classList.remove('hidden');
+        setTimeout(() => {
+            const search = searchInput.value.toLowerCase();
+            const department = departmentSelect.value.toLowerCase();
+            const designation = designationSelect.value.toLowerCase();
+            const status = statusSelect.value.toLowerCase();
+
+            rows.forEach(row => {
+                const rowData = {
+                    employeeId: row.dataset.employeeId,
+                    name: row.dataset.firstName,
+                    email: row.dataset.email,
+                    department: row.dataset.department,
+                    designation: row.dataset.designation,
+                    status: row.dataset.isActive
+                };
+
+                const matchesSearch = !search || 
+                    rowData.employeeId.includes(search) || 
+                    rowData.name.includes(search) || 
+                    rowData.email.includes(search);
+
+                const matchesDepartment = !department || rowData.department === department;
+                const matchesDesignation = !designation || rowData.designation === designation;
+                const matchesStatus = !status || rowData.status === status;
+
+                row.style.display = (matchesSearch && matchesDepartment && matchesDesignation && matchesStatus) ? '' : 'none';
+            });
+
+            // Update "Select All" checkbox state
+            selectAllCheckbox.checked = false;
+            loadingOverlay.classList.add('hidden');
+        }, 300);
+    }
+
+    searchInput.addEventListener('input', applyFilters);
+    departmentSelect.addEventListener('change', applyFilters);
+    designationSelect.addEventListener('change', applyFilters);
+    statusSelect.addEventListener('change', applyFilters);
+
+    // Client-side sorting (Fixed)
+    const headers = document.querySelectorAll('th[data-sort]');
+    let sortField = 'employee_id';
+    let sortDirection = 'desc';
+
+    headers.forEach(header => {
+        header.addEventListener('click', function() {
+            const field = this.dataset.sort;
+            if (sortField === field) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortField = field;
+                sortDirection = 'asc';
+            }
+
+            headers.forEach(h => {
+                h.classList.remove('asc', 'desc');
+                h.querySelector('.sort-icon').textContent = '▼';
+            });
+            this.classList.add(sortDirection);
+            this.querySelector('.sort-icon').textContent = sortDirection === 'asc' ? '▲' : '▼';
+
+            loadingOverlay.classList.remove('hidden');
+            setTimeout(() => {
+                const sortedRows = [...rows].sort((a, b) => {
+                    let aValue = a.dataset[field] || '';
+                    let bValue = b.dataset[field] || '';
+
+                    // Handle different data types
+                    if (field === 'joining_date') {
+                        aValue = new Date(aValue);
+                        bValue = new Date(bValue);
+                    } else if (field === 'is_active') {
+                        aValue = aValue === 'true';
+                        bValue = bValue === 'true';
+                    } else {
+                        aValue = aValue.toLowerCase();
+                        bValue = bValue.toLowerCase();
+                    }
+
+                    let comparison = 0;
+                    if (aValue > bValue) comparison = 1;
+                    else if (aValue < bValue) comparison = -1;
+
+                    return sortDirection === 'asc' ? comparison : -comparison;
+                });
+
+                tableBody.innerHTML = '';
+                sortedRows.forEach(row => tableBody.appendChild(row));
+                loadingOverlay.classList.add('hidden');
+            }, 300);
+        });
+    });
+
+    // Column Show/Hide Functionality
+    columnToggleBtn.addEventListener('click', function() {
+        columnToggleMenu.classList.toggle('show');
+    });
+
+    columnCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const columnIndex = this.dataset.column;
+            const cells = document.querySelectorAll(`[data-column="${columnIndex}"]`);
+            cells.forEach(cell => {
+                cell.style.display = this.checked ? '' : 'none';
+            });
+        });
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!columnToggleBtn.contains(e.target) && !columnToggleMenu.contains(e.target)) {
+            columnToggleMenu.classList.remove('show');
+        }
+    });
+
+    // Export functionality (Fixed PDF Export)
+    function exportData(format) {
+        const visibleRows = rows.filter(row => row.style.display !== 'none');
+        const visibleColumns = Array.from(columnCheckboxes)
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => parseInt(checkbox.dataset.column));
+
+        if (format === 'csv') {
+            const data = [];
+            const headers = Array.from(document.querySelectorAll('th'))
+                .filter((th, index) => visibleColumns.includes(index))
+                .map(th => th.textContent.trim());
+            data.push(headers);
+
+            visibleRows.forEach(row => {
+                const cells = Array.from(row.querySelectorAll('td'));
+                const rowData = visibleColumns.map(index => {
+                    const cell = cells[index];
+                    if (index === 7) { // Status column
+                        return cell.querySelector('.status-badge').textContent.trim();
+                    }
+                    return cell.textContent.trim();
+                });
+                data.push(rowData);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Employees");
+            XLSX.writeFile(wb, "employees_all.xlsx");
+        } else if (format === 'pdf') {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'landscape',
+                unit: 'pt',
+                format: 'a4'
+            });
+
+            doc.setFontSize(14);
+            doc.text("All Employees Report", 40, 40);
+
+            const headers = Array.from(document.querySelectorAll('th'))
+                .filter((th, index) => visibleColumns.includes(index))
+                .map(th => th.textContent.trim());
+
+            const data = visibleRows.map(row => {
+                const cells = Array.from(row.querySelectorAll('td'));
+                return visibleColumns.map(index => {
+                    const cell = cells[index];
+                    if (index === 7) { // Status column
+                        return cell.querySelector('.status-badge').textContent.trim();
+                    }
+                    if (index === 9) { // Actions column
+                        return ''; // Exclude action buttons
+                    }
+                    return cell.textContent.trim();
+                });
+            });
+
+            doc.autoTable({
+                head: [headers],
+                body: data,
+                startY: 60,
+                theme: 'striped',
+                styles: { fontSize: 8, cellPadding: 4, overflow: 'linebreak' },
+                headStyles: { fillColor: [59, 130, 246], textColor: [255, 255, 255], fontStyle: 'bold' },
+                columnStyles: {
+                    0: { cellWidth: 40 },  // Select
+                    1: { cellWidth: 80 },  // Employee ID
+                    2: { cellWidth: 100 }, // Name
+                    3: { cellWidth: 120 }, // Email
+                    4: { cellWidth: 80 },  // Department
+                    5: { cellWidth: 80 },  // Designation Restoration complete
+                    6: { cellWidth: 80 },  // Joining Date
+                    7: { cellWidth: 60 },  // Status
+                    8: { cellWidth: 150 }, // Leave Balances
+                    9: { cellWidth: 80 }   // Actions (empty)
+                }
+            });
+
+            doc.save('employees_all.pdf');
+        }
+    }
+
+    exportCsvButton.addEventListener('click', () => exportData('csv'));
+    exportPdfButton.addEventListener('click', () => exportData('pdf'));
+});
+</script>
+{% endblock %}

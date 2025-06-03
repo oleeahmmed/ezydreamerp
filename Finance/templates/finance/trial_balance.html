@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block page_title %}Trial Balance{% endblock %}
+
+{% block content %}
+<div class="mx-auto">
+    <div class="rounded-xl border-2 bg-[hsl(var(--background))] shadow-lg p-4 sm:p-8 mb-6 relative">
+        <!-- Header -->
+        <div class="mb-6 sm:mb-8 border-b border-[hsl(var(--border))] pb-4 sm:pb-6">
+            <div class="flex items-center gap-3 sm:gap-4">
+                <div class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md">
+                    <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 2H18V6H6V2ZM4 8H20V22H4V8ZM8 10H16V12H8V10ZM8 14H16V16H8V14ZM8 18H16V20H8V18Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-foreground))] bg-clip-text text-transparent">{{ title }}</h3>
+                    <p class="text-xs sm:text-sm text-[hsl(var(--muted-foreground))]">{{ subtitle }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="relative overflow-x-auto rounded-lg border border-[hsl(var(--border))] -mx-2 sm:mx-0">
+            <div class="min-w-full overflow-hidden overflow-x-auto">
+                <table id="dataTable" class="w-full text-sm text-left">
+                    <thead class="text-xs uppercase bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]">
+                        <tr>
+                            <th scope="col" class="px-3 sm:px-6 py-3 sortable" data-sort="code">
+                                <div class="flex items-center gap-1">
+                                    Account Code
+                                    <svg class="w-4 h-4 sort-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </th>
+                            <th scope="col" class="px-3 sm:px-6 py-3 sortable" data-sort="name">
+                                <div class="flex items-center gap-1">
+                                    Account Name
+                                    <svg class="w-4 h-4 sort-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </th>
+                            <th scope="col" class="px-3 sm:px-6 py-3 sortable" data-sort="account_type">
+                                <div class="flex items-center gap-1">
+                                    Account Type
+                                    <svg class="w-4 h-4 sort-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </th>
+                            <th scope="col" class="px-3 sm:px-6 py-3 sortable text-right" data-sort="debit">
+                                <div class="flex items-center gap-1 justify-end">
+                                    Debit
+                                    <svg class="w-4 h-4 sort-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </th>
+                            <th scope="col" class="px-3 sm:px-6 py-3 sortable text-right" data-sort="credit">
+                                <div class="flex items-center gap-1 justify-end">
+                                    Credit
+                                    <svg class="w-4 h-4 sort-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in trial_data %}
+                        <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]">
+                            <td class="px-3 sm:px-6 py-4">{{ item.account.code }}</td>
+                            <td class="px-3 sm:px-6 py-4 font-medium">{{ item.account.name }}</td>
+                            <td class="px-3 sm:px-6 py-4">{{ item.account.account_type.name }}</td>
+                            <td class="px-3 sm:px-6 py-4 text-right">{{ item.debit|floatformat:2 }}</td>
+                            <td class="px-3 sm:px-6 py-4 text-right">{{ item.credit|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+                            <td colspan="5" class="px-3 sm:px-6 py-4 text-center text-[hsl(var(--muted-foreground))]">
+                                <div class="flex flex-col items-center py-6">
+                                    <svg class="w-12 h-12 text-[hsl(var(--muted-foreground))] mb-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5M12 12H15M12 16H15M9 12H9.01M9 16H9.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <p class="text-lg font-medium mb-2">No accounts found</p>
+                                    <p class="text-sm text-[hsl(var(--muted-foreground))]">No trial balance data available.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% if trial_data %}
+                        <tr class="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] font-bold">
+                            <td class="px-3 sm:px-6 py-4" colspan="3">Total</td>
+                            <td class="px-3 sm:px-6 py-4 text-right">{{ total_debit|floatformat:2 }}</td>
+                            <td class="px-3 sm:px-6 py-4 text-right">{{ total_credit|floatformat:2 }}</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Generated On -->
+        <div class="mt-4 text-sm text-[hsl(var(--muted-foreground))]">
+            Generated on: {{ generated_on|date:"F j, Y, g:i a" }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Table sorting
+    const sortableHeaders = document.querySelectorAll('.sortable');
+    
+    if (sortableHeaders.length > 0) {
+        sortableHeaders.forEach(header => {
+            header.addEventListener('click', function() {
+                const sortField = this.getAttribute('data-sort');
+                let sortDirection = this.getAttribute('data-sort-direction') || 'asc';
+                
+                // Toggle sort direction
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                
+                // Update sort direction attribute
+                this.setAttribute('data-sort-direction', sortDirection);
+                
+                // Update sort icons
+                document.querySelectorAll('.sortable').forEach(h => {
+                    if (h !== this) {
+                        h.removeAttribute('data-sort-direction');
+                        h.querySelector('.sort-icon').style.transform = '';
+                    }
+                });
+                
+                // Update current sort icon
+                const sortIcon = this.querySelector('.sort-icon');
+                sortIcon.style.transform = sortDirection === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)';
+                
+                // Sort the table
+                sortTable(sortField, sortDirection);
+            });
+        });
+        
+        function sortTable(field, direction) {
+            const table = document.getElementById('dataTable');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr:not(:last-child)')); // Exclude total row
+            
+            // Skip if empty state
+            if (rows.length === 1 && rows[0].querySelector('td[colspan]')) {
+                return;
+            }
+            
+            // Get column index for the field
+            const headerRow = table.querySelector('thead tr');
+            const headers = Array.from(headerRow.querySelectorAll('th'));
+            let columnIndex = -1;
+            
+            headers.forEach((header, index) => {
+                if (header.getAttribute('data-sort') === field) {
+                    columnIndex = index;
+                }
+            });
+            
+            if (columnIndex === -1) return;
+            
+            // Sort rows
+            rows.sort((a, b) => {
+                let aValue = a.querySelectorAll('td')[columnIndex].textContent.trim();
+                let bValue = b.querySelectorAll('td')[columnIndex].textContent.trim();
+                
+                // Handle numeric fields
+                if (field === 'debit' || field === 'credit') {
+                    aValue = parseFloat(aValue) || 0;
+                    bValue = parseFloat(bValue) || 0;
+                    return direction === 'asc' ? aValue - bValue : bValue - aValue;
+                }
+                
+                // Sort as strings
+                return direction === 'asc' 
+                    ? aValue.localeCompare(bValue) 
+                    : bValue.localeCompare(aValue);
+            });
+            
+            // Reorder rows in the table
+            rows.forEach(row => {
+                tbody.insertBefore(row, tbody.lastChild);
+            });
+        }
+    }
+});
+</script>
+<style>
+    /* Sortable headers */
+    .sortable {
+        cursor: pointer;
+        user-select: none;
+    }
+    
+    .sortable .sort-icon {
+        opacity: 0.5;
+        transition: transform 0.2s ease;
+    }
+    
+    .sortable:hover .sort-icon {
+        opacity: 1;
+    }
+    
+    .sortable[data-sort-direction] .sort-icon {
+        opacity: 1;
+    }
+</style>
+{% endblock %}

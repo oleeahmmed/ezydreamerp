@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Login - Minimalist Design</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        background: 'hsl(var(--background))',
+                        foreground: 'hsl(var(--foreground))',
+                        primary: 'hsl(var(--primary))',
+                        'primary-foreground': 'hsl(var(--primary-foreground))',
+                        muted: 'hsl(var(--muted))',
+                        'muted-foreground': 'hsl(var(--muted-foreground))',
+                        border: 'hsl(var(--border))',
+                        input: 'hsl(var(--input))',
+                        ring: 'hsl(var(--ring))',
+                    },
+                    borderRadius: {
+                        lg: 'var(--radius)',
+                        md: 'calc(var(--radius) - 2px)',
+                        sm: 'calc(var(--radius) - 4px)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --sidebar-width: 17rem;
+            --sidebar-width-collapsed: 3rem;
+            --topbar-height: 3.5rem;
+            --background: 0 0% 100%;
+            --foreground: 240 10% 3.9%;
+            --muted: 240 4.8% 95.9%;
+            --muted-foreground: 240 3.8% 46.1%;
+            --popover: 0 0% 100%;
+            --popover-foreground: 240 10% 3.9%;
+            --border: 240 5.9% 90%;
+            --input: 240 5.9% 90%;
+            --primary: 240 5.9% 10%;
+            --primary-foreground: 0 0% 98%;
+            --secondary: 240 4.8% 95.9%;
+            --secondary-foreground: 240 5.9% 10%;
+            --accent: 240 4.8% 95.9%;
+            --accent-foreground: 240 5.9% 10%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 0 0% 98%;
+            --ring: 240 5% 64.9%;
+            --radius: 0.5rem;
+            
+            /* Accent color */
+            --accent-color: #3b82f6;
+        }
+
+        .dark {
+            --background: 240 10% 3.9%;
+            --foreground: 0 0% 98%;
+            --muted: 240 3.7% 15.9%;
+            --muted-foreground: 240 5% 64.9%;
+            --popover: 240 10% 3.9%;
+            --popover-foreground: 0 0% 98%;
+            --border: 240 3.7% 15.9%;
+            --input: 240 3.7% 15.9%;
+            --primary: 0 0% 98%;
+            --primary-foreground: 240 5.9% 10%;
+            --secondary: 240 3.7% 15.9%;
+            --secondary-foreground: 0 0% 98%;
+            --accent: 240 3.7% 15.9%;
+            --accent-foreground: 0 0% 98%;
+            --destructive: 0 62.8% 30.6%;
+            --destructive-foreground: 0 0% 98%;
+            --ring: 240 3.7% 15.9%;
+            
+            /* Accent color dark mode */
+            --accent-color: #60a5fa;
+        }
+        
+        /* Accent line */
+        .accent-line {
+            height: 4px;
+            background: var(--accent-color);
+            width: 40px;
+            margin: 0 auto;
+        }
+        
+        /* Input styles */
+        .minimal-input {
+            transition: all 0.3s ease;
+            border: none;
+            border-bottom: 1px solid hsl(var(--border));
+            border-radius: 0;
+            padding-left: 0;
+            padding-right: 0;
+            background-color: transparent;
+        }
+        
+        .minimal-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: none;
+        }
+        
+        /* Button styles */
+        .minimal-button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .minimal-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+        
+        .minimal-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.1) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(45deg);
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+        
+        .minimal-button:hover::after {
+            opacity: 1;
+            top: -100%;
+            left: -100%;
+        }
+        
+        /* Card styles */
+        .minimal-card {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+        }
+        
+        .dark .minimal-card {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-background text-foreground">
+    <div class="min-h-screen flex flex-col items-center justify-center p-6">
+        <div class="w-full max-w-sm">
+            <!-- Logo -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted mb-4">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Card -->
+            <div class="minimal-card bg-background rounded-lg p-8 border border-border">
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <h1 class="text-2xl font-bold mb-2">Sign in</h1>
+                    <div class="accent-line mb-4"></div>
+                    <p class="text-muted-foreground text-sm">Welcome back, please enter your details</p>
+                </div>
+                
+                <!-- Form -->
+                <form class="space-y-6">
+                    <!-- Email Input -->
+                    <div class="space-y-2">
+                        <label for="email" class="block text-sm font-medium">Email</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            class="minimal-input w-full py-2"
+                            placeholder="name@example.com"
+                        />
+                    </div>
+
+                    <!-- Password Input -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label for="password" class="block text-sm font-medium">Password</label>
+                            <a href="#" class="text-xs text-[var(--accent-color)] hover:underline">Forgot password?</a>
+                        </div>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            class="minimal-input w-full py-2"
+                            placeholder="••••••••"
+                        />
+                    </div>
+
+                    <!-- Remember me -->
+                    <div>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <div class="relative">
+                                <input 
+                                    type="checkbox" 
+                                    id="remember"
+                                    class="sr-only peer"
+                                />
+                                <div class="w-4 h-4 border rounded border-muted-foreground peer-checked:bg-[var(--accent-color)] peer-checked:border-[var(--accent-color)] transition-colors"></div>
+                                <svg class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 text-white hidden peer-checked:block" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2 6L4.5 8.5L10 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="text-sm">Remember me</span>
+                        </label>
+                    </div>
+
+                    <!-- Sign In Button -->
+                    <button 
+                        type="submit" 
+                        class="minimal-button w-full py-2.5 rounded-md text-sm font-medium"
+                    >
+                        Sign in
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Sign Up Link -->
+            <div class="text-center mt-6">
+                <p class="text-sm text-muted-foreground">
+                    Don't have an account? 
+                    <a href="#" class="text-[var(--accent-color)] hover:underline font-medium">Create an account</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <button 
+        id="themeToggle"
+        class="fixed top-4 right-4 p-2 rounded-full bg-muted hover:bg-muted/80 transition-colors z-50"
+    >
+        <svg id="light-icon" class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 5V3M12 21V19M5 12H3M21 12H19M17.6569 17.6569L19.0711 19.0711M4.92893 4.92893L6.34315 6.34315M6.34315 17.6569L4.92893 19.0711M19.0711 4.92893L17.6569 6.34315" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <svg id="dark-icon" class="w-5 h-5 hidden" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21.9548 12.9564C20.5779 15.3717 17.9791 17.0001 15 17.0001C10.5817 17.0001 7 13.4184 7 9.00006C7 6.02097 8.62837 3.42216 11.0437 2.04529C5.96874 2.52861 2 6.79962 2 12.0001C2 17.5229 6.47715 22.0001 12 22.0001C17.2004 22.0001 21.4714 18.0313 21.9548 12.9564Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </button>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const lightIcon = document.getElementById('light-icon');
+        const darkIcon = document.getElementById('dark-icon');
+        
+        // Check for saved theme preference or use system preference
+        const savedTheme = localStorage.getItem('theme') || 
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        
+        // Apply the theme
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+            lightIcon.classList.add('hidden');
+            darkIcon.classList.remove('hidden');
+        }
+        
+        // Toggle theme
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            
+            if (isDark) {
+                lightIcon.classList.add('hidden');
+                darkIcon.classList.remove('hidden');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                lightIcon.classList.remove('hidden');
+                darkIcon.classList.add('hidden');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
+</body>
+</html>

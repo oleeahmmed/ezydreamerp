@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Dashboard</title>
+    <style>
+        /* Base Theme Colors */
+        :root {
+            /* Core UI Colors */
+            --background: #ffffff;
+            --foreground: #1a1c23;
+            --muted: #f7f9fc;
+            --muted-foreground: #64748b;
+            --popover: #ffffff;
+            --popover-foreground: #1a1c23;
+            --border: #e2e8f0;
+            --input: #e2e8f0;
+            
+            /* Action Colors */
+            --primary: #2563eb;
+            --primary-foreground: #ffffff;
+            --secondary: #f7f9fc;
+            --secondary-foreground: #1a1c23;
+            --accent: #60a5fa;
+            --accent-foreground: #ffffff;
+            --destructive: #ef4444;
+            --destructive-foreground: #ffffff;
+            
+            /* UI Elements */
+            --ring: #2563eb;
+            --radius: 0.5rem;
+            
+            /* Extended Color System */
+            /* Monochromatic themes */
+            --mono-black-start: #121212;
+            --mono-black-end: #2d2d2d;
+            --mono-black-accent: #3a3a3a;
+            --mono-black-foreground: #ffffff;
+            
+            --mono-white-start: #f8fafc;
+            --mono-white-end: #e2e8f0;
+            --mono-white-accent: #cbd5e1;
+            --mono-white-foreground: #0f172a;
+            
+            --mono-grey-start: #334155;
+            --mono-grey-end: #475569;
+            --mono-grey-accent: #64748b;
+            --mono-grey-foreground: #f8fafc;
+            
+            /* Modern vibrant themes */
+            --vibrant-blue-start: #2563eb;
+            --vibrant-blue-end: #3b82f6;
+            --vibrant-blue-accent: #60a5fa;
+            --vibrant-blue-foreground: #ffffff;
+            
+            --vibrant-purple-start: #7c3aed;
+            --vibrant-purple-end: #8b5cf6;
+            --vibrant-purple-accent: #a78bfa;
+            --vibrant-purple-foreground: #ffffff;
+            
+            --vibrant-pink-start: #db2777;
+            --vibrant-pink-end: #ec4899;
+            --vibrant-pink-accent: #f472b6;
+            --vibrant-pink-foreground: #ffffff;
+            
+            --vibrant-orange-start: #ea580c;
+            --vibrant-orange-end: #f97316;
+            --vibrant-orange-accent: #fb923c;
+            --vibrant-orange-foreground: #ffffff;
+            
+            --vibrant-green-start: #16a34a;
+            --vibrant-green-end: #22c55e;
+            --vibrant-green-accent: #4ade80;
+            --vibrant-green-foreground: #ffffff;
+            
+            /* Pastel themes */
+            --pastel-blue-start: #93c5fd;
+            --pastel-blue-end: #bfdbfe;
+            --pastel-blue-accent: #dbeafe;
+            --pastel-blue-foreground: #1e3a8a;
+            
+            --pastel-purple-start: #c4b5fd;
+            --pastel-purple-end: #ddd6fe;
+            --pastel-purple-accent: #ede9fe;
+            --pastel-purple-foreground: #5b21b6;
+            
+            --pastel-pink-start: #f9a8d4;
+            --pastel-pink-end: #fbcfe8;
+            --pastel-pink-accent: #fce7f3;
+            --pastel-pink-foreground: #9d174d;
+            
+            --pastel-orange-start: #fdba74;
+            --pastel-orange-end: #fed7aa;
+            --pastel-orange-accent: #ffedd5;
+            --pastel-orange-foreground: #9a3412;
+            
+            --pastel-green-start: #86efac;
+            --pastel-green-end: #bbf7d0;
+            --pastel-green-accent: #dcfce7;
+            --pastel-green-foreground: #166534;
+            
+            /* Status colors */
+            --success-start: #10b981;
+            --success-end: #34d399;
+            --warning-start: #f59e0b;
+            --warning-end: #fbbf24;
+            --danger-start: #ef4444;
+            --danger-end: #f87171;
+            
+            /* UI elements */
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            
+            /* Animation speeds */
+            --transition-fast: 150ms;
+            --transition-normal: 250ms;
+            --transition-slow: 350ms;
+            
+            /* Current theme color - can be changed via JS */
+            --theme-current-start: var(--vibrant-blue-start);
+            --theme-current-end: var(--vibrant-blue-end);
+            --theme-current-accent: var(--vibrant-blue-accent);
+            --theme-current-foreground: var(--vibrant-blue-foreground);
+            
+            /* Global Component Colors - These will be updated when theme changes */
+            --component-bg: var(--background);
+            --component-fg: var(--foreground);
+            --component-muted-bg: var(--muted);
+            --component-muted-fg: var(--muted-foreground);
+            --component-border: var(--border);
+            
+            /* Sidebar specific */
+            --sidebar-bg: var(--background);
+            --sidebar-fg: var(--foreground);
+            --sidebar-muted: var(--muted);
+            --sidebar-border: var(--border);
+            --sidebar-item-hover: var(--muted);
+            --sidebar-item-active-bg: var(--theme-current-start);
+            --sidebar-item-active-fg: var(--theme-current-foreground);
+            --sidebar-icon-color: var(--muted-foreground);
+            --sidebar-icon-hover: var(--theme-current-start);
+            
+            /* Topbar specific */
+            --topbar-bg: var(--background);
+            --topbar-fg: var(--foreground);
+            --topbar-border: var(--border);
+            --topbar-button-hover: var(--muted);
+            
+            /* Card and container elements */
+            --card-bg: var(--background);
+            --card-fg: var(--foreground);
+            --card-border: var(--border);
+            --card-shadow: var(--shadow-md);
+            --card-header-bg: var(--muted);
+            --card-header-fg: var(--foreground);
+            
+            /* Form elements */
+            --input-bg: var(--background);
+            --input-fg: var(--foreground);
+            --input-border: var(--border);
+            --input-focus-border: var(--theme-current-start);
+            --input-placeholder: var(--muted-foreground);
+            
+            /* Button styles */
+            --button-primary-bg: var(--theme-current-start);
+            --button-primary-bg-hover: var(--theme-current-end);
+            --button-primary-fg: var(--theme-current-foreground);
+            --button-secondary-bg: var(--muted);
+            --button-secondary-bg-hover: var(--border);
+            --button-secondary-fg: var(--foreground);
+            
+            /* Badge and tag elements */
+            --badge-bg: var(--theme-current-start);
+            --badge-fg: var(--theme-current-foreground);
+            
+            /* Notification elements */
+            --notification-bg: var(--danger-start);
+            --notification-fg: white;
+        }
+
+        .dark {
+            --background: #0f172a;
+            --foreground: #f8fafc;
+            --muted: #1e293b;
+            --muted-foreground: #94a3b8;
+            --popover: #1e293b;
+            --popover-foreground: #f8fafc;
+            --border: #334155;
+            --input: #334155;
+            
+            /* Action Colors */
+            --primary: #1d4ed8;
+            --primary-foreground: #ffffff;
+            --secondary: #1e293b;
+            --secondary-foreground: #f8fafc;
+            --accent: #3b82f6;
+            --accent-foreground: #ffffff;
+            --destructive: #dc2626;
+            --destructive-foreground: #ffffff;
+            
+            /* UI Elements */
+            --ring: #1d4ed8;
+            
+            /* Monochromatic themes - darker versions */
+            --mono-black-start: #000000;
+            --mono-black-end: #171717;
+            --mono-black-accent: #262626;
+            --mono-black-foreground: #ffffff;
+            
+            --mono-white-start: #e2e8f0;
+            --mono-white-end: #cbd5e1;
+            --mono-white-accent: #94a3b8;
+            --mono-white-foreground: #0f172a;
+            
+            --mono-grey-start: #1e293b;
+            --mono-grey-end: #334155;
+            --mono-grey-accent: #475569;
+            --mono-grey-foreground: #f8fafc;
+            
+            /* Vibrant themes - darker versions */
+            --vibrant-blue-start: #1d4ed8;
+            --vibrant-blue-end: #2563eb;
+            --vibrant-blue-accent: #3b82f6;
+            --vibrant-blue-foreground: #ffffff;
+            
+            --vibrant-purple-start: #6d28d9;
+            --vibrant-purple-end: #7c3aed;
+            --vibrant-purple-accent: #8b5cf6;
+            --vibrant-purple-foreground: #ffffff;
+            
+            --vibrant-pink-start: #be185d;
+            --vibrant-pink-end: #db2777;
+            --vibrant-pink-accent: #ec4899;
+            --vibrant-pink-foreground: #ffffff;
+            
+            --vibrant-orange-start: #c2410c;
+            --vibrant-orange-end: #ea580c;
+            --vibrant-orange-accent: #f97316;
+            --vibrant-orange-foreground: #ffffff;
+            
+            --vibrant-green-start: #15803d;
+            --vibrant-green-end: #16a34a;
+            --vibrant-green-accent: #22c55e;
+            --vibrant-green-foreground: #ffffff;
+            
+            /* Pastel themes - darker versions */
+            --pastel-blue-start: #60a5fa;
+            --pastel-blue-end: #93c5fd;
+            --pastel-blue-accent: #bfdbfe;
+            --pastel-blue-foreground: #1e3a8a;
+            
+            --pastel-purple-start: #a78bfa;
+            --pastel-purple-end: #c4b5fd;
+            --pastel-purple-accent: #ddd6fe;
+            --pastel-purple-foreground: #5b21b6;
+            
+            --pastel-pink-start: #f472b6;
+            --pastel-pink-end: #f9a8d4;
+            --pastel-pink-accent: #fbcfe8;
+            --pastel-pink-foreground: #9d174d;
+            
+            --pastel-orange-start: #fb923c;
+            --pastel-orange-end: #fdba74;
+            --pastel-orange-accent: #fed7aa;
+            --pastel-orange-foreground: #9a3412;
+            
+            --pastel-green-start: #4ade80;
+            --pastel-green-end: #86efac;
+            --pastel-green-accent: #bbf7d0;
+            --pastel-green-foreground: #166534;
+            
+            /* Status colors - darker versions */
+            --success-start: #059669;
+            --success-end: #10b981;
+            --warning-start: #d97706;
+            --warning-end: #f59e0b;
+            --danger-start: #dc2626;
+            --danger-end: #ef4444;
+            
+            /* Card and container elements - dark mode */
+            --card-bg: #1e293b;
+            --card-fg: #f8fafc;
+            --card-border: #334155;
+            --card-header-bg: #0f172a;
+            --card-header-fg: #f8fafc;
+            
+            /* Form elements - dark mode */
+            --input-bg: #1e293b;
+            --input-fg: #f8fafc;
+            --input-border: #334155;
+            
+            /* Sidebar specific - dark mode */
+            --sidebar-bg: var(--background);
+            --sidebar-fg: var(--foreground);
+            --sidebar-muted: var(--muted);
+            --sidebar-border: var(--border);
+            --sidebar-item-hover: #1e293b;
+            --sidebar-item-active-bg: var(--theme-current-start);
+            --sidebar-item-active-fg: var(--theme-current-foreground);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--component-muted-bg);
+            color: var(--component-fg);
+            height: 100vh;
+            overflow: hidden;
+            transition: background-color var(--transition-normal) ease, color var(--transition-normal) ease;
+        }
+
+        /* Layout */
+        .layout {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+        }
+
+        .content-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            margin-left: 70px;
+            transition: margin-left var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: var(--component-muted-bg);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding-bottom: 5rem; /* Space for mobile nav */
+            }
+        }
+
+        /* Topbar */
+        .topbar {
+            height: 64px;
+            background-color: var(--topbar-bg);
+            border-bottom: 1px solid var(--topbar-border);
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: var(--shadow-sm);
+            transition: background-color var(--transition-normal) ease, border-color var(--transition-normal) ease;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .mobile-menu-trigger {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--topbar-fg);
+            cursor: pointer;
+            transition: color var(--transition-normal) ease;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-trigger {
+                display: flex;
+            }
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-left: auto;
+        }
+
+        .notification-button {
+            position: relative;
+            background: none;
+            border: none;
+            color: var(--topbar-fg);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color var(--transition-normal) ease, color var(--transition-normal) ease;
+        }
+
+        .notification-button:hover {
+            background-color: var(--topbar-button-hover);
+            color: var(--primary);
+        }
+
+        .notification-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--notification-bg), var(--danger-end));
+        }
+
+        /* Color theme button in topbar */
+        .color-theme-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--primary-foreground));
+            color: var(--primary-foreground);
+            border: none;
+            border-radius: var(--radius);
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-normal) ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .color-theme-button:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .color-theme-button svg {
+            width: 16px;
+            height: 16px;
+            margin-right: 0.5rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 70px;
+            height: 100vh;
+            position: fixed;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--sidebar-border);
+            box-shadow: var(--shadow-md);
+            transition: width var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1), 
+                        transform var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1),
+                        background-color var(--transition-normal) ease,
+                        border-color var(--transition-normal) ease;
+            overflow: hidden;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+                width: 260px;
+            }
+        }
+
+        .sidebar:hover {
+            width: 260px;
+        }
+
+        .logo-container {
+            padding: 1.5rem 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-foreground));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-foreground);
+            font-weight: 700;
+            font-size: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+            transition: background var(--transition-normal) ease;
+        }
+
+        .logo-text {
+            margin-left: 1rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--sidebar-fg);
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all var(--transition-normal) ease;
+            white-space: nowrap;
+        }
+
+        .sidebar:hover .logo-text,
+        .sidebar.mobile-open .logo-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .nav-section {
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--component-muted-fg);
+            padding: 0 0.75rem;
+            margin-bottom: 0.75rem;
+            opacity: 0;
+            transition: opacity var(--transition-normal) ease;
+        }
+
+        .sidebar:hover .nav-section-title,
+        .sidebar.mobile-open .nav-section-title {
+            opacity: 1;
+        }
+
+        .nav-item {
+            position: relative;
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            color: var(--component-muted-fg);
+            text-decoration: none;
+            border-radius: var(--radius);
+            transition: all var(--transition-normal) ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--primary), var(--primary-foreground));
+            opacity: 0;
+            transition: opacity var(--transition-normal) ease;
+        }
+
+        .nav-link:hover {
+            background: var(--sidebar-item-hover);
+            color: var(--sidebar-fg);
+        }
+
+        .nav-link.active {
+            background: var(--sidebar-item-active-bg);
+            color: var(--sidebar-item-active-fg);
+            font-weight: 500;
+        }
+
+        .nav-link.active::before {
+            opacity: 1;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            transition: transform var(--transition-normal) ease;
+            color: var(--sidebar-icon-color);
+        }
+
+        .nav-link:hover .nav-icon {
+            transform: translateY(-2px);
+            color: var(--sidebar-icon-hover);
+        }
+
+        .nav-link.active .nav-icon {
+            color: var(--sidebar-item-active-fg);
+        }
+
+        .nav-text {
+            margin-left: 0.875rem;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all var(--transition-normal) ease;
+            white-space: nowrap;
+        }
+
+        .sidebar:hover .nav-text,
+        .sidebar.mobile-open .nav-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height var(--transition-normal) ease;
+            padding-left: 2.75rem;
+            margin-top: -0.25rem;
+        }
+
+        .submenu.expanded {
+            max-height: 200px;
+        }
+
+        .submenu-item {
+            padding: 0.625rem 0.75rem;
+            color: var(--component-muted-fg);
+            text-decoration: none;
+            display: block;
+            font-size: 0.875rem;
+            border-radius: var(--radius);
+            margin-bottom: 0.125rem;
+            transition: all var(--transition-normal) ease;
+            position: relative;
+        }
+
+        .submenu-item::before {
+            content: '';
+            position: absolute;
+            left: -1rem;
+            top: 50%;
+            width: 0.5rem;
+            height: 1px;
+            background-color: var(--component-border);
+            transition: width var(--transition-normal) ease, background-color var(--transition-normal) ease;
+        }
+
+        .submenu-item:hover {
+            background: var(--sidebar-item-hover);
+            color: var(--primary);
+        }
+
+        .submenu-item:hover::before {
+            width: 0.75rem;
+            background: linear-gradient(to right, var(--primary), var(--primary-foreground));
+        }
+
+        .submenu-item.active {
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .chevron {
+            margin-left: auto;
+            transition: transform var(--transition-normal) ease, opacity var(--transition-normal) ease;
+            opacity: 0;
+            width: 16px;
+            height: 16px;
+            color: var(--component-muted-fg);
+        }
+
+        .sidebar:hover .chevron,
+        .sidebar.mobile-open .chevron {
+            opacity: 1;
+        }
+
+        .chevron.expanded {
+            transform: rotate(180deg);
+        }
+
+        .badge {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--badge-bg), var(--danger-end));
+            transition: all var(--transition-normal) ease;
+        }
+
+        .sidebar:hover .badge,
+        .sidebar.mobile-open .badge {
+            width: auto;
+            height: 18px;
+            padding: 0 0.375rem;
+            border-radius: 9px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            content: attr(data-count);
+            color: var(--badge-fg);
+        }
+
+        .badge[data-count]::after {
+            content: attr(data-count);
+            opacity: 0;
+            transition: opacity var(--transition-normal) ease;
+        }
+
+        .sidebar:hover .badge[data-count]::after,
+        .sidebar.mobile-open .badge[data-count]::after {
+            opacity: 1;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: var(--component-border);
+            margin: 0.5rem 0.75rem 1rem;
+            opacity: 0.6;
+            transition: background-color var(--transition-normal) ease;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 1rem 0.75rem;
+            border-top: 1px solid var(--component-border);
+            transition: border-color var(--transition-normal) ease;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius);
+            transition: background var(--transition-normal) ease;
+            cursor: pointer;
+        }
+
+        .user-profile:hover {
+            background: var(--sidebar-item-hover);
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-foreground));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-foreground);
+            font-weight: 600;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+            transition: background var(--transition-normal) ease;
+        }
+
+        .user-info {
+            margin-left: 0.75rem;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all var(--transition-normal) ease;
+        }
+
+        .sidebar:hover .user-info,
+        .sidebar.mobile-open .user-info {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .user-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--component-fg);
+            transition: color var(--transition-normal) ease;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--component-muted-fg);
+            transition: color var(--transition-normal) ease;
+        }
+
+        /* Mobile Bottom Navigation */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background-color: var(--component-bg);
+            border-top: 1px solid var(--component-border);
+            z-index: 40;
+            box-shadow: var(--shadow-md);
+            transition: background-color var(--transition-normal) ease, border-color var(--transition-normal) ease;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-nav {
+                display: flex;
+            }
+        }
+
+        .mobile-nav-items {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .mobile-nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            color: var(--component-muted-fg);
+            text-decoration: none;
+            transition: color var(--transition-normal) ease;
+        }
+
+        .mobile-nav-item.active {
+            color: var(--primary);
+        }
+
+        .mobile-nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-bottom: 0.25rem;
+            transition: transform var(--transition-fast) ease;
+        }
+
+        .mobile-nav-item:hover .mobile-nav-icon {
+            transform: translateY(-2px);
+        }
+
+        .mobile-nav-text {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--component-bg);
+            border: 1px solid var(--component-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            z-index: 100;
+            transition: background var(--transition-normal) ease, border-color var(--transition-normal) ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--component-muted-bg);
+        }
+
+        .theme-icon {
+            width: 18px;
+            height: 18px;
+            color: var(--component-fg);
+            transition: color var(--transition-normal) ease;
+        }
+
+        .sun-icon {
+            display: none;
+        }
+
+        .dark .sun-icon {
+            display: block;
+        }
+
+        .dark .moon-icon {
+            display: none;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--component-fg);
+            color: var(--component-bg);
+            padding: 0.375rem 0.75rem;
+            border-radius: var(--radius);
+            font-size: 0.75rem;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity var(--transition-normal) ease, transform var(--transition-normal) ease;
+            box-shadow: var(--shadow-md);
+            margin-left: 0.5rem;
+            z-index: 100;
+        }
+
+        .tooltip::before {
+            content: '';
+            position: absolute;
+            left: -4px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-width: 4px 4px 4px 0;
+            border-style: solid;
+            border-color: transparent var(--component-fg) transparent transparent;
+        }
+
+        .nav-link:hover .tooltip {
+            opacity: 1;
+        }
+
+        .sidebar:hover .tooltip,
+        .sidebar.mobile-open .tooltip {
+            opacity: 0;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 45;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-normal) ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Enhanced Color Selector */
+        .theme-selector {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+            z-index: 100;
+            background: var(--card-bg);
+            padding: 0.75rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--card-border);
+            transition: all var(--transition-normal) ease;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+        }
+
+        .theme-selector.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .theme-selector {
+                right: 10px;
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        .theme-selector-header {
+            grid-column: 1 / -1;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--component-muted-fg);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .color-group {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform var(--transition-fast) ease, box-shadow var(--transition-fast) ease;
+            position: relative;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-md);
+        }
+
+        .color-option.active {
+            box-shadow: 0 0 0 2px var(--component-bg), 0 0 0 4px var(--primary);
+        }
+
+        /* Monochromatic themes */
+        .color-black-white {
+            background: linear-gradient(135deg, var(--mono-black-start), var(--mono-black-end));
+        }
+
+        .color-white-grey {
+            background: linear-gradient(135deg, var(--mono-white-start), var(--mono-white-end));
+        }
+
+        .color-grey {
+            background: linear-gradient(135deg, var(--mono-grey-start), var(--mono-grey-end));
+        }
+
+        /* Vibrant themes */
+        .color-blue {
+            background: linear-gradient(135deg, var(--vibrant-blue-start), var(--vibrant-blue-end));
+        }
+
+        .color-purple {
+            background: linear-gradient(135deg, var(--vibrant-purple-start), var(--vibrant-purple-end));
+        }
+
+        .color-pink {
+            background: linear-gradient(135deg, var(--vibrant-pink-start), var(--vibrant-pink-end));
+        }
+
+        .color-orange {
+            background: linear-gradient(135deg, var(--vibrant-orange-start), var(--vibrant-orange-end));
+        }
+
+        .color-green {
+            background: linear-gradient(135deg, var(--vibrant-green-start), var(--vibrant-green-end));
+        }
+
+        /* Pastel themes */
+        .color-pastel-blue {
+            background: linear-gradient(135deg, var(--pastel-blue-start), var(--pastel-blue-end));
+        }
+
+        .color-pastel-purple {
+            background: linear-gradient(135deg, var(--pastel-purple-start), var(--pastel-purple-end));
+        }
+
+        .color-pastel-pink {
+            background: linear-gradient(135deg, var(--pastel-pink-start), var(--pastel-pink-end));
+        }
+
+        .color-pastel-orange {
+            background: linear-gradient(135deg, var(--pastel-orange-start), var(--pastel-orange-end));
+        }
+
+        .color-pastel-green {
+            background: linear-gradient(135deg, var(--pastel-green-start), var(--pastel-green-end));
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle Button -->
+    <button id="themeToggle" class="theme-toggle">
+        <svg class="theme-icon sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        </svg>
+        <svg class="theme-icon moon-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+    </button>
+
+    <!-- Overlay for mobile sidebar -->
+    <div id="overlay" class="overlay"></div>
+
+    <!-- Enhanced Theme Selector -->
+    <div id="themeSelector" class="theme-selector">
+        <div class="theme-selector-header">Monochrome</div>
+        <div class="color-group">
+            <div class="color-option color-black-white" data-color="black-white"></div>
+            <div class="color-option color-white-grey" data-color="white-grey"></div>
+            <div class="color-option color-grey" data-color="grey"></div>
+        </div>
+        
+        <div class="theme-selector-header">Vibrant</div>
+        <div class="color-group">
+            <div class="color-option color-blue active" data-color="blue"></div>
+            <div class="color-option color-purple" data-color="purple"></div>
+            <div class="color-option color-pink" data-color="pink"></div>
+            <div class="color-option color-orange" data-color="orange"></div>
+            <div class="color-option color-green" data-color="green"></div>
+        </div>
+        
+        <div class="theme-selector-header">Pastel</div>
+        <div class="color-group">
+            <div class="color-option color-pastel-blue" data-color="pastel-blue"></div>
+            <div class="color-option color-pastel-purple" data-color="pastel-purple"></div>
+            <div class="color-option color-pastel-pink" data-color="pastel-pink"></div>
+            <div class="color-option color-pastel-orange" data-color="pastel-orange"></div>
+            <div class="color-option color-pastel-green" data-color="pastel-green"></div>
+        </div>
+    </div>
+
+    <div class="layout">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button id="mobileMenuTrigger" class="mobile-menu-trigger">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="topbar-right">
+                <!-- Color Theme Button in Topbar -->
+                <button id="colorThemeButton" class="color-theme-button">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                    </svg>
+                    Theme
+                </button>
+                <button class="notification-button">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                    <span class="notification-indicator"></span>
+                </button>
+                <button class="notification-button">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                    </svg>
+                </button>
+                <button class="notification-button">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            <!-- Premium Sidebar -->
+            <div id="sidebar" class="sidebar">
+                <div class="logo-container">
+                    <div class="logo">M</div>
+                    <span class="logo-text">ModernApp</span>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="nav-section-title">Main</h3>
+                    
+                    <div class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                            <span class="nav-text">Dashboard</span>
+                            <span class="tooltip">Dashboard</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="#" class="nav-link" onclick="toggleSubmenu(this, event)">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            <span class="nav-text">Inventory</span>
+                            <svg class="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                            <span class="badge" data-count="3"></span>
+                            <span class="tooltip">Inventory</span>
+                        </a>
+                        <div class="submenu">
+                            <a href="#" class="submenu-item">Products</a>
+                            <a href="#" class="submenu-item">Categories</a>
+                            <a href="#" class="submenu-item">Stock Management</a>
+                        </div>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="#" class="nav-link" onclick="toggleSubmenu(this, event)">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                            </svg>
+                            <span class="nav-text">Orders</span>
+                            <svg class="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                            <span class="tooltip">Orders</span>
+                        </a>
+                        <div class="submenu">
+                            <a href="#" class="submenu-item">All Orders</a>
+                            <a href="#" class="submenu-item">Pending</a>
+                            <a href="#" class="submenu-item">Completed</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="nav-section">
+                    <h3 class="nav-section-title">Analytics</h3>
+                    
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            <span class="nav-text">Reports</span>
+                            <span class="tooltip">Reports</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="nav-text">Finance</span>
+                            <span class="tooltip">Finance</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="nav-section">
+                    <h3 class="nav-section-title">System</h3>
+                    
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <span class="nav-text">Settings</span>
+                            <span class="tooltip">Settings</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="sidebar-footer">
+                    <div class="user-profile">
+                        <div class="avatar">JD</div>
+                        <div class="user-info">
+                            <div class="user-name">John Doe</div>
+                            <div class="user-role">Administrator</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Content goes here -->
+            </main>
+        </div>
+
+        <!-- Mobile Bottom Navigation -->
+        <nav class="mobile-nav">
+            <div class="mobile-nav-items">
+                <a href="#" class="mobile-nav-item active">
+                    <svg class="mobile-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    <span class="mobile-nav-text">Home</span>
+                </a>
+                <a href="#" class="mobile-nav-item">
+                    <svg class="mobile-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    <span class="mobile-nav-text">Inventory</span>
+                </a>
+                <a href="#" class="mobile-nav-item">
+                    <svg class="mobile-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                    <span class="mobile-nav-text">Orders</span>
+                </a>
+                <a href="#" class="mobile-nav-item">
+                    <svg class="mobile-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <span class="mobile-nav-text">Reports</span>
+                </a>
+                <a href="#" class="mobile-nav-item">
+                    <svg class="mobile-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <span class="mobile-nav-text">Settings</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        // Check for saved theme preference or use system preference
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
+
+        // Toggle theme when button is clicked
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            
+            if (html.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+            
+            // Update UI elements with current theme
+            updateThemeElements();
+            updateComponentColors();
+        });
+        
+        // Sidebar dropdown functionality
+        function toggleSubmenu(link, event) {
+            event.preventDefault();
+            
+            const submenu = link.nextElementSibling;
+            const chevron = link.querySelector('.chevron');
+            
+            // Toggle submenu
+            if (submenu && submenu.classList.contains('submenu')) {
+                submenu.classList.toggle('expanded');
+                if (chevron) {
+                    chevron.classList.toggle('expanded');
+                }
+            }
+        }
+        
+        // Auto-expand active submenu
+        document.addEventListener('DOMContentLoaded', () => {
+            const activeLink = document.querySelector('.nav-link.active');
+            if (activeLink) {
+                const submenu = activeLink.nextElementSibling;
+                const chevron = activeLink.querySelector('.chevron');
+                if (submenu && submenu.classList.contains('submenu') && chevron) {
+                    submenu.classList.add('expanded');
+                    chevron.classList.add('expanded');
+                }
+            }
+            
+            // Set default color theme
+            const savedColorTheme = localStorage.getItem('colorTheme');
+            if (savedColorTheme) {
+                setColorTheme(savedColorTheme);
+                
+                // Find and activate the correct color option
+                const colorOption = document.querySelector(`.color-option[data-color="${savedColorTheme}"]`);
+                if (colorOption) {
+                    document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('active'));
+                    colorOption.classList.add('active');
+                }
+            } else {
+                setColorTheme('blue');
+            }
+            
+            // Update color theme button
+            updateColorThemeButton();
+            
+            // Update component colors
+            updateComponentColors();
+        });
+
+        // Mobile menu functionality
+        const mobileMenuTrigger = document.getElementById('mobileMenuTrigger');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        mobileMenuTrigger.addEventListener('click', () => {
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('active');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+        });
+        
+        // Color theme button functionality
+        const colorThemeButton = document.getElementById('colorThemeButton');
+        const themeSelector = document.getElementById('themeSelector');
+        
+        colorThemeButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            themeSelector.classList.toggle('visible');
+        });
+        
+        // Close theme selector when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!themeSelector.contains(event.target) && !colorThemeButton.contains(event.target)) {
+                themeSelector.classList.remove('visible');
+            }
+        });
+        
+        // Color theme functionality
+        const colorOptions = document.querySelectorAll('.color-option');
+        
+        colorOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const color = option.getAttribute('data-color');
+                
+                // Remove active class from all options
+                colorOptions.forEach(opt => opt.classList.remove('active'));
+                
+                // Add active class to clicked option
+                option.classList.add('active');
+                
+                // Set the color theme
+                setColorTheme(color);
+                
+                // Save the selected color theme
+                localStorage.setItem('colorTheme', color);
+            });
+        });
+        
+        function setColorTheme(color) {
+            const root = document.documentElement;
+            
+            // Reset current theme
+            root.style.removeProperty('--theme-current-start');
+            root.style.removeProperty('--theme-current-end');
+            root.style.removeProperty('--theme-current-accent');
+            root.style.removeProperty('--theme-current-foreground');
+            
+            // Set new theme based on color selection
+            switch(color) {
+                // Monochromatic themes
+                case 'black-white':
+                    root.style.setProperty('--theme-current-start', 'var(--mono-black-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--mono-black-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--mono-black-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--mono-black-foreground)');
+                    break;
+                case 'white-grey':
+                    root.style.setProperty('--theme-current-start', 'var(--mono-white-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--mono-white-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--mono-white-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--mono-white-foreground)');
+                    break;
+                case 'grey':
+                    root.style.setProperty('--theme-current-start', 'var(--mono-grey-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--mono-grey-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--mono-grey-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--mono-grey-foreground)');
+                    break;
+                
+                // Vibrant themes
+                case 'blue':
+                    root.style.setProperty('--theme-current-start', 'var(--vibrant-blue-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--vibrant-blue-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--vibrant-blue-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--vibrant-blue-foreground)');
+                    break;
+                case 'purple':
+                    root.style.setProperty('--theme-current-start', 'var(--vibrant-purple-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--vibrant-purple-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--vibrant-purple-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--vibrant-purple-foreground)');
+                    break;
+                case 'pink':
+                    root.style.setProperty('--theme-current-start', 'var(--vibrant-pink-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--vibrant-pink-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--vibrant-pink-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--vibrant-pink-foreground)');
+                    break;
+                case 'orange':
+                    root.style.setProperty('--theme-current-start', 'var(--vibrant-orange-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--vibrant-orange-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--vibrant-orange-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--vibrant-orange-foreground)');
+                    break;
+                case 'green':
+                    root.style.setProperty('--theme-current-start', 'var(--vibrant-green-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--vibrant-green-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--vibrant-green-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--vibrant-green-foreground)');
+                    break;
+                
+                // Pastel themes
+                case 'pastel-blue':
+                    root.style.setProperty('--theme-current-start', 'var(--pastel-blue-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--pastel-blue-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--pastel-blue-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--pastel-blue-foreground)');
+                    break;
+                case 'pastel-purple':
+                    root.style.setProperty('--theme-current-start', 'var(--pastel-purple-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--pastel-purple-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--pastel-purple-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--pastel-purple-foreground)');
+                    break;
+                case 'pastel-pink':
+                    root.style.setProperty('--theme-current-start', 'var(--pastel-pink-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--pastel-pink-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--pastel-pink-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--pastel-pink-foreground)');
+                    break;
+                case 'pastel-orange':
+                    root.style.setProperty('--theme-current-start', 'var(--pastel-orange-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--pastel-orange-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--pastel-orange-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--pastel-orange-foreground)');
+                    break;
+                case 'pastel-green':
+                    root.style.setProperty('--theme-current-start', 'var(--pastel-green-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--pastel-green-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--pastel-green-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--pastel-green-foreground)');
+                    break;
+            }
+            
+            // Update UI elements with new theme
+            updateThemeElements();
+            
+            // Update color theme button
+            updateColorThemeButton();
+            
+            // Update component colors
+            updateComponentColors();
+        }
+        
+        // Update UI elements with current theme colors
+        function updateThemeElements() {
+            const logo = document.querySelector('.logo');
+            const avatar = document.querySelector('.avatar');
+            const activeLinks = document.querySelectorAll('.nav-link.active');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            // Update logo and avatar background
+            if (logo) {
+                logo.style.background = `linear-gradient(135deg, var(--primary), var(--primary-foreground))`;
+                logo.style.color = `var(--primary-foreground)`;
+            }
+            
+            if (avatar) {
+                avatar.style.background = `linear-gradient(135deg, var(--primary), var(--primary-foreground))`;
+                avatar.style.color = `var(--primary-foreground)`;
+            }
+            
+            // Update active links
+            activeLinks.forEach(link => {
+                link.style.setProperty('--active-indicator', `linear-gradient(to bottom, var(--primary), var(--primary-foreground))`);
+            });
+            
+            // Update nav links hover indicator
+            navLinks.forEach(link => {
+                link.style.setProperty('--hover-color', `var(--primary)`);
+            });
+        }
+        
+        // Update color theme button
+        function updateColorThemeButton() {
+            const colorThemeButton = document.getElementById('colorThemeButton');
+            if (colorThemeButton) {
+                colorThemeButton.style.background = `linear-gradient(135deg, var(--primary), var(--primary-foreground))`;
+                colorThemeButton.style.color = `var(--primary-foreground)`;
+            }
+        }
+        
+        // Update component colors based on theme
+        function updateComponentColors() {
+            const root = document.documentElement;
+            
+            // Update primary colors
+            root.style.setProperty('--primary-bg', 'var(--theme-current-start)');
+            root.style.setProperty('--primary-bg-hover', 'var(--theme-current-end)');
+            root.style.setProperty('--primary-fg', 'var(--theme-current-foreground)');
+            
+            // Update accent colors
+            root.style.setProperty('--accent-bg', 'var(--theme-current-accent)');
+            root.style.setProperty('--accent-fg', 'var(--theme-current-foreground)');
+            
+            // Update sidebar specific colors
+            root.style.setProperty('--sidebar-item-active-bg', 'var(--theme-current-start)');
+            root.style.setProperty('--sidebar-item-active-fg', 'var(--theme-current-foreground)');
+            root.style.setProperty('--sidebar-icon-hover', 'var(--theme-current-start)');
+            
+            // Update button styles
+            root.style.setProperty('--button-primary-bg', 'var(--theme-current-start)');
+            root.style.setProperty('--button-primary-bg-hover', 'var(--theme-current-end)');
+            root.style.setProperty('--button-primary-fg', 'var(--theme-current-foreground)');
+            
+            // Update badge colors
+            root.style.setProperty('--badge-bg', 'var(--theme-current-start)');
+            root.style.setProperty('--badge-fg', 'var(--theme-current-foreground)');
+            
+            // Update form elements
+            root.style.setProperty('--input-focus-border', 'var(--theme-current-start)');
+        }
+    </script>
+</body>
+</html>

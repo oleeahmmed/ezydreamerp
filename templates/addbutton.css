@@ -1,0 +1,18 @@
+/* Background and base styling */
+bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))]
+border border-[hsl(var(--border))]
+rounded-lg
+
+/* Hover effects */
+hover:bg-[hsl(var(--accent))]
+hover:border-[hsl(var(--primary))]
+hover:-translate-y-0.5
+hover:shadow-md
+transition-all
+duration-300
+
+/* For the icon container inside */
+bg-[hsl(var(--primary))]
+text-[hsl(var(--primary-foreground))]
+group-hover:scale-110
+transition-transform

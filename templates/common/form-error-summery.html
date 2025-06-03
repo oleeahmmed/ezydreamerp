@@ -1,0 +1,52 @@
+{% load i18n %}
+
+			
+			{% if form.errors or formset.errors or formset.non_form_errors or extra_form.errors %}
+            <div class="mb-4 sm:mb-6 p-3 sm:p-4 rounded-lg border-2 border-red-500 bg-red-50 dark:bg-red-950/20 dark:border-red-800 shadow-md">
+                <div class="flex items-start mb-2">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-red-600 mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <div>
+                        <h4 class="text-base sm:text-lg font-semibold text-red-700 dark:text-red-400">Please correct the following errors:</h4>
+                        <ul class="mt-2 list-disc list-inside text-red-600 dark:text-red-400 text-sm">
+                            {% for field in form %}
+                                {% if field.errors %}
+                                    {% for error in field.errors %}
+                                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                            
+                            {% for error in formset.non_form_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                            
+                            {% for form_errors in formset.errors %}
+                                {% if form_errors %}
+                                    <li><strong>Line item {{ forloop.counter }}:</strong> Please check this row for errors</li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% for field in extra_form %}
+                                {% if field.errors %}
+                                    {% for error in field.errors %}
+                                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% for error in extra_form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% endif %}

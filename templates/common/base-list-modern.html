@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="mx-auto">
+    <div class="rounded-xl border-2 bg-[hsl(var(--background))] shadow-lg p-4 sm:p-8 mb-6 premium-card relative">
+        <!-- Decorative Elements -->
+        <div class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-[hsl(var(--primary))] to-transparent opacity-10 rounded-bl-full"></div>
+        <div class="absolute bottom-0 left-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-tr from-[hsl(var(--primary))] to-transparent opacity-10 rounded-tr-full"></div>
+        
+        <!-- Header -->
+        <div class="mb-6 sm:mb-8 border-b border-[hsl(var(--border))] pb-4 sm:pb-6 relative z-10">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <div class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-icon">
+                        {% block list_icon %}
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 6H20M9 12H20M9 18H20M5 6V6.01M5 12V12.01M5 18V18.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% endblock %}
+                    </div>
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-foreground))] bg-clip-text text-transparent">{% block list_title %}{{ title }}{% endblock %}</h3>
+                        <p class="text-xs sm:text-sm text-[hsl(var(--muted-foreground))]">{% block list_subtitle %}{{ subtitle }}{% endblock %}</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
+                    {% block list_actions %}
+                    <a href="{{ create_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-10 px-4 py-2 shadow-md premium-button">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Add New
+                    </a>
+                    <a href="{{ print_url }}" target="_blank" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:bg-[hsl(var(--secondary-hover))] h-10 px-4 py-2 shadow-md">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 9V2H18V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6 18H4C3.46957 18 2.96086 17.7893 2.58579 17.4142C2.21071 17.0391 2 16.5304 2 16V11C2 10.4696 2.21071 9.96086 2.58579 9.58579C2.96086 9.21071 3.46957 9 4 9H20C20.5304 9 21.0391 9.21071 21.4142 9.58579C21.7893 9.96086 22 10.4696 22 11V16C22 16.5304 21.7893 17.0391 21.4142 17.4142C21.0391 17.7893 20.5304 18 20 18H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M18 14H6V22H18V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Print
+                    </a>
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+
+        {% include "common/toast.html" %}
+
+        <!-- Search and Filter -->
+        {% block search_filter %}
+        <div class="mb-6">
+            <form method="get" class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <div class="relative flex-grow">
+                    <input type="text" name="search" placeholder="Search..." value="{{ request.GET.search|default:'' }}" class="w-full px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                    <button type="submit" class="absolute right-2 top-2 text-[hsl(var(--muted-foreground))]">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="filters-container overflow-x-auto hide-scrollbar -mx-4 px-4 pb-2">
+                    <div class="flex flex-nowrap gap-3 min-w-max">
+                        {% block additional_filters %}{% endblock %}
+                        <div class="flex-shrink-0">
+                            <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-10 px-4 py-2 whitespace-nowrap">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 4H21M3 12H21M3 20H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Filter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% endblock %}
+
+        <!-- Table -->
+        <div class="relative overflow-x-auto rounded-lg border border-[hsl(var(--border))] -mx-2 sm:mx-0">
+            <div class="min-w-full overflow-hidden overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="text-xs uppercase bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]">
+                        <tr>
+                            {% block table_headers %}
+                            <th scope="col" class="px-3 sm:px-6 py-3">Name</th>
+                            <th scope="col" class="px-3 sm:px-6 py-3">Description</th>
+                            <th scope="col" class="px-3 sm:px-6 py-3 text-right">Actions</th>
+                            {% endblock %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% block table_body %}
+                        {% for object in objects %}
+                        <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]">
+                            <td class="px-3 sm:px-6 py-4 font-medium">
+                                {% if object.name %}
+                                    {{ object.name }}
+                                {% else %}
+                                    {{ object }}
+                                {% endif %}
+                            </td>
+                            <td class="px-3 sm:px-6 py-4">{% block object_description %}{{ object }}{% endblock %}</td>
+                            <td class="px-3 sm:px-6 py-4 text-right">
+                                <div class="flex justify-end gap-1 sm:gap-2">
+                                    <a href="{{ list_url }}{{ object.pk }}/" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M2 12C2 12 5.63636 5 12 5C18.3636 5 22 12 22 12C22 12 18.3636 19 12 19C5.63636 19 2 12 2 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </a>
+                                    <a href="{{ list_url }}{{ object.pk }}/update/" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </a>
+                                    <a href="{{ list_url }}{{ object.pk }}/delete/" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-red-100 hover:text-red-700 h-9 px-3 py-2">
+                                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+                            <td colspan="{% block empty_colspan %}3{% endblock %}" class="px-3 sm:px-6 py-4 text-center text-[hsl(var(--muted-foreground))]">
+                                No {{ model_name|lower }}s found. <a href="{{ create_url }}" class="text-[hsl(var(--primary))] hover:underline">Add one now</a>.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% endblock %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% block pagination %}
+        {% if is_paginated %}
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-6">
+            <div class="text-sm text-[hsl(var(--muted-foreground))]">
+                Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ paginator.count }} entries
+            </div>
+            <div class="pagination-container overflow-x-auto hide-scrollbar -mx-4 px-4 pb-2">
+                <div class="flex flex-nowrap gap-2 min-w-max">
+                    {% if page_obj.has_previous %}
+                    <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'search' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                        First
+                    </a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'search' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                        Previous
+                    </a>
+                    {% endif %}
+                    
+                    {% for num in paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <span class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-3 py-2 bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]">
+                            {{ num }}
+                        </span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'search' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                            {{ num }}
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'search' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                        Next
+                    </a>
+                    <a href="?page={{ paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'search' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                        Last
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endblock %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add any custom JavaScript here
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle horizontal scrolling for filters
+    const filtersContainer = document.querySelector('.filters-container');
+    if (filtersContainer) {
+        // Add scroll indicators if needed
+    }
+    
+    // Handle horizontal scrolling for pagination
+    const paginationContainer = document.querySelector('.pagination-container');
+    if (paginationContainer) {
+        // Add scroll indicators if needed
+    }
+});
+</script>
+<style>
+    /* Hide scrollbar but keep functionality */
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    
+    /* Touch-friendly improvements */
+    @media (max-width: 640px) {
+        input, select, textarea {
+            font-size: 16px !important; /* Prevents iOS zoom on focus */
+        }
+        
+        /* Larger touch targets */
+        button, 
+        [type="button"],
+        [type="reset"],
+        [type="submit"] {
+            min-height: 44px;
+        }
+        
+        /* Improved spacing for mobile */
+        .premium-card {
+            border-radius: 12px;
+        }
+    }
+</style>
+{% endblock %}

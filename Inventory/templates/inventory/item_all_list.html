@@ -1,0 +1,796 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}All Inventory Items{% endblock %}
+{% block page_title %}Complete Inventory Items List{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-4">
+    <!-- Action buttons -->
+    <div class="flex flex-wrap gap-2 mb-4">
+        <button id="print-button" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Print
+        </button>
+        
+        <button id="column-toggle-button" class="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+            Show/Hide Columns
+        </button>
+        
+        <button id="share-button" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            Share
+        </button>
+        
+        <!-- Column toggle dropdown (hidden by default) -->
+        <div id="column-toggle-dropdown" class="hidden absolute mt-12 w-64 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
+            <div class="py-1 max-h-96 overflow-y-auto" role="menu" aria-orientation="vertical">
+                <div class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700">
+                    Toggle Column Visibility
+                </div>
+                
+                <!-- Column groups -->
+                <div class="px-4 py-2">
+                    <div class="flex items-center mb-2">
+                        <input id="toggle-all" type="checkbox" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="toggle-all" class="ml-2 block text-sm text-gray-700 dark:text-gray-200 font-medium">Toggle All</label>
+                    </div>
+                    
+                    <!-- Basic Information Group -->
+                    <div class="mt-3 mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Basic Information</div>
+                    <div class="ml-2 space-y-1">
+                        <!-- <div class="flex items-center">
+                            <input id="col-id" type="checkbox" checked data-column="0" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-id" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">ID</label>
+                        </div> -->
+                        <div class="flex items-center">
+                            <input id="col-code" type="checkbox" checked data-column="1" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-code" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Code</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-name" type="checkbox" checked data-column="2" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-name" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Name</label>
+                        </div>
+                        <!-- <div class="flex items-center">
+                            <input id="col-description" type="checkbox" checked data-column="3" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-description" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Description</label>
+                        </div> -->
+                        <div class="flex items-center">
+                            <input id="col-group" type="checkbox" checked data-column="4" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-group" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Group</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-image" type="checkbox" checked data-column="5" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-image" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Image</label>
+                        </div>
+                    </div>
+                    
+                    <!-- UOM Fields Group -->
+                    <div class="mt-3 mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">UOM Fields</div>
+                    <div class="ml-2 space-y-1">
+                        <div class="flex items-center">
+                            <input id="col-inventory-uom" type="checkbox" checked data-column="6" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-inventory-uom" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Inventory UOM</label>
+                        </div>
+                        <!-- <div class="flex items-center">
+                            <input id="col-purchase-uom" type="checkbox" checked data-column="7" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-purchase-uom" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Purchase UOM</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-sales-uom" type="checkbox" checked data-column="8" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-sales-uom" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Sales UOM</label>
+                        </div> -->
+                    </div>
+                    
+                    <!-- Item Type Flags Group -->
+                    <div class="mt-3 mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Item Type Flags</div>
+                    <!-- <div class="ml-2 space-y-1">
+                        <div class="flex items-center">
+                            <input id="col-is-inventory" type="checkbox" checked data-column="9" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-is-inventory" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Is Inventory</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-is-sales" type="checkbox" checked data-column="10" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-is-sales" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Is Sales</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-is-purchase" type="checkbox" checked data-column="11" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-is-purchase" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Is Purchase</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-is-service" type="checkbox" checked data-column="12" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-is-service" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Is Service</label>
+                        </div>
+                    </div> -->
+                    
+                    <!-- Warehouse Information Group -->
+                    <div class="mt-3 mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Warehouse Information</div>
+                    <div class="ml-2 space-y-1">
+                        <div class="flex items-center">
+                            <input id="col-default-warehouse" type="checkbox" checked data-column="13" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-default-warehouse" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Default Warehouse</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-min-stock" type="checkbox" checked data-column="14" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-min-stock" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Min Stock</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-max-stock" type="checkbox" checked data-column="15" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-max-stock" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Max Stock</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-reorder-point" type="checkbox" checked data-column="16" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-reorder-point" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Reorder Point</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Physical Attributes Group -->
+                    <div class="mt-3 mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Physical Attributes</div>
+                    <div class="ml-2 space-y-1">
+                        <div class="flex items-center">
+                            <input id="col-barcode" type="checkbox" checked data-column="17" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-barcode" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Barcode</label>
+                        </div>
+                        <!-- <div class="flex items-center">
+                            <input id="col-weight" type="checkbox" checked data-column="18" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-weight" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Weight</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-volume" type="checkbox" checked data-column="19" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-volume" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Volume</label>
+                        </div> -->
+                    </div>
+                    
+                    <!-- Price and Cost Fields Group -->
+                    <div class="mt-3 mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Price and Cost</div>
+                    <!-- <div class="ml-2 space-y-1">
+                        <div class="flex items-center">
+                            <input id="col-unit-price" type="checkbox" checked data-column="20" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-unit-price" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Unit Price</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-item-cost" type="checkbox" checked data-column="21" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-item-cost" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Item Cost</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-purchase-price" type="checkbox" checked data-column="22" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-purchase-price" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Purchase Price</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-selling-price" type="checkbox" checked data-column="23" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-selling-price" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Selling Price</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-markup" type="checkbox" checked data-column="24" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-markup" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Markup %</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-discount" type="checkbox" checked data-column="25" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-discount" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Discount %</label>
+                        </div>
+                    </div> -->
+                    
+                    <!-- Stock Information Group -->
+                    <div class="mt-3 mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Stock Information</div>
+                    <div class="ml-2 space-y-1">
+                        <div class="flex items-center">
+                            <input id="col-in-stock" type="checkbox" checked data-column="26" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-in-stock" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">In Stock</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-available" type="checkbox" checked data-column="27" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-available" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Available</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-committed" type="checkbox" checked data-column="28" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-committed" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Committed</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-ordered" type="checkbox" checked data-column="29" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-ordered" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Ordered</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Status and Dates Group -->
+                    <div class="mt-3 mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Status and Dates</div>
+                    <!-- <div class="ml-2 space-y-1">
+                        <div class="flex items-center">
+                            <input id="col-is-active" type="checkbox" checked data-column="30" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-is-active" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Is Active</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-created-at" type="checkbox" checked data-column="31" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-created-at" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Created At</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="col-updated-at" type="checkbox" checked data-column="32" class="column-toggle h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="col-updated-at" class="ml-2 block text-sm text-gray-700 dark:text-gray-200">Updated At</label>
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Share options dropdown (hidden by default) -->
+        <div id="share-dropdown" class="hidden absolute mt-12 w-64 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
+            <div class="py-1 max-h-96 overflow-y-auto" role="menu" aria-orientation="vertical">
+                <!-- Copy Link -->
+                <button id="copy-link" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" role="menuitem">
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                        Copy Link
+                    </div>
+                </button>
+                
+                <!-- Email -->
+                <button id="share-email" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" role="menuitem">
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        Email
+                    </div>
+                </button>
+                
+                <!-- WhatsApp -->
+                <button id="share-whatsapp" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" role="menuitem">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                        </svg>
+                        WhatsApp
+                    </div>
+                </button>
+                
+                <!-- Facebook -->
+                <button id="share-facebook" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" role="menuitem">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/>
+                        </svg>
+                        Facebook
+                    </div>
+                </button>
+                
+                <!-- Twitter/X -->
+                <button id="share-twitter" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" role="menuitem">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                        </svg>
+                        Twitter/X
+                    </div>
+                </button>
+                
+                <!-- LinkedIn -->
+                <button id="share-linkedin" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" role="menuitem">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"/>
+                        </svg>
+                        LinkedIn
+                    </div>
+                </button>
+                
+                <!-- Telegram -->
+                <button id="share-telegram" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" role="menuitem">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19l-9.5 5.99-4.1-1.34c-.88-.28-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71l-4.14-3.05-1.99 1.93c-.23.23-.42.42-.83.42z"/>
+                        </svg>
+                        Telegram
+                    </div>
+                </button>
+                
+                <!-- SMS (for mobile) -->
+                <button id="share-sms" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" role="menuitem">
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        </svg>
+                        SMS
+                    </div>
+                </button>
+                
+                <!-- Native Share (for mobile) -->
+                <button id="share-native" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700" role="menuitem">
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                        </svg>
+                        Native Share (Mobile)
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Printable area -->
+    <div id="printable-area">
+        <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
+          <div class="p-4 border-b border-gray-200 dark:border-gray-700 print-header">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Inventory Summary</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 print-only">Generated on: <span id="print-date"></span></p>
+          </div>
+      
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Code</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Name</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Unit Price</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">In Stock</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Available</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Committed</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Ordered</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Sales Total</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Purchase Total</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                  {% for row in item_data %}
+                  <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td class="px-3 py-2 text-xs text-gray-700 dark:text-gray-300">{{ row.code }}</td>
+                    <td class="px-3 py-2 text-xs text-gray-700 dark:text-gray-300">{{ row.name }}</td>
+                    <td class="px-3 py-2 text-xs text-gray-700 dark:text-gray-300">{{ row.unit_price|floatformat:2 }}</td>
+                    <td class="px-3 py-2 text-xs text-gray-700 dark:text-gray-300">{{ row.in_stock|floatformat:2 }}</td>
+                    <td class="px-3 py-2 text-xs text-gray-700 dark:text-gray-300">{{ row.object.available|floatformat:2 }}</td>
+                    <td class="px-3 py-2 text-xs text-gray-700 dark:text-gray-300">{{ row.object.committed|floatformat:2 }}</td>
+                    <td class="px-3 py-2 text-xs text-gray-700 dark:text-gray-300">{{ row.object.ordered|floatformat:2 }}</td>
+                    <td class="px-3 py-2 text-green-700 dark:text-green-400">{{ row.sales_total|floatformat:2 }}</td>
+                    <td class="px-3 py-2 text-blue-700 dark:text-blue-400">{{ row.purchase_total|floatformat:2 }}</td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="9" class="text-center text-gray-500 py-4">No items found.</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              
+                <tfoot class="bg-gray-100 dark:bg-gray-900">
+                  <tr class="font-bold">
+                    <td colspan="7" class="px-3 py-2 text-right text-gray-800 dark:text-gray-200">Grand Totals:</td>
+                    <td class="px-3 py-2 text-green-700 dark:text-green-400">{{ total_sales_value|floatformat:2 }}</td>
+                    <td class="px-3 py-2 text-blue-700 dark:text-blue-400">{{ total_purchase_value|floatformat:2 }}</td>
+                  </tr>
+                </tfoot>
+              </table>
+              
+          </div>
+      
+          <div class="p-4 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
+            <div class="flex justify-between items-center">
+              <span>Total items: {{ objects|length }}</span>
+              <span class="print-only">Page <span class="page-number"></span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    
+    <!-- Success message toast (hidden by default) -->
+    <div id="toast-message" class="fixed bottom-4 right-4 px-4 py-2 bg-green-500 text-white rounded-md shadow-lg transform transition-transform duration-300 translate-y-full opacity-0">
+        Link copied to clipboard!
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_css %}
+<style>
+    /* Custom styles for the inventory table */
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    
+    th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+    
+    .overflow-x-auto {
+        max-height: calc(100vh - 250px);
+        overflow-y: auto;
+    }
+    
+    /* Make the table more compact */
+    th, td {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+    }
+    
+    /* Zebra striping for better readability */
+    tbody tr:nth-child(even) {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+        .overflow-x-auto {
+            max-height: none;
+        }
+    }
+    
+    /* Print-only elements */
+    .print-only {
+        display: none;
+    }
+    
+    /* Hidden column styles */
+    .column-hidden {
+        display: none;
+    }
+    
+    /* Column toggle dropdown */
+    #column-toggle-dropdown {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    
+    /* Print styles */
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        
+        #printable-area, #printable-area * {
+            visibility: visible;
+        }
+        
+        #printable-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+        
+        .no-print {
+            display: none !important;
+        }
+        
+        .print-only {
+            display: block;
+        }
+        
+        /* Ensure table fits on printed page */
+        .overflow-x-auto {
+            overflow: visible;
+            max-height: none;
+        }
+        
+        /* Adjust table for printing */
+        table {
+            font-size: 7pt;
+            width: 100%;
+            page-break-inside: auto;
+        }
+        
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+        
+        th, td {
+            padding: 2px 3px;
+            border: 0.5pt solid #ddd;
+        }
+        
+        /* Keep hidden columns hidden when printing */
+        .column-hidden {
+            display: none !important;
+        }
+        
+        thead {
+            display: table-header-group;
+        }
+        
+        tfoot {
+            display: table-footer-group;
+        }
+        
+        /* Print header on each page */
+        .print-header {
+            position: running(header);
+            top: 0;
+            width: 100%;
+            border-bottom: 1pt solid #000;
+        }
+        
+        @page {
+            size: landscape;
+            margin: 1cm;
+            @top-center {
+                content: element(header);
+            }
+            @bottom-right {
+                content: "Page " counter(page) " of " counter(pages);
+            }
+        }
+        
+        /* Improve readability of Yes/No indicators */
+        .inline-flex {
+            background: none !important;
+            padding: 0 !important;
+            color: #000 !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block custom_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const printButton = document.getElementById('print-button');
+        const shareButton = document.getElementById('share-button');
+        const columnToggleButton = document.getElementById('column-toggle-button');
+        const shareDropdown = document.getElementById('share-dropdown');
+        const columnToggleDropdown = document.getElementById('column-toggle-dropdown');
+        const copyLinkButton = document.getElementById('copy-link');
+        const shareEmailButton = document.getElementById('share-email');
+        const shareWhatsAppButton = document.getElementById('share-whatsapp');
+        const shareFacebookButton = document.getElementById('share-facebook');
+        const shareTwitterButton = document.getElementById('share-twitter');
+        const shareLinkedInButton = document.getElementById('share-linkedin');
+        const shareTelegramButton = document.getElementById('share-telegram');
+        const shareSmsButton = document.getElementById('share-sms');
+        const shareNativeButton = document.getElementById('share-native');
+        const toastMessage = document.getElementById('toast-message');
+        const printDateElement = document.getElementById('print-date');
+        const toggleAllCheckbox = document.getElementById('toggle-all');
+        const columnToggleCheckboxes = document.querySelectorAll('.column-toggle');
+        
+        // Set print date
+        if (printDateElement) {
+            const now = new Date();
+            printDateElement.textContent = now.toLocaleString();
+        }
+        
+        // Print functionality
+        if (printButton) {
+            printButton.addEventListener('click', function() {
+                window.print();
+            });
+        }
+        
+        // Column toggle functionality
+        if (columnToggleButton && columnToggleDropdown) {
+            columnToggleButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                columnToggleDropdown.classList.toggle('hidden');
+                shareDropdown.classList.add('hidden');
+                
+                // Position the dropdown
+                const buttonRect = columnToggleButton.getBoundingClientRect();
+                columnToggleDropdown.style.top = `${buttonRect.bottom + window.scrollY}px`;
+                columnToggleDropdown.style.left = `${buttonRect.left + window.scrollX}px`;
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!columnToggleDropdown.contains(e.target) && e.target !== columnToggleButton) {
+                    columnToggleDropdown.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Toggle all columns
+        if (toggleAllCheckbox) {
+            toggleAllCheckbox.addEventListener('change', function() {
+                const isChecked = this.checked;
+                
+                // Update all column checkboxes
+                columnToggleCheckboxes.forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                    
+                    // Update column visibility
+                    const columnIndex = checkbox.getAttribute('data-column');
+                    toggleColumnVisibility(columnIndex, isChecked);
+                });
+            });
+        }
+        
+        // Individual column toggle
+        if (columnToggleCheckboxes.length > 0) {
+            columnToggleCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const columnIndex = this.getAttribute('data-column');
+                    const isVisible = this.checked;
+                    
+                    // Toggle column visibility
+                    toggleColumnVisibility(columnIndex, isVisible);
+                    
+                    // Update "Toggle All" checkbox state
+                    updateToggleAllCheckbox();
+                });
+            });
+        }
+        
+        // Function to toggle column visibility
+        function toggleColumnVisibility(columnIndex, isVisible) {
+            const headers = document.querySelectorAll(`.column-header[data-column="${columnIndex}"]`);
+            const cells = document.querySelectorAll(`.column-cell[data-column="${columnIndex}"]`);
+            
+            headers.forEach(header => {
+                if (isVisible) {
+                    header.classList.remove('column-hidden');
+                } else {
+                    header.classList.add('column-hidden');
+                }
+            });
+            
+            cells.forEach(cell => {
+                if (isVisible) {
+                    cell.classList.remove('column-hidden');
+                } else {
+                    cell.classList.add('column-hidden');
+                }
+            });
+        }
+        
+        // Function to update "Toggle All" checkbox state
+        function updateToggleAllCheckbox() {
+            if (!toggleAllCheckbox) return;
+            
+            const totalCheckboxes = columnToggleCheckboxes.length;
+            const checkedCheckboxes = document.querySelectorAll('.column-toggle:checked').length;
+            
+            if (checkedCheckboxes === 0) {
+                toggleAllCheckbox.checked = false;
+                toggleAllCheckbox.indeterminate = false;
+            } else if (checkedCheckboxes === totalCheckboxes) {
+                toggleAllCheckbox.checked = true;
+                toggleAllCheckbox.indeterminate = false;
+            } else {
+                toggleAllCheckbox.indeterminate = true;
+            }
+        }
+        
+        // Share dropdown toggle
+        if (shareButton && shareDropdown) {
+            shareButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                shareDropdown.classList.toggle('hidden');
+                columnToggleDropdown.classList.add('hidden');
+                
+                // Position the dropdown
+                const buttonRect = shareButton.getBoundingClientRect();
+                shareDropdown.style.top = `${buttonRect.bottom + window.scrollY}px`;
+                shareDropdown.style.left = `${buttonRect.left + window.scrollX}px`;
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!shareDropdown.contains(e.target) && e.target !== shareButton) {
+                    shareDropdown.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Copy link functionality
+        if (copyLinkButton) {
+            copyLinkButton.addEventListener('click', function() {
+                const currentUrl = window.location.href;
+                navigator.clipboard.writeText(currentUrl).then(function() {
+                    showToast('Link copied to clipboard!');
+                    shareDropdown.classList.add('hidden');
+                }).catch(function(err) {
+                    console.error('Could not copy text: ', err);
+                });
+            });
+        }
+        
+        // Email share functionality
+        if (shareEmailButton) {
+            shareEmailButton.addEventListener('click', function() {
+                const subject = 'Inventory Items List';
+                const body = 'Check out this inventory items list: ' + window.location.href;
+                window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                shareDropdown.classList.add('hidden');
+            });
+        }
+        
+        // WhatsApp share functionality
+        if (shareWhatsAppButton) {
+            shareWhatsAppButton.addEventListener('click', function() {
+                const text = 'Check out this inventory items list: ' + window.location.href;
+                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                shareDropdown.classList.add('hidden');
+            });
+        }
+        
+        // Facebook share functionality
+        if (shareFacebookButton) {
+            shareFacebookButton.addEventListener('click', function() {
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank', 'width=600,height=400');
+                shareDropdown.classList.add('hidden');
+            });
+        }
+        
+        // Twitter/X share functionality
+        if (shareTwitterButton) {
+            shareTwitterButton.addEventListener('click', function() {
+                const text = 'Check out this complete inventory items list';
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`, '_blank', 'width=600,height=400');
+                shareDropdown.classList.add('hidden');
+            });
+        }
+        
+        // LinkedIn share functionality
+        if (shareLinkedInButton) {
+            shareLinkedInButton.addEventListener('click', function() {
+                window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank', 'width=600,height=400');
+                shareDropdown.classList.add('hidden');
+            });
+        }
+        
+        // Telegram share functionality
+        if (shareTelegramButton) {
+            shareTelegramButton.addEventListener('click', function() {
+                const text = 'Check out this inventory items list';
+                window.open(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`, '_blank', 'width=600,height=400');
+                shareDropdown.classList.add('hidden');
+            });
+        }
+        
+        // SMS share functionality
+        if (shareSmsButton) {
+            shareSmsButton.addEventListener('click', function() {
+                const text = 'Check out this inventory items list: ' + window.location.href;
+                window.location.href = `sms:?body=${encodeURIComponent(text)}`;
+                shareDropdown.classList.add('hidden');
+            });
+        }
+        
+        // Native share functionality (for mobile)
+        if (shareNativeButton) {
+            shareNativeButton.addEventListener('click', function() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Inventory Items List',
+                        text: 'Check out this complete inventory items list',
+                        url: window.location.href,
+                    })
+                    .then(() => {
+                        console.log('Successfully shared');
+                        shareDropdown.classList.add('hidden');
+                    })
+                    .catch((error) => {
+                        console.error('Error sharing:', error);
+                    });
+                } else {
+                    showToast('Native sharing not supported on this device');
+                }
+            });
+        }
+        
+        // Toast message function
+        function showToast(message) {
+            if (toastMessage) {
+                toastMessage.textContent = message;
+                toastMessage.classList.remove('translate-y-full', 'opacity-0');
+                
+                setTimeout(function() {
+                    toastMessage.classList.add('translate-y-full', 'opacity-0');
+                }, 3000);
+            }
+        }
+        
+        // Initialize column visibility based on checkboxes
+        columnToggleCheckboxes.forEach(checkbox => {
+            const columnIndex = checkbox.getAttribute('data-column');
+            toggleColumnVisibility(columnIndex, checkbox.checked);
+        });
+    });
+</script>
+{% endblock %}

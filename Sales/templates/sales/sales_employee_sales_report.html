@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Sales Report Summary{% endblock %}
+{% block page_title %}Sales Report Summary{% endblock %}
+
+{% block content %}
+<div class="space-y-10">
+  <!-- Tab Navigation -->
+  <div class="flex justify-center">
+    <div class="bg-[hsl(var(--background))] shadow-lg rounded-full px-4 py-2 flex space-x-4 items-center border border-[hsl(var(--border))]">
+      <button onclick="showTab('today')" class="tab-btn text-sm font-medium px-4 py-1.5 rounded-full transition-colors hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]">Today</button>
+      <button onclick="showTab('month')" class="tab-btn text-sm font-medium px-4 py-1.5 rounded-full transition-colors hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]">This Month</button>
+      <button onclick="showTab('last30')" class="tab-btn text-sm font-medium px-4 py-1.5 rounded-full transition-colors hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]">Last 30 Days</button>
+      {% if is_sales_employee %}
+      <button onclick="showTab('mine')" class="tab-btn text-sm font-medium px-4 py-1.5 rounded-full transition-colors hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]">My Sales</button>
+      {% endif %}
+      <form method="get" class="ml-4">
+        <button type="submit" class="text-sm font-medium px-4 py-1.5 rounded-full bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary-dark))] transition">⟳ Sync</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Today Tab -->
+  <div id="tab-today" class="tab-content hidden">
+    <h3 class="text-2xl font-semibold mb-6">All Sales - Today</h3>
+    <div class="overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--card-foreground))] shadow-md">
+      <table class="w-full text-sm text-left">
+        <thead class="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] uppercase tracking-wider text-xs">
+          <tr class="border-b border-[hsl(var(--border))]">
+            <th class="px-6 py-4 font-semibold">Sales Employee</th>
+            <th class="px-6 py-4 font-semibold text-right">Total Sales</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in today_sales %}
+          <tr class="border-t border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition-colors">
+            <td class="px-6 py-4 whitespace-nowrap">{{ entry.sales_employee__name }}</td>
+            <td class="px-6 py-4 text-right font-medium">{{ entry.total_sales|floatformat:2 }}</td>
+          </tr>
+          {% empty %}
+          <tr><td class="px-6 py-4" colspan="2">No sales found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- This Month Tab -->
+  <div id="tab-month" class="tab-content hidden">
+    <h3 class="text-2xl font-semibold mb-6">All Sales - This Month</h3>
+    <div class="overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--card-foreground))] shadow-md">
+      <table class="w-full text-sm text-left">
+        <thead class="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] uppercase tracking-wider text-xs">
+          <tr class="border-b border-[hsl(var(--border))]">
+            <th class="px-6 py-4 font-semibold">Sales Employee</th>
+            <th class="px-6 py-4 font-semibold text-right">Total Sales</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in month_sales %}
+          <tr class="border-t border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition-colors">
+            <td class="px-6 py-4 whitespace-nowrap">{{ entry.sales_employee__name }}</td>
+            <td class="px-6 py-4 text-right font-medium">{{ entry.total_sales|floatformat:2 }}</td>
+          </tr>
+          {% empty %}
+          <tr><td class="px-6 py-4" colspan="2">No sales found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Last 30 Days Tab -->
+  <div id="tab-last30" class="tab-content hidden">
+    <h3 class="text-2xl font-semibold mb-6">All Sales - Last 30 Days</h3>
+    <div class="overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--card-foreground))] shadow-md">
+      <table class="w-full text-sm text-left">
+        <thead class="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] uppercase tracking-wider text-xs">
+          <tr class="border-b border-[hsl(var(--border))]">
+            <th class="px-6 py-4 font-semibold">Sales Employee</th>
+            <th class="px-6 py-4 font-semibold text-right">Total Sales</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in last_30_days_sales %}
+          <tr class="border-t border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition-colors">
+            <td class="px-6 py-4 whitespace-nowrap">{{ entry.sales_employee__name }}</td>
+            <td class="px-6 py-4 text-right font-medium">{{ entry.total_sales|floatformat:2 }}</td>
+          </tr>
+          {% empty %}
+          <tr><td class="px-6 py-4" colspan="2">No sales found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% if is_sales_employee %}
+  <!-- My Sales Tab -->
+  <div id="tab-mine" class="tab-content hidden">
+    <h3 class="text-2xl font-semibold mb-6">My Sales Summary</h3>
+    <div class="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--card-foreground))] shadow-md p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] rounded-lg p-4">
+          <p class="text-sm mb-1">Today's Sales</p>
+          <p class="text-xl font-bold">{{ user_sales_today.total_sales|default:0|floatformat:2 }}</p>
+        </div>
+        <div class="bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] rounded-lg p-4">
+          <p class="text-sm mb-1">This Month's Sales</p>
+          <p class="text-xl font-bold">{{ user_sales_month.total_sales|default:0|floatformat:2 }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  function showTab(tab) {
+    const tabs = ['today', 'month', 'last30', 'mine'];
+    tabs.forEach(t => {
+      const el = document.getElementById('tab-' + t);
+      if (el) el.classList.add('hidden');
+    });
+    const active = document.getElementById('tab-' + tab);
+    if (active) active.classList.remove('hidden');
+  }
+  document.addEventListener("DOMContentLoaded", () => showTab('today'));
+</script>
+{% endblock %}

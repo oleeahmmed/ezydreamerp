@@ -1,0 +1,49 @@
+<nav class="fixed bottom-0 left-0 right-0 z-50 bg-[hsl(var(--background))] border-t border-[hsl(var(--border))] backdrop-blur-lg bg-opacity-80 md:hidden">
+    <div class="max-w-md mx-auto px-4">
+        <div class="flex items-center justify-between py-2">
+            <!-- Item List -->
+            <a href="{% url 'Inventory:item_list' %}" class="flex flex-col items-center justify-center w-16 py-2 rounded-xl transition-all duration-200 text-[hsl(var(--primary))]">
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 6H20M9 12H20M9 18H20M5 6V6.01M5 12V12.01M5 18V18.01" 
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="mt-1 text-xs font-medium">Products</span>
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-[hsl(var(--primary))]"></div>
+            </a>
+
+            <!-- Sales Order List -->
+            <a href="{% url 'Sales:sales_order_list' %}" class="flex flex-col items-center justify-center w-16 py-2 rounded-xl transition-all duration-200 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))]">
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5M12 12H15M12 16H15M9 12H9.01M9 16H9.01" 
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="mt-1 text-xs font-medium">Orders</span>
+            </a>
+
+            <!-- Add Sales Order (Center Button) -->
+            <a href="{% url 'Sales:sales_order_create' %}" class="relative flex items-center justify-center w-14 h-14 -mt-5 rounded-full bg-[#333333] text-white shadow-lg hover:bg-[#444444] transition-all duration-200">
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 6V18M6 12H18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </a>
+
+            <!-- Delivery List -->
+            <a href="{% url 'Sales:delivery_list' %}" class="flex flex-col items-center justify-center w-16 py-2 rounded-xl transition-all duration-200 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] relative">
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 16V6H21V16H13ZM13 16H3V8.5M8 16V13M3 8.5V6H8V8.5M3 8.5H8M8 8.5V13" 
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="mt-1 text-xs font-medium">Delivery</span>
+            </a>
+
+            <!-- Add Customer -->
+            <a href="{% url 'BusinessPartnerMasterData:business_partner_create' %}" class="flex flex-col items-center justify-center w-16 py-2 rounded-xl transition-all duration-200 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))]">
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 21V19C19 17.9391 18.5786 16.9217 17.8284 16.1716C17.0783 15.4214 16.0609 15 15 15H9C7.93913 15 6.92172 15.4214 6.17157 16.1716C5.42143 16.9217 5 17.9391 5 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" 
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="mt-1 text-xs font-medium">Customer</span>
+            </a>
+        </div>
+    </div>
+</nav>

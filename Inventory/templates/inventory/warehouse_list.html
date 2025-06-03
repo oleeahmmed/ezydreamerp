@@ -1,0 +1,187 @@
+{% extends "common/base-list-modern.html" %}
+{% load static %}
+
+{% block list_icon %}
+<svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21 11.5V17.5C21 20 19.5 22 16.5 22H7.5C4.5 22 3 20 3 17.5V11.5C3 10.5 3.5 9.6 4.2 9L11.2 3.5C11.7 3.1 12.3 3.1 12.8 3.5L19.8 9C20.5 9.6 21 10.5 21 11.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M16 15C14.9 15 14 15.9 14 17V22H10V17C10 15.9 9.1 15 8 15H3M12 11C13.1046 11 14 10.1046 14 9C14 7.89543 13.1046 7 12 7C10.8954 7 10 7.89543 10 9C10 10.1046 10.8954 11 12 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+{% endblock %}
+
+{% block list_title %}{{ title }}{% endblock %}
+{% block list_subtitle %}{{ subtitle }}{% endblock %}
+
+{% block list_actions %}
+{% if can_create %}
+<a href="{% url 'Inventory:warehouse_create' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-10 px-4 py-2 shadow-md premium-button">
+    <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Add New Warehouse
+</a>
+{% endif %}
+<a href="{% url 'Inventory:warehouse_export' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:bg-[hsl(var(--secondary-hover))] h-10 px-4 py-2 shadow-md">
+    <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Export CSV
+</a>
+{% if can_delete %}
+<button id="bulk-delete-button" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-red-100 text-red-700 hover:bg-red-200 h-10 px-4 py-2 shadow-md">
+    <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Bulk Delete
+</button>
+{% endif %}
+{% endblock %}
+
+{% block additional_filters %}
+<div class="flex-grow sm:flex-grow-0">
+    <select name="is_active" class="w-full sm:w-48 px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+        <option value="">All Status</option>
+        <option value="true" {% if request.GET.is_active == 'true' %}selected{% endif %}>Active</option>
+        <option value="false" {% if request.GET.is_active == 'false' %}selected{% endif %}>Inactive</option>
+    </select>
+</div>
+<div class="flex-grow sm:flex-grow-0">
+    <select name="is_default" class="w-full sm:w-48 px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+        <option value="">All Warehouses</option>
+        <option value="true" {% if request.GET.is_default == 'true' %}selected{% endif %}>Default Only</option>
+        <option value="false" {% if request.GET.is_default == 'false' %}selected{% endif %}>Non-Default Only</option>
+    </select>
+</div>
+{% endblock %}
+
+{% block table_headers %}
+<th scope="col" class="px-6 py-3">
+    <input type="checkbox" id="select-all" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+</th>
+<th scope="col" class="px-6 py-3">Code</th>
+<th scope="col" class="px-6 py-3">Name</th>
+<th scope="col" class="px-6 py-3">Default</th>
+<th scope="col" class="px-6 py-3">Contact Person</th>
+<th scope="col" class="px-6 py-3">Contact Phone</th>
+<th scope="col" class="px-6 py-3">Status</th>
+<th scope="col" class="px-6 py-3 text-right">Actions</th>
+{% endblock %}
+
+{% block table_body %}
+<form id="bulk-delete-form" method="get">
+    {% csrf_token %}
+    {% for object in objects %}
+    <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]">
+        <td class="px-6 py-4">
+            <input type="checkbox" name="ids" value="{{ object.id }}" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+        </td>
+        <td class="px-6 py-4 font-medium">{{ object.code }}</td>
+        <td class="px-6 py-4">{{ object.name }}</td>
+        <td class="px-6 py-4">
+            {% if object.is_default %}
+            <span class="px-2 py-1 rounded-full bg-green-100 text-green-800">Default</span>
+            {% else %}
+            <span class="px-2 py-1 rounded-full bg-gray-100 text-gray-800">No</span>
+            {% endif %}
+        </td>
+        <td class="px-6 py-4">{{ object.contact_person|default:"-" }}</td>
+        <td class="px-6 py-4">{{ object.contact_phone|default:"-" }}</td>
+        <td class="px-6 py-4">
+            <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium {% if object.is_active %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                {% if object.is_active %}Active{% else %}Inactive{% endif %}
+            </span>
+        </td>
+        <td class="px-6 py-4 text-right">
+            <div class="flex justify-end gap-2">
+                <a href="{% url 'Inventory:warehouse_detail' object.pk %}" 
+                   class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 12C2 12 5.63636 5 12 5C18.3636 5 22 12 22 12C22 12 18.3636 19 12 19C5.63636 19 2 12 2 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="sr-only">View</span>
+                </a>
+                <a href="{% url 'Inventory:warehouse_update' object.pk %}" 
+                   class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="sr-only">Edit</span>
+                </a>
+                <a href="{% url 'Inventory:warehouse_print_detail' object.pk %}" 
+                   target="_blank"
+                   class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 9V2H18V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6 18H4C3.46957 18 2.96086 17.7893 2.58579 17.4142C2.21071 17.0391 2 16.5304 2 16V11C2 10.4696 2.21071 9.96086 2.58579 9.58579C2.96086 9.21071 3.46957 9 4 9H20C20.5304 9 21.0391 9.21071 21.4142 9.58579C21.7893 9.96086 22 10.4696 22 11V16C22 16.5304 21.7893 17.0391 21.4142 17.4142C21.0391 17.7893 20.5304 18 20 18H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6 14H18V22H6V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="sr-only">Print</span>
+                </a>
+                <a href="{% url 'Inventory:warehouse_delete' object.pk %}" 
+                   class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-red-100 hover:text-red-700 h-9 px-3 py-2">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="sr-only">Delete</span>
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% empty %}
+    <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+        <td colspan="8" class="px-6 py-4 text-center text-[hsl(var(--muted-foreground))]">
+            No warehouses found. <a href="{% url 'Inventory:warehouse_create' %}" class="text-[hsl(var(--primary))] hover:underline">Add one now</a>.
+        </td>
+    </tr>
+    {% endfor %}
+</form>
+{% endblock %}
+
+{% block empty_colspan %}8{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('select-all');
+    const itemCheckboxes = document.querySelectorAll('input[name="ids"]');
+    const bulkDeleteForm = document.getElementById('bulk-delete-form');
+    const bulkDeleteButton = document.getElementById('bulk-delete-button');
+
+    // Handle select all checkbox
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            itemCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        });
+    }
+
+    // Handle bulk delete button
+    if (bulkDeleteButton && bulkDeleteForm) {
+        bulkDeleteButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const checkedBoxes = document.querySelectorAll('input[name="ids"]:checked');
+            if (checkedBoxes.length === 0) {
+                alert('Please select at least one warehouse to delete.');
+                return;
+            }
+            
+            // Create the URL with selected IDs
+            const params = new URLSearchParams();
+            checkedBoxes.forEach(box => {
+                params.append('ids', box.value);
+            });
+            
+            // Redirect to the bulk delete confirmation page
+            window.location.href = `{% url 'Inventory:warehouse_bulk_delete' %}?${params.toString()}`;
+        });
+    }
+});
+</script>
+{% endblock %}

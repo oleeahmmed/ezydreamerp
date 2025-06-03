@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+        <div class="p-6">
+            <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+                Confirm Bulk Delete
+            </h2>
+            <p class="text-gray-600 dark:text-gray-300 mb-6">
+                Are you sure you want to delete the following {{ objects|length }} {{ model_name }}(s)? This action cannot be undone.
+            </p>
+            
+            <div class="mb-6 border rounded-lg overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Document Number
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Document Date
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Supplier
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Status
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for object in objects %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {{ object.document_number|default:"-" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {{ object.document_date|default:"-" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {{ object.supplier|default:"-" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {{ object.status|default:"-" }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <form method="post" action="{{ delete_url }}" class="flex gap-4">
+                {% csrf_token %}
+                {% for object in objects %}
+                <input type="hidden" name="ids" value="{{ object.id }}">
+                {% endfor %}
+                
+                <button type="submit" 
+                        class="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                    Delete {{ model_name }}
+                </button>
+                <a href="{{ cancel_url }}" 
+                   class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 text-center">
+                    Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

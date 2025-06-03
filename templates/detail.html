@@ -1,0 +1,137 @@
+{% extends "common/base-list.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-[hsl(var(--foreground))]">{{ title }}</h1>
+            <p class="text-[hsl(var(--muted-foreground))]">View details for this {{ model_name|lower }}</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ back_url }}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-4 py-2">
+                <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to List
+            </a>
+            <a href="{{ update_url }}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:bg-[hsl(var(--primary))] hover:opacity-90 h-9 px-4 py-2">
+                <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Edit
+            </a>
+            <a href="{{ delete_url }}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--destructive))] bg-[hsl(var(--destructive))] text-[hsl(var(--destructive-foreground))] hover:opacity-90 h-9 px-4 py-2">
+                <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Delete
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-[hsl(var(--card))] rounded-lg border border-[hsl(var(--border))] shadow-sm">
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% if model_name == 'Currency' %}
+                    <div>
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Name</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.name }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Code</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.code }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Symbol</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.symbol }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Exchange Rate</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.exchange_rate }}</p>
+                    </div>
+                {% elif model_name == 'PaymentTerms' %}
+                    <div>
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Name</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.name }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Days</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.days }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Discount Percentage</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.discount_percentage }}%</p>
+                    </div>
+                {% elif model_name == 'CompanyInfo' %}
+                    <div>
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Name</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.name }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Email</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.email }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Phone Number</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.phone_number }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Address</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.address }}</p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Tax Info</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.tax_info }}</p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Logo</h3>
+                        {% if object.logo %}
+                            <img src="{{ object.logo.url }}" alt="{{ object.name }} Logo" class="mt-2 max-h-32 object-contain">
+                        {% else %}
+                            <p class="mt-1 text-base font-medium text-[hsl(var(--muted-foreground))]">No logo uploaded</p>
+                        {% endif %}
+                    </div>
+                {% elif model_name == 'Localization' %}
+                    <div>
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Time Zone</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.time_zone }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Language</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.language }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Date Format</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.date_format }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Time Format</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.time_format }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Decimal Separator</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.decimal_separator }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Thousand Separator</h3>
+                        <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object.thousand_separator }}</p>
+                    </div>
+                {% else %}
+                    {% for field in object._meta.get_fields %}
+                        {% if field.concrete and not field.is_relation and field.name != 'id' %}
+                            <div>
+                                <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">{{ field.verbose_name|default:field.name|title }}</h3>
+                                <p class="mt-1 text-base font-medium text-[hsl(var(--foreground))]">{{ object|getattribute:field.name }}</p>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

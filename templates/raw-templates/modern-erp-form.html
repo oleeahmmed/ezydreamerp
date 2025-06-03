@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern ERP System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        },
+                        accent: {
+                            50: '#fdf4ff',
+                            100: '#fae8ff',
+                            200: '#f5d0fe',
+                            300: '#f0abfc',
+                            400: '#e879f9',
+                            500: '#d946ef',
+                            600: '#c026d3',
+                            700: '#a21caf',
+                            800: '#86198f',
+                            900: '#701a75',
+                        }
+                    },
+                    boxShadow: {
+                        'float': '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02)',
+                        'float-lg': '0 20px 35px -10px rgba(0, 0, 0, 0.1), 0 10px 20px -10px rgba(0, 0, 0, 0.04)',
+                    }
+                },
+            },
+            darkMode: 'class',
+        }
+    </script>
+    <style>
+        /* Custom styles for floating labels */
+        .floating-input {
+            @apply relative;
+        }
+        
+        .floating-input input:focus-within ~ label,
+        .floating-input input:not(:placeholder-shown) ~ label,
+        .floating-input textarea:focus-within ~ label,
+        .floating-input textarea:not(:placeholder-shown) ~ label,
+        .floating-input select:focus-within ~ label,
+        .floating-input select:not(:placeholder-shown) ~ label {
+            @apply transform -translate-y-6 scale-75 text-brand-600 dark:text-brand-400;
+        }
+        
+        .floating-input label {
+            @apply absolute top-2 left-3 text-gray-500 dark:text-gray-400 duration-300 transform origin-[0] pointer-events-none;
+        }
+        
+        /* Custom scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+        
+        .dark ::-webkit-scrollbar-track {
+            background: #2d3748;
+        }
+        
+        .dark ::-webkit-scrollbar-thumb {
+            background: #4a5568;
+        }
+        
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #718096;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <!-- Theme Toggle Button -->
+    <button id="themeToggle" class="fixed top-4 right-4 z-50 p-2 rounded-full bg-white dark:bg-gray-800 shadow-lg">
+        <!-- Sun icon for dark mode -->
+        <svg id="sunIcon" class="w-6 h-6 text-amber-500 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        </svg>
+        <!-- Moon icon for light mode -->
+        <svg id="moonIcon" class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+    </button>
+
+    <!-- Side Navigation -->
+    <div class="fixed inset-y-0 left-0 w-20 bg-white dark:bg-gray-800 shadow-lg z-30 flex flex-col items-center py-6">
+        <div class="mb-8">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                M
+            </div>
+        </div>
+        
+        <nav class="flex-1 w-full">
+            <ul class="flex flex-col items-center space-y-6">
+                <li class="w-full flex justify-center">
+                    <a href="#" class="p-3 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                        </svg>
+                    </a>
+                </li>
+                <li class="w-full flex justify-center">
+                    <a href="#" class="p-3 rounded-xl bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 transition-colors relative">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
+                        <span class="absolute top-0 right-1 w-2 h-2 bg-accent-500 rounded-full"></span>
+                    </a>
+                </li>
+                <li class="w-full flex justify-center">
+                    <a href="#" class="p-3 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                        </svg>
+                    </a>
+                </li>
+                <li class="w-full flex justify-center">
+                    <a href="#" class="p-3 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </a>
+                </li>
+                <li class="w-full flex justify-center">
+                    <a href="#" class="p-3 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="mt-auto">
+            <button class="p-3 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-20 p-6 md:p-8">
+        <!-- Top Bar -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Inventory Management</h1>
+                <p class="text-gray-500 dark:text-gray-400">Add new products to your inventory</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm">
+                    <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <div class="relative">
+                    <button class="relative p-2 rounded-full bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 shadow-sm">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-accent-500 rounded-full"></span>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-medium shadow-lg">JD</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Tabs -->
+        <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
+            <ul class="flex flex-wrap -mb-px">
+                <li class="mr-2">
+                    <a href="#" class="inline-block py-3 px-4 text-brand-600 dark:text-brand-400 border-b-2 border-brand-500 dark:border-brand-400 font-medium text-sm">Basic Info</a>
+                </li>
+                <li class="mr-2">
+                    <a href="#" class="inline-block py-3 px-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 font-medium text-sm">Pricing</a>
+                </li>
+                <li class="mr-2">
+                    <a href="#" class="inline-block py-3 px-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 font-medium text-sm">Inventory</a>
+                </li>
+                <li class="mr-2">
+                    <a href="#" class="inline-block py-3 px-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 font-medium text-sm">Media</a>
+                </li>
+                <li class="mr-2">
+                    <a href="#" class="inline-block py-3 px-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 font-medium text-sm">Attributes</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Form Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-float-lg overflow-hidden transition-all duration-300 hover:shadow-float-lg transform hover:-translate-y-1">
+            <form>
+                <!-- Form Header -->
+                <div class="bg-gradient-to-r from-brand-500 to-accent-500 p-6 text-white">
+                    <h2 class="text-xl font-bold">Add New Product</h2>
+                    <p class="text-brand-50 mt-1">Enter the details for your new product</p>
+                </div>
+
+                <!-- Form Content -->
+                <div class="p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Left Column - Basic Info -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <!-- Product Name -->
+                            <div class="floating-input">
+                                <input type="text" id="product-name" placeholder=" " class="w-full px-3 pt-5 pb-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200">
+                                <label for="product-name">Product Name</label>
+                            </div>
+
+                            <!-- Product Description -->
+                            <div class="floating-input">
+                                <textarea id="description" rows="4" placeholder=" " class="w-full px-3 pt-5 pb-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200"></textarea>
+                                <label for="description">Product Description</label>
+                            </div>
+
+                            <!-- SKU & Barcode -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="floating-input">
+                                    <input type="text" id="sku" placeholder=" " class="w-full px-3 pt-5 pb-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200">
+                                    <label for="sku">SKU</label>
+                                </div>
+                                <div class="floating-input">
+                                    <input type="text" id="barcode" placeholder=" " class="w-full px-3 pt-5 pb-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200">
+                                    <label for="barcode">Barcode (UPC, EAN)</label>
+                                </div>
+                            </div>
+
+                            <!-- Category & Brand -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="floating-input">
+                                    <select id="category" class="appearance-none w-full px-3 pt-5 pb-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200">
+                                        <option value="" disabled selected></option>
+                                        <option value="electronics">Electronics</option>
+                                        <option value="clothing">Clothing</option>
+                                        <option value="furniture">Furniture</option>
+                                        <option value="food">Food & Beverage</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                    <label for="category">Category</label>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="floating-input">
+                                    <select id="brand" class="appearance-none w-full px-3 pt-5 pb-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200">
+                                        <option value="" disabled selected></option>
+                                        <option value="apple">Apple</option>
+                                        <option value="samsung">Samsung</option>
+                                        <option value="nike">Nike</option>
+                                        <option value="ikea">IKEA</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                    <label for="brand">Brand</label>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tags -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tags</label>
+                                <div class="flex flex-wrap items-center gap-2 p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 focus-within:ring-2 focus-within:ring-brand-500 focus-within:border-brand-500">
+                                    <div class="bg-brand-100 dark:bg-brand-900/50 text-brand-800 dark:text-brand-200 px-3 py-1 rounded-full flex items-center text-sm">
+                                        new
+                                        <button type="button" class="ml-1 text-brand-500 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="bg-accent-100 dark:bg-accent-900/50 text-accent-800 dark:text-accent-200 px-3 py-1 rounded-full flex items-center text-sm">
+                                        featured
+                                        <button type="button" class="ml-1 text-accent-500 hover:text-accent-700 dark:text-accent-400 dark:hover:text-accent-300">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <input type="text" placeholder="Add tag..." class="flex-1 min-w-[100px] border-0 p-0 bg-transparent focus:ring-0 text-gray-900 dark:text-white text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column - Pricing & Inventory -->
+                        <div class="space-y-6">
+                            <!-- Product Image Upload -->
+                            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                                <div class="text-center">
+                                    <div class="mb-3">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </div>
+                                    <div class="flex justify-center">
+                                        <label for="file-upload" class="cursor-pointer bg-white dark:bg-gray-800 rounded-lg px-4 py-2 text-sm font-medium text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 shadow-sm">
+                                            <span>Upload Image</span>
+                                            <input id="file-upload" name="file-upload" type="file" class="sr-only">
+                                        </label>
+                                    </div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">PNG, JPG, GIF up to 5MB</p>
+                                </div>
+                            </div>
+
+                            <!-- Pricing Card -->
+                            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                                <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Pricing</h3>
+                                
+                                <!-- Cost Price -->
+                                <div class="floating-input mb-4">
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span class="text-gray-500 dark:text-gray-400">$</span>
+                                        </div>
+                                        <input type="number" id="cost-price" placeholder=" " step="0.01" class="w-full pl-8 pr-4 pt-5 pb-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200">
+                                        <label for="cost-price">Cost Price</label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Selling Price -->
+                                <div class="floating-input mb-4">
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span class="text-gray-500 dark:text-gray-400">$</span>
+                                        </div>
+                                        <input type="number" id="selling-price" placeholder=" " step="0.01" class="w-full pl-8 pr-4 pt-5 pb-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200">
+                                        <label for="selling-price">Selling Price</label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Tax Rate -->
+                                <div class="floating-input">
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                            <span class="text-gray-500 dark:text-gray-400">%</span>
+                                        </div>
+                                        <input type="number" id="tax-rate" placeholder=" " step="0.01" class="w-full pl-4 pr-8 pt-5 pb-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200">
+                                        <label for="tax-rate">Tax Rate</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Inventory Card -->
+                            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                                <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Inventory</h3>
+                                
+                                <!-- Stock Quantity -->
+                                <div class="floating-input mb-4">
+                                    <input type="number" id="stock-quantity" placeholder=" " class="w-full px-4 pt-5 pb-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200">
+                                    <label for="stock-quantity">Stock Quantity</label>
+                                </div>
+                                
+                                <!-- Warehouse Location -->
+                                <div class="floating-input">
+                                    <select id="warehouse" class="appearance-none w-full px-4 pt-5 pb-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-200">
+                                        <option value="" disabled selected></option>
+                                        <option value="main">Main Warehouse</option>
+                                        <option value="north">North Warehouse</option>
+                                        <option value="south">South Warehouse</option>
+                                    </select>
+                                    <label for="warehouse">Warehouse Location</label>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Status Toggle -->
+                            <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">Product Status</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Enable to make product active</p>
+                                </div>
+                                <div class="relative inline-block w-12 mr-2 align-middle select-none">
+                                    <input type="checkbox" name="toggle" id="status-toggle" checked class="sr-only peer">
+                                    <div class="block h-6 rounded-full bg-gray-300 dark:bg-gray-600 cursor-pointer peer-checked:bg-brand-500"></div>
+                                    <div class="dot absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-6"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex flex-wrap justify-end gap-3">
+                        <button type="button" class="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-200 shadow-sm">
+                            Cancel
+                        </button>
+                        <button type="button" class="px-6 py-2.5 border border-brand-500 dark:border-brand-400 rounded-xl text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/30 transition duration-200 shadow-sm">
+                            Save as Draft
+                        </button>
+                        <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 rounded-xl text-white transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                            Save Product
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        const html = document.documentElement;
+
+        // Check for saved theme preference or use system preference
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+            sunIcon.classList.remove('hidden');
+            moonIcon.classList.add('hidden');
+        }
+
+        // Toggle theme when button is clicked
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            
+            if (html.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            } else {
+                localStorage.setItem('theme', 'light');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
