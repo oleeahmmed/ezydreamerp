@@ -87,8 +87,8 @@ class ZKDeviceSyncForm(forms.Form):
             raise forms.ValidationError(_("Please select at least one device to sync."))
         return cleaned_data
 
-class EmployeeAttendanceForm(forms.Form):
-    """Form for selecting date range to sync employee attendance."""
+class EmployeeAttendanceReportForm(forms.Form):
+    """Form for selecting date range to generate attendance report."""
     start_date = forms.DateField(
         label=_("Start Date"),
         required=False,

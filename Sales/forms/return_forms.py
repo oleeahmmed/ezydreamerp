@@ -46,31 +46,36 @@ class ReturnForm(forms.ModelForm):
         # Get initial data before calling super
         initial = kwargs.get('initial', {})
         
+        # Call super after setting initial
         super().__init__(*args, **kwargs)
         
-        # Set initial values for date fields
-        if not self.instance.pk:
-            today = timezone.now().date()
-            self.fields['document_date'].initial = today
-            self.fields['posting_date'].initial = today
-            self.fields['status'].initial = 'Draft'
+        # Respect initial data from prefill if provided
+        if initial.get('document_date'):
+            self.fields['document_date'].initial = initial['document_date']
+        if initial.get('posting_date'):
+            self.fields['posting_date'].initial = initial['posting_date']
+        
+        # Set default values only if not provided in initial data
+        if not self.instance.pk and not initial.get('document_date'):
+            self.fields['document_date'].initial = timezone.now().date()
+        if not self.instance.pk and not initial.get('posting_date'):
+            self.fields['posting_date'].initial = timezone.now().date()
+        if not self.instance.pk and not initial.get('status'):
+            self.fields['status'].initial = 'Open'
         
         # Show all deliveries instead of filtering by customer
-        # Only filter by status to show relevant deliveries
         self.fields['delivery'].queryset = Delivery.objects.filter(
-            status__in=['Delivered', 'Partially Delivered', 'Open','Draft']
+            status__in=['Delivered', 'Partially Delivered', 'Open', 'Draft']
         ).order_by('-id')  # Show newest deliveries first
         
         # If we have a specific delivery ID in initial data, make sure it's selected
-        delivery_id = None
-        if initial and 'delivery' in initial:
-            delivery_id = initial.get('delivery')
-            if delivery_id:
-                try:
-                    delivery = Delivery.objects.get(id=delivery_id)
-                    self.fields['delivery'].initial = delivery_id
-                except Delivery.DoesNotExist:
-                    pass
+        delivery_id = initial.get('delivery')
+        if delivery_id:
+            try:
+                delivery = Delivery.objects.get(id=delivery_id)
+                self.fields['delivery'].initial = delivery_id
+            except Delivery.DoesNotExist:
+                pass
         
         # Handle sales employee auto-selection based on current user
         if self.request and self.request.user.is_authenticated:
@@ -345,4 +350,3 @@ class ReturnFilterForm(BaseFilterForm):
     Filter form for Return.
     """
     MODEL_STATUS_CHOICES = Return.STATUS_CHOICES
-

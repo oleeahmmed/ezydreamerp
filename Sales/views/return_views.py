@@ -67,21 +67,16 @@ class ReturnCreateView(CreateView):
             self.prefill_lines = prefill_data.get('lines', [])
             self.prefill_delivery = prefill_data.get('delivery')
             
-            # Store all prefill data in initial except lines
+            # Store all prefill data in initial
             for key, value in prefill_data.items():
                 if key != 'lines':
                     initial[key] = value
                     
-            # Make sure delivery is explicitly set in initial
             if self.prefill_delivery:
                 initial['delivery'] = self.prefill_delivery
                 
-            # Store delivery lines mapping for later use
-            self.delivery_line_mapping = {}
-            for line in self.prefill_lines:
-                if 'delivery_line' in line:
-                    self.delivery_line_mapping[line['item_code']] = line['delivery_line']
-                    
+            self.delivery_line_mapping = {line['item_code']: line['delivery_line'] for line in self.prefill_lines if 'delivery_line' in line}
+        
         return initial
 
     def get_context_data(self, **kwargs):
@@ -95,11 +90,9 @@ class ReturnCreateView(CreateView):
             context['formset'] = ReturnLineFormSet(self.request.POST)
             context['extra_form'] = ReturnExtraInfoForm(self.request.POST)
         else:
-            # Get prefill lines if available
             initial_lines = getattr(self, 'prefill_lines', [])
             extra_count = len(initial_lines) if initial_lines else 1
             
-            # Create formset with initial lines
             dynamic_formset = inlineformset_factory(
                 Return,
                 ReturnLine,
@@ -108,14 +101,6 @@ class ReturnCreateView(CreateView):
                 can_delete=True
             )
             context['formset'] = dynamic_formset(initial=initial_lines)
-            
-            # Create extra form with initial data
-            initial_data = {}
-            if hasattr(self, 'prefill_data'):
-                for key, value in self.prefill_data.items():
-                    if key != 'lines':
-                        initial_data[key] = value
-            
             context['extra_form'] = ReturnExtraInfoForm(initial=self.get_initial())
 
         return context
@@ -127,33 +112,25 @@ class ReturnCreateView(CreateView):
 
         if formset.is_valid() and extra_form.is_valid():
             with transaction.atomic():
-                # Save the return
                 self.object = form.save()
-
-                # Update with extra form data
                 for field in extra_form.cleaned_data:
                     if hasattr(self.object, field):
                         setattr(self.object, field, extra_form.cleaned_data[field])
                 self.object.save()
-
-                # Save the formset
                 formset.instance = self.object
                 return_lines = formset.save()
 
-                # Link return lines to delivery lines if available
                 if hasattr(self, 'delivery_line_mapping') and return_lines:
                     for return_line in return_lines:
                         item_code = return_line.item_code
                         if item_code in self.delivery_line_mapping:
                             try:
-                                delivery_line_id = self.delivery_line_mapping[item_code]
-                                delivery_line = DeliveryLine.objects.get(id=delivery_line_id)
+                                delivery_line = DeliveryLine.objects.get(id=self.delivery_line_mapping[item_code])
                                 return_line.delivery_line = delivery_line
                                 return_line.save(update_fields=['delivery_line'])
                             except DeliveryLine.DoesNotExist:
                                 pass
 
-                # Calculate financial totals
                 self._calculate_financial_totals(self.object)
 
             messages.success(self.request, f"Return {self.object.pk} created successfully.")
@@ -162,30 +139,15 @@ class ReturnCreateView(CreateView):
         return self.form_invalid(form)
 
     def _calculate_financial_totals(self, return_doc):
-        """
-        Calculate financial totals for the return
-        """
         if not return_doc:
             return
         
-        # Calculate total amount from lines
-        total_amount = sum(
-            line.quantity * line.unit_price 
-            for line in return_doc.lines.filter(is_active=True)
-        )
-        
-        # Set total amount
+        total_amount = sum(line.quantity * line.unit_price for line in return_doc.lines.filter(is_active=True))
         return_doc.total_amount = total_amount
-        
-        # Calculate payable amount (total - discount)
         discount_amount = return_doc.discount_amount or 0
         return_doc.payable_amount = return_doc.total_amount - discount_amount
-        
-        # Calculate due amount (payable - paid)
         paid_amount = return_doc.paid_amount or 0
         return_doc.due_amount = return_doc.payable_amount - paid_amount
-        
-        # Save the return
         return_doc.save(update_fields=['total_amount', 'payable_amount', 'due_amount'])
 
     def get_success_url(self):
@@ -204,7 +166,7 @@ class ReturnUpdateView(UpdateView):
     
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request  # Pass request to form
+        kwargs['request'] = self.request  
         return kwargs
     
     def get_context_data(self, **kwargs):

@@ -137,8 +137,8 @@ class DemoConfigView(DemoAccessMixin, View):
 
                     if include_journal_entries:
                         # Disconnect the post_save signal to avoid duplicates
-                        from Finance.signals import journal_entry  # Import here to avoid circular imports
-                        signals.post_save.disconnect(journal_entry.post_journal_to_gl, sender=JournalEntry)
+                        from Finance.signals import journal_entry
+                        # signals.post_save.disconnect(journal_entry.post_journal_to_gl, sender=JournalEntry)
 
                         try:
                             with transaction.atomic():
@@ -244,19 +244,18 @@ class DemoConfigView(DemoAccessMixin, View):
 
                 elif action == 'delete':
                     # Delete in reverse order to respect foreign key constraints
-                    lines_deleted, _ = JournalEntryLine.objects.all().delete()
-                    entries_deleted, _ = JournalEntry.objects.all().delete()
-                    ledger_deleted, _ = GeneralLedger.objects.all().delete()
-                    accounts_deleted, _ = ChartOfAccounts.objects.all().delete()
-                    account_types_deleted, _ = AccountType.objects.all().delete()
-                    cost_centers_deleted, _ = CostCenter.objects.all().delete()
-                    demo_currency_deleted, _ = Currency.objects.filter(code='BDT').delete()
-                    
+                    lines_deleted = JournalEntryLine.objects.all().delete()[0]  # Count deleted JournalEntryLine
+                    entries_deleted = JournalEntry.objects.all().delete()[0]   # Count deleted JournalEntry
+                    ledger_deleted = GeneralLedger.objects.all().delete()[0]   # Count deleted GeneralLedger
+                    accounts_deleted = ChartOfAccounts.objects.all().delete()[0]  # Count deleted ChartOfAccounts
+                    account_types_deleted = AccountType.objects.all().delete()[0] # Count deleted AccountType
+                    cost_centers_deleted = CostCenter.objects.all().delete()[0]   # Count deleted CostCenter
+
                     messages.success(request, (
+                        f"Deleted all demo data successfully. "
                         f"Deleted {lines_deleted} JournalEntryLine, {entries_deleted} JournalEntry, "
                         f"{ledger_deleted} GeneralLedger, {accounts_deleted} ChartOfAccounts, "
                         f"{account_types_deleted} AccountType, {cost_centers_deleted} CostCenter, "
-                        f"{demo_currency_deleted} Currency records."
                     ))
 
             except Exception as e:

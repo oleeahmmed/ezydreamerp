@@ -581,8 +581,8 @@ class ConvertDeliveryToReturnView(LoginRequiredMixin, View):
 
         # Pass data through session to prefill in ReturnCreateView
         request.session['prefill_return_data'] = {
-            'document_date': str(delivery.document_date),  
-            'posting_date': str(delivery.posting_date),    
+            'document_date': str(delivery.document_date),  # Use delivery's document date
+            'posting_date': str(delivery.posting_date),    # Use delivery's posting date
             'customer': delivery.customer_id,
             'contact_person': delivery.contact_person_id,
             'return_address': delivery.shipping_address_id,
@@ -596,7 +596,7 @@ class ConvertDeliveryToReturnView(LoginRequiredMixin, View):
             'payment_reference': delivery.payment_reference,
             'payment_date': str(delivery.payment_date) if delivery.payment_date else None,
             'remarks': f"Return for Delivery #{delivery.pk}",
-            'delivery': delivery.id,  # This is the key field that needs to be passed correctly
+            'delivery': delivery.id,
             'sales_order': delivery.sales_order_id if delivery.sales_order else None,
             'lines': remaining_lines
         }
@@ -606,7 +606,6 @@ class ConvertDeliveryToReturnView(LoginRequiredMixin, View):
 
         # Redirect to the return create view with prefilled data from session
         return redirect(reverse('Sales:return_create'))
-
 # class ConvertOrderToInvoiceView(LoginRequiredMixin, View):
 #     """Convert a Sales Order to an AR Invoice"""
 

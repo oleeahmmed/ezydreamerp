@@ -163,7 +163,7 @@ urlpatterns = [
     path('purchase/', include('Purchase.urls')),  
     path('finance/', include('Finance.urls')),  
     path('hrm/', include('Hrm.urls')),  
-    path('banking/', include('Banking.urls')),  
+    path('banking/', include('Banking.urls',namespace='banking')),  
     path('production/', include('Production.urls')),
 ]
 

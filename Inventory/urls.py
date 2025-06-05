@@ -1,5 +1,5 @@
 from django.urls import path,include
-from .views import  unit_of_measure_views, warehouse_views, item_group_views,item_views,item_warehouse_info_views,inventory_transaction_views,goods_receipt_views,goods_issue_views,inventory_transfer_views
+from .views import  unit_of_measure_views, warehouse_views, item_group_views,item_views,item_warehouse_info_views,inventory_transaction_views,goods_receipt_views,goods_issue_views,inventory_transfer_views,demo_views
 
 app_name = 'Inventory'
 
@@ -101,6 +101,7 @@ urlpatterns = [
     path('inventory-transfer/bulk-delete/', inventory_transfer_views.InventoryTransferBulkDeleteView.as_view(), name='bulk_delete_inventory_transfers'),
 
 
- 
+    path('demo/config/', demo_views.DemoConfigView.as_view(), name='demo_config'),
+
 ]
 

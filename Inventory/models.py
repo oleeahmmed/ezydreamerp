@@ -207,9 +207,10 @@ class ItemWarehouseInfo(BaseModel):
         
     def save(self, *args, **kwargs):
         """Override save to ensure available stock is always updated"""
-        self.available = self.calculate_available()
+        # Avoid recursive call by checking if 'available' is already being updated
+        if 'update_fields' not in kwargs or 'available' not in kwargs['update_fields']:
+            self.available = self.calculate_available()
         super().save(*args, **kwargs)
-
 
 class InventoryTransaction(models.Model):
     """Records inventory transactions such as purchases, sales, transfers, and adjustments."""

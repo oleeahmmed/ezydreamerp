@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, Min, Max
+from django.db.models import Min, Max, OuterRef, Subquery
 from django.http import JsonResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
@@ -17,7 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, DeleteView, DetailView, FormView, ListView, UpdateView
 from ..models import Department, Designation, Employee, ZKAttendanceLog, ZKDevice
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from ..forms.zk_device_forms import ZKDeviceConnectionTestForm, ZKDeviceSyncForm,EmployeeAttendanceForm
+from ..forms.zk_device_forms import ZKDeviceConnectionTestForm, ZKDeviceSyncForm,EmployeeAttendanceReportForm
 from ..models import ZKDevice, Employee, Department, Designation,Shift,Attendance,ZKAttendanceLog
 from config.views import BaseBulkDeleteConfirmView, BaseBulkDeleteView, BaseExportView, GenericDeleteView, GenericFilterView
 
@@ -986,233 +986,51 @@ class ZKUserSimpleListView(ListView):
                 'error': str(e)
             }, status=500)
 
-class EmployeeAttendanceSyncView(LoginRequiredMixin, FormView):
-    """View for syncing and consolidating employee attendance data."""
-    template_name = 'zk_device/employee_attendance_sync.html'
-    form_class = EmployeeAttendanceForm
+class EmployeeAttendanceReportView(LoginRequiredMixin, FormView):
+    template_name = 'zk_device/employee_attendance_report.html'
+    form_class = EmployeeAttendanceReportForm
 
     def get_context_data(self, **kwargs):
-        """Add context data."""
         context = super().get_context_data(**kwargs)
-        context.update({
-            'title': _("Sync Employee Attendance"),
-            'subtitle': _("Generate consolidated attendance from ZK device logs"),
-            'cancel_url': reverse_lazy('hrm:employee_list'),
-            'sync_performed': False,
-        })
-        logger.debug("Context initialized")
+        context['report_generated'] = False
+        context['attendance_data'] = []
         return context
 
     def post(self, request, *args, **kwargs):
-        """Handle POST request for syncing attendance."""
-        logger.info("Received POST request")
         form = self.form_class(request.POST)
+        context = self.get_context_data(form=form)
         if form.is_valid():
-            logger.info("Form is valid")
             start_date = form.cleaned_data.get('start_date')
             end_date = form.cleaned_data.get('end_date')
-            employees = Employee.objects.filter(is_active=True)
-            sync_result = self._consolidate_attendance(employees, start_date, end_date)
-            context = self.get_context_data(form=form)
-            context.update(sync_result)
-            logger.debug(f"Rendering template with sync_performed={sync_result['sync_performed']}, records={len(sync_result['attendance_data'])}")
-            return render(request, self.template_name, context)
-        else:
-            logger.error(f"Form invalid: {form.errors}")
-            context = self.get_context_data(form=form)
-            context['message'] = _("Invalid date range provided.")
-            return render(request, self.template_name, context)
+            context['report_generated'] = True
+            context['attendance_data'] = self._get_attendance_data(start_date, end_date)
+        return render(request, self.template_name, context)
 
-    def _consolidate_attendance(self, employees, start_date=None, end_date=None):
-        """Consolidate ZKAttendanceLog into one record per employee per day."""
-        result = {
-            'sync_performed': True,
-            'attendance_data': [],
-            'total_records': 0,
-            'start_date': start_date,
-            'end_date': end_date,
-            'message': None,
-        }
-        logger.info(f"Consolidating for {employees.count()} employees, start_date={start_date}, end_date={end_date}")
+    def _get_attendance_data(self, start_date=None, end_date=None):
+        employee_name = Employee.objects.filter(
+            employee_id=OuterRef('user_id')
+        ).values('name')[:1]
 
-        employee_ids = [str(emp.employee_id) for emp in employees]
-        logs = ZKAttendanceLog.objects.filter(
-            user_id__in=employee_ids,
-            punch_type__in=['0', '1']  # Check-In (0), Check-Out (1)
-        )
+        logs = ZKAttendanceLog.objects.values(
+            'user_id', 'timestamp__date'
+        ).annotate(
+            in_time=Min('timestamp'),
+            out_time=Max('timestamp'),
+            employee_name=Subquery(employee_name)
+        ).order_by('user_id', 'timestamp__date')
+
         if start_date:
             logs = logs.filter(timestamp__date__gte=start_date)
         if end_date:
             logs = logs.filter(timestamp__date__lte=end_date)
-        logger.info(f"Found {logs.count()} ZKAttendanceLog records")
 
-        if not logs.exists():
-            result['message'] = _("No attendance logs found for the specified date range.")
-            logger.warning(result['message'])
-            return result
-
-        # Group logs by user_id and date, get earliest check-in and latest check-out
-        grouped_logs = logs.values('user_id', 'timestamp__date').annotate(
-            check_in=Min('timestamp', filter=models.Q(punch_type='0')),
-            check_out=Max('timestamp', filter=models.Q(punch_type='1'))
-        ).order_by('user_id', 'timestamp__date')
-        logger.info(f"Grouped into {grouped_logs.count()} daily records")
-
-        for log in grouped_logs:
-            try:
-                employee = Employee.objects.get(employee_id=log['user_id'], is_active=True)
-                shift = employee.default_shift
-                check_in = log['check_in']
-                check_out = log['check_out']
-                att_date = log['timestamp__date']
-
-                # Skip if attendance already exists
-                if Attendance.objects.filter(employee=employee, date=att_date).exists():
-                    logger.debug(f"Skipping existing attendance for {employee.employee_id} on {att_date}")
-                    continue
-
-                status, late_minutes, early_out_minutes, overtime_minutes = self._calculate_compliance(
-                    check_in, check_out, shift
-                )
-
-                record = {
-                    'employee_id': employee.employee_id,
-                    'full_name': employee.get_full_name(),
-                    'date': att_date.strftime('%Y-%m-%d'),
-                    'check_in': check_in.strftime('%H:%M:%S') if check_in else '-',
-                    'check_out': check_out.strftime('%H:%M:%S') if check_out else '-',
-                    'status': status,
-                    'late_minutes': late_minutes,
-                    'early_out_minutes': early_out_minutes,
-                    'overtime_minutes': overtime_minutes,
-                    'shift_name': shift.name if shift else 'No Shift',
-                    'shift_start': shift.start_time.strftime('%H:%M') if shift else '-',
-                    'shift_end': shift.end_time.strftime('%H:%M') if shift else '-',
-                    'selected': True,
-                    'existing': False,
-                }
-                result['attendance_data'].append(record)
-                result['total_records'] += 1
-                logger.debug(f"Added record for {employee.employee_id} on {att_date}")
-            except Employee.DoesNotExist:
-                logger.warning(f"Employee with ID {log['user_id']} not found or inactive")
-                continue
-            except Exception as e:
-                logger.error(f"Error processing log for user {log['user_id']}: {str(e)}")
-                continue
-
-        if not result['attendance_data']:
-            result['message'] = _("No new attendance records to consolidate.")
-            logger.warning(result['message'])
-        logger.info(f"Consolidated {len(result['attendance_data'])} records")
-        return result
-
-    def _calculate_compliance(self, check_in, check_out, shift):
-        """Calculate attendance compliance metrics."""
-        if not shift or not check_in:
-            return 'ABS', 0, 0, 0
-
-        check_in_time = check_in.time()
-        check_out_time = check_out.time() if check_out else None
-        shift_start = shift.start_time
-        shift_end = shift.end_time
-        grace_time = shift.grace_time
-
-        late_minutes = 0
-        early_out_minutes = 0
-        overtime_minutes = 0
-        status = 'PRE'
-
-        # Late calculation
-        if check_in_time > shift_start:
-            late_minutes = int((check_in_time.hour * 60 + check_in_time.minute) -
-                              (shift_start.hour * 60 + shift_start.minute))
-            if late_minutes > grace_time:
-                status = 'LAT'
-            else:
-                late_minutes = 0
-
-        # Early out and overtime
-        if check_out_time and shift_end:
-            actual_minutes = check_out_time.hour * 60 + check_out_time.minute
-            shift_end_minutes = shift_end.hour * 60 + shift_end.minute
-            if check_out_time < shift_end:
-                early_out_minutes = shift_end_minutes - actual_minutes
-            elif actual_minutes > shift_end_minutes:
-                overtime_minutes = actual_minutes - shift_end_minutes
-
-        return status, late_minutes, early_out_minutes, overtime_minutes
-
-@method_decorator(csrf_exempt, name='dispatch')
-class EmployeeAttendanceSaveView(View):
-    """View for saving consolidated attendance to Attendance model."""
-    def post(self, request, *args, **kwargs):
-        """Handle POST request to save records."""
-        try:
-            data = json.loads(request.body)
-            attendance_data = data.get('attendance_data', [])
-            if not attendance_data:
-                return JsonResponse({
-                    'success': False,
-                    'error': _('No attendance data provided')
-                }, status=400)
-
-            saved_count = 0
-            skipped_count = 0
-            errors = []
-
-            for record in attendance_data:
-                try:
-                    employee = Employee.objects.get(employee_id=record['employee_id'], is_active=True)
-                    att_date = datetime.strptime(record['date'], '%Y-%m-%d').date()
-
-                    if Attendance.objects.filter(employee=employee, date=att_date).exists():
-                        skipped_count += 1
-                        continue
-
-                    check_in = datetime.strptime(record['check_in'], '%H:%M:%S').time() if record['check_in'] != '-' else None
-                    check_out = datetime.strptime(record['check_out'], '%H:%M:%S').time() if record['check_out'] != '-' else None
-                    check_in_dt = datetime.combine(att_date, check_in) if check_in else None
-                    check_out_dt = datetime.combine(att_date, check_out) if check_out else None
-
-                    Attendance.objects.create(
-                        employee=employee,
-                        date=att_date,
-                        check_in=check_in_dt,
-                        check_out=check_out_dt,
-                        status=record['status'],
-                        late_minutes=record['late_minutes'],
-                        early_out_minutes=record['early_out_minutes'],
-                        overtime_minutes=record['overtime_minutes'],
-                        roster_day=None  # No RosterDay used
-                    )
-                    saved_count += 1
-                except Employee.DoesNotExist:
-                    errors.append(f"Employee with ID {record['employee_id']} not found")
-                    continue
-                except ValueError as e:
-                    errors.append(f"Invalid data format for record: {str(e)}")
-                    continue
-                except Exception as e:
-                    errors.append(f"Error saving record for employee {record['employee_id']}: {str(e)}")
-                    continue
-
-            response = {
-                'success': saved_count > 0 or skipped_count > 0,
-                'saved_count': saved_count,
-                'skipped_count': skipped_count,
-                'error_count': len(errors),
-                'errors': errors,
-                'message': _("%d records saved, %d duplicates skipped, %d errors") % (saved_count, skipped_count, len(errors))
+        return [
+            {
+                'user_id': log['user_id'],
+                'employee_name': log['employee_name'] or 'Unknown',
+                'date': log['timestamp__date'].strftime('%Y-%m-%d'),
+                'in_time': log['in_time'].strftime('%H:%M:%S') if log['in_time'] else '-',
+                'out_time': log['out_time'].strftime('%H:%M:%S') if log['out_time'] else '-'
             }
-            return JsonResponse(response)
-        except json.JSONDecodeError:
-            return JsonResponse({
-                'success': False,
-                'error': _("Invalid JSON data")
-            }, status=400)
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'error': str(e)
-            }, status=500)
+            for log in logs
+        ]

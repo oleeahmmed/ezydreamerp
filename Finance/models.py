@@ -77,7 +77,7 @@ class JournalEntryLine(BaseModel):
 class GeneralLedger(BaseModel):
     account = models.ForeignKey(ChartOfAccounts, on_delete=models.PROTECT, verbose_name=_("Account"))
     posting_date = models.DateField(_("Posting Date"))
-    journal_entry = models.ForeignKey(JournalEntry, on_delete=models.PROTECT, verbose_name=_("Journal Entry"))
+    journal_entry = models.ForeignKey(JournalEntry, on_delete=models.CASCADE, verbose_name=_("Journal Entry")) 
     debit_amount = models.DecimalField(_("Debit Amount"), max_digits=15, decimal_places=2, default=0)
     credit_amount = models.DecimalField(_("Credit Amount"), max_digits=15, decimal_places=2, default=0)
     balance = models.DecimalField(_("Balance"), max_digits=15, decimal_places=2)

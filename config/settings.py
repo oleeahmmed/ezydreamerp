@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_yasg',
     'django_filters',
+    'adminpanel',
 
     # Custom apps
     'global_settings',
@@ -146,6 +147,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            'init_command': 'PRAGMA foreign_keys = ON;'
+        }
     }
 }
 

@@ -35,7 +35,7 @@ from .views.hrm_demo_views import HRMDemoConfigView
 from .views.zk_device_operation_views import (   ZKDeviceConnectionTestView, ZKDeviceSyncView, ZKAttendanceLogListView,
     ZKDeviceSaveDataView, ZKUserListView,  ZKUserSyncView,
     ZKUserSimpleListView, ZKUserSaveView, ZKAttendanceLogBulkDeleteView,
-    ZKAttendanceLogDeleteView,EmployeeAttendanceSyncView,EmployeeAttendanceSaveView)
+    ZKAttendanceLogDeleteView,EmployeeAttendanceReportView)
 app_name = 'hrm'
 
 urlpatterns = [
@@ -329,8 +329,7 @@ urlpatterns = [
     path('zk-attendance-logs/bulk-delete/', ZKAttendanceLogBulkDeleteView.as_view(), name='zk_attendance_log_bulk_delete'),
     path('zk-attendance-logs/delete/<int:pk>/', ZKAttendanceLogDeleteView.as_view(), name='zk_attendance_log_delete'),
     path('zk-devices/all-operations/', ZKDeviceAllOperationsView.as_view(), name='zk_device_all_operations'),
-    path('employee-attendance-sync/', EmployeeAttendanceSyncView.as_view(), name='employee_attendance_sync'),
-    path('employee-attendance-save/', EmployeeAttendanceSaveView.as_view(), name='employee_attendance_save'),
+    path('attendance-report/', EmployeeAttendanceReportView.as_view(), name='attendance_report'),
     # Demo Config URL
     path('demo/config/', HRMDemoConfigView.as_view(), name='hrm_demo_config'),
 

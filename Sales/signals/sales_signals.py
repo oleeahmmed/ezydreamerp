@@ -64,15 +64,21 @@ def delete_sales_orderline_commit_stock(sender, instance, **kwargs):
         if not warehouse:
             return
 
-        item_warehouse = ItemWarehouseInfo.objects.get(item=item, warehouse=warehouse)
+        # ItemWarehouseInfo রেকর্ড চেক করি
+        try:
+            item_warehouse = ItemWarehouseInfo.objects.select_for_update().get(item=item, warehouse=warehouse)
+            item_warehouse.committed -= instance.quantity
+            if item_warehouse.committed < 0:
+                item_warehouse.committed = 0
 
-        item_warehouse.committed -= instance.quantity
-        if item_warehouse.committed < 0:
-            item_warehouse.committed = 0
+            # ট্রানজাকশনের মধ্যে save করি
+            item_warehouse.save(update_fields=['committed'])
+        except ItemWarehouseInfo.DoesNotExist:
+            pass  # রেকর্ড না থাকলে উপেক্ষা করি
+        except DatabaseError:
+            pass  # DatabaseError হলে উপেক্ষা করি যাতে ডিলেট বন্ধ না হয়
 
-        item_warehouse.save()
-
-    except (Item.DoesNotExist, ItemWarehouseInfo.DoesNotExist):
+    except Item.DoesNotExist:
         pass
 
 # ------------------------------------------
