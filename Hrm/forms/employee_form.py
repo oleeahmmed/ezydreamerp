@@ -9,7 +9,7 @@ class EmployeeForm(forms.ModelForm):
         model = Employee
         fields = [
             'employee_id', 'first_name', 'last_name','name','card_no', 'gender', 'date_of_birth',
-            'blood_group', 'marital_status', 'email', 'phone', 'emergency_contact_name',
+            'blood_group',  'default_shift','marital_status', 'email', 'phone', 'emergency_contact_name',
             'emergency_contact_phone', 'present_address', 'permanent_address',
             'department', 'designation', 'joining_date', 'confirmation_date',
             'basic_salary', 'is_active', 'profile_picture'

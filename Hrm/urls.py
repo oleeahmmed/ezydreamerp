@@ -19,15 +19,23 @@ from .views.user_location_views import (
 )
 from .views.location_debug_view import debug_user_locations
 from .views.zk_device_views import (
+
+  ZKDeviceAllOperationsView
+)
+
+from .views.zk_device_crud_views import (
     ZKDeviceListView, ZKDeviceCreateView, ZKDeviceUpdateView,
     ZKDeviceDetailView, ZKDeviceDeleteView, ZKDeviceExportView, ZKDeviceBulkDeleteView,
-    ZKDeviceConnectionTestView, ZKDeviceSyncView, ZKAttendanceLogListView,
-    ZKDeviceSaveDataView, ZKUserListView, ZKUserInsertView, ZKUserSyncView,
-    ZKUserSimpleListView, ZKUserSaveView, ZKAttendanceLogBulkDeleteView,
-    ZKAttendanceLogDeleteView, ZKDeviceAllOperationsView
+)
+
+from .views.zk_user_crud_views import (
+    ZKUserDeviceListView, ZKUserAddView, ZKUserUpdateView, ZKUserDetailView, ZKUserDeleteView
 )
 from .views.hrm_demo_views import HRMDemoConfigView
-
+from .views.zk_device_operation_views import (   ZKDeviceConnectionTestView, ZKDeviceSyncView, ZKAttendanceLogListView,
+    ZKDeviceSaveDataView, ZKUserListView,  ZKUserSyncView,
+    ZKUserSimpleListView, ZKUserSaveView, ZKAttendanceLogBulkDeleteView,
+    ZKAttendanceLogDeleteView,EmployeeAttendanceSyncView,EmployeeAttendanceSaveView)
 app_name = 'hrm'
 
 urlpatterns = [
@@ -321,6 +329,18 @@ urlpatterns = [
     path('zk-attendance-logs/bulk-delete/', ZKAttendanceLogBulkDeleteView.as_view(), name='zk_attendance_log_bulk_delete'),
     path('zk-attendance-logs/delete/<int:pk>/', ZKAttendanceLogDeleteView.as_view(), name='zk_attendance_log_delete'),
     path('zk-devices/all-operations/', ZKDeviceAllOperationsView.as_view(), name='zk_device_all_operations'),
+    path('employee-attendance-sync/', EmployeeAttendanceSyncView.as_view(), name='employee_attendance_sync'),
+    path('employee-attendance-save/', EmployeeAttendanceSaveView.as_view(), name='employee_attendance_save'),
     # Demo Config URL
     path('demo/config/', HRMDemoConfigView.as_view(), name='hrm_demo_config'),
+
+    # ZK User Management (Direct from Device)
+    path('zk-users-device/', ZKUserDeviceListView.as_view(), name='zk_user_list_device'),
+    path('zk-users/add/', ZKUserAddView.as_view(), name='zk_user_add'),
+    path('zk-users/<int:device_id>/<str:user_id>/', ZKUserDetailView.as_view(), name='zk_user_detail'),
+    path('zk-users/<int:device_id>/<str:user_id>/update/', ZKUserUpdateView.as_view(), name='zk_user_update'),
+    path('zk-users/<int:device_id>/<str:user_id>/delete/', ZKUserDeleteView.as_view(), name='zk_user_delete'),
+
+
+
 ]

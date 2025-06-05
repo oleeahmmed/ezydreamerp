@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
 # -------------------- EMPLOYEE INFORMATION --------------------
 
@@ -70,13 +71,18 @@ class Employee(models.Model):
     first_name = models.CharField(_("First Name"), max_length=100)
     last_name = models.CharField(_("Last Name"), max_length=100)
     name = models.CharField(_("Full Name"), max_length=100, null=True, blank=True)
+
     card_no = models.CharField(_("Card Number"), max_length=100, null=True, blank=True)
     gender = models.CharField(_("Gender"), max_length=1, choices=GENDER_CHOICES)
     date_of_birth = models.DateField(_("Date of Birth"))
     blood_group = models.CharField(_("Blood Group"), max_length=3, choices=BLOOD_GROUP_CHOICES, 
                                   null=True, blank=True)
+    default_shift = models.ForeignKey('Shift', on_delete=models.SET_NULL, 
+                                      null=True, blank=True, 
+                                      related_name='employees', 
+                                      verbose_name='Default Shift')                                  
     marital_status = models.CharField(_("Marital Status"), max_length=1, choices=MARITAL_STATUS_CHOICES)
-    
+
     # Contact Information
     email = models.EmailField(_("Email"), unique=True)
     phone = models.CharField(_("Phone"), max_length=20)
@@ -1375,6 +1381,7 @@ class ZKDevice(models.Model):
     device_id = models.CharField(_("Device ID"), max_length=100, blank=True, null=True)
     is_active = models.BooleanField(_("Is Active"), default=True)
     last_sync = models.DateTimeField(_("Last Sync"), blank=True, null=True)
+    location = models.CharField(_("Location"), max_length=255, blank=True, null=True)
     timeout = models.IntegerField(_("Timeout"), default=5)
     password = models.CharField(_("Device Password"), max_length=100, blank=True, null=True)
     force_udp = models.BooleanField(_("Force UDP"), default=False)
@@ -1403,22 +1410,123 @@ class ZKDevice(models.Model):
         ordering = ['name']
 
 class ZKAttendanceLog(models.Model):
-    """Stores attendance logs from ZK devices."""
-    device = models.ForeignKey(ZKDevice, on_delete=models.CASCADE, 
-                              related_name='attendance_logs', verbose_name=_("Device"))
-    user_id = models.CharField(_("User ID"), max_length=100)
-    timestamp = models.DateTimeField(_("Timestamp"))
-    punch_type = models.CharField(_("Punch Type"), max_length=50, blank=True, null=True)
-    status = models.IntegerField(_("Status Code"), blank=True, null=True)
-    verify_type = models.CharField(_("Verification Type"), max_length=50, blank=True, null=True)
-    work_code = models.CharField(_("Work Code"), max_length=50, blank=True, null=True)
-    created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
-    
+    """
+    Stores comprehensive attendance logs from ZKTeco devices, capturing all possible fields.
+    """
+    device = models.ForeignKey(
+        ZKDevice,
+        on_delete=models.CASCADE,
+        related_name='attendance_logs',
+        verbose_name=_("Device"),
+        help_text=_("The ZKTeco device that recorded this attendance log.")
+    )
+    device_serial_no = models.CharField(
+        _("Device Serial Number"),
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text=_("Serial number or unique identifier of the device, matching ZKDevice.device_id.")
+    )
+    user_id = models.CharField(
+        _("User ID"),
+        max_length=255,
+        help_text=_("Unique identifier of the user as recorded by the device.")
+    )
+    timestamp = models.DateTimeField(
+        _("Timestamp"),
+        help_text=_("Date and time when the attendance was recorded.")
+    )
+    punch_type = models.CharField(
+        _("Punch Type"),
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text=_("Type of punch (e.g., Check In, Check Out, Break In).")
+    )
+    status = models.CharField(
+        _("Status"),
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text=_("Status code or description of the attendance record.")
+    )
+    verify_type = models.CharField(
+        _("Verification Type"),
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text=_("Method of verification (e.g., Fingerprint, Card, Password).")
+    )
+    work_code = models.CharField(
+        _("Work Code"),
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text=_("Work or task code associated with the attendance.")
+    )
+    card_no = models.CharField(
+        _("Card Number"),
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text=_("Card number used for authentication, if applicable.")
+    )
+    record_id = models.CharField(
+        _("Record ID"),
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text=_("Unique record identifier from the device.")
+    )
+    reserved = models.CharField(
+        _("Reserved Field"),
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text=_("Device-specific reserved data, if any.")
+    )
+    created_at = models.DateTimeField(
+        _("Created At"),
+        auto_now_add=True,
+        help_text=_("When this log was saved to the database.")
+    )
+    updated_at = models.DateTimeField(
+        _("Updated At"),
+        auto_now=True,
+        help_text=_("When this log was last updated in the database.")
+    )
+
     def __str__(self):
-        return f"{self.user_id} - {self.timestamp}"
+        return f"{self.user_id} - {self.device.name if self.device else 'No Device'} - {self.timestamp}"
+
+    def clean(self):
+        """Validate user_id and timestamp."""
+        if not self.user_id.strip():
+            raise ValidationError(_("User ID cannot be empty."))
+        if self.timestamp > datetime.now(timezone.utc):
+            raise ValidationError(_("Timestamp cannot be in the future."))
 
     class Meta:
         verbose_name = _("ZK Attendance Log")
         verbose_name_plural = _("ZK Attendance Logs")
-        unique_together = ('device', 'user_id', 'timestamp')
+        unique_together = ('device', 'user_id', 'timestamp', 'punch_type')
+        indexes = [
+            models.Index(fields=['device', 'user_id', 'timestamp']),
+            models.Index(fields=['user_id']),
+            models.Index(fields=['timestamp']),
+            models.Index(fields=['device_serial_no']),
+            models.Index(fields=['record_id']),
+        ]
         ordering = ['-timestamp']
+
+    def get_punch_type_display(self):
+        """Return human-readable punch type."""
+        punch_types = {
+            '0': _("Check In"),
+            '1': _("Check Out"),
+            '2': _("Break Out"),
+            '3': _("Break In"),
+            '4': _("Overtime In"),
+            '5': _("Overtime Out"),
+        }
+        return punch_types.get(self.punch_type, self.punch_type or _("Unknown"))

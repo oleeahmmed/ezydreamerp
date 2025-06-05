@@ -1,0 +1,163 @@
+{% extends "common/base-list-modern.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block list_icon %}
+<svg class="w-6 h-6 sm:w-7 sm:h-7 text-[hsl(var(--primary-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H11C9.93913 15 8.92172 15.4214 8.17157 16.1716C7.42143 16.9217 7 17.9391 7 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+{% endblock %}
+
+{% block list_title %}{% trans "ZK Device Users" %}{% endblock %}
+{% block list_subtitle %}{% trans "Manage and search users across multiple ZKTeco devices" %}{% endblock %}
+
+{% block list_actions %}
+{% if can_create %}
+<a href="{{ create_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:bg-[hsl(var(--primary)/0.9)] h-10 px-4 py-2 shadow-md">
+    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    {% trans "Add New User" %}
+</a>
+{% endif %}
+{% endblock %}
+
+{% block search_filter %}
+<div class="mb-6 bg-[hsl(var(--background))] p-6 rounded-xl shadow-lg border border-[hsl(var(--border))]">
+    <div class="mb-4 flex justify-between items-center">
+        <h3 class="text-lg font-semibold text-[hsl(var(--foreground))]">{% trans "Filter ZK Device Users" %}</h3>
+        <span class="text-xs text-[hsl(var(--muted-foreground))]">
+            {% blocktrans with timestamp="05:05 PM" date="June 03, 2025" %}
+            Last updated: {{ timestamp }} on {{ date }}
+            {% endblocktrans %}
+        </span>
+    </div>
+    <form method="post" id="user-filter-form" class="space-y-4">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 md:grid-cols-[2fr_2fr_1fr] gap-4 items-center">
+            <div>
+                <label for="{{ filter_form.device.id_for_label }}" class="block text-sm font-medium text-[hsl(var(--foreground))] mb-1">
+                    {% trans "Select Devices" %}
+                </label>
+                {{ filter_form.device }}
+            </div>
+            <div>
+                <label for="{{ filter_form.search.id_for_label }}" class="block text-sm font-medium text-[hsl(var(--foreground))] mb-1">
+                    {% trans "Search User" %}
+                </label>
+                {{ filter_form.search }}
+            </div>
+            <div class="md:mt-6">
+                <button type="submit" class="w-full inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:bg-[hsl(var(--primary)/0.9)] h-10 px-4 py-2 shadow-sm">
+                    <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    {% trans "Fetch Users" %}
+                </button>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <button type="button" id="select-all-devices" class="text-xs text-[hsl(var(--primary-foreground))] hover:text-[hsl(var(--primary)/0.8)]">
+                {% trans "Select All" %}
+            </button>
+            <button type="button" id="clear-devices" class="text-xs text-[hsl(var(--destructive-foreground))] hover:text-[hsl(var(--destructive)/0.8)]">
+                {% trans "Clear" %}
+            </button>
+        </div>
+    </form>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllButton = document.getElementById('select-all-devices');
+    const clearButton = document.getElementById('clear-devices');
+    const deviceSelect = document.getElementById('device-select');
+    
+    selectAllButton.addEventListener('click', function() {
+        for (let option of deviceSelect.options) {
+            option.selected = true;
+        }
+    });
+    
+    clearButton.addEventListener('click', function() {
+        for (let option of deviceSelect.options) {
+            option.selected = false;
+        }
+    });
+});
+</script>
+{% endblock %}
+
+{% block table_headers %}
+<th scope="col" class="px-3 sm:px-6 py-3 text-[hsl(var(--foreground))]">{% trans "Device" %}</th>
+<th scope="col" class="px-3 sm:px-6 py-3 text-[hsl(var(--foreground))]">{% trans "User ID" %}</th>
+<th scope="col" class="px-3 sm:px-6 py-3 text-[hsl(var(--foreground))]">{% trans "Name" %}</th>
+<th scope="col" class="px-3 sm:px-6 py-3 text-[hsl(var(--foreground))]">{% trans "Privilege" %}</th>
+<th scope="col" class="px-3 sm:px-6 py-3 text-[hsl(var(--foreground))]">{% trans "Card Number" %}</th>
+<th scope="col" class="px-3 sm:px-6 py-3 text-right text-[hsl(var(--foreground))]">{% trans "Actions" %}</th>
+{% endblock %}
+
+{% block table_body %}
+{% if objects %}
+    {% for object in objects %}
+    <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]">
+        <td class="px-3 sm:px-6 py-4 text-[hsl(var(--foreground))]">{{ object.device_name }}</td>
+        <td class="px-3 sm:px-6 py-4 text-[hsl(var(--foreground))]">{{ object.uid }}</td>
+        <td class="px-3 sm:px-6 py-4 font-medium text-[hsl(var(--foreground))]">{{ object.name }}</td>
+        <td class="px-3 sm:px-6 py-4 text-[hsl(var(--foreground))]">
+            {% if object.privilege == 0 %}{% trans "Normal User" %}
+            {% elif object.privilege == 1 %}{% trans "Enroller" %}
+            {% elif object.privilege == 2 %}{% trans "Manager" %}
+            {% elif object.privilege == 3 %}{% trans "Admin" %}
+            {% else %}{% trans "Unknown" %}
+            {% endif %}
+        </td>
+        <td class="px-3 sm:px-6 py-4 text-[hsl(var(--foreground))]">{{ object.card|default:"-" }}</td>
+        <td class="px-3 sm:px-6 py-4 text-right">
+            <div class="flex justify-end gap-2">
+                {% if can_view %}
+                <a href="{% url 'hrm:zk_user_detail' device_id=object.device.id user_id=object.uid %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] text-[hsl(var(--foreground))] h-9 px-3 py-2">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 12C2 12 5.63636 5 12 5C18.3636 5 22 12 22 12C22 12 18.3636 19 12 19C5.63636 19 2 12 2 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+                {% endif %}
+                {% if can_update %}
+                <a href="{% url 'hrm:zk_user_update' device_id=object.device.id user_id=object.uid %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] text-[hsl(var(--foreground))] h-9 px-3 py-2">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+                {% endif %}
+                {% if can_delete %}
+                <a href="{% url 'hrm:zk_user_delete' device_id=object.device.id user_id=object.uid %}"  class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offse
+t-background transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-red-100 hover:text-red-700 h-9 w-9">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m1 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="sr-only">{% trans "Delete" %}</span>
+                </a>
+                {% endif %}
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+{% else %}
+    <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+        <td colspan="6" class="px-3 sm:px-6 py-4 text-center text-[hsl(var(--muted-foreground))]">
+            {% if request.method == 'POST' %}
+                {% trans "No users found matching your search criteria." %}
+            {% else %}
+                {% trans "Select devices and enter a search query to fetch users." %}
+            {% endif %}
+            {% if can_create %}
+            <a href="{{ create_url }}" class="text-[hsl(var(--primary))] hover:text-[hsl(var(--primary)/0.9)]">{% trans "Add a new user now" %}</a>.
+            {% endif %}
+        </td>
+    </tr>
+{% endif %}
+{% endblock %}
+
+{% block empty_colspan %}6{% endblock %}

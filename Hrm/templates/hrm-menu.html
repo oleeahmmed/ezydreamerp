@@ -43,33 +43,11 @@
                 </svg>
             </div>
             <div class="flex flex-col">
-                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">ZK Devices</span>
+                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Device Management	</span>
                 <span class="text-xs {% if 'hrm:zk_device_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage Devices</span>
             </div>
         </div>
     </a>
-
-
-
-    <!-- ZK Device Sync -->
-    <a href="{% url 'hrm:zk_device_sync' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:zk_device_sync' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
-        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:zk_device_sync' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
-        <div class="flex items-center">
-            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:zk_device_sync' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M16 3L20 7L16 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M20 7H8C5.79086 7 4 8.79086 4 11V13C4 15.2091 5.79086 17 8 17H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M8 21L4 17L8 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M4 17H16C18.2091 17 20 15.2091 20 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-            </div>
-            <div class="flex flex-col">
-                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Sync ZK Devices</span>
-                <span class="text-xs {% if 'hrm:zk_device_sync' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Synchronize Device Data</span>
-            </div>
-        </div>
-    </a>
-
     <!-- ZK Device Test Connection -->
     <a href="{% url 'hrm:zk_device_test_connection' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:zk_device_test_connection' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
         <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:zk_device_test_connection' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
@@ -81,42 +59,24 @@
                 </svg>
             </div>
             <div class="flex flex-col">
-                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Test Device Connection</span>
+                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Connection Test</span>
                 <span class="text-xs {% if 'hrm:zk_device_test_connection' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Verify Device Connectivity</span>
             </div>
         </div>
     </a>
-
-    <!-- ZK Attendance Logs -->
-    <a href="{% url 'hrm:zk_attendance_log_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:zk_attendance_log_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
-        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:zk_attendance_log_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+    <a href="{% url 'hrm:zk_user_list_device' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:zk_device_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:zk_device_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
         <div class="flex items-center">
-            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:zk_attendance_log_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:zk_device_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 7V3M16 7V3M3 11H21M5 21H19C20.1046 21 21 20.1046 21 19V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V19C3 20.1046 3.89543 21 5 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M12 15H12.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M19 4H5C3.89543 4 3 4.89543 3 6V18C3 19.1046 3.89543 20 5 20H19C20.1046 20 21 19.1046 21 18V6C21 4.89543 20.1046 4 19 4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M9 8H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M12 12V16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
             </div>
             <div class="flex flex-col">
-                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">ZK Attendance Logs</span>
-                <span class="text-xs {% if 'hrm:zk_attendance_log_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">View Logs</span>
-            </div>
-        </div>
-    </a>
-
-    <!-- ZK Users -->
-    <a href="{% url 'hrm:zk_user_simple_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:zk_user_simple_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
-        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:zk_user_simple_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
-        <div class="flex items-center">
-            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:zk_user_simple_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 12C14.2091 12 16 10.2091 16 8C16 5.79086 14.2091 4 12 4C9.79086 4 8 5.79086 8 8C8 10.2091 9.79086 12 12 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M5 20C5 17.2386 7.23858 15 10 15H14C16.7614 15 19 17.2386 19 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-            </div>
-            <div class="flex flex-col">
-                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">ZK Users</span>
-                <span class="text-xs {% if 'hrm:zk_user_simple_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage Users</span>
+                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform"> Devices User </span>
+                <span class="text-xs {% if 'hrm:zk_device_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Direct Device Access</span>
             </div>
         </div>
     </a>
@@ -134,11 +94,69 @@
                 </svg>
             </div>
             <div class="flex flex-col">
-                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Sync ZK Users</span>
+                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Sync Users to Database</span>
                 <span class="text-xs {% if 'hrm:zk_user_sync' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Synchronize User Data</span>
             </div>
         </div>
     </a>
+
+    <!-- ZK Device Sync -->
+    <a href="{% url 'hrm:zk_device_sync' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:zk_device_sync' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:zk_device_sync' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:zk_device_sync' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 3L20 7L16 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M20 7H8C5.79086 7 4 8.79086 4 11V13C4 15.2091 5.79086 17 8 17H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M8 21L4 17L8 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M4 17H16C18.2091 17 20 15.2091 20 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="flex flex-col">
+                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Sync Device Attendance Data</span>
+                <span class="text-xs {% if 'hrm:zk_device_sync' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Synchronize Device Data</span>
+            </div>
+        </div>
+    </a>
+
+
+
+    <!-- ZK Attendance Logs -->
+    <a href="{% url 'hrm:zk_attendance_log_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:zk_attendance_log_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:zk_attendance_log_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:zk_attendance_log_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 7V3M16 7V3M3 11H21M5 21H19C20.1046 21 21 20.1046 21 19V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V19C3 20.1046 3.89543 21 5 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M12 15H12.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="flex flex-col">
+                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform"> Attendance Records Log </span>
+                <span class="text-xs {% if 'hrm:zk_attendance_log_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">View Logs</span>
+            </div>
+        </div>
+    </a>
+
+
+
+
+        <!-- ZK Users -->
+    <!-- <a href="{% url 'hrm:zk_user_simple_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:zk_user_simple_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:zk_user_simple_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:zk_user_simple_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 12C14.2091 12 16 10.2091 16 8C16 5.79086 14.2091 4 12 4C9.79086 4 8 5.79086 8 8C8 10.2091 9.79086 12 12 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M5 20C5 17.2386 7.23858 15 10 15H14C16.7614 15 19 17.2386 19 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="flex flex-col">
+                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform"> Device User Management</span>
+                <span class="text-xs {% if 'hrm:zk_user_simple_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage users directly on devices</span>
+            </div>
+        </div>
+    </a> -->
 </div>
                     <!-- Employee Management -->
                     <div class="space-y-1">
