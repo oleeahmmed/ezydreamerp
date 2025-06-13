@@ -1,0 +1,119 @@
+{% if show_production_menu %}
+<div class="relative">
+    <button data-dropdown-toggle="productionMenu" class="relative w-full flex items-center px-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Production:' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <!-- Active indicator line with animation -->
+        <div class="absolute left-[-4px] top-0 bottom-0 w-[3px] bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.7)] rounded-r-full {% if 'Production:' in request.path %}opacity-100{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-all duration-300 shadow-[0_0_8px_rgba(var(--primary),0.5)]"></div>
+        
+        <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-md group-hover:shadow-[0_0_12px_rgba(var(--primary),0.4)] transition-all duration-300 group-hover:scale-105">
+            <!-- Production icon -->
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 7H21C21.5523 7 22 7.44772 22 8V16C22 16.5523 21.5523 17 21 17H3C2.44772 17 2 16.5523 2 16V8C2 7.44772 2.44772 7 3 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7 7V5C7 3.89543 7.89543 3 9 3H15C16.1046 3 17 3.89543 17 5V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 17V20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 12H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <span class="sidebar-text font-medium group-hover:translate-x-0.5 transition-transform">Production</span>
+        <svg class="w-4 h-4 ml-auto transition-transform duration-200" id="productionArrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </button>
+    
+    <!-- Production Submenu -->
+    <div id="productionMenu" class="{% if 'Production:' in request.path %}block animate-fade-in{% else %}hidden{% endif %} mt-2 space-y-1 ml-11 relative">
+        <!-- Submenu vertical line indicator with gradient and glow -->
+        <div class="absolute left-[-14px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-[hsl(var(--primary))] via-[hsl(var(--primary)/0.6)] to-[hsl(var(--primary)/0.2)] rounded-full shadow-[0_0_8px_rgba(var(--primary),0.3)]"></div>
+        
+        <!-- Dashboard -->
+        <a href="{% url 'Production:dashboard' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Production:dashboard' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'Production:dashboard' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'Production:dashboard' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 6H21V8H3V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M3 16H21V18H3V16Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M12 4V20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M8 10H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Dashboard</span>
+                    <span class="text-xs {% if 'Production:dashboard' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Production Overview</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Bill of Materials -->
+        <a href="{% url 'Production:bill_of_materials_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Production:bill_of_materials_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'Production:bill_of_materials_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'Production:bill_of_materials_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 4H20V20H4V4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M8 8H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M8 12H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M8 16H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Bill of Materials</span>
+                    <span class="text-xs {% if 'Production:bill_of_materials_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage BOMs</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Production Orders -->
+        <a href="{% url 'Production:production_order_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Production:production_order_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'Production:production_order_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'Production:production_order_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 7H21V17H3V7Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M8 12H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M12 7V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Production Orders</span>
+                    <span class="text-xs {% if 'Production:production_order_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage Orders</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Production Receipts -->
+        <a href="{% url 'Production:production_receipt_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Production:production_receipt_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'Production:production_receipt_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'Production:production_receipt_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 4H20V20H4V4Z" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Production Receipts</span>
+                    <span class="text-xs {% if 'Production:production_receipt_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage Receipts</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Production Issues -->
+        <a href="{% url 'Production:production_issue_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Production:production_issue_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'Production:production_issue_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'Production:production_issue_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 4H20V20H4V4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M15 9L9 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M9 9L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Production Issues</span>
+                    <span class="text-xs {% if 'Production:production_issue_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage Issues</span>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+{% endif %}

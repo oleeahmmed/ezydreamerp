@@ -42,18 +42,18 @@ class ProductionOrderComponentForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['item_code'].required = True
-        self.fields['item_name'].required = True
-        self.fields['planned_quantity'].required = True
+        self.fields['item_code'].required = False  # Allow empty rows initially
+        self.fields['item_name'].required = False  # Allow empty rows initially
+        self.fields['planned_quantity'].required = False  # Allow empty rows initially
 
 ProductionOrderComponentFormSet = inlineformset_factory(
     ProductionOrder,
     ProductionOrderComponent,
     form=ProductionOrderComponentForm,
-    extra=1,
+    extra=1,  # Start with 1 empty row
     can_delete=True,
     min_num=0,
-    validate_min=True
+    validate_min=False  # Don't require minimum forms
 )
 
 class ProductionOrderFilterForm(forms.Form):

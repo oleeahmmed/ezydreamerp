@@ -5,11 +5,6 @@ from .views import (
     BillOfMaterialsDetailView, BillOfMaterialsDeleteView, BillOfMaterialsExportView,
     BillOfMaterialsBulkDeleteView,
     
-    # Production Order views
-    ProductionOrderListView, ProductionOrderCreateView, ProductionOrderUpdateView,
-    ProductionOrderDetailView, ProductionOrderDeleteView, ProductionOrderExportView,
-    ProductionOrderBulkDeleteView,
-    
     # Production Receipt views
     ProductionReceiptListView, ProductionReceiptCreateView, ProductionReceiptUpdateView,
     ProductionReceiptDetailView, ProductionReceiptDeleteView, ProductionReceiptExportView,
@@ -21,7 +16,15 @@ from .views import (
     ProductionIssueBulkDeleteView, ProductionIssuePrintView,
     
     # Dashboard views
-    ProductionDashboardView
+    ProductionDashboardView,
+    
+    # API views
+    ProductBOMsAPIView, ProductInfoAPIView
+)
+from .views.production_order_views import (
+    ProductionOrderListView, ProductionOrderCreateView, ProductionOrderUpdateView,
+    ProductionOrderDetailView, ProductionOrderDeleteView, ProductionOrderExportView,
+    ProductionOrderBulkDeleteView, BOMComponentsAPIView
 )
 
 app_name = 'Production'
@@ -41,15 +44,16 @@ urlpatterns = [
     path('bom/<int:pk>/', BillOfMaterialsDetailView.as_view(), name='bill_of_materials_detail'),
     path('bom/export/', BillOfMaterialsExportView.as_view(), name='bom_export'),
     path('bom/bulk-delete/', BillOfMaterialsBulkDeleteView.as_view(), name='bom_bulk_delete'),
-    
+    path('bom/<int:pk>/print/', BillOfMaterialsDetailView.as_view(), name='production_receipt_print'),
+
     # Production Order URLs
-    path('order/', ProductionOrderListView.as_view(), name='production_order_list'),
-    path('order/create/', ProductionOrderCreateView.as_view(), name='production_order_create'),
-    path('order/<int:pk>/update/', ProductionOrderUpdateView.as_view(), name='production_order_update'),
-    path('order/<int:pk>/delete/', ProductionOrderDeleteView.as_view(), name='production_order_delete'),
-    path('order/<int:pk>/', ProductionOrderDetailView.as_view(), name='production_order_detail'),
-    path('order/export/', ProductionOrderExportView.as_view(), name='production_order_export'),
-    path('order/bulk-delete/', ProductionOrderBulkDeleteView.as_view(), name='production_order_bulk_delete'),
+    path('production/orders/', ProductionOrderListView.as_view(), name='production_order_list'),
+    path('production/orders/create/', ProductionOrderCreateView.as_view(), name='production_order_create'),
+    path('production-orders/<int:pk>/', ProductionOrderDetailView.as_view(), name='production_order_detail'),
+    path('production-orders/<int:pk>/update/', ProductionOrderUpdateView.as_view(), name='production_order_update'),
+    path('production-orders/<int:pk>/delete/', ProductionOrderDeleteView.as_view(), name='production_order_delete'),
+    path('production-orders/export/', ProductionOrderExportView.as_view(), name='production_order_export'),
+    path('production-orders/bulk-delete/', ProductionOrderBulkDeleteView.as_view(), name='production_order_bulk_delete'),
     # Production Receipt URLs
     path('receipt/', ProductionReceiptListView.as_view(), name='production_receipt_list'),
     path('receipt/create/', ProductionReceiptCreateView.as_view(), name='production_receipt_create'),
@@ -70,6 +74,8 @@ urlpatterns = [
     path('issue/export/', ProductionIssueExportView.as_view(), name='production_issue_export'),
     path('issue/bulk-delete/', ProductionIssueBulkDeleteView.as_view(), name='production_issue_bulk_delete'),
     
-    # API URLs
-    # path('api/', include('Production.api.urls', namespace='production_api')),
+    # API URLs for auto-fill functionality
+    path('api/product/<int:product_id>/boms/', ProductBOMsAPIView.as_view(), name='product_boms_api'),
+    path('api/bom/<int:bom_id>/components/', BOMComponentsAPIView.as_view(), name='bom_components_api'),
+    path('api/product/<int:product_id>/info/', ProductInfoAPIView.as_view(), name='product_info_api'),
 ]

@@ -130,7 +130,7 @@ TEMPLATES = [
                 'Hrm.context_processors.hrm_menu_context',
                 'Banking.context_processors.banking_menu_context',
                 'global_settings.context_processors.global_settings_context',
-
+                'Production.context_processors.production_menu_context',
                 'django.template.context_processors.i18n',
             ],
         },

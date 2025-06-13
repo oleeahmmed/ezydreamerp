@@ -7,7 +7,7 @@ from .bom_views import (
 from .production_order_views import (
     ProductionOrderListView, ProductionOrderCreateView, ProductionOrderUpdateView,
     ProductionOrderDetailView, ProductionOrderDeleteView, ProductionOrderExportView,
-    ProductionOrderBulkDeleteView
+    ProductionOrderBulkDeleteView,ProductBOMsAPIView, ProductInfoAPIView,BOMComponentsAPIView
 )
 
 from .production_receipt_views import (
@@ -23,3 +23,4 @@ from .production_issue_views import (
 )
 
 from .dashboard_views import ProductionDashboardView
+
