@@ -24,12 +24,220 @@ class PaymentTermsForm(forms.ModelForm):
 class CompanyInfoForm(forms.ModelForm):
     class Meta:
         model = CompanyInfo
-        fields = ['name', 'address', 'email', 'phone_number', 'logo', 'tax_info']
-        widgets = {
-            'address': forms.Textarea(attrs={'rows': 3}),
-            'tax_info': forms.Textarea(attrs={'rows': 3})
-        }
+        fields = [
+            # Basic Info
+            'name', 'legal_name', 'tagline', 'description',
 
+            # Contact
+            'email', 'phone_number', 'alternate_phone', 'website',
+
+            # Address
+            'address', 'address_line2', 'city', 'state', 'postal_code', 'country',
+
+            # Registration
+            'registration_number', 'tax_id', 'vat_number', 'tax_info',
+
+            # Branding
+            'logo', 'favicon',
+
+            # Fiscal
+            'default_currency', 'fiscal_year_start', 'fiscal_year_end',
+            'timezone', 'language',
+
+            # Social
+            'facebook_url', 'linkedin_url', 'instagram_url', 'twitter_url',
+
+            # Status
+            'is_active',
+        ]
+        widgets = {
+            # Basic Info
+            'name': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Company Name'
+            }),
+            'legal_name': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Legal Name'
+            }),
+            'tagline': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Tagline'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'rows': 2,
+                'placeholder': 'Company Description'
+            }),
+
+            # Contact
+            'email': forms.EmailInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Email Address'
+            }),
+            'phone_number': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Phone Number'
+            }),
+            'alternate_phone': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Alternate Phone'
+            }),
+            'website': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Website URL'
+            }),
+
+            # Address
+            'address': forms.Textarea(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'rows': 2,
+                'placeholder': 'Address Line 1'
+            }),
+            'address_line2': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Address Line 2'
+            }),
+            'city': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'City'
+            }),
+            'state': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'State'
+            }),
+            'postal_code': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Postal Code'
+            }),
+            'country': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Country'
+            }),
+
+            # Registration & Tax
+            'registration_number': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Registration Number'
+            }),
+            'tax_id': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Tax ID'
+            }),
+            'vat_number': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'VAT Number'
+            }),
+            'tax_info': forms.Textarea(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'rows': 2,
+                'placeholder': 'Tax Details'
+            }),
+
+            # Fiscal
+            'fiscal_year_start': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700'
+            }),
+            'fiscal_year_end': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700'
+            }),
+            'default_currency': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Currency (e.g., USD)'
+            }),
+            'timezone': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Time Zone (e.g., UTC)'
+            }),
+            'language': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Language (e.g., en)'
+            }),
+
+            # Social
+            'facebook_url': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Facebook URL'
+            }),
+            'linkedin_url': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'LinkedIn URL'
+            }),
+            'instagram_url': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Instagram URL'
+            }),
+            'twitter_url': forms.URLInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700',
+                'placeholder': 'Twitter URL'
+            }),
+
+            # Logo & Favicon
+            'logo': forms.ClearableFileInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700'
+            }),
+            'favicon': forms.ClearableFileInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700'
+            }),
+
+            # Status
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'h-4 w-4 border border-gray-300 rounded text-blue-600 focus:ring-blue-500'
+            }),
+        }
+        # Fieldsets for UI layout
+        fieldsets = [
+            {
+                'title': 'Basic Details',
+                'description': 'Primary company identity and slogan',
+                'icon': 'building',
+                'fields': ['name', 'legal_name', 'tagline', 'description'],
+            },
+            {
+                'title': 'Contact Information',
+                'description': 'Communication details',
+                'icon': 'phone',
+                'fields': ['email', 'phone_number', 'alternate_phone', 'website'],
+            },
+            {
+                'title': 'Address',
+                'description': 'Physical company location',
+                'icon': 'map-pin',
+                'fields': ['address', 'address_line2', 'city', 'state', 'postal_code', 'country'],
+            },
+            {
+                'title': 'Registration & Tax',
+                'description': 'Legal and taxation identifiers',
+                'icon': 'briefcase',
+                'fields': ['registration_number', 'tax_id', 'vat_number', 'tax_info'],
+            },
+            {
+                'title': 'Branding',
+                'description': 'Visual identity elements',
+                'icon': 'image',
+                'fields': ['logo', 'favicon'],
+            },
+            {
+                'title': 'Localization Settings',
+                'description': 'Currency, timezone, and fiscal period settings',
+                'icon': 'globe',
+                'fields': ['default_currency', 'fiscal_year_start', 'fiscal_year_end', 'timezone', 'language'],
+            },
+            {
+                'title': 'Social Media',
+                'description': 'Company’s social presence',
+                'icon': 'share-2',
+                'fields': ['facebook_url', 'linkedin_url', 'instagram_url', 'twitter_url'],
+            },
+            {
+                'title': 'Status',
+                'description': 'Toggle visibility/activation',
+                'icon': 'toggle-left',
+                'fields': ['is_active'],
+            },
+        ]
 class LocalizationForm(forms.ModelForm):
     class Meta:
         model = Localization

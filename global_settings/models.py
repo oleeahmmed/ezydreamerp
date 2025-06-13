@@ -21,16 +21,61 @@ class PaymentTerms(models.Model):
 
 
 # Company Information
+
 class CompanyInfo(models.Model):
+    # Basic Info
     name = models.CharField(max_length=200)
-    address = models.TextField()
+    legal_name = models.CharField(max_length=200, blank=True, null=True)
+    tagline = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+
+    # Contact Info
     email = models.EmailField()
     phone_number = models.CharField(max_length=20)
-    logo = models.ImageField(upload_to='company_logos/')
-    tax_info = models.TextField()
+    alternate_phone = models.CharField(max_length=20, blank=True, null=True)
+    website = models.URLField(blank=True, null=True)
+
+    # Address Info
+    address = models.TextField()
+    address_line2 = models.CharField(max_length=255, blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    state = models.CharField(max_length=100, blank=True, null=True)
+    postal_code = models.CharField(max_length=20, blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+
+    # Registration & Tax Info
+    registration_number = models.CharField(max_length=100, blank=True, null=True)
+    tax_id = models.CharField(max_length=100, blank=True, null=True)
+    vat_number = models.CharField(max_length=100, blank=True, null=True)
+    tax_info = models.TextField(blank=True, null=True)
+
+    # Branding
+    logo = models.ImageField(upload_to='company_logos/', blank=True, null=True)
+    favicon = models.ImageField(upload_to='company_favicons/', blank=True, null=True)
+
+    # Fiscal & Locale Settings
+    default_currency = models.CharField(max_length=10, default='USD')
+    fiscal_year_start = models.DateField(blank=True, null=True)
+    fiscal_year_end = models.DateField(blank=True, null=True)
+    timezone = models.CharField(max_length=100, default='UTC')
+    language = models.CharField(max_length=50, default='en')
+
+    # Social Media
+    facebook_url = models.URLField(blank=True, null=True)
+    linkedin_url = models.URLField(blank=True, null=True)
+    instagram_url = models.URLField(blank=True, null=True)
+    twitter_url = models.URLField(blank=True, null=True)
+
+    # Active flag
+    is_active = models.BooleanField(default=True)
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True,blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True,blank=True, null=True)
 
     def __str__(self):
         return self.name
+
 
 # Localization Settings
 class Localization(models.Model):

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    Sales Reports
+{% endblock %}
+
+{% block page_title %}
+    Sales Reports
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .card-container {
+            display: none;
+        }
+        .card-container.visible {
+            display: block;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Search Box -->
+    <div class="mb-6">
+        <input type="text" id="searchInput" class="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white" placeholder="Search by heading...">
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Card 1: Sales Report -->
+        <div class="card-container visible" data-heading="Sales Order Report ">
+            <a href="{% url 'Sales:sales_report' %}" class="block group">
+                <div class="relative rounded-lg p-[1px] overflow-hidden shadow-sm transition-all hover:shadow-md border border-gray-200 dark:border-gray-700" style="background: linear-gradient(to bottom right, hsl(var(--primary, 219 100% 50%) / 0.7), hsl(var(--accent, 270 100% 50%) / 0.7));">
+                    <div class="bg-card rounded-[calc(var(--radius)-1px)] h-full w-full bg-white dark:bg-gray-800">
+                        <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+                            <h3 class="text-sm font-medium text-gray-900 dark:text-white">Sales Order Report </h3>
+                            <div class="inline-flex items-center rounded-md border border-input bg-background px-2.5 py-0.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                                <span class="text-gray-400">⦿</span>
+                            </div>
+                        </div>
+                        <div class="p-6 pt-0">
+                            <p class="text-xs text-muted-foreground text-gray-600 dark:text-gray-400">Sales Report Order Wise </p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card 2: Sales Report Details -->
+        <div class="card-container visible" data-heading="Sales Order With  Product Report">
+            <a href="{% url 'Sales:sales_report_details' %}" class="block group">
+                <div class="relative rounded-lg p-[1px] overflow-hidden shadow-sm transition-all hover:shadow-md border border-gray-200 dark:border-gray-700" style="background: linear-gradient(to bottom right, hsl(var(--primary, 219 100% 50%) / 0.7), hsl(var(--accent, 270 100% 50%) / 0.7));">
+                    <div class="bg-card rounded-[calc(var(--radius)-1px)] h-full w-full bg-white dark:bg-gray-800">
+                        <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+                            <h3 class="text-sm font-medium text-gray-900 dark:text-white">Sales  Product Report</h3>
+                                         <div class="inline-flex items-center rounded-md border border-input bg-background px-2.5 py-0.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                                <span class="text-gray-400">⦿</span>
+                            </div>
+                        </div>
+                        <div class="p-6 pt-0">
+                            <p class="text-xs text-muted-foreground text-gray-600 dark:text-gray-400">Sales Order With  Product Report</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card 3: Sales Report Details -->
+        <div class="card-container visible" data-heading="Sales Employee Summery ">
+            <a href="{% url 'Sales:sales_employee_sales_summary' %}" class="block group">
+                <div class="relative rounded-lg p-[1px] overflow-hidden shadow-sm transition-all hover:shadow-md border border-gray-200 dark:border-gray-700" style="background: linear-gradient(to bottom right, hsl(var(--primary, 219 100% 50%) / 0.7), hsl(var(--accent, 270 100% 50%) / 0.7));">
+                    <div class="bg-card rounded-[calc(var(--radius)-1px)] h-full w-full bg-white dark:bg-gray-800">
+                        <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+                            <h3 class="text-sm font-medium text-gray-900 dark:text-white">Sales  Employee Summery </h3>
+                                         <div class="inline-flex items-center rounded-md border border-input bg-background px-2.5 py-0.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                                <span class="text-gray-400">⦿</span>
+                            </div>
+                        </div>
+                        <div class="p-6 pt-0">
+                            <p class="text-xs text-muted-foreground text-gray-600 dark:text-gray-400">Sales  Employee Summery</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="card-container visible" data-heading="Sales Dashboard">
+            <a href="{% url 'Sales:dashboard' %}" class="block group">
+                <div class="relative rounded-lg p-[1px] overflow-hidden shadow-sm transition-all hover:shadow-md border border-gray-200 dark:border-gray-700" style="background: linear-gradient(to bottom right, hsl(var(--primary, 219 100% 50%) / 0.7), hsl(var(--accent, 270 100% 50%) / 0.7));">
+                    <div class="bg-card rounded-[calc(var(--radius)-1px)] h-full w-full bg-white dark:bg-gray-800">
+                        <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+                            <h3 class="text-sm font-medium text-gray-900 dark:text-white">Sales  Dashboard </h3>
+                                         <div class="inline-flex items-center rounded-md border border-input bg-background px-2.5 py-0.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                                <span class="text-gray-400">⦿</span>
+                            </div>
+                        </div>
+                        <div class="p-6 pt-0">
+                            <p class="text-xs text-muted-foreground text-gray-600 dark:text-gray-400">Sales  Dashboard</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const cards = document.querySelectorAll('.card-container');
+        cards.forEach(card => {
+            const heading = card.getAttribute('data-heading').toLowerCase();
+            if (heading.includes(searchTerm)) {
+                card.classList.add('visible');
+            } else {
+                card.classList.remove('visible');
+            }
+        });
+    });
+</script>
+{% endblock %}

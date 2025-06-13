@@ -34,7 +34,7 @@ from .views import (
   ConvertQuotationToOrderView, ConvertOrderToDeliveryView,
   ConvertDeliveryToReturnView, ConvertOrderToInvoiceView,
   ConvertDeliveryToInvoiceView,
-  
+  demo_views,
   # Dashboard views
   SalesDashboardView, SalesDashboardChartView,
   
@@ -43,21 +43,15 @@ from .views import (
     FreeItemDiscountExportView, FreeItemDiscountBulkDeleteView,
 
 )
-from .views.sales_report_views import SalesReportView, SalesReportResultsView
+from .views.sales_report_views import SalesReportListView,SalesReportView,SalesReportDetailsView
 from .views.sales_employee_sales_report import SalesEmployeeSalesReportView
 
 app_name = 'Sales'
 
 urlpatterns = [
-    # Dashboard URLs
-    path('dashboard/daily/', SalesDashboardView.as_view(), {'period': 'daily'}, name='dashboard_daily'),
-    path('dashboard/monthly/', SalesDashboardView.as_view(), {'period': 'monthly'}, name='dashboard_monthly'),
-    path('dashboard/', SalesDashboardView.as_view(), name='dashboard'),
+
     
-    # Chart Dashboard URLs
-    path('dashboard/chart/daily/', SalesDashboardChartView.as_view(), {'period': 'daily'}, name='dashboard_chart_daily'),
-    path('dashboard/chart/monthly/', SalesDashboardChartView.as_view(), {'period': 'monthly'}, name='dashboard_chart_monthly'),
-    path('dashboard/chart/', SalesDashboardChartView.as_view(), name='dashboard_chart'),
+
   # Sales Employee URLs
   path('sales-employee/', SalesEmployeeListView.as_view(), name='sales_employee_list'),
   path('sales-employee/create/', SalesEmployeeCreateView.as_view(), name='sales_employee_create'),
@@ -100,7 +94,7 @@ urlpatterns = [
   path('delivery/bulk-delete/', DeliveryBulkDeleteView.as_view(), name='delivery_bulk_delete'),
   path('delivery/<int:pk>/convert-to-return/', ConvertDeliveryToReturnView.as_view(), name='convert_delivery_to_return'),
   path('delivery/<int:pk>/convert-to-invoice/', ConvertDeliveryToInvoiceView.as_view(), name='convert_delivery_to_invoice'),
-path('delivery/<int:pk>/print/', DeliveryPrintView.as_view(), name='delivery_print'),
+  path('delivery/<int:pk>/print/', DeliveryPrintView.as_view(), name='delivery_print'),
 
   # Return URLs
   path('return/', ReturnListView.as_view(), name='return_list'),
@@ -120,15 +114,27 @@ path('delivery/<int:pk>/print/', DeliveryPrintView.as_view(), name='delivery_pri
   path('arinvoice/<int:pk>/print/', ARInvoicePrintView.as_view(), name='arinvoice_print'),
   path('arinvoice/export/', ARInvoiceExportView.as_view(), name='arinvoice_export'),
   path('arinvoice/bulk-delete/', ARInvoiceBulkDeleteView.as_view(), name='arinvoice_bulk_delete'),
+  path('demo/config/', demo_views.SalesDemoConfigView.as_view(), name='demo_config'),
 
 
   path('api/sales/', include('Sales.api.urls', namespace='sales_api')),
+
+  
+  path('reports/', SalesReportListView.as_view(), name='sales_report_list'),
   path('reports/sales/', SalesReportView.as_view(), name='sales_report'),
-  path('reports/sales/results/', SalesReportResultsView.as_view(), name='sales_report_results'),    
-  
-  
+  path('reports/sales/details/', SalesReportDetailsView.as_view(), name='sales_report_details'),
   path('reports/sales-employee-summary/', SalesEmployeeSalesReportView.as_view(), name='sales_employee_sales_summary'),
   
+  # Chart Dashboard URLs
+  path('dashboard/chart/daily/', SalesDashboardChartView.as_view(), {'period': 'daily'}, name='dashboard_chart_daily'),
+  path('dashboard/chart/monthly/', SalesDashboardChartView.as_view(), {'period': 'monthly'}, name='dashboard_chart_monthly'),
+  path('dashboard/chart/', SalesDashboardChartView.as_view(), name='dashboard_chart'),
+  
+    # Dashboard URLs
+  path('dashboard/daily/', SalesDashboardView.as_view(), {'period': 'daily'}, name='dashboard_daily'),
+  path('dashboard/monthly/', SalesDashboardView.as_view(), {'period': 'monthly'}, name='dashboard_monthly'),
+  path('dashboard/', SalesDashboardView.as_view(), name='dashboard'),
+
   
   path('free-item-discount/', FreeItemDiscountListView.as_view(), name='freeitemdiscount_list'),
   path('free-item-discount/create/', FreeItemDiscountCreateView.as_view(), name='freeitemdiscount_create'),

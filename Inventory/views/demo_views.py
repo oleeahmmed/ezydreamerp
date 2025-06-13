@@ -6,7 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.views import View
 from django.utils import timezone
 from django import forms
-from django.db import transaction
+import django.db.transaction as db_transaction
 from decimal import Decimal
 import logging
 from Inventory.models import UnitOfMeasure, Warehouse, ItemGroup, Item, ItemWarehouseInfo, InventoryTransaction, GoodsReceipt, GoodsReceiptLine, GoodsIssue, GoodsIssueLine, InventoryTransfer, InventoryTransferLine
@@ -70,7 +70,7 @@ class DemoConfigView(DemoAccessMixin, View):
             
             try:
                 if action == 'import':
-                    with transaction.atomic():
+                    with db_transaction.atomic():
                         logger.info("Starting demo data import. include_transactions: %s", include_transactions)
                         
                         # Initialize transaction counts
@@ -565,34 +565,41 @@ class DemoConfigView(DemoAccessMixin, View):
                         logger.info(success_message)
 
                 elif action == 'delete':
-                    # Delete in reverse order to respect foreign key constraints
-                    transfer_lines_deleted = InventoryTransferLine.objects.all().delete()[0]
-                    transfer_deleted = InventoryTransfer.objects.all().delete()[0]
-                    issue_lines_deleted = GoodsIssueLine.objects.all().delete()[0]
-                    issue_deleted = GoodsIssue.objects.all().delete()[0]
-                    receipt_lines_deleted = GoodsReceiptLine.objects.all().delete()[0]
-                    receipt_deleted = GoodsReceipt.objects.all().delete()[0]
-                    transaction_deleted = InventoryTransaction.objects.all().delete()[0]
-                    item_warehouse_info_deleted = ItemWarehouseInfo.objects.all().delete()[0]
-                    item_deleted = Item.objects.all().delete()[0]
-                    item_group_deleted = ItemGroup.objects.all().delete()[0]
-                    warehouse_deleted = Warehouse.objects.all().delete()[0]
-                    uom_deleted = UnitOfMeasure.objects.all().delete()[0]
+                    with db_transaction.atomic():
+  
+                    
+                        transfer_lines_deleted = InventoryTransferLine.objects.all().delete()[0]
+                        transfer_deleted = InventoryTransfer.objects.all().delete()[0]
+                        issue_lines_deleted = GoodsIssueLine.objects.all().delete()[0]
+                        issue_deleted = GoodsIssue.objects.all().delete()[0]
+                        receipt_lines_deleted = GoodsReceiptLine.objects.all().delete()[0]
+                        receipt_deleted = GoodsReceipt.objects.all().delete()[0]
+                        inventory_transactions_deleted = InventoryTransaction.objects.all().delete()[0]
+                        item_warehouse_info_deleted = ItemWarehouseInfo.objects.all().delete()[0]
+                        item_deleted = Item.objects.all().delete()[0]
+                        item_group_deleted = ItemGroup.objects.all().delete()[0]
+                        warehouse_deleted = Warehouse.objects.all().delete()[0]
+                        uom_deleted = UnitOfMeasure.objects.all().delete()[0]
 
-                    success_message = (
-                        f"ডেমো ডেটা সফলভাবে মুছে ফেলা হয়েছে। "
-                        f"মুছে ফেলা হয়েছে: {transfer_lines_deleted} InventoryTransferLine, {transfer_deleted} InventoryTransfer, "
-                        f"{issue_lines_deleted} GoodsIssueLine, {issue_deleted} GoodsIssue, "
-                        f"{receipt_lines_deleted} GoodsReceiptLine, {receipt_deleted} GoodsReceipt, "
-                        f"{transaction_deleted} InventoryTransaction, {item_warehouse_info_deleted} ItemWarehouseInfo, "
-                        f"{item_deleted} Item, {item_group_deleted} ItemGroup, {warehouse_deleted} Warehouse, "
-                        f"{uom_deleted} UnitOfMeasure রেকর্ড।"
-                    )
-                    messages.success(request, success_message)
-                    logger.info(success_message)
+                        success_message = (
+                            f"ডেমো ডেটা সফলভাবে মুছে ফেলা হয়েছে। "
+                            f"মুছে ফেলা হয়েছে: {transfer_lines_deleted} InventoryTransferLine, {transfer_deleted} InventoryTransfer, "
+                            f"{issue_lines_deleted} GoodsIssueLine, {issue_deleted} GoodsIssue, "
+                            f"{receipt_lines_deleted} GoodsReceiptLine, {receipt_deleted} GoodsReceipt, "
+                            f"{inventory_transactions_deleted} InventoryTransaction, {item_warehouse_info_deleted} ItemWarehouseInfo, "
+                            f"{item_deleted} Item, {item_group_deleted} ItemGroup, {warehouse_deleted} Warehouse, "
+                            f"{uom_deleted} UnitOfMeasure রেকর্ড।"
+                        )
+                        messages.success(request, success_message)
+                        logger.info(success_message)
+
+
+
 
             except Exception as e:
-                error_message = f"ইম্পোর্ট অ্যাকশন সম্পাদনে ত্রুটি: {str(e)}"
+                error_message = (
+                    f"{'ইম্পোর্ট' if action == 'import' else 'ডিলিট'} অ্যাকশন সম্পাদনে ত্রুটি: {str(e)}"
+                )
                 logger.error(error_message)
                 messages.error(request, error_message)
                 return redirect('Inventory:demo_config')

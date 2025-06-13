@@ -63,31 +63,41 @@ class LeaveBalanceFilterForm(BaseFilterForm):
 
 class LeaveBalanceInitializeForm(forms.Form):
     """Form for initializing leave balances for all employees"""
-    
+
     year = forms.ChoiceField(
         choices=[],
         required=True,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-    
+
     leave_types = forms.ModelMultipleChoiceField(
         queryset=LeaveType.objects.all(),
         required=True,
         widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'})
     )
-    
+
     reset_existing = forms.BooleanField(
         required=False,
         initial=False,
         help_text="If checked, existing leave balances will be reset to default values",
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
     )
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Generate year choices (current year and next year)
         import datetime
         current_year = datetime.datetime.now().year
-        year_choices = [(str(year), str(year)) for year in range(current_year, current_year+2)]
+        year_choices = [(str(year), str(year)) for year in range(current_year, current_year + 2)]
         self.fields['year'].choices = year_choices
         self.fields['year'].initial = str(current_year)
+
+    def clean_leave_types(self):
+        """Custom clean method to filter out invalid values like 'on'"""
+        raw_ids = self.data.getlist('leave_types')
+        valid_ids = [pk for pk in raw_ids if pk.isdigit()]
+        leave_types = LeaveType.objects.filter(id__in=valid_ids)
+
+        if not leave_types.exists():
+            raise forms.ValidationError("Please select at least one valid leave type.")
+
+        return leave_types

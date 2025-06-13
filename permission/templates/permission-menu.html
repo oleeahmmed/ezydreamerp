@@ -1,0 +1,94 @@
+<!-- permission/templates/permission/permission-menu.html -->
+{% if show_permission_menu %}
+<div class="relative">
+    <button data-dropdown-toggle="authMenu" class="relative w-full flex items-center px-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'permission:' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <!-- Active indicator line with animation -->
+        <div class="absolute left-[-4px] top-0 bottom-0 w-[3px] bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.7)] rounded-r-full {% if 'permission:' in request.path %}opacity-100{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-all duration-300 shadow-[0_0_8px_rgba(var(--primary),0.5)]"></div>
+        
+        <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-md group-hover:shadow-[0_0_12px_rgba(var(--primary),0.4)] transition-all duration-300 group-hover:scale-105">
+            <!-- Authentication icon -->
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2"/>
+                <path d="M16 8V6C16 3.79086 14.2091 2 12 2C9.79086 2 8 3.79086 8 6V8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M5 10H19C20.1046 10 21 10.8954 21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V12C3 10.8954 3.89543 10 5 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <span class="sidebar-text font-medium group-hover:translate-x-0.5 transition-transform">Authentication</span>
+        <svg class="w-4 h-4 ml-auto transition-transform duration-200" id="authArrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </button>
+    
+    <!-- Authentication Submenu -->
+    <div id="authMenu" class="{% if 'permission:' in request.path %}block animate-fade-in{% else %}hidden{% endif %} mt-2 space-y-1 ml-11 relative">
+        <!-- Premium submenu vertical line indicator with gradient and glow -->
+        <div class="absolute left-[-14px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-[hsl(var(--primary))] via-[hsl(var(--primary)/0.6)] to-[hsl(var(--primary)/0.2)] rounded-full shadow-[0_0_8px_rgba(var(--primary),0.3)]"></div>
+        
+        <!-- Users -->
+        {% if can_view_user %}
+        <a href="{% url 'permission:user_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'permission:user_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <!-- Submenu item indicator dot with pulse animation -->
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'permission:user_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'permission:user_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <!-- Users icon -->
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6 21V19C6 17.9391 6.42143 16.9217 7.17157 16.1716C7.92172 15.4214 8.93913 15 10 15H14C15.0609 15 16.0783 15.4214 16.8284 16.1716C17.5786 16.9217 18 17.9391 18 19V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Users</span>
+                    <span class="text-xs {% if 'permission:user_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage system users</span>
+                </div>
+            </div>
+        </a>
+        {% endif %}
+
+        <!-- Groups -->
+        {% if can_view_group %}
+        <a href="{% url 'permission:group_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'permission:group_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <!-- Submenu item indicator dot with pulse animation -->
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'permission:group_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'permission:group_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <!-- Groups icon -->
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17 20H22V18C22 16.3431 20.6569 15 19 15C18.0444 15 17.1931 15.4468 16.6438 16.1429M17 20H7M17 20V18C17 17.3438 16.8736 16.717 16.6438 16.1429M7 20H2V18C2 16.3431 3.34315 15 5 15C5.95561 15 6.80686 15.4468 7.35625 16.1429M7 20V18C7 17.3438 7.12642 16.717 7.35625 16.1429M7.35625 16.1429C8.0935 14.301 9.89482 13 12 13C14.1052 13 15.9065 14.301 16.6438 16.1429M15 7C15 8.65685 13.6569 10 12 10C10.3431 10 9 8.65685 9 7C9 5.34315 10.3431 4 12 4C13.6569 4 15 5.34315 15 7ZM21 10C21 11.1046 20.1046 12 19 12C17.8954 12 17 11.1046 17 10C17 8.89543 17.8954 8 19 8C20.1046 8 21 8.89543 21 10ZM7 10C7 11.1046 6.10457 12 5 12C3.89543 12 3 11.1046 3 10C3 8.89543 3.89543 8 5 8C6.10457 8 7 8.89543 7 10Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Groups</span>
+                    <span class="text-xs {% if 'permission:group_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage user groups</span>
+                </div>
+            </div>
+        </a>
+        {% endif %}
+
+        <!-- Permissions -->
+        {% if can_view_permission %}
+        <a href="{% url 'permission:permission_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'permission:permission_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <!-- Submenu item indicator dot with pulse animation -->
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'permission:permission_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'permission:permission_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <!-- Permissions icon -->
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 10.0288L8.5 8.5288L10.5 10.5288L15.5 5.5288L17 7.0288" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 14L11 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 20.4V5.6C3 4.17 4.17 3 5.6 3H18.4C19.83 3 21 4.17 21 5.6V18.4C21 19.83 19.83 21 18.4 21H5.6C4.17 21 3 19.83 3 18.4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Permissions</span>
+                    <span class="text-xs {% if 'permission:permission_list' in request.path and not 'create' in request.path and not 'update' in request.path and not 'delete' in request.path and not 'detail' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage system permissions</span>
+                </div>
+            </div>
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}

@@ -505,6 +505,8 @@ class LeaveBalance(models.Model):
     pending_days = models.DecimalField(_("Pending Days"), max_digits=6, decimal_places=2, default=0)
     carried_forward_days = models.DecimalField(_("Carried Forward Days"), max_digits=6, 
                                               decimal_places=2, default=0)
+    created_at = models.DateTimeField(_("Created At"), auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(_("Updated At"), auto_now=True, null=True)                                            
     
     def __str__(self):
         return f"{self.employee.get_full_name()} - {self.leave_type.name} - {self.year}"

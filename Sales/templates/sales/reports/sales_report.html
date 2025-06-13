@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Sales Report" %}{% endblock %}
+{% block page_title %}{% trans "Sales Report" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --sidebar-width: 16rem;
+        --sidebar-width-collapsed: 3rem;
+        --background: 0 0% 100%;
+        --foreground: 240 10% 3.9%;
+        --muted: 240 4.8% 95.9%;
+        --muted-foreground: 240 3.8% 46.1%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 240 10% 3.9%;
+        --border: 240 5.9% 90%;
+        --input: 240 5.9% 90%;
+        --primary: 240 5.9% 10%;
+        --primary-foreground: 0 0% 98%;
+        --secondary: 240 4.8% 95.9%;
+        --secondary-foreground: 240 5.9% 10%;
+        --accent: 240 4.8% 95.9%;
+        --accent-foreground: 240 5.9% 10%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 0 0% 98%;
+        --ring: 240 5% 64.9%;
+        --radius: 0.5rem;
+        --topbar-height: 3.5rem;
+    }
+
+    .dark {
+        --background: 240 10% 3.9%;
+        --foreground: 0 0% 98%;
+        --muted: 240 3.7% 15.9%;
+        --muted-foreground: 240 5% 64.9%;
+        --popover: 240 10% 3.9%;
+        --popover-foreground: 0 0% 98%;
+        --border: 240 3.7% 15.9%;
+        --input: 240 3.7% 15.9%;
+        --primary: 0 0% 98%;
+        --primary-foreground: 240 5.9% 10%;
+        --secondary: 240 3.7% 15.9%;
+        --secondary-foreground: 0 0% 98%;
+        --accent: 240 3.7% 15.9%;
+        --accent-foreground: 0 0% 98%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 0 0% 98%;
+        --ring: 240 3.7% 15.9%;
+    }
+
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .premium-card {
+        background: linear-gradient(135deg, 
+            hsl(var(--background)) 0%,
+            hsl(var(--muted)) 100%
+        );
+        border: 1px solid hsl(var(--border));
+        transition: all 0.3s ease;
+    }
+
+    .premium-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        border-color: hsl(var(--primary));
+    }
+
+    .premium-icon {
+        background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%);
+    }
+
+    .premium-button {
+        transition: all 0.2s ease;
+    }
+
+    .premium-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+    
+    .status-draft { background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); }
+    .status-open { background: #3b82f6; color: white; }
+    .status-delivered { background: #10b981; color: white; }
+    .status-invoiced { background: #8b5cf6; color: white; }
+    .status-closed { background: #6b7280; color: white; }
+    .status-cancelled { background: #ef4444; color: white; }
+    
+    .amount-positive { color: #10b981; font-weight: 600; }
+    .amount-negative { color: #ef4444; font-weight: 600; }
+    .amount-zero { color: hsl(var(--muted-foreground)); }
+
+    .filters-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    @media (max-width: 640px) {
+        .table-responsive table {
+            font-size: 0.875rem;
+        }
+        
+        .table-responsive th,
+        .table-responsive td {
+            padding: 8px 4px;
+            white-space: nowrap;
+        }
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: hsl(var(--background));
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: hsl(var(--muted));
+        border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: hsl(var(--muted-foreground));
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto">
+    <div class="rounded-xl border-2 bg-[hsl(var(--background))] shadow-lg p-4 sm:p-8 mb-6 premium-card relative">
+        <!-- Decorative Elements -->
+        <div class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-[hsl(var(--primary))] to-transparent opacity-10 rounded-bl-full"></div>
+        <div class="absolute bottom-0 left-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-tr from-[hsl(var(--primary))] to-transparent opacity-10 rounded-tr-full"></div>
+        
+        <!-- Header -->
+        <div class="mb-6 sm:mb-8 border-b border-[hsl(var(--border))] pb-4 sm:pb-6 relative z-10">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <div class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-icon">
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" stroke="currentColor" stroke-width="2"/>
+                            <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5C15 6.10457 14.1046 7 13 7H11C9.89543 7 9 6.10457 9 5Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 12H15M12 16H15M9 12H9.01M9 16H9.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-foreground))] bg-clip-text text-transparent">{% trans "Sales Report" %}</h3>
+                        <p class="text-xs sm:text-sm text-[hsl(var(--muted-foreground))]">{% trans "View and analyze sales order data with payment information" %}</p>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button id="export-pdf" class="premium-button inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-10 px-4 py-2 whitespace-nowrap">
+                        <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 9H15V3H9V9H5L12 16L19 9Z" fill="currentColor"/><path d="M5 18H19V21H5V18Z" fill="currentColor"/></svg>
+                        {% trans "Export PDF" %}
+                    </button>
+                    <button id="export-csv" class="premium-button inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-10 px-4 py-2 whitespace-nowrap">
+                        <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z" stroke="currentColor" stroke-width="2"/><path d="M8 10H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 14H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        {% trans "Export CSV" %}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="mb-6">
+            <form method="get" class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <div class="filters-container overflow-x-auto hide-scrollbar -mx-4 px-4 pb-2">
+                    <div class="flex flex-nowrap gap-3 min-w-max">
+                        <input type="text" name="search" value="{{ search_term }}" placeholder="{% trans 'Search Sales Order ID...' %}" class="px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                        <input type="date" name="start_date" value="{{ start_date }}" placeholder="{% trans 'Start Date' %}" class="px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                        <input type="date" name="end_date" value="{{ end_date }}" placeholder="{% trans 'End Date' %}" class="px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                        <select name="customer" class="px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                            <option value="">{% trans "All Customers" %}</option>
+                            {% for customer in all_customers %}
+                                <option value="{{ customer.id }}" {% if selected_customer.id == customer.id %}selected{% endif %}>{{ customer.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="sales_employee" class="px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                            <option value="">{% trans "All Sales Employees" %}</option>
+                            {% for employee in all_sales_employees %}
+                                <option value="{{ employee.id }}" {% if selected_employee.id == employee.id %}selected{% endif %}>{{ employee.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-10 px-4 py-2 whitespace-nowrap premium-button">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 4H21M3 12H21M3 20H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            {% trans "Filter" %}
+                        </button>
+                        <a href="{% url 'Sales:sales_report' %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-10 px-4 py-2 whitespace-nowrap premium-button">
+                            {% trans "Clear Filters" %}
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Table -->
+        <div class="relative overflow-x-auto rounded-lg border border-[hsl(var(--border))] -mx-2 sm:mx-0">
+            <div class="min-w-full overflow-hidden table-responsive">
+                <table class="w-full text-sm text-left" id="sales-table">
+                    <thead class="text-xs uppercase bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]">
+                        <tr>
+                            <th scope="col" class="px-3 sm:px-6 py-3">{% trans "Order #" %}</th>
+                            <th scope="col" class="px-3 sm:px-6 py-3">{% trans "Date" %}</th>
+                            <th scope="col" class="px-3 sm:px-6 py-3">{% trans "Customer" %}</th>
+                            <th scope="col" class="px-3 sm:px-6 py-3">{% trans "Sales Employee" %}</th>
+                            <th scope="col" class="px-3 sm:px-6 py-3">{% trans "Total Amount" %}</th>
+                            <th scope="col" class="px-3 sm:px-6 py-3">{% trans "Payable Amount" %}</th>
+                            <th scope="col" class="px-3 sm:px-6 py-3">{% trans "Paid Amount" %}</th>
+                            <th scope="col" class="px-3 sm:px-6 py-3">{% trans "Due Amount" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in sales_orders %}
+                        <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] transition-colors">
+                            <td class="px-3 sm:px-6 py-4 font-medium text-[hsl(var(--primary))]">
+                                #{{ order.id }}
+                            </td>
+                            <td class="px-3 sm:px-6 py-4">
+                                {{ order.document_date|date:"Y-m-d" }}
+                            </td>
+                            <td class="px-3 sm:px-6 py-4">
+                                <div>
+                                    <div class="font-medium">{{ order.customer.name|default:"N/A" }}</div>
+                                    <div class="text-xs text-[hsl(var(--muted-foreground))]">{{ order.customer.code|default:"" }}</div>
+                                </div>
+                            </td>
+                            <td class="px-3 sm:px-6 py-4">
+                                {{ order.sales_employee.name|default:"N/A" }}
+                            </td>
+                            <td class="px-3 sm:px-6 py-4">
+                                <span class="{% if order.total_amount > 0 %}amount-positive{% elif order.total_amount < 0 %}amount-negative{% else %}amount-zero{% endif %}">
+                                    {{ order.total_amount|floatformat:2|default:"0.00" }}
+                                </span>
+                            </td>
+                            <td class="px-3 sm:px-6 py-4">
+                                <span class="{% if order.payable_amount > 0 %}amount-positive{% elif order.payable_amount < 0 %}amount-negative{% else %}amount-zero{% endif %}">
+                                    {{ order.payable_amount|floatformat:2|default:"0.00" }}
+                                </span>
+                            </td>
+                            <td class="px-3 sm:px-6 py-4">
+                                <span class="{% if order.paid_amount > 0 %}amount-positive{% else %}amount-zero{% endif %}">
+                                    {{ order.paid_amount|floatformat:2|default:"0.00" }}
+                                </span>
+                            </td>
+                            <td class="px-3 sm:px-6 py-4">
+                                <span class="{% if order.due_amount > 0 %}amount-negative{% else %}amount-zero{% endif %}">
+                                    {{ order.due_amount|floatformat:2|default:"0.00" }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+                            <td colspan="8" class="px-3 sm:px-6 py-4 text-center text-[hsl(var(--muted-foreground))]">
+                                {% trans "No sales orders found for the selected date range." %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if sales_orders %}
+                    <tfoot class="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] font-semibold">
+                        <tr>
+                            <td colspan="4" class="px-3 sm:px-6 py-3 text-right">{% trans "Total:" %}</td>
+                            <td class="px-3 sm:px-6 py-3">{{ total_amount|floatformat:2 }}</td>
+                            <td class="px-3 sm:px-6 py-3">{{ total_payable|floatformat:2 }}</td>
+                            <td class="px-3 sm:px-6 py-3">{{ total_paid|floatformat:2 }}</td>
+                            <td class="px-3 sm:px-6 py-3">{{ total_due|floatformat:2 }}</td>
+                        </tr>
+                    </tfoot>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterForm = document.querySelector('form');
+    const exportPdfButton = document.getElementById('export-pdf');
+    const exportCsvButton = document.getElementById('export-csv');
+
+    // Handle form submission
+    filterForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(filterForm);
+        const params = new URLSearchParams(formData).toString();
+        window.location.search = params;
+    });
+
+    // Export to PDF
+    exportPdfButton.addEventListener('click', function() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const table = document.getElementById('sales-table');
+
+        html2canvas(table).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const imgProps = doc.getImageProperties(imgData);
+            const pdfWidth = doc.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            doc.save('sales_report.pdf');
+        });
+    });
+
+    // Export to CSV
+    exportCsvButton.addEventListener('click', function() {
+        const table = document.getElementById('sales-table');
+        const rows = table.getElementsByTagName('tr');
+        let csvContent = [];
+
+        // Header
+        const headers = Array.from(table.querySelectorAll('th')).map(th => th.textContent.trim());
+        csvContent.push(headers.join(','));
+
+        // Data
+        for (let i = 0; i < rows.length - 1; i++) { // Exclude footer
+            const cols = rows[i].getElementsByTagName('td');
+            const rowData = Array.from(cols).map(td => {
+                const span = td.querySelector('span');
+                return span ? span.textContent.trim() : td.textContent.trim();
+            });
+            csvContent.push(rowData.join(','));
+        }
+
+        // Add totals from footer if present
+        const footerRow = table.querySelector('tfoot tr');
+        if (footerRow) {
+            const footerCols = footerRow.getElementsByTagName('td');
+            const footerData = Array.from(footerCols, td => td.textContent.trim().replace('Total:', ''));
+            csvContent.push(footerData.join(','));
+        }
+
+        const csv = csvContent.join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'sales_report.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+    });
+});
+</script>
+{% endblock %}

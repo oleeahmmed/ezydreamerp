@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.db import transaction
+import django.db.transaction as db_transaction  # ✅ fixed here
 
 from Inventory.models import Item, ItemWarehouseInfo, Warehouse
 
@@ -32,7 +32,7 @@ def create_or_update_item_warehouse_info(sender, instance, created, **kwargs):
     
     # If record already exists, update the min_stock, max_stock, and reorder_point values
     if not created:
-        with transaction.atomic():
+        with db_transaction.atomic():  
             warehouse_info.min_stock = instance.minimum_stock
             warehouse_info.max_stock = instance.maximum_stock
             warehouse_info.reorder_point = instance.reorder_point
