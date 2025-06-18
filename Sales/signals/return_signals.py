@@ -20,7 +20,7 @@ def create_return_transaction(sender, instance, created, **kwargs):
         item_instance = Item.objects.get(code=instance.item_code)
         warehouse = item_instance.default_warehouse
         if not warehouse:
-            return
+            return  # If no warehouse found, exit
 
         with transaction.atomic():
             # Get or create ItemWarehouseInfo
@@ -84,7 +84,7 @@ def delete_return_transaction(sender, instance, **kwargs):
         item_instance = Item.objects.get(code=instance.item_code)
         warehouse = item_instance.default_warehouse
         if not warehouse:
-            return
+            return  # If no warehouse found, exit
 
         with transaction.atomic():
             # Get ItemWarehouseInfo

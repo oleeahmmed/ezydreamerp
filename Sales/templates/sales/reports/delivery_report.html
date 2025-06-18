@@ -49,8 +49,8 @@
 </svg>
 {% endblock %}
 
-{% block list_title %}{% trans "Sales Report" %}{% endblock %}
-{% block list_subtitle %}{% trans "View detailed sales order line item data with advanced analytics" %}{% endblock %}
+{% block list_title %}{% trans "Delivery Report" %}{% endblock %}
+{% block list_subtitle %}{% trans "View detailed delivery data with advanced analytics" %}{% endblock %}
 
 {% block list_actions %}
 {% endblock %}
@@ -102,7 +102,8 @@
 {% block table_headers %}
 <thead>
     <tr>
-        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="order" onclick="sortTable('order')" style="width: 60px;">{% trans "ORDER #" %}<span id="sort-order" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="delivery" onclick="sortTable('delivery')" style="width: 60px;">{% trans "DELIVERY #" %}<span id="sort-delivery" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="sales_order" onclick="sortTable('sales_order')" style="width: 100px;">{% trans "SALES ORDER #" %}<span id="sort-sales_order" class="ml-1"></span></th>
         <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="date" onclick="sortTable('date')" style="width: 80px;">{% trans "DATE" %}<span id="sort-date" class="ml-1"></span></th>
         <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="customer" onclick="sortTable('customer')" style="width: 150px;">{% trans "CUSTOMER" %}<span id="sort-customer" class="ml-1"></span></th>
         <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="sales_employee" onclick="sortTable('sales_employee')" style="width: 120px;">{% trans "SALES EMPLOYEE" %}<span id="sort-sales_employee" class="ml-1"></span></th>
@@ -116,22 +117,23 @@
 
 {% block table_body %}
 <div class="w-full overflow-x-auto overflow-y-auto max-h-[70vh]">
-    <table id="sales-table" class="w-full table-fixed border-collapse">
+    <table id="delivery-table" class="w-full table-fixed border-collapse">
         <tbody>
-        {% for order in sales_orders %}
+        {% for delivery in deliveries %}
             <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] transition-colors">
-                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="order" style="width: 60px;">#{{ order.id }}</td>
-                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="date" style="width: 80px;">{{ order.document_date|date:"M d, Y" }}</td>
-                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="customer" style="width: 150px;">{{ order.customer.name }} ({{ order.customer.code }})</td>
-                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="sales_employee" style="width: 120px;">{{ order.sales_employee.name|default:"N/A" }}</td>
-                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="payable_amount" style="width: 120px;">{{ order.payable_amount|default:"0.00"|floatformat:2 }}</td>
-                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="paid_amount" style="width: 120px;">{{ order.paid_amount|default:"0.00"|floatformat:2 }}</td>
-                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="due_amount" style="width: 120px;">{{ order.due_amount|default:"0.00"|floatformat:2 }}</td>
-                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="status" style="width: 100px;">{{ order.status|default:"Pending" }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="delivery" style="width: 60px;">#{{ delivery.id }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="sales_order" style="width: 100px;">#{{ delivery.sales_order.id|default:"N/A" }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="date" style="width: 80px;">{{ delivery.document_date|date:"M d, Y" }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="customer" style="width: 150px;">{{ delivery.customer.name }} ({{ delivery.customer.code }})</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="sales_employee" style="width: 120px;">{{ delivery.sales_employee.name|default:"N/A" }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="payable_amount" style="width: 120px;">{{ delivery.payable_amount|default:"0.00"|floatformat:2 }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="paid_amount" style="width: 120px;">{{ delivery.paid_amount|default:"0.00"|floatformat:2 }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="due_amount" style="width: 120px;">{{ delivery.due_amount|default:"0.00"|floatformat:2 }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="status" style="width: 100px;">{{ delivery.status|default:"Draft" }}</td>
             </tr>
         {% empty %}
             <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
-                <td colspan="8" class="px-4 sm:px-8 py-4 text-center text-sm border border-[hsl(var(--border))]">
+                <td colspan="9" class="px-4 sm:px-8 py-4 text-center text-sm border border-[hsl(var(--border))]">
                     <div class="flex flex-col items-center justify-center space-y-4">
                         <div class="rounded-full bg-[hsl(var(--muted))] p-4">
                             <svg class="h-8 w-8 text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -141,17 +143,17 @@
                         </div>
                         <div class="text-center">
                             <h3 class="text-base font-medium">{% trans "No Data Available" %}</h3>
-                            <p class="text-[hsl(var(--muted-foreground))] text-sm">{% trans "No sales order lines found for the selected date range." %}</p>
+                            <p class="text-[hsl(var(--muted-foreground))] text-sm">{% trans "No deliveries found for the selected date range." %}</p>
                         </div>
                     </div>
                 </td>
             </tr>
         {% endfor %}
         </tbody>
-        {% if sales_orders %}
+        {% if deliveries %}
         <tfoot class="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] font-semibold">
             <tr>
-                <td colspan="4" class="px-2 py-0.5 text-right font-semibold text-sm text-center border border-[hsl(var(--border))]" style="width: 410px;">{% trans "Total:" %}</td>
+                <td colspan="5" class="px-2 py-0.5 text-right font-semibold text-sm text-center border border-[hsl(var(--border))]" style="width: 510px;">{% trans "Total:" %}</td>
                 <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="payable_amount" style="width: 120px;" id="total_payable_amount"></td>
                 <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="paid_amount" style="width: 120px;" id="total_paid_amount"></td>
                 <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="due_amount" style="width: 120px;" id="total_due_amount"></td>
@@ -165,13 +167,13 @@
 
 {% block extra_css %}
 <style>
-#sales-table {
+#delivery-table {
     width: 100%;
     table-layout: fixed;
     border-collapse: collapse;
 }
-#sales-table th,
-#sales-table td {
+#delivery-table th,
+#delivery-table td {
     padding: 2px;
     text-align: center;
     border: 1px solid hsl(var(--border));
@@ -179,31 +181,33 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-#sales-table th[data-column="order"],
-#sales-table td[data-column="order"] { width: 60px; }
-#sales-table th[data-column="date"],
-#sales-table td[data-column="date"] { width: 80px; }
-#sales-table th[data-column="customer"],
-#sales-table td[data-column="customer"] { width: 150px; }
-#sales-table th[data-column="sales_employee"],
-#sales-table td[data-column="sales_employee"] { width: 120px; }
-#sales-table th[data-column="payable_amount"],
-#sales-table td[data-column="payable_amount"] { width: 120px; }
-#sales-table th[data-column="paid_amount"],
-#sales-table td[data-column="paid_amount"] { width: 120px; }
-#sales-table th[data-column="due_amount"],
-#sales-table td[data-column="due_amount"] { width: 120px; }
-#sales-table th[data-column="status"],
-#sales-table td[data-column="status"] { width: 100px; }
-#sales-table thead th {
+#delivery-table th[data-column="delivery"],
+#delivery-table td[data-column="delivery"] { width: 60px; }
+#delivery-table th[data-column="sales_order"],
+#delivery-table td[data-column="sales_order"] { width: 100px; }
+#delivery-table th[data-column="date"],
+#delivery-table td[data-column="date"] { width: 80px; }
+#delivery-table th[data-column="customer"],
+#delivery-table td[data-column="customer"] { width: 150px; }
+#delivery-table th[data-column="sales_employee"],
+#delivery-table td[data-column="sales_employee"] { width: 120px; }
+#delivery-table th[data-column="payable_amount"],
+#delivery-table td[data-column="payable_amount"] { width: 120px; }
+#delivery-table th[data-column="paid_amount"],
+#delivery-table td[data-column="paid_amount"] { width: 120px; }
+#delivery-table th[data-column="due_amount"],
+#delivery-table td[data-column="due_amount"] { width: 120px; }
+#delivery-table th[data-column="status"],
+#delivery-table td[data-column="status"] { width: 100px; }
+#delivery-table thead th {
     position: sticky;
     top: 0;
     background-color: hsl(var(--background));
     z-index: 10;
 }
-#sales-table::-webkit-scrollbar { width: 8px; height: 8px; }
-#sales-table::-webkit-scrollbar-thumb { background-color: hsl(var(--muted)); border-radius: 4px; }
-#sales-table::-webkit-scrollbar-track { background-color: hsl(var(--background)); }
+#delivery-table::-webkit-scrollbar { width: 8px; height: 8px; }
+#delivery-table::-webkit-scrollbar-thumb { background-color: hsl(var(--muted)); border-radius: 4px; }
+#delivery-table::-webkit-scrollbar-track { background-color: hsl(var(--background)); }
 .sort-asc::after { content: " ↑"; color: #3b82f6; }
 .sort-desc::after { content: " ↓"; color: #3b82f6; }
 #pivot-table-output .pvtTable { background-color: white !important; border: 1px solid #e5e7eb !important; }
@@ -225,7 +229,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     function calculateTotals() {
         let totalPayableAmount = 0, totalPaidAmount = 0, totalDueAmount = 0;
-        const rows = document.querySelectorAll('#sales-table tbody tr');
+        const rows = document.querySelectorAll('#delivery-table tbody tr');
         rows.forEach(row => {
             const payableAmountCell = row.querySelector('td[data-column="payable_amount"]');
             const paidAmountCell = row.querySelector('td[data-column="paid_amount"]');
@@ -244,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const sortIcons = { asc: ' ↑', desc: ' ↓' };
 
     function sortTable(column) {
-        const tbody = document.querySelector('#sales-table tbody');
+        const tbody = document.querySelector('#delivery-table tbody');
         const rows = Array.from(tbody.querySelectorAll('tr'));
         const th = document.querySelector(`th[data-column="${column}"]`);
         const sortSpan = document.getElementById(`sort-${column}`);
@@ -276,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('search-input').addEventListener('keyup', function() {
         const searchTerm = this.value.toLowerCase();
-        const rows = document.querySelectorAll('#sales-table tbody tr');
+        const rows = document.querySelectorAll('#delivery-table tbody tr');
         rows.forEach(row => {
             const customerCell = row.querySelector('td[data-column="customer"]')?.textContent.toLowerCase() || '';
             const salesEmployeeCell = row.querySelector('td[data-column="sales_employee"]')?.textContent.toLowerCase() || '';
@@ -308,11 +312,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return modal;
     }
 
-    const filterModal = createModal('filter-modal', '{% trans "Filter Sales Orders" %}', `
+    const filterModal = createModal('filter-modal', '{% trans "Filter Deliveries" %}', `
         <form id="filter-form" class="space-y-5">
             <div class="mb-5">
-                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Search Order ID" %}</label>
-                <input type="text" name="search" value="{{ search_term|default:'' }}" placeholder="{% trans 'Search Order ID...' %}" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Search Delivery or Sales Order ID" %}</label>
+                <input type="text" name="search" value="{{ search_term|default:'' }}" placeholder="{% trans 'Search Delivery or Sales Order ID...' %}" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div class="mb-5">
@@ -353,7 +357,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </form>
     `);
 
-    const pivotModal = createModal('pivot-modal', '{% trans "Sales Order Pivot Table" %}', `
+    const pivotModal = createModal('pivot-modal', '{% trans "Delivery Pivot Table" %}', `
         <div id="pivot-table-output" class="bg-white rounded-lg p-4 min-h-96"></div>
     `, 'large');
 
@@ -410,11 +414,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('export-csv').addEventListener('click', function() {
-        const table = document.getElementById('sales-table');
+        const table = document.getElementById('delivery-table');
         const rows = table.querySelectorAll('tbody tr');
         const footer = table.querySelector('tfoot tr');
         const columnDefs = [
-            { id: 'order', label: '{% trans "ORDER #" %}' },
+            { id: 'delivery', label: '{% trans "DELIVERY #" %}' },
+            { id: 'sales_order', label: '{% trans "SALES ORDER #" %}' },
             { id: 'date', label: '{% trans "DATE" %}' },
             { id: 'customer', label: '{% trans "CUSTOMER" %}' },
             { id: 'sales_employee', label: '{% trans "SALES EMPLOYEE" %}' },
@@ -444,17 +449,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'sales_report.csv';
+        a.download = 'delivery_report.csv';
         a.click();
         window.URL.revokeObjectURL(url);
     });
 
     document.getElementById('copy-clipboard').addEventListener('click', function() {
-        const table = document.getElementById('sales-table');
+        const table = document.getElementById('delivery-table');
         const rows = table.querySelectorAll('tbody tr');
         const footer = table.querySelector('tfoot tr');
         const columnDefs = [
-            { id: 'order', label: '{% trans "ORDER #" %}' },
+            { id: 'delivery', label: '{% trans "DELIVERY #" %}' },
+            { id: 'sales_order', label: '{% trans "SALES ORDER #" %}' },
             { id: 'date', label: '{% trans "DATE" %}' },
             { id: 'customer', label: '{% trans "CUSTOMER" %}' },
             { id: 'sales_employee', label: '{% trans "SALES EMPLOYEE" %}' },
@@ -488,27 +494,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('pivot-table').addEventListener('click', function() {
         pivotModal.classList.remove('hidden');
-        const table = document.getElementById('sales-table');
+        const table = document.getElementById('delivery-table');
         const rows = table.querySelectorAll('tbody tr');
         const data = [];
         rows.forEach(row => {
             const cols = row.querySelectorAll('td');
             if (cols.length > 0) {
-                const dateStr = cols[1].textContent.trim();
+                const dateStr = cols[2].textContent.trim();
                 const date = new Date(dateStr);
                 const month = date.toLocaleString('default', { month: 'long' });
                 const year = date.getFullYear();
                 data.push({
-                    'ORDER #': cols[0].textContent.trim(),
+                    'DELIVERY #': cols[0].textContent.trim(),
+                    'SALES ORDER #': cols[1].textContent.trim(),
                     'DATE': dateStr,
                     'MONTH': month,
                     'YEAR': year,
-                    'CUSTOMER': cols[2].textContent.trim(),
-                    'SALES EMPLOYEE': cols[3].textContent.trim(),
-                    'PAYABLE AMOUNT': parseFloat(cols[4].textContent.trim()) || 0,
-                    'PAID AMOUNT': parseFloat(cols[5].textContent.trim()) || 0,
-                    'DUE AMOUNT': parseFloat(cols[6].textContent.trim()) || 0,
-                    'STATUS': cols[7].textContent.trim()
+                    'CUSTOMER': cols[3].textContent.trim(),
+                    'SALES EMPLOYEE': cols[4].textContent.trim(),
+                    'PAYABLE AMOUNT': parseFloat(cols[5].textContent.trim()) || 0,
+                    'PAID AMOUNT': parseFloat(cols[6].textContent.trim()) || 0,
+                    'DUE AMOUNT': parseFloat(cols[7].textContent.trim()) || 0,
+                    'STATUS': cols[8].textContent.trim()
                 });
             }
         });
@@ -537,7 +544,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const defaultColumns = [
-        { id: 'order', label: 'ORDER #', visible: true },
+        { id: 'delivery', label: 'DELIVERY #', visible: true },
+        { id: 'sales_order', label: 'SALES ORDER #', visible: true },
         { id: 'date', label: 'DATE', visible: true },
         { id: 'customer', label: 'CUSTOMER', visible: true },
         { id: 'sales_employee', label: 'SALES EMPLOYEE', visible: true },
@@ -549,9 +557,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentColumns = [...defaultColumns];
 
     function applyColumnPrefs(prefs) {
-        const headers = document.querySelectorAll('#sales-table th');
-        const rows = document.querySelectorAll('#sales-table tbody tr');
-        const footerRow = document.querySelector('#sales-table tfoot tr');
+        const headers = document.querySelectorAll('#delivery-table th');
+        const rows = document.querySelectorAll('#delivery-table tbody tr');
+        const footerRow = document.querySelector('#delivery-table tfoot tr');
         headers.forEach(header => {
             const colId = header.dataset.column;
             const pref = prefs.find(p => p.id === colId);

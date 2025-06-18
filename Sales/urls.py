@@ -43,7 +43,19 @@ from .views import (
     FreeItemDiscountExportView, FreeItemDiscountBulkDeleteView,
 
 )
-from .views.sales_report_views import SalesReportListView,SalesReportView,SalesReportDetailsView
+from .views.sales_report_views import (
+  SalesQuotationReportView,
+  SalesQuotationReportDetailsView,
+    SalesReportListView,
+    SalesReportView,
+    SalesReportDetailsView,
+    DeliveryReportView,
+    DeliveryReportDetailsView,
+    ReturnReportView,
+    ReturnReportDetailsView,
+    ARInvoiceReportView,
+    ARInvoiceReportDetailsView
+)
 from .views.sales_employee_sales_report import SalesEmployeeSalesReportView
 
 app_name = 'Sales'
@@ -121,8 +133,24 @@ urlpatterns = [
 
   
   path('reports/', SalesReportListView.as_view(), name='sales_report_list'),
+    # Sales Quotation Report URLs
+  path('reports/sales-quotation/', SalesQuotationReportView.as_view(), name='sales_quotation_report'),
+  path('reports/sales-quotation/details/', SalesQuotationReportDetailsView.as_view(), name='sales_quotation_report_details'),
   path('reports/sales/', SalesReportView.as_view(), name='sales_report'),
   path('reports/sales/details/', SalesReportDetailsView.as_view(), name='sales_report_details'),
+
+    # Delivery Report URLs
+  path('reports/delivery/', DeliveryReportView.as_view(), name='delivery_report'),
+  path('reports/delivery/details/', DeliveryReportDetailsView.as_view(), name='delivery_report_details'),
+
+  # Return Report URLs
+  path('reports/return/', ReturnReportView.as_view(), name='return_report'),
+  path('reports/return/details/', ReturnReportDetailsView.as_view(), name='return_report_details'),
+
+  # AR Invoice Report URLs
+  path('reports/ar-invoice/', ARInvoiceReportView.as_view(), name='ar_invoice_report'),
+  path('reports/ar-invoice/details/', ARInvoiceReportDetailsView.as_view(), name='ar_invoice_report_details'),
+
   path('reports/sales-employee-summary/', SalesEmployeeSalesReportView.as_view(), name='sales_employee_sales_summary'),
   
   # Chart Dashboard URLs

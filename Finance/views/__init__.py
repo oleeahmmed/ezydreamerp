@@ -46,4 +46,7 @@ from .balance_sheet_views import (
     BalanceSheetView,
 )
 
+from .account_ledger_views import (
+    AccountLedgerView,
+) 
 from .demo_views import (DemoConfigView)

@@ -229,160 +229,193 @@
                             </button>
                         </div>
                     </div>
-
-                    <!-- Desktop display view -->
-                    <div class="hidden md:block">
-                        <!-- Formset Table with Horizontal and Vertical Scrolling -->
-                        <div class="overflow-x-auto overflow-y-auto max-h-[250px] sm:max-h-[350px] md:max-h-[400px] rounded-lg border border-[hsl(var(--border))] shadow-inner">
-                            <div class="min-w-full md:min-w-[800px]"> <!-- Responsive minimum width -->
-                                <table class="w-full">
-                                    <thead class="sticky top-0 bg-[hsl(var(--secondary))] z-10">
-                                        <tr>
-                                            <th scope="col" class="py-2 sm:py-3 px-2 sm:px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Item Code</th>
-                                            <th scope="col" class="py-2 sm:py-3 px-2 sm:px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Item Name</th>
-                                            <th scope="col" class="py-2 sm:py-3 px-2 sm:px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Quantity</th>
-                                            <th scope="col" class="py-2 sm:py-3 px-2 sm:px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Unit Price</th>
-                                            <th scope="col" class="py-2 sm:py-3 px-2 sm:px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Stock</th>
-                                            <th scope="col" class="py-2 sm:py-3 px-2 sm:px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Unit of Measure</th>
-                                            <th scope="col" class="py-2 sm:py-3 px-2 sm:px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Total Amount</th>
-                                            <th scope="col" class="py-2 sm:py-3 px-2 sm:px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="formsetBody" class="formset-container divide-y divide-[hsl(var(--border))]">
-                                        {% for form in formset.forms %}
-                                        <tr class="formset-row group hover:bg-[hsl(var(--accent))] transition-colors duration-150 {% if form.errors %}has-errors{% endif %}" data-index="{{ forloop.counter0 }}">
-                                            <!-- Hidden fields -->
-                                            {% if form.id %}
-                                            <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
-                                            {% endif %}
-                                            <input type="hidden" name="{{ form.is_inventory_item.html_name }}" value="{{ form.is_inventory_item.value|default:'True' }}" id="{{ form.is_inventory_item.id_for_label }}">
-                                            
-                                            <td class="py-1 sm:py-2 px-1 sm:px-3 md:px-4">
-                                                <div class="item-input-wrapper relative">
-                                                    <input type="text" name="{{ form.item_code.html_name }}" value="{{ form.item_code.value|default:'' }}" 
-                                                        class="w-full px-1 sm:px-2 md:px-3 py-1 text-xs sm:text-sm border {% if form.item_code.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))] focus:border-[hsl(var(--border))] item-code-input" 
-                                                        id="{{ form.item_code.id_for_label }}">
-                                                    {% if form.item_code.errors %}
-                                                    <div class="text-red-500 text-xs mt-1">
-                                                        {% for error in form.item_code.errors %}
-                                                        <p>{{ error }}</p>
-                                                        {% endfor %}
-                                                    </div>
-                                                    {% endif %}
-                                                </div>
-                                            </td>
-                                            <td class="py-1 sm:py-2 px-1 sm:px-3 md:px-4">
-                                                <input type="text" name="{{ form.item_name.html_name }}" value="{{ form.item_name.value|default:'' }}" 
-                                                    class="w-full px-1 sm:px-2 md:px-3 py-1 text-xs sm:text-sm border {% if form.item_name.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))] focus:border-[hsl(var(--border))] item-name-input" 
-                                                    id="{{ form.item_name.id_for_label }}">
-                                                {% if form.item_name.errors %}
-                                                <div class="text-red-500 text-xs mt-1">
-                                                    {% for error in form.item_name.errors %}
-                                                    <p>{{ error }}</p>
-                                                    {% endfor %}
-                                                </div>
-                                                {% endif %}
-                                            </td>
-                                            <td class="py-1 sm:py-2 px-1 sm:px-3 md:px-4">
-                                                <input type="number" name="{{ form.quantity.html_name }}" value="{{ form.quantity.value|default:'' }}" min="1" step="1" 
-                                                    class="w-full px-1 sm:px-2 md:px-3 py-1 text-xs sm:text-sm border {% if form.quantity.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))] focus:border-[hsl(var(--border))] quantity-input" 
-                                                    id="{{ form.quantity.id_for_label }}">
-                                                {% if form.quantity.errors %}
-                                                <div class="text-red-500 text-xs mt-1">
-                                                    {% for error in form.quantity.errors %}
-                                                    <p>{{ error }}</p>
-                                                    {% endfor %}
-                                                </div>
-                                                {% endif %}
-                                            </td>
-                                            <td class="py-1 sm:py-2 px-1 sm:px-3 md:px-4">
-                                                <input type="number" name="{{ form.unit_price.html_name }}" value="{{ form.unit_price.value|default:'' }}" min="0" step="0.000001" 
-                                                    class="w-full px-1 sm:px-2 md:px-3 py-1 text-xs sm:text-sm border {% if form.unit_price.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))] focus:border-[hsl(var(--border))] unit-price-input" 
-                                                    id="{{ form.unit_price.id_for_label }}">
-                                                {% if form.unit_price.errors %}
-                                                <div class="text-red-500 text-xs mt-1">
-                                                    {% for error in form.unit_price.errors %}
-                                                    <p>{{ error }}</p>
-                                                    {% endfor %}
-                                                </div>
-                                                {% endif %}
-                                            </td>
-                                            <td class="py-1 sm:py-2 px-1 sm:px-3 md:px-4">
-                                                <input type="number" step="0.000001" 
-                                                    class="w-full px-1 sm:px-2 md:px-3 py-1 text-xs sm:text-sm border border-[hsl(var(--border))] rounded-md bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] cursor-not-allowed stock-input shadow-sm" 
-                                                    readonly>
-                                            </td>
-                                            <td class="py-1 sm:py-2 px-1 sm:px-3 md:px-4">
-                                                <input type="text" name="{{ form.uom.html_name }}" value="{{ form.uom.value|default:'' }}" 
-                                                    class="w-full px-1 sm:px-2 md:px-3 py-1 text-xs sm:text-sm border {% if form.uom.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))] focus:border-[hsl(var(--border))] uom-input shadow-sm" 
-                                                    id="{{ form.uom.id_for_label }}">
-                                                {% if form.uom.errors %}
-                                                <div class="text-red-500 text-xs mt-1">
-                                                    {% for error in form.uom.errors %}
-                                                    <p>{{ error }}</p>
-                                                    {% endfor %}
-                                                </div>
-                                                {% endif %}
-                                            </td>
-                                            <td class="py-1 sm:py-2 px-1 sm:px-3 md:px-4">
-                                                <input type="number" name="{{ form.total_amount.html_name }}" value="{{ form.total_amount.value|default:'' }}" step="0.000001" 
-                                                    class="w-full px-1 sm:px-2 md:px-3 py-1 text-xs sm:text-sm border {% if form.total_amount.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} rounded-md bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] cursor-not-allowed total-amount-input shadow-sm" 
-                                                    readonly id="{{ form.total_amount.id_for_label }}">
-                                                {% if form.total_amount.errors %}
-                                                <div class="text-red-500 text-xs mt-1">
-                                                    {% for error in form.total_amount.errors %}
-                                                    <p>{{ error }}</p>
-                                                    {% endfor %}
-                                                </div>
-                                                {% endif %}
-                                            </td>
-                                            <td class="py-1 sm:py-2 px-1 sm:px-3 md:px-4 relative">
-                                                <button type="button" class="delete-row desktop-delete-row opacity-0 group-hover:opacity-100 transition-opacity duration-150 inline-flex items-center justify-center rounded-full w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-[hsl(var(--destructive))] text-[hsl(var(--destructive-foreground))] hover:bg-[hsl(var(--destructive))/90] shadow-md">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-3 h-3 sm:w-4 sm:h-4">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                    </svg>
-                                                </button>
-                                                {% if form.DELETE %}
-                                                <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" class="delete-checkbox hidden">
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                        {% if form.non_field_errors %}
-                                        <tr class="error-row bg-red-50">
-                                            <td colspan="8" class="py-1 px-2 text-xs text-red-600">
-                                                <div class="flex items-center">
-                                                    <svg class="w-4 h-4 mr-1 text-red-500" viewBox="0 0 24 24" fill="none">
-                                                        <path d="M12 9V13M12 17H12.01M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                    </svg>
-                                                    {% for error in form.non_field_errors %}
-                                                    <span>{{ error }}</span>{% if not forloop.last %}, {% endif %}
-                                                    {% endfor %}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+<!-- Desktop display view -->
+<div class="hidden md:block">
+    <!-- Formset Table with Horizontal and Vertical Scrolling -->
+    <div class="overflow-x-auto overflow-y-auto max-h-[250px] sm:max-h-[350px] md:max-h-[400px] rounded-lg border border-[hsl(var(--border))] shadow-inner">
+        <div class="min-w-full md:min-w-[1200px]"> <!-- Increased minimum width -->
+            <table class="w-full border-collapse">
+                <colgroup>
+                    <col class="w-[12%]">  <!-- Item Code -->
+                    <col class="w-[25%]">  <!-- Item Name -->
+                    <col class="w-[10%]">  <!-- Quantity -->
+                    <col class="w-[12%]">  <!-- Unit Price -->
+                    <col class="w-[10%]">  <!-- Stock -->
+                    <col class="w-[10%]">  <!-- UOM -->
+                    <col class="w-[15%]">  <!-- Total Amount -->
+                    <col class="w-[6%]">   <!-- Actions -->
+                </colgroup>
+                <thead class="sticky top-0 bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] z-10">
+                    <tr>
+                        <th scope="col" class="py-3 px-2 text-center text-xs font-bold uppercase tracking-wider text-[hsl(var(--primary-foreground))] border border-[hsl(var(--border))] shadow-sm">Item Code</th>
+                        <th scope="col" class="py-3 px-2 text-center text-xs font-bold uppercase tracking-wider text-[hsl(var(--primary-foreground))] border border-[hsl(var(--border))] shadow-sm">Item Name</th>
+                        <th scope="col" class="py-3 px-2 text-center text-xs font-bold uppercase tracking-wider text-[hsl(var(--primary-foreground))] border border-[hsl(var(--border))] shadow-sm">Quantity</th>
+                        <th scope="col" class="py-3 px-2 text-center text-xs font-bold uppercase tracking-wider text-[hsl(var(--primary-foreground))] border border-[hsl(var(--border))] shadow-sm">Unit Price</th>
+                        <th scope="col" class="py-3 px-2 text-center text-xs font-bold uppercase tracking-wider text-[hsl(var(--primary-foreground))] border border-[hsl(var(--border))] shadow-sm">Stock</th>
+                        <th scope="col" class="py-3 px-2 text-center text-xs font-bold uppercase tracking-wider text-[hsl(var(--primary-foreground))] border border-[hsl(var(--border))] shadow-sm">Unit of Measure</th>
+                        <th scope="col" class="py-3 px-2 text-center text-xs font-bold uppercase tracking-wider text-[hsl(var(--primary-foreground))] border border-[hsl(var(--border))] shadow-sm">Total Amount</th>
+                        <th scope="col" class="py-3 px-2 text-center text-xs font-bold uppercase tracking-wider text-[hsl(var(--primary-foreground))] border border-[hsl(var(--border))] shadow-sm">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="formsetBody" class="formset-container divide-y divide-[hsl(var(--border))]">
+                    {% for form in formset.forms %}
+                    <tr class="formset-row group hover:bg-gradient-to-r hover:from-[hsl(var(--accent))] hover:to-[hsl(var(--accent))/50] transition-all duration-200 {% if form.errors %}has-errors bg-red-50{% endif %}" data-index="{{ forloop.counter0 }}">
+                        <!-- Hidden fields -->
+                        {% if form.id %}
+                        <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
+                        {% endif %}
+                        <input type="hidden" name="{{ form.is_inventory_item.html_name }}" value="{{ form.is_inventory_item.value|default:'True' }}" id="{{ form.is_inventory_item.id_for_label }}">
+                        
+                        <td class="border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:bg-[hsl(var(--accent))] transition-colors duration-150">
+                            <div class="item-input-wrapper relative">
+                                <input type="text" name="{{ form.item_code.html_name }}" value="{{ form.item_code.value|default:'' }}" 
+                                    class="w-full h-8 px-2 py-0 text-xs font-medium border-0 bg-transparent text-[hsl(var(--foreground))] placeholder-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--background))] rounded-sm transition-all duration-200 item-code-input" 
+                                    placeholder="Enter code..."
+                                    id="{{ form.item_code.id_for_label }}">
+                                {% if form.item_code.errors %}
+                                <div class="text-red-500 text-xs mt-1 font-medium">
+                                    {% for error in form.item_code.errors %}
+                                    <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
                             </div>
-                        </div>
-
-                        <!-- Context Menu -->
-                        <div id="contextMenu" class="hidden fixed z-[100] w-40 sm:w-48 bg-[hsl(var(--background))] rounded-md shadow-lg border border-[hsl(var(--border))]">
-                            <div class="py-1">
-                                <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors" id="addRowAboveBtn">
-                                    Add Row Above
-                                </button>
-                                <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors" id="addRowBelowBtn">
-                                    Add Row Below
-                                </button>
-                                <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--destructive))] hover:bg-[hsl(var(--accent))] transition-colors" id="deleteRowBtn">
-                                    Delete Row
-                                </button>
+                        </td>
+                        <td class="border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:bg-[hsl(var(--accent))] transition-colors duration-150">
+                            <input type="text" name="{{ form.item_name.html_name }}" value="{{ form.item_name.value|default:'' }}" 
+                                class="w-full h-8 px-2 py-0 text-xs font-medium border-0 bg-transparent text-[hsl(var(--foreground))] placeholder-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--background))] rounded-sm transition-all duration-200 item-name-input" 
+                                placeholder="Enter item name..."
+                                id="{{ form.item_name.id_for_label }}">
+                            {% if form.item_name.errors %}
+                            <div class="text-red-500 text-xs mt-1 font-medium">
+                                {% for error in form.item_name.errors %}
+                                <p>{{ error }}</p>
+                                {% endfor %}
                             </div>
-                        </div>
-                    </div>
+                            {% endif %}
+                        </td>
+                        <td class="border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:bg-[hsl(var(--accent))] transition-colors duration-150">
+                            <input type="number" name="{{ form.quantity.html_name }}" value="{{ form.quantity.value|default:'' }}" min="1" step="1" 
+                                class="w-full h-8 px-2 py-0 text-xs font-medium border-0 bg-transparent text-[hsl(var(--foreground))] placeholder-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--background))] rounded-sm transition-all duration-200 quantity-input text-center" 
+                                placeholder="0"
+                                id="{{ form.quantity.id_for_label }}">
+                            {% if form.quantity.errors %}
+                            <div class="text-red-500 text-xs mt-1 font-medium">
+                                {% for error in form.quantity.errors %}
+                                <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:bg-[hsl(var(--accent))] transition-colors duration-150">
+                            <input type="number" name="{{ form.unit_price.html_name }}" value="{{ form.unit_price.value|default:'' }}" min="0" step="0.000001" 
+                                class="w-full h-8 px-2 py-0 text-xs font-medium border-0 bg-transparent text-[hsl(var(--foreground))] placeholder-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--background))] rounded-sm transition-all duration-200 unit-price-input text-right" 
+                                placeholder="0.00"
+                                id="{{ form.unit_price.id_for_label }}">
+                            {% if form.unit_price.errors %}
+                            <div class="text-red-500 text-xs mt-1 font-medium">
+                                {% for error in form.unit_price.errors %}
+                                <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="border border-[hsl(var(--border))] bg-[hsl(var(--muted))/30 hover:bg-[hsl(var(--muted))/50] transition-colors duration-150">
+                            <input type="number" step="0.000001" 
+                                class="w-full h-8 px-2 py-0 text-xs font-medium border-0 bg-transparent text-[hsl(var(--muted-foreground))] cursor-not-allowed stock-input text-center rounded-sm" 
+                                placeholder="Stock"
+                                readonly>
+                        </td>
+                        <td class="border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:bg-[hsl(var(--accent))] transition-colors duration-150">
+                            <input type="text" name="{{ form.uom.html_name }}" value="{{ form.uom.value|default:'' }}" 
+                                class="w-full h-8 px-2 py-0 text-xs font-medium border-0 bg-transparent text-[hsl(var(--foreground))] placeholder-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--background))] rounded-sm transition-all duration-200 uom-input text-center" 
+                                placeholder="Unit"
+                                id="{{ form.uom.id_for_label }}">
+                            {% if form.uom.errors %}
+                            <div class="text-red-500 text-xs mt-1 font-medium">
+                                {% for error in form.uom.errors %}
+                                <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="border border-[hsl(var(--border))] bg-gradient-to-r from-[hsl(var(--primary))/5] to-[hsl(var(--primary))/10] hover:from-[hsl(var(--primary))/10] hover:to-[hsl(var(--primary))/20] transition-all duration-150">
+                            <input type="number" name="{{ form.total_amount.html_name }}" value="{{ form.total_amount.value|default:'' }}" step="0.000001" 
+                                class="w-full h-8 px-2 py-0 text-xs font-bold border-0 bg-transparent text-[hsl(var(--primary))] cursor-not-allowed total-amount-input text-right rounded-sm" 
+                                placeholder="0.00"
+                                readonly id="{{ form.total_amount.id_for_label }}">
+                            {% if form.total_amount.errors %}
+                            <div class="text-red-500 text-xs mt-1 font-medium">
+                                {% for error in form.total_amount.errors %}
+                                <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:bg-[hsl(var(--accent))] transition-colors duration-150 relative">
+                            <div class="flex items-center justify-center h-8">
+                                <button type="button" class="delete-row desktop-delete-row opacity-0 group-hover:opacity-100 transition-all duration-200 inline-flex items-center justify-center rounded-lg w-7 h-7 bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 hover:scale-110 shadow-lg hover:shadow-xl transform">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                                <!-- Alternative delete button with X icon -->
+                                <!-- <button type="button" class="delete-row desktop-delete-row opacity-0 group-hover:opacity-100 transition-all duration-200 inline-flex items-center justify-center rounded-full w-7 h-7 bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 hover:scale-110 shadow-lg hover:shadow-xl transform border-2 border-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button> -->
+                            </div>
+                            {% if form.DELETE %}
+                            <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" class="delete-checkbox hidden">
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% if form.non_field_errors %}
+                    <tr class="error-row bg-gradient-to-r from-red-50 to-red-100">
+                        <td colspan="8" class="py-2 px-3 text-xs text-red-700 border border-red-200 font-medium">
+                            <div class="flex items-center">
+                                <svg class="w-4 h-4 mr-2 text-red-500" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 9V13M12 17H12.01M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                {% for error in form.non_field_errors %}
+                                <span>{{ error }}</span>{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
+    <!-- Enhanced Context Menu -->
+    <div id="contextMenu" class="hidden fixed z-[100] w-48 bg-[hsl(var(--background))] rounded-lg shadow-2xl border border-[hsl(var(--border))] backdrop-blur-sm">
+        <div class="py-2">
+            <button type="button" class="w-full text-left px-4 py-3 text-sm font-medium text-[hsl(var(--foreground))] hover:bg-gradient-to-r hover:from-[hsl(var(--accent))] hover:to-[hsl(var(--accent))/50] transition-all duration-200 flex items-center gap-3" id="addRowAboveBtn">
+                <svg class="w-4 h-4 text-[hsl(var(--primary))]" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Add Row Above
+            </button>
+            <button type="button" class="w-full text-left px-4 py-3 text-sm font-medium text-[hsl(var(--foreground))] hover:bg-gradient-to-r hover:from-[hsl(var(--accent))] hover:to-[hsl(var(--accent))/50] transition-all duration-200 flex items-center gap-3" id="addRowBelowBtn">
+                <svg class="w-4 h-4 text-[hsl(var(--primary))]" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Add Row Below
+            </button>
+            <div class="border-t border-[hsl(var(--border))] my-1"></div>
+            <button type="button" class="w-full text-left px-4 py-3 text-sm font-medium text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 transition-all duration-200 flex items-center gap-3" id="deleteRowBtn">
+                <svg class="w-4 h-4 text-red-500" viewBox="0 0 24 24" fill="none">
+                    <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Delete Row
+            </button>
+        </div>
+    </div>
+</div>
                     <!-- Add Row Button -->
                     <button type="button" id="addRowBtn" class="w-full mt-3 px-3 py-2 rounded-lg text-xs font-medium bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">

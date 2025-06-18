@@ -352,3 +352,5 @@ class SalesOrderBulkDeleteView(BaseBulkDeleteConfirmView):
     display_fields = ["id", "document_date", "customer", "status"]
     cancel_url = reverse_lazy("Sales:sales_order_list")
     success_url = reverse_lazy("Sales:sales_order_list")
+
+

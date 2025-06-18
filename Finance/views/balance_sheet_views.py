@@ -1,17 +1,9 @@
 from django.views.generic import TemplateView
 from django.db.models import Sum
 from django.utils import timezone
-from datetime import datetime
-from django import forms
 from django.utils.translation import gettext_lazy as _
+from decimal import Decimal
 from ..models import ChartOfAccounts, GeneralLedger, AccountType
-
-class BalanceSheetFilterForm(forms.Form):
-    end_date = forms.DateField(
-        label=_("As of Date"),
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        required=True
-    )
 
 class BalanceSheetView(TemplateView):
     template_name = 'finance/balance_sheet.html'
@@ -20,90 +12,96 @@ class BalanceSheetView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Initialize form
-        form = BalanceSheetFilterForm(self.request.GET or {
-            'end_date': datetime.now().date()
-        })
-
-        # Validate and extract date
-        end_date = datetime.now().date()
-        if form.is_valid():
-            end_date = form.cleaned_data['end_date']
+        # Get account types
+        asset_types = AccountType.objects.filter(code='100')  # Assets
+        liability_types = AccountType.objects.filter(code='200')  # Liabilities
+        equity_types = AccountType.objects.filter(code='300')  # Equity
 
         # Initialize data structures
         asset_data = []
         liability_data = []
         equity_data = []
-        total_assets = 0
-        total_liabilities = 0
-        total_equity = 0
+        
+        total_assets = Decimal('0')
+        total_liabilities = Decimal('0')
+        total_equity = Decimal('0')
 
-        # Get account types
-        asset_types = AccountType.objects.filter(name__icontains='asset')
-        liability_types = AccountType.objects.filter(name__icontains='liability')
-        equity_types = AccountType.objects.filter(name__icontains='equity')
+        print("📊 Generating Balance Sheet...")
 
-        # Process Asset Accounts
-        asset_accounts = ChartOfAccounts.objects.filter(account_type__in=asset_types)
+        # Process Assets (100 series)
+        asset_accounts = ChartOfAccounts.objects.filter(
+            account_type__in=asset_types
+        ).order_by('code')
+        
         for account in asset_accounts:
-            gl_entries = GeneralLedger.objects.filter(
-                account=account,
-                posting_date__lte=end_date
-            )
-            debit_sum = gl_entries.aggregate(total=Sum('debit_amount'))['total'] or 0
-            credit_sum = gl_entries.aggregate(total=Sum('credit_amount'))['total'] or 0
-            balance = debit_sum - credit_sum  # Assets increase with debits
-
+            gl_entries = GeneralLedger.objects.filter(account=account)
+            debit_sum = gl_entries.aggregate(total=Sum('debit_amount'))['total'] or Decimal('0')
+            credit_sum = gl_entries.aggregate(total=Sum('credit_amount'))['total'] or Decimal('0')
+            balance = debit_sum - credit_sum  # Assets have debit balances
+            
             if balance != 0:
                 asset_data.append({
                     'account': account,
+                    'account_code': account.code,
+                    'account_name': account.name,
                     'balance': balance,
                 })
                 total_assets += balance
 
-        # Process Liability Accounts
-        liability_accounts = ChartOfAccounts.objects.filter(account_type__in=liability_types)
+        # Process Liabilities (200 series)
+        liability_accounts = ChartOfAccounts.objects.filter(
+            account_type__in=liability_types
+        ).order_by('code')
+        
         for account in liability_accounts:
-            gl_entries = GeneralLedger.objects.filter(
-                account=account,
-                posting_date__lte=end_date
-            )
-            debit_sum = gl_entries.aggregate(total=Sum('debit_amount'))['total'] or 0
-            credit_sum = gl_entries.aggregate(total=Sum('credit_amount'))['total'] or 0
-            balance = credit_sum - debit_sum  # Liabilities increase with credits
-
+            gl_entries = GeneralLedger.objects.filter(account=account)
+            debit_sum = gl_entries.aggregate(total=Sum('debit_amount'))['total'] or Decimal('0')
+            credit_sum = gl_entries.aggregate(total=Sum('credit_amount'))['total'] or Decimal('0')
+            balance = credit_sum - debit_sum  # Liabilities have credit balances
+            
             if balance != 0:
                 liability_data.append({
                     'account': account,
+                    'account_code': account.code,
+                    'account_name': account.name,
                     'balance': balance,
                 })
                 total_liabilities += balance
 
-        # Process Equity Accounts
-        equity_accounts = ChartOfAccounts.objects.filter(account_type__in=equity_types)
+        # Process Equity (300 series)
+        equity_accounts = ChartOfAccounts.objects.filter(
+            account_type__in=equity_types
+        ).order_by('code')
+        
         for account in equity_accounts:
-            gl_entries = GeneralLedger.objects.filter(
-                account=account,
-                posting_date__lte=end_date
-            )
-            debit_sum = gl_entries.aggregate(total=Sum('debit_amount'))['total'] or 0
-            credit_sum = gl_entries.aggregate(total=Sum('credit_amount'))['total'] or 0
-            balance = credit_sum - debit_sum  # Equity increases with credits
-
+            gl_entries = GeneralLedger.objects.filter(account=account)
+            debit_sum = gl_entries.aggregate(total=Sum('debit_amount'))['total'] or Decimal('0')
+            credit_sum = gl_entries.aggregate(total=Sum('credit_amount'))['total'] or Decimal('0')
+            balance = credit_sum - debit_sum  # Equity has credit balances
+            
             if balance != 0:
                 equity_data.append({
                     'account': account,
+                    'account_code': account.code,
+                    'account_name': account.name,
                     'balance': balance,
                 })
                 total_equity += balance
 
-        # Total Liabilities + Equity
+        # Calculate totals
         total_liabilities_equity = total_liabilities + total_equity
+        balance_difference = total_assets - total_liabilities_equity
+        is_balanced = abs(balance_difference) < Decimal('0.01')
+
+        print(f"📈 Balance Sheet Summary:")
+        print(f"   Total Assets: {total_assets}")
+        print(f"   Total Liabilities: {total_liabilities}")
+        print(f"   Total Equity: {total_equity}")
+        print(f"   Balanced: {is_balanced}")
 
         context.update({
-            'title': 'Balance Sheet',
-            'subtitle': f'As of {end_date.strftime("%B %d, %Y")}',
-            'form': form,
+            'title': _('Balance Sheet'),
+            'subtitle': f'As of {timezone.now().date()}',
             'asset_data': asset_data,
             'liability_data': liability_data,
             'equity_data': equity_data,
@@ -111,7 +109,8 @@ class BalanceSheetView(TemplateView):
             'total_liabilities': total_liabilities,
             'total_equity': total_equity,
             'total_liabilities_equity': total_liabilities_equity,
-            'end_date': end_date,
+            'balance_difference': balance_difference,
+            'is_balanced': is_balanced,
             'generated_on': timezone.now(),
         })
         return context

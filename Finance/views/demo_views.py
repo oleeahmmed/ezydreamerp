@@ -105,8 +105,10 @@ class DemoConfigView(DemoAccessMixin, View):
                         defaults={'name': 'Branch Office'}
                     )
 
-                    # Chart of Accounts
+                    # Extended Chart of Accounts for Sales Module
                     created_accounts = {}
+                    
+                    # Assets (100 series)
                     cash, _ = ChartOfAccounts.objects.get_or_create(
                         code="1000", 
                         defaults={
@@ -116,7 +118,50 @@ class DemoConfigView(DemoAccessMixin, View):
                         }
                     )
                     created_accounts['cash'] = cash
-                    sales, _ = ChartOfAccounts.objects.get_or_create(
+                    
+                    bank, _ = ChartOfAccounts.objects.get_or_create(
+                        code="1100", 
+                        defaults={
+                            "name": "Bank Account", 
+                            "account_type": AccountType.objects.get(code="100"), 
+                            "currency": bdt
+                        }
+                    )
+                    created_accounts['bank'] = bank
+                    
+                    accounts_receivable, _ = ChartOfAccounts.objects.get_or_create(
+                        code="1200", 
+                        defaults={
+                            "name": "Accounts Receivable", 
+                            "account_type": AccountType.objects.get(code="100"), 
+                            "currency": bdt
+                        }
+                    )
+                    created_accounts['accounts_receivable'] = accounts_receivable
+                    
+                    inventory, _ = ChartOfAccounts.objects.get_or_create(
+                        code="1300", 
+                        defaults={
+                            "name": "Inventory", 
+                            "account_type": AccountType.objects.get(code="100"), 
+                            "currency": bdt
+                        }
+                    )
+                    created_accounts['inventory'] = inventory
+                    
+                    # Liabilities (200 series)
+                    accounts_payable, _ = ChartOfAccounts.objects.get_or_create(
+                        code="2000", 
+                        defaults={
+                            "name": "Accounts Payable", 
+                            "account_type": AccountType.objects.get(code="200"), 
+                            "currency": bdt
+                        }
+                    )
+                    created_accounts['accounts_payable'] = accounts_payable
+                    
+                    # Revenue (400 series)
+                    sales_revenue, _ = ChartOfAccounts.objects.get_or_create(
                         code="4000", 
                         defaults={
                             "name": "Sales Revenue", 
@@ -124,143 +169,217 @@ class DemoConfigView(DemoAccessMixin, View):
                             "currency": bdt
                         }
                     )
-                    created_accounts['sales'] = sales
-                    rent_expense, _ = ChartOfAccounts.objects.get_or_create(
+                    created_accounts['sales_revenue'] = sales_revenue
+                    
+                    sales_returns, _ = ChartOfAccounts.objects.get_or_create(
+                        code="4100", 
+                        defaults={
+                            "name": "Sales Returns", 
+                            "account_type": AccountType.objects.get(code="400"), 
+                            "currency": bdt
+                        }
+                    )
+                    created_accounts['sales_returns'] = sales_returns
+                    
+                    # Expenses (500 series)
+                    cogs, _ = ChartOfAccounts.objects.get_or_create(
                         code="5000", 
+                        defaults={
+                            "name": "Cost of Goods Sold", 
+                            "account_type": AccountType.objects.get(code="500"), 
+                            "currency": bdt
+                        }
+                    )
+                    created_accounts['cogs'] = cogs
+                    
+                    office_rent, _ = ChartOfAccounts.objects.get_or_create(
+                        code="5100", 
                         defaults={
                             "name": "Office Rent", 
                             "account_type": AccountType.objects.get(code="500"), 
                             "currency": bdt
                         }
                     )
-                    created_accounts['rent_expense'] = rent_expense
+                    created_accounts['office_rent'] = office_rent
 
                     if include_journal_entries:
-                        # Disconnect the post_save signal to avoid duplicates
-                        from Finance.signals import journal_entry
-                        # signals.post_save.disconnect(journal_entry.post_journal_to_gl, sender=JournalEntry)
+                        print("🔔 Creating sample journal entries with automatic GL posting...")
+                        
+                        # Journal Entry 1 (Sales Invoice)
+                        entry1, created1 = JournalEntry.objects.get_or_create(
+                            doc_num="JE0001",
+                            defaults={
+                                "posting_date": timezone.now().date(),
+                                "reference": "AR-INVOICE-1",
+                                "remarks": "Sales Invoice - Customer ABC",
+                                "currency": bdt,
+                                "total_debit": 10000,
+                                "total_credit": 10000,
+                                "is_posted": True,
+                                "cost_center": main_cost_center,
+                            }
+                        )
+                        logger.info(f"JournalEntry JE0001 created: {created1}")
+                        
+                        if created1:
+                            print(f"📝 Creating lines for JE0001...")
+                            # Dr. Accounts Receivable, Cr. Sales Revenue
+                            line1 = JournalEntryLine.objects.create(
+                                journal_entry=entry1,
+                                account=created_accounts['accounts_receivable'],
+                                debit_amount=10000,
+                                credit_amount=0,
+                                description="AR Invoice - Customer ABC"
+                            )
+                            line2 = JournalEntryLine.objects.create(
+                                journal_entry=entry1,
+                                account=created_accounts['sales_revenue'],
+                                debit_amount=0,
+                                credit_amount=10000,
+                                description="Sales Revenue"
+                            )
+                            print(f"✅ Created {entry1.lines.count()} lines for JE0001")
 
-                        try:
-                            with transaction.atomic():
-                                # Journal Entry 1 (Sales)
-                                if 'cash' in created_accounts and 'sales' in created_accounts:
-                                    entry, created = JournalEntry.objects.get_or_create(
-                                        doc_num="JE0001",
-                                        defaults={
-                                            "posting_date": timezone.now().date(),
-                                            "reference": "Invoice #A123",
-                                            "remarks": "Sold 1 chair to customer",
-                                            "currency": bdt,
-                                            "total_debit": 5000,
-                                            "total_credit": 5000,
-                                            "is_posted": True,
-                                            "cost_center": main_cost_center,
-                                        }
-                                    )
-                                    logger.info(f"JournalEntry JE0001 created: {created}")
-                                    if created:
-                                        # Journal Entry Lines
-                                        line1 = JournalEntryLine.objects.create(
-                                            journal_entry=entry,
-                                            account=created_accounts['cash'],
-                                            debit_amount=5000,
-                                            credit_amount=0,
-                                            description="Cash received"
-                                        )
-                                        line2 = JournalEntryLine.objects.create(
-                                            journal_entry=entry,
-                                            account=created_accounts['sales'],
-                                            debit_amount=0,
-                                            credit_amount=5000,
-                                            description="Chair sales"
-                                        )
+                        # Journal Entry 2 (Payment Received)
+                        entry2, created2 = JournalEntry.objects.get_or_create(
+                            doc_num="JE0002",
+                            defaults={
+                                "posting_date": timezone.now().date(),
+                                "reference": "AR-PAYMENT-1",
+                                "remarks": "Payment received from Customer ABC",
+                                "currency": bdt,
+                                "total_debit": 10000,
+                                "total_credit": 10000,
+                                "is_posted": True,
+                                "cost_center": main_cost_center,
+                            }
+                        )
+                        logger.info(f"JournalEntry JE0002 created: {created2}")
+                        
+                        if created2:
+                            print(f"📝 Creating lines for JE0002...")
+                            # Dr. Cash, Cr. Accounts Receivable
+                            line1 = JournalEntryLine.objects.create(
+                                journal_entry=entry2,
+                                account=created_accounts['cash'],
+                                debit_amount=10000,
+                                credit_amount=0,
+                                description="Payment received"
+                            )
+                            line2 = JournalEntryLine.objects.create(
+                                journal_entry=entry2,
+                                account=created_accounts['accounts_receivable'],
+                                debit_amount=0,
+                                credit_amount=10000,
+                                description="AR Payment"
+                            )
+                            print(f"✅ Created {entry2.lines.count()} lines for JE0002")
 
-                                        # GeneralLedger Entries
-                                        for line in [line1, line2]:
+                        # Journal Entry 3 (Delivery - COGS)
+                        entry3, created3 = JournalEntry.objects.get_or_create(
+                            doc_num="JE0003",
+                            defaults={
+                                "posting_date": timezone.now().date(),
+                                "reference": "DELIVERY-1",
+                                "remarks": "Goods delivered to Customer ABC",
+                                "currency": bdt,
+                                "total_debit": 7000,
+                                "total_credit": 7000,
+                                "is_posted": True,
+                                "cost_center": main_cost_center,
+                            }
+                        )
+                        logger.info(f"JournalEntry JE0003 created: {created3}")
+                        
+                        if created3:
+                            print(f"📝 Creating lines for JE0003...")
+                            # Dr. COGS, Cr. Inventory
+                            line1 = JournalEntryLine.objects.create(
+                                journal_entry=entry3,
+                                account=created_accounts['cogs'],
+                                debit_amount=7000,
+                                credit_amount=0,
+                                description="Cost of goods sold"
+                            )
+                            line2 = JournalEntryLine.objects.create(
+                                journal_entry=entry3,
+                                account=created_accounts['inventory'],
+                                debit_amount=0,
+                                credit_amount=7000,
+                                description="Inventory reduction"
+                            )
+                            print(f"✅ Created {entry3.lines.count()} lines for JE0003")
+
+                        # Force GL creation by triggering the signal manually if needed
+                        print("🔄 Ensuring GL entries are created...")
+                        
+                        # Check and create GL entries for each journal entry
+                        for je in [entry1, entry2, entry3]:
+                            if je.is_posted:
+                                gl_count = GeneralLedger.objects.filter(journal_entry=je).count()
+                                lines_count = je.lines.count()
+                                print(f"📊 JE {je.doc_num}: {lines_count} lines, {gl_count} GL entries")
+                                
+                                if gl_count != lines_count:
+                                    print(f"⚠️ GL count mismatch for {je.doc_num}, creating GL entries...")
+                                    
+                                    # Delete existing GL entries
+                                    GeneralLedger.objects.filter(journal_entry=je).delete()
+                                    
+                                    # Create GL entries manually
+                                    for line in je.lines.all():
+                                        if line.account.account_type.is_debit:
                                             balance = line.debit_amount - line.credit_amount
-                                            gl_entry = GeneralLedger.objects.create(
-                                                account=line.account,
-                                                posting_date=entry.posting_date,
-                                                journal_entry=entry,
-                                                debit_amount=line.debit_amount,
-                                                credit_amount=line.credit_amount,
-                                                balance=balance,
-                                                currency=entry.currency
-                                            )
-                                            logger.info(f"GeneralLedger created for {line.account.code}: Debit={line.debit_amount}, Credit={line.credit_amount}, Balance={balance}")
-
-                                # Journal Entry 2 (Rent Expense)
-                                if 'rent_expense' in created_accounts and 'cash' in created_accounts:
-                                    entry2, created2 = JournalEntry.objects.get_or_create(
-                                        doc_num="JE0002",
-                                        defaults={
-                                            "posting_date": timezone.now().date(),
-                                            "reference": "Office Rent Payment",
-                                            "remarks": "Paid rent for branch office",
-                                            "currency": bdt,
-                                            "total_debit": 2000,
-                                            "total_credit": 2000,
-                                            "is_posted": True,
-                                            "cost_center": branch_cost_center,
-                                        }
-                                    )
-                                    logger.info(f"JournalEntry JE0002 created: {created2}")
-                                    if created2:
-                                        # Journal Entry Lines
-                                        line1 = JournalEntryLine.objects.create(
-                                            journal_entry=entry2,
-                                            account=created_accounts['rent_expense'],
-                                            debit_amount=2000,
-                                            credit_amount=0,
-                                            description="Branch rent expense"
+                                        else:
+                                            balance = line.credit_amount - line.debit_amount
+                                        
+                                        gl_entry = GeneralLedger.objects.create(
+                                            account=line.account,
+                                            posting_date=je.posting_date,
+                                            journal_entry=je,
+                                            debit_amount=line.debit_amount,
+                                            credit_amount=line.credit_amount,
+                                            balance=balance,
+                                            currency=je.currency,
+                                            cost_center=je.cost_center
                                         )
-                                        line2 = JournalEntryLine.objects.create(
-                                            journal_entry=entry2,
-                                            account=created_accounts['cash'],
-                                            debit_amount=0,
-                                            credit_amount=2000,
-                                            description="Paid from cash"
-                                        )
+                                        print(f"✅ Created GL entry for {line.account.code}: Dr={line.debit_amount}, Cr={line.credit_amount}, Balance={balance}")
 
-                                        # GeneralLedger Entries
-                                        for line in [line1, line2]:
-                                            balance = line.debit_amount - line.credit_amount
-                                            gl_entry = GeneralLedger.objects.create(
-                                                account=line.account,
-                                                posting_date=entry2.posting_date,
-                                                journal_entry=entry2,
-                                                debit_amount=line.debit_amount,
-                                                credit_amount=line.credit_amount,
-                                                balance=balance,
-                                                currency=entry2.currency
-                                            )
-                                            logger.info(f"GeneralLedger created for {line.account.code}: Debit={line.debit_amount}, Credit={line.credit_amount}, Balance={balance}")
+                        # Final count verification
+                        total_je = JournalEntry.objects.count()
+                        total_lines = JournalEntryLine.objects.count()
+                        total_gl = GeneralLedger.objects.count()
+                        
+                        print(f"📈 Final counts: {total_je} Journal Entries, {total_lines} Lines, {total_gl} GL Entries")
+                        
+                        if total_lines != total_gl:
+                            logger.warning(f"GL count mismatch: {total_lines} lines vs {total_gl} GL entries")
+                        else:
+                            logger.info(f"✅ GL entries match lines: {total_gl} entries created")
 
-                        finally:
-                            # Reconnect the signal
-                            signals.post_save.connect(journal_entry.post_journal_to_gl, sender=JournalEntry)
-
-                    messages.success(request, "Demo data imported successfully.")
+                    messages.success(request, f"Demo data imported successfully with extended sales accounts. Created {ChartOfAccounts.objects.count()} accounts.")
 
                 elif action == 'delete':
                     # Delete in reverse order to respect foreign key constraints
-                    lines_deleted = JournalEntryLine.objects.all().delete()[0]  # Count deleted JournalEntryLine
-                    entries_deleted = JournalEntry.objects.all().delete()[0]   # Count deleted JournalEntry
-                    ledger_deleted = GeneralLedger.objects.all().delete()[0]   # Count deleted GeneralLedger
-                    accounts_deleted = ChartOfAccounts.objects.all().delete()[0]  # Count deleted ChartOfAccounts
-                    account_types_deleted = AccountType.objects.all().delete()[0] # Count deleted AccountType
-                    cost_centers_deleted = CostCenter.objects.all().delete()[0]   # Count deleted CostCenter
+                    lines_deleted = JournalEntryLine.objects.all().delete()[0]
+                    entries_deleted = JournalEntry.objects.all().delete()[0]
+                    ledger_deleted = GeneralLedger.objects.all().delete()[0]
+                    accounts_deleted = ChartOfAccounts.objects.all().delete()[0]
+                    account_types_deleted = AccountType.objects.all().delete()[0]
+                    cost_centers_deleted = CostCenter.objects.all().delete()[0]
 
                     messages.success(request, (
                         f"Deleted all demo data successfully. "
                         f"Deleted {lines_deleted} JournalEntryLine, {entries_deleted} JournalEntry, "
                         f"{ledger_deleted} GeneralLedger, {accounts_deleted} ChartOfAccounts, "
-                        f"{account_types_deleted} AccountType, {cost_centers_deleted} CostCenter, "
+                        f"{account_types_deleted} AccountType, {cost_centers_deleted} CostCenter"
                     ))
 
             except Exception as e:
                 logger.error(f"Error performing {action} action: {str(e)}")
                 messages.error(request, f"Error performing {action} action: {str(e)}")
+                import traceback
+                traceback.print_exc()
 
         else:
             messages.error(request, "Invalid form submission. Please check the fields.")

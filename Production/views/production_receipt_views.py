@@ -59,7 +59,7 @@ class ProductionReceiptListView(GenericFilterView):
 class ProductionReceiptCreateView(CreateView):
     model = ProductionReceipt
     form_class = ProductionReceiptForm
-    template_name = 'common/premium-form.html'
+    template_name = 'production/production_receipt_form.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -137,7 +137,7 @@ class ProductionReceiptCreateView(CreateView):
 class ProductionReceiptUpdateView(UpdateView):
     model = ProductionReceipt
     form_class = ProductionReceiptForm
-    template_name = 'common/premium-form.html'
+    template_name = 'production/production_receipt_form.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -192,7 +192,7 @@ class ProductionReceiptUpdateView(UpdateView):
 
 class ProductionReceiptDetailView(DetailView):
     model = ProductionReceipt
-    template_name = 'common/premium-form.html'
+    template_name = 'production/production_receipt_form.html'
     context_object_name = 'production_receipt'
     
     def get_context_data(self, **kwargs):

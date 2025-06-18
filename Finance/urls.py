@@ -25,15 +25,13 @@ from .views import (
     CostCenterDetailView, CostCenterDeleteView, CostCenterExportView,
     CostCenterPrintView, CostCenterPrintDetailView, CostCenterBulkDeleteView,
     
-    # Trial Balance
+    # Financial Reports
     TrialBalanceView,
-    
-    # Profit and Loss
     ProfitAndLossView,
-    
-    # Balance Sheet 
     BalanceSheetView,
+    AccountLedgerView,
 
+    # Demo Configuration
     DemoConfigView,
 )
 
@@ -61,6 +59,7 @@ urlpatterns = [
     path('accounts/print/', AccountPrintView.as_view(), name='account_print_list'),
     path('accounts/<int:pk>/print/', AccountPrintDetailView.as_view(), name='account_print_detail'),
     path('accounts/bulk-delete/', AccountBulkDeleteView.as_view(), name='account_bulk_delete'),
+    path('accounts/<int:account_id>/ledger/', AccountLedgerView.as_view(), name='account_ledger'),
     
     # Journal Entry URLs
     path('journal-entries/', JournalEntryListView.as_view(), name='journal_entry_list'),
@@ -95,14 +94,14 @@ urlpatterns = [
     path('cost-centers/<int:pk>/print/', CostCenterPrintDetailView.as_view(), name='cost_center_print_detail'),
     path('cost-centers/bulk-delete/', CostCenterBulkDeleteView.as_view(), name='cost_center_bulk_delete'),
     
-    # Trial Balance
-    path('trial-balance/', TrialBalanceView.as_view(), name='trial_balance'),
-    
-    # Profit and Loss
-    path('profit-loss/', ProfitAndLossView.as_view(), name='profit_loss'),
-    
-    path('balance-sheet/', BalanceSheetView.as_view(), name='balance_sheet'),
+    # Financial Reports URLs
+    path('reports/trial-balance/', TrialBalanceView.as_view(), name='trial_balance'),
+    path('reports/trial-balance/print/', TrialBalanceView.as_view(), {'print_view': True}, name='trial_balance_print'),
+    path('reports/profit-loss/', ProfitAndLossView.as_view(), name='profit_loss'),
+    path('reports/profit-loss/print/', ProfitAndLossView.as_view(), {'print_view': True}, name='profit_loss_print'),
+    path('reports/balance-sheet/', BalanceSheetView.as_view(), name='balance_sheet'),
+    path('reports/balance-sheet/print/', BalanceSheetView.as_view(), {'print_view': True}, name='balance_sheet_print'),
 
+    # Demo Configuration
     path('demo/config/', DemoConfigView.as_view(), name='demo_config'),
-
 ]
