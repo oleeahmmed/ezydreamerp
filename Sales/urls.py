@@ -54,7 +54,8 @@ from .views.sales_report_views import (
     ReturnReportView,
     ReturnReportDetailsView,
     ARInvoiceReportView,
-    ARInvoiceReportDetailsView
+    ARInvoiceReportDetailsView,
+    MenuPageView
 )
 from .views.sales_employee_sales_report import SalesEmployeeSalesReportView
 
@@ -133,6 +134,7 @@ urlpatterns = [
 
   
   path('reports/', SalesReportListView.as_view(), name='sales_report_list'),
+
     # Sales Quotation Report URLs
   path('reports/sales-quotation/', SalesQuotationReportView.as_view(), name='sales_quotation_report'),
   path('reports/sales-quotation/details/', SalesQuotationReportDetailsView.as_view(), name='sales_quotation_report_details'),
@@ -152,7 +154,7 @@ urlpatterns = [
   path('reports/ar-invoice/details/', ARInvoiceReportDetailsView.as_view(), name='ar_invoice_report_details'),
 
   path('reports/sales-employee-summary/', SalesEmployeeSalesReportView.as_view(), name='sales_employee_sales_summary'),
-  
+  path('menu/', MenuPageView.as_view(), name='menu_page'),
   # Chart Dashboard URLs
   path('dashboard/chart/daily/', SalesDashboardChartView.as_view(), {'period': 'daily'}, name='dashboard_chart_daily'),
   path('dashboard/chart/monthly/', SalesDashboardChartView.as_view(), {'period': 'monthly'}, name='dashboard_chart_monthly'),

@@ -1,5 +1,5 @@
 from django.urls import path,include
-from .views import  unit_of_measure_views, warehouse_views, item_group_views,item_views,item_warehouse_info_views,inventory_transaction_views,goods_receipt_views,goods_issue_views,inventory_transfer_views,demo_views
+from .views import  unit_of_measure_views, warehouse_views, item_group_views,item_views,item_warehouse_info_views,inventory_transaction_views,goods_receipt_views,goods_issue_views,inventory_transfer_views,inventory_report_views,demo_views
 
 app_name = 'Inventory'
 
@@ -102,6 +102,24 @@ urlpatterns = [
 
 
     path('demo/config/', demo_views.DemoConfigView.as_view(), name='demo_config'),
-
+    # Inventory Reports URLs
+    path('reports/', inventory_report_views.InventoryReportListView.as_view(), name='inventory_report_list'),
+    path('reports/current-stock/', inventory_report_views.CurrentStockReportView.as_view(), name='current_stock_report'),
+    path('reports/stock-by-warehouse/', inventory_report_views.StockByWarehouseReportView.as_view(), name='stock_by_warehouse_report'),
+    path('reports/reorder/', inventory_report_views.ReorderReportView.as_view(), name='reorder_report'),
+    path('reports/overstock/', inventory_report_views.OverstockReportView.as_view(), name='overstock_report'),
+    path('reports/goods-receipt-summary/', inventory_report_views.GoodsReceiptSummaryView.as_view(), name='goods_receipt_summary'),
+    path('reports/pending-goods-receipt/', inventory_report_views.PendingGoodsReceiptView.as_view(), name='pending_goods_receipt'),
+    path('reports/goods-issue-summary/', inventory_report_views.GoodsIssueSummaryView.as_view(), name='goods_issue_summary'),
+    path('reports/inventory-consumption/', inventory_report_views.InventoryConsumptionReportView.as_view(), name='inventory_consumption_report'),
+    path('reports/inventory-transactions-ledger/', inventory_report_views.InventoryTransactionsLedgerView.as_view(), name='inventory_transactions_ledger'),
+    path('reports/inventory-valuation/', inventory_report_views.InventoryValuationReportView.as_view(), name='inventory_valuation_report'),
+    path('reports/item-movement/', inventory_report_views.ItemMovementReportView.as_view(), name='item_movement_report'),
+    path('reports/transfer-summary/', inventory_report_views.TransferSummaryView.as_view(), name='transfer_summary'),
+    path('reports/pending-transfers/', inventory_report_views.PendingTransfersView.as_view(), name='pending_transfers'),
+    path('reports/stock-adjustment-history/', inventory_report_views.StockAdjustmentHistoryView.as_view(), name='stock_adjustment_history'),
+    path('reports/stock-below-minimum/', inventory_report_views.StockBelowMinimumView.as_view(), name='stock_below_minimum'),
+    path('reports/negative-stock/', inventory_report_views.NegativeStockReportView.as_view(), name='negative_stock_report'),
+    path('reports/zero-movement/', inventory_report_views.ZeroMovementReportView.as_view(), name='zero_movement_report'),
 ]
 

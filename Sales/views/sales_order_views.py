@@ -104,7 +104,7 @@ class SalesOrderCreateView(CreateView):
             for key, value in prefill_data.items():
                 if key not in ['lines', 'quotation_id']:
                     initial[key] = value
-            initial['quotation'] = self.prefill_quotation  # ✅ ensure this is passed
+            initial['quotation'] = self.prefill_quotation  
         return initial
 
     def get_context_data(self, **kwargs):
@@ -119,7 +119,7 @@ class SalesOrderCreateView(CreateView):
             context['extra_form'] = SalesOrderExtraInfoForm(self.request.POST)
         else:
             initial_lines = getattr(self, 'prefill_lines', [])
-            extra_count = len(initial_lines) if initial_lines else 1  # ✅ Ensure at least 1 form
+            extra_count = len(initial_lines) if initial_lines else 1 
             dynamic_formset = inlineformset_factory(
                 SalesOrder,
                 SalesOrderLine,

@@ -1440,4 +1440,11 @@ class SalesEmployeeSummaryView(GenericFilterView):
         return context
 
 
-        
+class MenuPageView(TemplateView):
+    template_name = 'sales/menu_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Reports Menu'
+        logger.debug("Rendering menu page with context")
+        return context        

@@ -212,7 +212,7 @@ class ItemWarehouseInfo(BaseModel):
             self.available = self.calculate_available()
         super().save(*args, **kwargs)
 
-class InventoryTransaction(models.Model):
+class InventoryTransaction(BaseModel):
     """Records inventory transactions such as purchases, sales, transfers, and adjustments."""
     
     TRANSACTION_TYPES = [
@@ -237,8 +237,7 @@ class InventoryTransaction(models.Model):
     transaction_date = models.DateTimeField(_("Transaction Date"), default=timezone.now)
     notes = models.TextField(_("Notes"), blank=True, null=True)
 
-    created_at = models.DateTimeField(_("Created At"), default=timezone.now)
-    updated_at = models.DateTimeField(_("Updated At"), auto_now=True)
+
 
     class Meta:
         ordering = ['-transaction_date']
@@ -287,13 +286,33 @@ class GoodsReceipt(BaseModel):
     payment_method = models.CharField(_("Payment Method"), max_length=50, blank=True, null=True)
     payment_reference = models.CharField(_("Payment Reference"), max_length=100, blank=True, null=True)
     payment_date = models.DateField(_("Payment Date"), blank=True, null=True)
-
+    warehouse = models.ForeignKey('Warehouse', on_delete=models.PROTECT,blank=True, null=True, related_name='goods_receipts', verbose_name=_("Warehouse"))
     class Meta:
         verbose_name = _("Goods Receipt")
         verbose_name_plural = _("Goods Receipts")
-
     def __str__(self):
-        return f"GR {self.id}"  
+            return f"GR {self.id}"
+
+    def set_default_warehouse(self):
+        """Set warehouse based on the default_warehouse of the first item in GoodsReceiptLine."""
+        if not self.warehouse and self.pk:  # Ensure instance is saved
+            first_line = self.lines.first()
+            if first_line:
+                try:
+                    item = Item.objects.get(code=first_line.item_code)
+                    if item.default_warehouse:
+                        self.warehouse = item.default_warehouse
+                    else:
+                        default_warehouse = Warehouse.objects.filter(is_default=True, is_active=True).first()
+                        if default_warehouse:
+                            self.warehouse = default_warehouse
+                    self.save(update_fields=['warehouse'])  # Save only the warehouse field
+                except Item.DoesNotExist:
+                    pass
+
+    def save(self, *args, **kwargs):
+        """Save the instance without accessing related objects prematurely."""
+        super().save(*args, **kwargs)
 
 
 class GoodsReceiptLine(BaseModel):

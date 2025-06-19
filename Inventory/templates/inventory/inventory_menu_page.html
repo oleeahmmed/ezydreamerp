@@ -1,0 +1,207 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script>{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    Inventory Modules
+{% endblock %}
+
+{% block page_title %}
+    Inventory Modules
+{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto px-4 py-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Inventory Modules</h1>
+            <p class="text-gray-600 mt-2">Manage your inventory with ease</p>
+        </div>
+
+        <div class="flex flex-wrap justify-between mb-8">
+            <div class="w-full md:w-3/4">
+                <h3 class="text-lg font-semibold mb-4">Filters:</h3>
+                <div class="flex flex-wrap gap-2">
+                    <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300">All</a>
+                    <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300">Unit of Measure</a>
+                    <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300">Warehouse</a>
+                    <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300">Item Group</a>
+                    <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300">Item</a>
+                    <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300">Item Warehouse Info</a>
+                    <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300">Inventory Transaction</a>
+                    <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300">Goods Receipt</a>
+                    <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300">Goods Issue</a>
+                    <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300">Inventory Transfer</a>
+                </div>
+            </div>
+            <div class="w-full md:w-1/4 mt-4 md:mt-0">
+                <h3 class="text-lg font-semibold mb-4">View:</h3>
+                <div class="flex flex-wrap gap-2">
+                    <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300">All</a>
+                    <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300">Favorites</a>
+                    <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300">Clear Favorites</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Unit of Measure -->
+            <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <a href="{% url 'Inventory:uom_list' %}" class="text-xl font-semibold text-gray-800 hover:text-blue-600">Unit of Measure</a>
+                    <button class="text-yellow-500 hover:text-yellow-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.915a1 1 0 00.95-.69l1.519-4.674z"></path></svg>
+                    </button>
+                </div>
+                <p class="text-gray-600">Manage units of measure for inventory</p>
+            </div>
+
+            <!-- Warehouse -->
+            <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <a href="{% url 'Inventory:warehouse_list' %}" class="text-xl font-semibold text-gray-800 hover:text-blue-600">Warehouse</a>
+                    <button class="text-yellow-500 hover:text-yellow-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.915a1 1 0 00.95-.69l1.519-4.674z"></path></svg>
+                    </button>
+                </div>
+                <p class="text-gray-600">Organize and track warehouse locations</p>
+            </div>
+
+            <!-- Item Group -->
+            <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <a href="{% url 'Inventory:item_group_list' %}" class="text-xl font-semibold text-gray-800 hover:text-blue-600">Item Group</a>
+                    <button class="text-yellow-500 hover:text-yellow-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.915a1 1 0 00.95-.69l1.519-4.674z"></path></svg>
+                    </button>
+                </div>
+                <p class="text-gray-600">Categorize items into groups</p>
+            </div>
+
+            <!-- Item -->
+            <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <a href="{% url 'Inventory:item_list' %}" class="text-xl font-semibold text-gray-800 hover:text-blue-600">Item</a>
+                    <button class="text-yellow-500 hover:text-yellow-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.915a1 1 0 00.95-.69l1.519-4.674z"></path></svg>
+                    </button>
+                </div>
+                <p class="text-gray-600">Manage inventory items</p>
+            </div>
+
+            <!-- Item (All) -->
+            <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <a href="{% url 'Inventory:item_all_list' %}" class="text-xl font-semibold text-gray-800 hover:text-blue-600">Item (All)</a>
+                    <button class="text-yellow-500 hover:text-yellow-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.915a1 1 0 00.95-.69l1.519-4.674z"></path></svg>
+                    </button>
+                </div>
+                <p class="text-gray-600">View all inventory items</p>
+            </div>
+
+            <!-- Item Warehouse Info -->
+            <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <a href="{% url 'Inventory:item_warehouse_info_list' %}" class="text-xl font-semibold text-gray-800 hover:text-blue-600">Item Warehouse Info</a>
+                    <button class="text-yellow-500 hover:text-yellow-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.915a1 1 0 00$.95-.69l1.519-4.674z"></path>
+                    </button>
+                </div>
+                <p class="text-gray-600">Track item locations in warehouses</p>
+            </div>
+
+            <!-- Inventory Transaction -->
+            <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <a href="{% url 'inventory:inventory_transaction_list' %}" class="text-xl font-semibold text-gray-800 hover:text-blue-600">Inventory Transaction</a>
+                    <button class="text-yellow-500 hover:text-yellow-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.915a1 1 0 00.95-.69l1.519-4.674z"></path></svg>
+                    </button>
+                </div>
+                <p class="text-gray-600">Record inventory movements</p>
+            </div>
+
+            <!-- Goods Receipt -->
+            <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <a href="{% url 'Inventory:goods_receipt_list' %}" class="text-xl font-semibold text-gray-800 hover:text-blue-600">Goods Receipt</a>
+                    <button class="text-yellow-500 hover:text-yellow-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.915a1.1 0 00.95-.69l1.519-4.674z"></path></svg>
+                    </button>
+                </div>
+                <p class="text-gray-600">Process incoming goods</p>
+            </div>
+
+            <!-- Goods Issue -->
+            <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <a href="{% url 'Inventory:goods_issue_list' %}" class="text-xl font-semibold text-gray-800 hover:text-blue-600">Goods Issue</a>
+                    <button class="text-yellow-500 hover:text-yellow-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921-1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.915a1 1 0 00.95-.69l1.519-4.674z"></path></svg>
+                    </button>
+                </div>
+                <p class="text-gray-600">Manage outgoing inventory</p>
+            </div>
+
+            <!-- Inventory Transfer -->
+            <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <a href="{% url 'Inventory:inventory_transfer_list' %}" class="text-xl font-semibold text-gray-800 hover:text-blue-600">Inventory Transfer</a>
+                    <button class="text-yellow-500 hover:text-yellow-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.915a1 1 0 00.95-.69l1.519-4.674z"></path></svg>
+                    </button>
+                </div>
+                <p class="text-gray-600">Transfer items between locations</p>
+            </div>
+        </div>
+
+        <div class="hidden text-center mt-16">
+            <h2 class="text-lg font-semibold text-gray-600">No modules found</h2>
+            <p class="text-gray-500 mt-2">Try adjusting your search or filters, or add favorites.</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

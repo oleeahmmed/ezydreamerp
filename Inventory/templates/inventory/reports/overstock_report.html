@@ -1,0 +1,497 @@
+{% extends "common/base-list-modern.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block list_icon %}
+<svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+</svg>
+{% endblock %}
+
+{% block list_title %}{% trans "Overstock Report" %}{% endblock %}
+{% block list_subtitle %}{% trans "Items with stock levels exceeding maximum thresholds" %}{% endblock %}
+
+{% block list_actions %}
+{% endblock %}
+
+{% block search_filter %}
+<div class="flex flex-wrap justify-center gap-3 p-4 bg-white shadow-md rounded-lg border border-gray-200">
+    <input type="text" id="search-input" placeholder="{% trans 'Search Item Code or Name...' %}" class="w-full sm:w-auto flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+    <button id="filter-button" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Filter" %}
+    </button>
+    <button id="export-csv" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2H6A2 2 0 0 0 4 4V20A2 2 0 0 0 6 22H18A2 2 0 0 0 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Export CSV" %}
+    </button>
+    <button id="copy-clipboard" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-gray-600 to-gray-700 text-white hover:from-gray-700 hover:to-gray-800 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 15H4A2 2 0 0 1 2 13V4A2 2 0 0 1 4 2H13A2 2 0 0 1 15 4V5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Copy" %}
+    </button>
+    <button id="customize-columns" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-indigo-600 to-indigo-700 text-white hover:from-indigo-700 hover:to-indigo-800 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="3" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Columns" %}
+    </button>
+</div>
+{% endblock %}
+
+{% block table_headers %}
+<thead>
+    <tr>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="item_code" onclick="sortTable('item_code')" style="width: 100px;">{% trans "ITEM CODE" %}<span id="sort-item_code" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="item_name" onclick="sortTable('item_name')" style="width: 200px;">{% trans "ITEM NAME" %}<span id="sort-item_name" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="warehouse" onclick="sortTable('warehouse')" style="width: 120px;">{% trans "WAREHOUSE" %}<span id="sort-warehouse" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="current_stock" onclick="sortTable('current_stock')" style="width: 120px;">{% trans "CURRENT STOCK" %}<span id="sort-current_stock" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="max_stock" onclick="sortTable('max_stock')" style="width: 100px;">{% trans "MAX STOCK" %}<span id="sort-max_stock" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="excess_qty" onclick="sortTable('excess_qty')" style="width: 100px;">{% trans "EXCESS QTY" %}<span id="sort-excess_qty" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="excess_value" onclick="sortTable('excess_value')" style="width: 120px;">{% trans "EXCESS VALUE" %}<span id="sort-excess_value" class="ml-1"></span></th>
+    </tr>
+</thead>
+{% endblock %}
+
+{% block table_body %}
+<div class="w-full overflow-x-auto overflow-y-auto max-h-[70vh]">
+    <table id="overstock-table" class="w-full table-fixed border-collapse">
+        <tbody>
+        {% for item in overstock_items %}
+        <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] transition-colors">
+            <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="item_code" style="width: 100px;">{{ item.item.code }}</td>
+            <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="item_name" style="width: 200px;">{{ item.item.name }}</td>
+            <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="warehouse" style="width: 120px;">{{ item.warehouse.code }}</td>
+            <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="current_stock" style="width: 120px;">{{ item.available|default:"0.00"|floatformat:2 }}</td>
+            <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="max_stock" style="width: 100px;">{{ item.max_stock|default:"0.00"|floatformat:2 }}</td>
+            <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))] text-red-600 font-semibold" data-column="excess_qty" style="width: 100px;">{{ item.excess_qty|default:"0.00"|floatformat:2 }}</td>
+            <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))] text-red-600 font-semibold" data-column="excess_value" style="width: 120px;">{{ item.excess_value|default:"0.00"|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+            <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+                <td colspan="7" class="px-4 sm:px-8 py-4 text-center text-sm border border-[hsl(var(--border))]">
+                    <div class="flex flex-col items-center justify-center space-y-4">
+                        <div class="rounded-full bg-[hsl(var(--muted))] p-4">
+                            <svg class="h-8 w-8 text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="text-center">
+                            <h3 class="text-base font-medium">{% trans "No Overstock Items" %}</h3>
+                            <p class="text-[hsl(var(--muted-foreground))] text-sm">{% trans "All items are within normal stock levels." %}</p>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        {% if overstock_items %}
+        <tfoot class="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] font-semibold">
+            <tr>
+                <td colspan="5" class="px-2 py-0.5 text-right font-semibold text-sm text-center border border-[hsl(var(--border))]" style="width: 640px;">{% trans "Total:" %}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))] text-red-600 font-bold" data-column="excess_qty" style="width: 100px;" id="total_excess_qty">{{ total_excess_qty }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))] text-red-600 font-bold" data-column="excess_value" style="width: 120px;" id="total_excess_value">{{ total_excess_value }}</td>
+            </tr>
+        </tfoot>
+        {% endif %}
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+#overstock-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+#overstock-table th,
+#overstock-table td {
+    padding: 2px;
+    text-align: center;
+    border: 1px solid hsl(var(--border));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#overstock-table th[data-column="item_code"],
+#overstock-table td[data-column="item_code"] { width: 100px; }
+#overstock-table th[data-column="item_name"],
+#overstock-table td[data-column="item_name"] { width: 200px; }
+#overstock-table th[data-column="warehouse"],
+#overstock-table td[data-column="warehouse"] { width: 120px; }
+#overstock-table th[data-column="current_stock"],
+#overstock-table td[data-column="current_stock"] { width: 120px; }
+#overstock-table th[data-column="max_stock"],
+#overstock-table td[data-column="max_stock"] { width: 100px; }
+#overstock-table th[data-column="excess_qty"],
+#overstock-table td[data-column="excess_qty"] { width: 100px; }
+#overstock-table th[data-column="excess_value"],
+#overstock-table td[data-column="excess_value"] { width: 120px; }
+#overstock-table thead th {
+    position: sticky;
+    top: 0;
+    background-color: hsl(var(--background));
+    z-index: 10;
+}
+#overstock-table::-webkit-scrollbar { width: 8px; height: 8px; }
+#overstock-table::-webkit-scrollbar-thumb { background-color: hsl(var(--muted)); border-radius: 4px; }
+#overstock-table::-webkit-scrollbar-track { background-color: hsl(var(--background)); }
+.sort-asc::after { content: " ↑"; color: #3b82f6; }
+.sort-desc::after { content: " ↓"; color: #3b82f6; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function calculateTotals() {
+        let totalExcessQty = 0, totalExcessValue = 0;
+        const rows = document.querySelectorAll('#overstock-table tbody tr');
+        rows.forEach(row => {
+            const excessQtyCell = row.querySelector('td[data-column="excess_qty"]');
+            const excessValueCell = row.querySelector('td[data-column="excess_value"]');
+            if (excessQtyCell) totalExcessQty += parseFloat(excessQtyCell.textContent.trim()) || 0;
+            if (excessValueCell) totalExcessValue += parseFloat(excessValueCell.textContent.trim()) || 0;
+        });
+        const totalExcessQtyElement = document.getElementById('total_excess_qty');
+        const totalExcessValueElement = document.getElementById('total_excess_value');
+        if (totalExcessQtyElement) totalExcessQtyElement.textContent = totalExcessQty.toFixed(2);
+        if (totalExcessValueElement) totalExcessValueElement.textContent = totalExcessValue.toFixed(2);
+    }
+    calculateTotals();
+
+    let sortDirection = {};
+    const sortIcons = { asc: ' ↑', desc: ' ↓' };
+
+    function sortTable(column) {
+        const tbody = document.querySelector('#overstock-table tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const th = document.querySelector(`th[data-column="${column}"]`);
+        const sortSpan = document.getElementById(`sort-${column}`);
+
+        sortDirection[column] = sortDirection[column] === 'asc' ? 'desc' : 'asc';
+
+        document.querySelectorAll('th span').forEach(span => span.textContent = '');
+        if (sortSpan) sortSpan.textContent = sortIcons[sortDirection[column]];
+        th.classList.remove('sort-asc', 'sort-desc');
+        th.classList.add(`sort-${sortDirection[column]}`);
+
+        rows.sort((a, b) => {
+            const aValue = a.querySelector(`td[data-column="${column}"]`)?.textContent.trim() || '';
+            const bValue = b.querySelector(`td[data-column="${column}"]`)?.textContent.trim() || '';
+            if (!isNaN(aValue) && !isNaN(bValue)) {
+                return sortDirection[column] === 'asc' ? parseFloat(aValue) - parseFloat(bValue) : parseFloat(bValue) - parseFloat(aValue);
+            } else {
+                return sortDirection[column] === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+            }
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+        calculateTotals();
+    }
+
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#overstock-table tbody tr');
+            rows.forEach(row => {
+                const itemCodeCell = row.querySelector('td[data-column="item_code"]')?.textContent.toLowerCase() || '';
+                const itemNameCell = row.querySelector('td[data-column="item_name"]')?.textContent.toLowerCase() || '';
+                if (itemCodeCell.includes(searchTerm) || itemNameCell.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            calculateTotals();
+        });
+    }
+
+    function createModal(id, title, content, size = 'default') {
+        const modal = document.createElement('div');
+        modal.id = id;
+        modal.className = 'hidden fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 backdrop-blur-sm';
+        modal.innerHTML = `
+            <div class="bg-white mx-auto mt-20 p-0 border border-gray-200 rounded-xl w-11/12 ${size === 'large' ? 'max-w-7xl' : 'max-w-lg'} shadow-2xl relative animate-in slide-in-from-bottom-4 duration-300">
+                <div class="bg-white px-6 pt-6 pb-0 border-b border-gray-200 rounded-t-xl relative">
+                    <h2 class="text-lg font-semibold text-gray-900">${title}</h2>
+                    <button class="absolute right-4 top-4 bg-gray-100 hover:bg-gray-200 border-0 rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200 text-gray-600 hover:text-gray-800 hover:scale-105 z-10" data-close-modal="${id}">×</button>
+                </div>
+                <div class="bg-white px-6 py-6 max-h-[70vh] overflow-y-auto rounded-b-xl">
+                    ${content}
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        return modal;
+    }
+
+    const filterModal = createModal('filter-modal', '{% trans "Filter Overstock Items" %}', `
+        <form id="filter-form" class="space-y-5">
+            <div class="mb-5">
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Search Item" %}</label>
+                <input type="text" name="item" value="{{ item_term|default:'' }}" placeholder="{% trans 'Item Code or Name...' %}" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+            </div>
+            <div class="mb-5">
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Warehouse" %}</label>
+                <select name="warehouse" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 cursor-pointer">
+                    <option value="">{% trans "All Warehouses" %}</option>
+                    {% for warehouse in all_warehouses %}
+                        <option value="{{ warehouse.id }}" {% if selected_warehouse and selected_warehouse.id == warehouse.id %}selected{% endif %}>{{ warehouse.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex gap-3 pt-4">
+                <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 h-9 px-4 py-2 shadow-md transition-all duration-200">
+                    {% trans "Apply Filter" %}
+                </button>
+                <button type="button" id="clear-filters" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 h-9 px-4 py-2 shadow-sm transition-all duration-200">
+                    {% trans "Clear" %}
+                </button>
+            </div>
+        </form>
+    `);
+
+    const columnsModal = createModal('columns-modal', '{% trans "Customize Columns" %}', `
+        <p class="text-sm text-gray-600 mb-4">{% trans "Select columns to display." %}</p>
+        <ul id="sortable-columns" class="space-y-2"></ul>
+        <div class="pt-4 text-center">
+            <button id="save-columns" class="inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 h-9 px-4 py-2 shadow-md transition-all duration-200">
+                {% trans "Save Changes" %}
+            </button>
+        </div>
+    `);
+
+    const toast = document.createElement('div');
+    toast.id = 'copy-feedback';
+    toast.className = 'hidden fixed top-6 right-6 z-50 bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-xl';
+    toast.innerHTML = `
+        <div class="flex items-center space-x-3">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                <svg class="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div>
+                <p class="font-medium text-gray-900">{% trans "Success!" %}</p>
+                <p class="text-sm text-gray-600">{% trans "Copied to clipboard!" %}</p>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+
+    document.addEventListener('click', function(e) {
+        if (e.target.dataset.closeModal) {
+            document.getElementById(e.target.dataset.closeModal).classList.add('hidden');
+        }
+        if (e.target.classList.contains('bg-black')) {
+            e.target.classList.add('hidden');
+        }
+    });
+
+    const filterButton = document.getElementById('filter-button');
+    if (filterButton) {
+        filterButton.addEventListener('click', function() {
+            filterModal.classList.remove('hidden');
+        });
+    }
+
+    const exportButton = document.getElementById('export-csv');
+    if (exportButton) {
+        exportButton.addEventListener('click', function() {
+            const table = document.getElementById('overstock-table');
+            const rows = table.querySelectorAll('tbody tr');
+            const footer = table.querySelector('tfoot tr');
+            const columnDefs = [
+                { id: 'item_code', label: '{% trans "ITEM CODE" %}' },
+                { id: 'item_name', label: '{% trans "ITEM NAME" %}' },
+                { id: 'warehouse', label: '{% trans "WAREHOUSE" %}' },
+                { id: 'current_stock', label: '{% trans "CURRENT STOCK" %}' },
+                { id: 'max_stock', label: '{% trans "MAX STOCK" %}' },
+                { id: 'excess_qty', label: '{% trans "EXCESS QTY" %}' },
+                { id: 'excess_value', label: '{% trans "EXCESS VALUE" %}' }
+            ];
+            let csvContent = [];
+            csvContent.push(columnDefs.map(col => `"${col.label.replace(/"/g, '""')}"`).join(','));
+            rows.forEach(row => {
+                const rowData = columnDefs.map(col => {
+                    const cell = row.querySelector(`td[data-column="${col.id}"]`);
+                    return cell ? `"${cell.textContent.trim().replace(/"/g, '""')}"` : '""';
+                });
+                csvContent.push(rowData.join(','));
+            });
+            if (footer) {
+                const footerData = columnDefs.map(col => {
+                    const cell = footer.querySelector(`td[data-column="${col.id}"]`);
+                    return cell ? `"${cell.textContent.trim().replace(/"/g, '""')}"` : '""';
+                });
+                csvContent.push(footerData.join(','));
+            }
+            const csv = csvContent.join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'overstock_report.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        });
+    }
+
+    const copyButton = document.getElementById('copy-clipboard');
+    if (copyButton) {
+        copyButton.addEventListener('click', function() {
+            const table = document.getElementById('overstock-table');
+            const rows = table.querySelectorAll('tbody tr');
+            const footer = table.querySelector('tfoot tr');
+            const columnDefs = [
+                { id: 'item_code', label: '{% trans "ITEM CODE" %}' },
+                { id: 'item_name', label: '{% trans "ITEM NAME" %}' },
+                { id: 'warehouse', label: '{% trans "WAREHOUSE" %}' },
+                { id: 'current_stock', label: '{% trans "CURRENT STOCK" %}' },
+                { id: 'max_stock', label: '{% trans "MAX STOCK" %}' },
+                { id: 'excess_qty', label: '{% trans "EXCESS QTY" %}' },
+                { id: 'excess_value', label: '{% trans "EXCESS VALUE" %}' }
+            ];
+            let tsvContent = [];
+            tsvContent.push(columnDefs.map(col => col.label).join('\t'));
+            rows.forEach(row => {
+                const rowData = columnDefs.map(col => {
+                    const cell = row.querySelector(`td[data-column="${col.id}"]`);
+                    return cell ? cell.textContent.trim() : '';
+                });
+                tsvContent.push(rowData.join('\t'));
+            });
+            if (footer) {
+                const footerData = columnDefs.map(col => {
+                    const cell = footer.querySelector(`td[data-column="${col.id}"]`);
+                    return cell ? cell.textContent.trim() : '';
+                });
+                tsvContent.push(footerData.join('\t'));
+            }
+            const tsv = tsvContent.join('\n');
+            navigator.clipboard.writeText(tsv).then(() => {
+                document.getElementById('copy-feedback').classList.remove('hidden');
+                setTimeout(() => document.getElementById('copy-feedback').classList.add('hidden'), 3000);
+            }).catch(err => console.error('Failed to copy:', err));
+        });
+    }
+
+    const customizeButton = document.getElementById('customize-columns');
+    if (customizeButton) {
+        customizeButton.addEventListener('click', function() {
+            columnsModal.classList.remove('hidden');
+            populateColumnsModal();
+        });
+    }
+
+    const defaultColumns = [
+        { id: 'item_code', label: 'ITEM CODE', visible: true },
+        { id: 'item_name', label: 'ITEM NAME', visible: true },
+        { id: 'warehouse', label: 'WAREHOUSE', visible: true },
+        { id: 'current_stock', label: 'CURRENT STOCK', visible: true },
+        { id: 'max_stock', label: 'MAX STOCK', visible: true },
+        { id: 'excess_qty', label: 'EXCESS QTY', visible: true },
+        { id: 'excess_value', label: 'EXCESS VALUE', visible: true }
+    ];
+    let currentColumns = [...defaultColumns];
+
+    function applyColumnPrefs(prefs) {
+        const headers = document.querySelectorAll('#overstock-table th');
+        const rows = document.querySelectorAll('#overstock-table tbody tr');
+        const footerRow = document.querySelector('#overstock-table tfoot tr');
+        headers.forEach(header => {
+            const colId = header.dataset.column;
+            const pref = prefs.find(p => p.id === colId);
+            header.style.display = pref && pref.visible ? '' : 'none';
+        });
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            cells.forEach(cell => {
+                const colId = cell.dataset.column;
+                const pref = prefs.find(p => p.id === colId);
+                cell.style.display = pref && pref.visible ? '' : 'none';
+            });
+        });
+        if (footerRow) {
+            const footerCells = footerRow.querySelectorAll('td');
+            footerCells.forEach(cell => {
+                const colId = cell.dataset.column;
+                const pref = prefs.find(p => p.id === colId);
+                cell.style.display = pref && pref.visible ? '' : 'none';
+            });
+        }
+        calculateTotals();
+    }
+
+    function populateColumnsModal() {
+        const sortableList = document.getElementById('sortable-columns');
+        if (sortableList) {
+            sortableList.innerHTML = '';
+            currentColumns.forEach(col => {
+                const li = document.createElement('li');
+                li.className = 'px-4 py-3 bg-gray-50 my-2 rounded-lg cursor-pointer flex justify-between items-center border border-gray-200 transition-all duration-200 hover:bg-gray-100 hover:-translate-y-0.5 hover:shadow-md';
+                li.dataset.id = col.id;
+                li.innerHTML = `
+                    <span class="font-medium text-gray-700">${col.label}</span>
+                    <input type="checkbox" ${col.visible ? 'checked' : ''} data-id="${col.id}" class="accent-blue-600">
+                `;
+                sortableList.appendChild(li);
+            });
+        }
+    }
+
+    const saveColumnsButton = document.getElementById('save-columns');
+    if (saveColumnsButton) {
+        saveColumnsButton.addEventListener('click', function() {
+            const items = document.querySelectorAll('#sortable-columns li');
+            currentColumns = Array.from(items).map(item => {
+                const id = item.dataset.id;
+                const checkbox = item.querySelector('input');
+                return { id, label: defaultColumns.find(col => col.id === id).label, visible: checkbox.checked };
+            });
+            applyColumnPrefs(currentColumns);
+            columnsModal.classList.add('hidden');
+        });
+    }
+
+    const filterForm = document.getElementById('filter-form');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const params = new URLSearchParams(formData).toString();
+            window.location.search = params;
+            filterModal.classList.add('hidden');
+        });
+    }
+
+    const clearFiltersButton = document.getElementById('clear-filters');
+    if (clearFiltersButton) {
+        clearFiltersButton.addEventListener('click', function() {
+            const form = document.getElementById('filter-form');
+            if (form) form.reset();
+            window.location.search = '';
+            filterModal.classList.add('hidden');
+        });
+    }
+
+    window.sortTable = sortTable;
+});
+</script>
+{% endblock %}

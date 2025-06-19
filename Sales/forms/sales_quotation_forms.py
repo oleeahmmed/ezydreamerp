@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import inlineformset_factory
 from django.utils import timezone
+from decimal import Decimal
 
 from ..models import SalesQuotation, SalesQuotationLine, SalesEmployee
 from Inventory.models import Item
@@ -58,8 +59,7 @@ class SalesQuotationExtraInfoForm(forms.ModelForm):
     class Meta:
         model = SalesQuotation
         fields = [
-            'contact_person', 'billing_address', 'shipping_address',
-            'currency', 'payment_terms', 'discount_amount', 'total_amount',
+            'discount_amount',  'total_amount', 
             'payable_amount', 'paid_amount', 'due_amount',
             'payment_method', 'payment_reference', 'payment_date',
             'remarks'
@@ -71,6 +71,11 @@ class SalesQuotationExtraInfoForm(forms.ModelForm):
                 'placeholder': 'Remarks',
             }),
             'discount_amount': forms.NumberInput(attrs={
+                'step': '0.01',
+                'min': '0',
+                'value': '0.00',
+            }),
+            'tax_amount': forms.NumberInput(attrs={ # Added widget for tax_amount
                 'step': '0.01',
                 'min': '0',
                 'value': '0.00',
@@ -116,22 +121,26 @@ class SalesQuotationExtraInfoForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         
         # Set initial values of 0 for financial fields if they're empty
-        if not self.instance.pk or not self.instance.discount_amount:
+        if not self.instance.pk or self.instance.discount_amount is None:
             self.initial['discount_amount'] = 0
         
-        if not self.instance.pk or not self.instance.total_amount:
+        if not self.instance.pk or self.instance.tax_amount is None: # Added check for tax_amount
+            self.initial['tax_amount'] = 0
+
+        if not self.instance.pk or self.instance.total_amount is None:
             self.initial['total_amount'] = 0
         
-        if not self.instance.pk or not self.instance.payable_amount:
+        if not self.instance.pk or self.instance.payable_amount is None:
             self.initial['payable_amount'] = 0
         
-        if not self.instance.pk or not self.instance.paid_amount:
+        if not self.instance.pk or self.instance.paid_amount is None:
             self.initial['paid_amount'] = 0
         
-        if not self.instance.pk or not self.instance.due_amount:
+        if not self.instance.pk or self.instance.due_amount is None:
             self.initial['due_amount'] = 0
     
         # Make some fields read-only as they are calculated
+        # Ensure these fields exist in the form's fields before trying to access their widgets
         if 'total_amount' in self.fields:
             self.fields['total_amount'].widget.attrs['readonly'] = True
             
@@ -141,85 +150,30 @@ class SalesQuotationExtraInfoForm(forms.ModelForm):
         if 'due_amount' in self.fields:
             self.fields['due_amount'].widget.attrs['readonly'] = True
             
-        # Filter contact persons and addresses by customer if customer is selected
-        if 'customer' in self.data:
-            try:
-                customer_id = int(self.data.get('customer'))
-                self.fields['contact_person'].queryset = ContactPerson.objects.filter(
-                    business_partner_id=customer_id
-                )
-                self.fields['billing_address'].queryset = Address.objects.filter(
-                    business_partner_id=customer_id,
-                    address_type='B'
-                )
-                self.fields['shipping_address'].queryset = Address.objects.filter(
-                    business_partner_id=customer_id,
-                    address_type='S'
-                )
-                
-                # Try to get default values from customer
-                try:
-                    customer = BusinessPartner.objects.get(id=customer_id)
-                    if customer.currency and not self.instance.currency:
-                        self.initial['currency'] = customer.currency
-                    if customer.payment_terms and not self.instance.payment_terms:
-                        self.initial['payment_terms'] = customer.payment_terms
-                    
-                    # Set default contact person
-                    default_contact = customer.contact_persons.filter(is_default=True).first()
-                    if default_contact and not self.instance.contact_person:
-                        self.initial['contact_person'] = default_contact
-                        
-                    # Set default billing address
-                    default_billing = customer.addresses.filter(address_type='B', is_default=True).first()
-                    if default_billing and not self.instance.billing_address:
-                        self.initial['billing_address'] = default_billing
-                        
-                    # Set default shipping address
-                    default_shipping = customer.addresses.filter(address_type='S', is_default=True).first()
-                    if default_shipping and not self.instance.shipping_address:
-                        self.initial['shipping_address'] = default_shipping
-                except BusinessPartner.DoesNotExist:
-                    pass
-                
-            except (ValueError, TypeError):
-                pass
-        elif self.instance.pk and self.instance.customer:
-            self.fields['contact_person'].queryset = ContactPerson.objects.filter(
-                business_partner=self.instance.customer
-            )
-            self.fields['billing_address'].queryset = Address.objects.filter(
-                business_partner=self.instance.customer,
-                address_type='B'
-            )
-            self.fields['shipping_address'].queryset = Address.objects.filter(
-                business_partner=self.instance.customer,
-                address_type='S'
-            )
-        else:
-            self.fields['contact_person'].queryset = ContactPerson.objects.none()
-            self.fields['billing_address'].queryset = Address.objects.none()
-            self.fields['shipping_address'].queryset = Address.objects.none()
+        # Removed logic for filtering contact persons and addresses and setting default currency/payment_terms
+        # as these fields are no longer part of the SalesQuotation model or this form.
 
     def clean(self):
         cleaned_data = super().clean()
     
         # Handle missing financial fields by providing default values
         financial_fields = [
-            'discount_amount', 'total_amount',
+            'discount_amount', 'tax_amount', 'total_amount', # Added tax_amount here
             'payable_amount', 'paid_amount', 'due_amount'
         ]
     
         for field in financial_fields:
-            if field not in cleaned_data:
-                cleaned_data[field] = 0
+            if field not in cleaned_data or cleaned_data[field] is None:
+                cleaned_data[field] = Decimal(0)
     
         # Get values with defaults if not provided
-        discount_amount = cleaned_data.get('discount_amount', 0) or 0
-        paid_amount = cleaned_data.get('paid_amount', 0) or 0
-    
-        # Calculate payable amount (now directly from total_amount)
-        payable_amount = cleaned_data.get('total_amount', 0) - discount_amount
+        discount_amount = cleaned_data.get('discount_amount', Decimal(0))
+        tax_amount = cleaned_data.get('tax_amount', Decimal(0)) # Get tax_amount
+        paid_amount = cleaned_data.get('paid_amount', Decimal(0))
+        total_amount = cleaned_data.get('total_amount', Decimal(0))
+        
+        # Calculate payable amount (total_amount + tax_amount - discount_amount)
+        payable_amount = (total_amount + tax_amount) - discount_amount
         cleaned_data['payable_amount'] = payable_amount
     
         # Calculate due amount
@@ -227,7 +181,6 @@ class SalesQuotationExtraInfoForm(forms.ModelForm):
         cleaned_data['due_amount'] = due_amount
     
         return cleaned_data
-
 
 class SalesQuotationLineForm(forms.ModelForm):
     """Form for Sales Quotation Line items"""

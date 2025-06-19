@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from Inventory.models import BaseModel, Item, Warehouse, InventoryTransaction
 from BusinessPartnerMasterData.models import BusinessPartner, Address, ContactPerson
 from global_settings.models import Currency, PaymentTerms
+from .utils import validate_sales_order_line_stock 
 
 class SalesEmployee(BaseModel):
     """Sales employee model linked to user account"""
@@ -47,6 +48,7 @@ class SalesEmployee(BaseModel):
                 
         super().save(*args, **kwargs)
 
+# --- Sales Quotation Model ---
 class SalesQuotation(BaseModel):
     """Sales quotation document for potential customers"""
     
@@ -60,38 +62,20 @@ class SalesQuotation(BaseModel):
         ('Cancelled', _('Cancelled')),
     ]
     
+    document_no = models.CharField(_("Document No"), max_length=50, unique=True, blank=True, null=True)
     document_date = models.DateField(_("Document Date"), default=timezone.now)
     valid_until = models.DateField(_("Valid Until"), null=True, blank=True)
     customer = models.ForeignKey(BusinessPartner, on_delete=models.PROTECT, limit_choices_to={'bp_type': 'C'}, verbose_name=_("Customer"))
-    contact_person = models.ForeignKey(ContactPerson, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Contact Person"))
-    billing_address = models.ForeignKey(
-        Address, 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True, 
-        related_name='quotation_billing_address',
-        verbose_name=_("Billing Address")
-    )
-    shipping_address = models.ForeignKey(
-        Address, 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True, 
-        related_name='quotation_shipping_address',
-        verbose_name=_("Shipping Address")
-    )
-    currency = models.ForeignKey(Currency, on_delete=models.PROTECT, null=True, blank=True, verbose_name=_("Currency"))
-    payment_terms = models.ForeignKey(PaymentTerms, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Payment Terms"))
     
     # Financial information
-    discount_amount = models.DecimalField(_("Discount Amount"), max_digits=18, decimal_places=2, default=0)
-    tax_amount = models.DecimalField(_("Tax Amount"), max_digits=18, decimal_places=2, default=0)
-    total_amount = models.DecimalField(_("Total Amount"), max_digits=18, decimal_places=2, default=0)
+    discount_amount = models.DecimalField(_("Discount Amount"), max_digits=18, decimal_places=6, default=0)
+    tax_amount = models.DecimalField(_("Tax Amount"), max_digits=18, decimal_places=6, default=0)
+    total_amount = models.DecimalField(_("Total Amount"), max_digits=18, decimal_places=6, default=0)
     
     # Payment information
-    payable_amount = models.DecimalField(_("Payable Amount"), max_digits=18, decimal_places=2, default=0)
-    paid_amount = models.DecimalField(_("Paid Amount"), max_digits=18, decimal_places=2, default=0)
-    due_amount = models.DecimalField(_("Due Amount"), max_digits=18, decimal_places=2, default=0)
+    payable_amount = models.DecimalField(_("Payable Amount"), max_digits=18, decimal_places=6, default=0)
+    paid_amount = models.DecimalField(_("Paid Amount"), max_digits=18, decimal_places=6, default=0)
+    due_amount = models.DecimalField(_("Due Amount"), max_digits=18, decimal_places=6, default=0)
     payment_method = models.CharField(_("Payment Method"), max_length=50, blank=True, null=True)
     payment_reference = models.CharField(_("Payment Reference"), max_length=100, blank=True, null=True)
     payment_date = models.DateField(_("Payment Date"), blank=True, null=True)
@@ -111,54 +95,45 @@ class SalesQuotation(BaseModel):
     class Meta:
         verbose_name = _("Sales Quotation")
         verbose_name_plural = _("Sales Quotations")
+        ordering = ['-document_date', '-created_at'] # Added ordering for consistency
     
     def __str__(self):
-        return f"SQ {self.id}"
-    
+        return f"SQ-{self.document_no or self.id}" # Consistent document numbering
+
     def save(self, *args, **kwargs):
-        # Use customer's default values if not specified
-        if not self.currency and self.customer and self.customer.currency:
-            self.currency = self.customer.currency
-            
-        if not self.payment_terms and self.customer and self.customer.payment_terms:
-            self.payment_terms = self.customer.payment_terms
-            
-        if not self.contact_person and self.customer:
-            # Try to get default contact person
-            try:
-                default_contact = self.customer.contact_persons.filter(is_default=True).first()
-                if default_contact:
-                    self.contact_person = default_contact
-            except Exception:
-                pass
-                
-        if not self.billing_address and self.customer:
-            # Try to get default billing address
-            try:
-                default_billing = self.customer.addresses.filter(address_type='B', is_default=True).first()
-                if default_billing:
-                    self.billing_address = default_billing
-            except Exception:
-                pass
-                
-        if not self.shipping_address and self.customer:
-            # Try to get default shipping address
-            try:
-                default_shipping = self.customer.addresses.filter(address_type='S', is_default=True).first()
-                if default_shipping:
-                    self.shipping_address = default_shipping
-            except Exception:
-                pass
+        # Generate document_no if not already set
+        if not self.document_no:
+            year = datetime.datetime.now().year
+            last_sq = SalesQuotation.objects.filter(document_no__startswith=f'SQ-{year}-').order_by('-id').first()
+            if last_sq:
+                last_num = int(last_sq.document_no.split('-')[-1])
+                new_num = last_num + 1
+            else:
+                new_num = 1
+            self.document_no = f'SQ-{year}-{new_num:04d}'
+
+        # Calculate Total Amount from Lines (assuming lines are already added or will be calculated by signals/utilities)
+        if self.pk:  # Only if the object is saved (otherwise no lines exist)
+            lines_total = Decimal(0)
+            for line in self.lines.all():
+                lines_total += (line.quantity * line.unit_price)
+            self.total_amount = lines_total.quantize(Decimal('0.000001')) # Ensure Decimal precision
+
         # Calculate payable amount
-        if self.total_amount is not None and self.discount_amount is not None:
-            self.payable_amount = self.total_amount - self.discount_amount
+        if self.total_amount is not None and self.tax_amount is not None and self.discount_amount is not None:
+            self.payable_amount = (self.total_amount + self.tax_amount) - self.discount_amount
+            self.payable_amount = self.payable_amount.quantize(Decimal('0.000001'))
         
         # Calculate due amount
         if self.payable_amount is not None and self.paid_amount is not None:
-            self.due_amount = self.payable_amount - self.paid_amount            
+            self.due_amount = self.payable_amount - self.paid_amount
+            self.due_amount = self.due_amount.quantize(Decimal('0.000001'))
+            
+
+        
         super().save(*args, **kwargs)
 
-# Keep the SalesQuotationLine class as is
+
 class SalesQuotationLine(BaseModel):
     """Line items for sales quotation"""
     
@@ -182,6 +157,7 @@ class SalesQuotationLine(BaseModel):
         self.total_amount = Decimal(self.quantity * self.unit_price).quantize(Decimal('0.000001'))
         super().save(*args, **kwargs)
 
+# --- Sales Order Model ---
 class SalesOrder(BaseModel):
     """Represents a confirmed sales order for a customer"""
 
@@ -196,31 +172,24 @@ class SalesOrder(BaseModel):
         ('Cancelled', _('Cancelled')),
     ]
 
+    document_no = models.CharField(_("Document No"), max_length=50, unique=True, blank=True, null=True)
     document_date = models.DateField(_("Document Date"), default=timezone.now)
     delivery_date = models.DateField(_("Delivery Date"), null=True, blank=True)
     customer = models.ForeignKey(BusinessPartner, on_delete=models.PROTECT, limit_choices_to={'bp_type': 'C'}, verbose_name=_("Customer"))
-    contact_person = models.ForeignKey(ContactPerson, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Contact Person"))
-    billing_address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True, blank=True, related_name='sales_order_billing', verbose_name=_("Billing Address"))
-    shipping_address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True, blank=True, related_name='sales_order_shipping', verbose_name=_("Shipping Address"))
-    currency = models.ForeignKey(Currency, on_delete=models.PROTECT, null=True, blank=True, verbose_name=_("Currency"))
-    payment_terms = models.ForeignKey(PaymentTerms, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Payment Terms"))
     
     # Financial information
-    discount_amount = models.DecimalField(_("Discount Amount"), max_digits=18, decimal_places=2, default=0)
-    tax_amount = models.DecimalField(_("Tax Amount"), max_digits=18, decimal_places=2, default=0)
-    total_amount = models.DecimalField(_("Total Amount"), max_digits=18, decimal_places=2, default=0)
+    discount_amount = models.DecimalField(_("Discount Amount"), max_digits=18, decimal_places=6, default=0) # Kept 6 decimal places for consistency
+    tax_amount = models.DecimalField(_("Tax Amount"), max_digits=18, decimal_places=6, default=0) # Kept 6 decimal places for consistency
+    total_amount = models.DecimalField(_("Total Amount"), max_digits=18, decimal_places=6, default=0) # Kept 6 decimal places for consistency
     
     # Payment information
-    payable_amount = models.DecimalField(_("Payable Amount"), max_digits=18, decimal_places=2, default=0)
-    paid_amount = models.DecimalField(_("Paid Amount"), max_digits=18, decimal_places=2, default=0)
-    due_amount = models.DecimalField(_("Due Amount"), max_digits=18, decimal_places=2, default=0)
+    payable_amount = models.DecimalField(_("Payable Amount"), max_digits=18, decimal_places=6, default=0) # Kept 6 decimal places for consistency
+    paid_amount = models.DecimalField(_("Paid Amount"), max_digits=18, decimal_places=6, default=0) # Kept 6 decimal places for consistency
+    due_amount = models.DecimalField(_("Due Amount"), max_digits=18, decimal_places=6, default=0) # Kept 6 decimal places for consistency
     payment_method = models.CharField(_("Payment Method"), max_length=50, blank=True, null=True)
     payment_reference = models.CharField(_("Payment Reference"), max_length=100, blank=True, null=True)
     payment_date = models.DateField(_("Payment Date"), blank=True, null=True)
     
-    class Meta:
-        verbose_name = _("Sales Order Line")
-        verbose_name_plural = _("Sales Order Lines")
     # Additional Info
     status = models.CharField(_("Status"), max_length=20, choices=STATUS_CHOICES, default='Draft')
     remarks = models.TextField(_("Remarks"), blank=True, null=True)
@@ -232,59 +201,44 @@ class SalesOrder(BaseModel):
         on_delete=models.SET_NULL,
         related_name='sales_orders'
     )
+    
     class Meta:
         verbose_name = _("Sales Order")
         verbose_name_plural = _("Sales Orders")
+        ordering = ['-document_date', '-created_at'] 
 
     def __str__(self):
-        return f"{self.id}"
+        return f"SO-{self.document_no or self.id}" 
 
     def save(self, *args, **kwargs):
+        # Generate document_no if not already set
+        if not self.document_no:
+            year = datetime.datetime.now().year
+            last_so = SalesOrder.objects.filter(document_no__startswith=f'SO-{year}-').order_by('-id').first()
+            if last_so:
+                last_num = int(last_so.document_no.split('-')[-1])
+                new_num = last_num + 1
+            else:
+                new_num = 1
+            self.document_no = f'SO-{year}-{new_num:04d}'
+
         # ✅ Calculate Total Amount from Lines
-        if self.pk:  # Only if the object is saved (otherwise no lines exist)
-            lines = self.lines.all()
-            self.total_amount = sum((line.quantity * line.unit_price) for line in lines)
-
+        if self.pk:  
+            lines_total = Decimal(0)
+            for line in self.lines.all():
+                lines_total += (line.quantity * line.unit_price)
+            self.total_amount = lines_total.quantize(Decimal('0.000001')) # Ensure Decimal precision
         # ✅ Calculate payable amount
-        if self.total_amount is not None and self.discount_amount is not None:
+        if self.total_amount is not None and self.tax_amount is not None and self.discount_amount is not None:
             self.payable_amount = (self.total_amount + self.tax_amount) - self.discount_amount
-
+            self.payable_amount = self.payable_amount.quantize(Decimal('0.000001'))
         # ✅ Calculate due amount
         if self.payable_amount is not None and self.paid_amount is not None:
             self.due_amount = self.payable_amount - self.paid_amount
-
-        # ✅ Set default fields if missing
-        if not self.currency and self.customer and self.customer.currency:
-            self.currency = self.customer.currency
-            
-        if not self.payment_terms and self.customer and self.customer.payment_terms:
-            self.payment_terms = self.customer.payment_terms
-            
-        if not self.contact_person and self.customer:
-            try:
-                default_contact = self.customer.contact_persons.filter(is_default=True).first()
-                if default_contact:
-                    self.contact_person = default_contact
-            except Exception:
-                pass
-
-        if not self.billing_address and self.customer:
-            try:
-                default_billing = self.customer.addresses.filter(address_type='B', is_default=True).first()
-                if default_billing:
-                    self.billing_address = default_billing
-            except Exception:
-                pass
-
-        if not self.shipping_address and self.customer:
-            try:
-                default_shipping = self.customer.addresses.filter(address_type='S', is_default=True).first()
-                if default_shipping:
-                    self.shipping_address = default_shipping
-            except Exception:
-                pass
-
+            self.due_amount = self.due_amount.quantize(Decimal('0.000001'))
         super().save(*args, **kwargs)
+
+
 
 # Keep the SalesOrderLine class as is
 class SalesOrderLine(BaseModel):
@@ -302,7 +256,10 @@ class SalesOrderLine(BaseModel):
 
     def __str__(self):
         return f"{self.item_name} - {self.quantity} units"
-
+    def clean(self):
+        super().clean()
+        # Call the utility function for stock validation
+        validate_sales_order_line_stock(self)
     def save(self, *args, **kwargs):
         self.total_amount = Decimal(self.quantity * self.unit_price).quantize(Decimal('0.000001'))
   

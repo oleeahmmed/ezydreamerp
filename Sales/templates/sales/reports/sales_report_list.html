@@ -17,7 +17,9 @@
         .card-container.visible {
             display: block;
         }
-        
+            .gradient-header {
+        background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.7) 100%);
+    }
         /* Single Card Design - Double Border like Sales Dashboard */
         .card-design {
             background: hsl(var(--card));
@@ -212,63 +214,83 @@
 {% block content %}
 <div class="min-h-screen bg-[hsl(var(--background))] main-container">
     <div class="container mx-auto px-4 py-8 max-w-7xl">
-        
-        <!-- Enhanced Header -->
-        <div class="mb-12 fade-in text-center">
-            <h1 class="text-4xl md:text-5xl font-bold tracking-tight gradient-text mb-4">
-                Sales Reports
-            </h1>
-            <p class="text-[hsl(var(--muted-foreground))] text-xl max-w-2xl mx-auto leading-relaxed">
-                Comprehensive analytics and reporting tools to drive your sales performance and insights
-            </p>
-            <div class="mt-6 h-1 w-24 bg-gradient-to-r from-transparent via-[hsl(var(--primary))] to-transparent mx-auto rounded-full"></div>
+        <header class="gradient-header text-white py-6 px-4 shadow-lg">
+        <div class="container mx-auto text-center">
+            <h1 class="text-3xl font-bold">                Sales Reports
+</h1>
+            <p class="text-sm opacity-85 mt-1">Comprehensive analytics and reporting tools to drive your sales performance and insights</p>
         </div>
+    </header>
 
         <!-- Enhanced Search Container -->
-        <div class="mb-12 fade-in stagger-1">
-            <div class="search-container max-w-4xl mx-auto">
-                <div class="relative mb-6">
-                    <svg class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                    <input 
-                        type="text" 
-                        id="searchInput" 
-                        class="search-input h-12 w-full pl-12 pr-4 text-lg" 
-                        placeholder="Search reports and analytics..."
-                    >
-                </div>
-                
-                <!-- Enhanced Filter Buttons -->
-                <div class="flex flex-wrap gap-3 justify-center">
-                    <span class="text-sm text-[hsl(var(--muted-foreground))] font-medium self-center">Quick filters:</span>
-                    <button class="filter-button px-4 py-2 h-9 text-sm" data-filter="">
-                        🏠 All Reports
-                    </button>
-                    <button class="filter-button px-4 py-2 h-9 text-sm" data-filter="Sales">
-                        💰 Sales
-                    </button>
-                    <button class="filter-button px-4 py-2 h-9 text-sm" data-filter="Delivery">
-                        🚚 Delivery
-                    </button>
-                    <button class="filter-button px-4 py-2 h-9 text-sm" data-filter="Quotation">
-                        📋 Quotation
-                    </button>
-                    <button class="filter-button px-4 py-2 h-9 text-sm" data-filter="Return">
-                        ↩️ Return
-                    </button>
-                    <button class="filter-button px-4 py-2 h-9 text-sm" data-filter="Invoice">
-                        🧾 Invoice
-                    </button>
-                    <button class="filter-button px-4 py-2 h-9 text-sm" data-filter="Employee">
-                        👥 Employee
-                    </button>
-                    <button class="filter-button px-4 py-2 h-9 text-sm" data-filter="Dashboard">
-                        📊 Dashboard
-                    </button>
-                </div>
-            </div>
+       <div class="mb-12 fade-in stagger-1">
+    <div class="search-container max-w-4xl mx-auto">
+        <div class="relative mb-6">
+            <svg class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input 
+                type="text" 
+                id="searchInput" 
+                class="search-input h-11 w-full pl-10 pr-4 bg-white/90 border border-[hsl(var(--border))] rounded-full focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] shadow-sm text-[hsl(var(--foreground))] placeholder-[hsl(var(--muted-foreground))] text-sm" 
+                placeholder="Search reports and analytics..."
+            >
         </div>
+        
+        <!-- Enhanced Filter Buttons -->
+        <div class="flex flex-wrap gap-3 justify-center">
+            <span class="text-sm text-[hsl(var(--muted-foreground))] font-medium self-center">Quick filters:</span>
+            <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="">
+                <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                All Reports
+            </button>
+            <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="Sales">
+                <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Sales
+            </button>
+            <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="Delivery">
+                <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-3-3m0 0l-3 3m3-3v12a2 2 0 01-2 2H9a2 2 0 01-2-2V7m7 0H7m0 0l-3 3m3-3l3-3" />
+                </svg>
+                Delivery
+            </button>
+            <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="Quotation">
+                <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2m-5 0a1 1 0 001 1h2a1 1 0 001-1m-6 5h12m-6 4h6" />
+                </svg>
+                Quotation
+            </button>
+            <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="Return">
+                <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                </svg>
+                Return
+            </button>
+            <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="Invoice">
+                <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01m-.01 4h.01" />
+                </svg>
+                Invoice
+            </button>
+            <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="Employee">
+                <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                Employee
+            </button>
+            <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="Dashboard">
+                <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                </svg>
+                Dashboard
+            </button>
+        </div>
+    </div>
+</div>
 
         <!-- Enhanced Cards Grid -->
         <div class="reports-grid">
