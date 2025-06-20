@@ -36,6 +36,8 @@ from .views.zk_device_operation_views import (   ZKDeviceConnectionTestView, ZKD
     ZKDeviceSaveDataView, ZKUserListView,  ZKUserSyncView,
     ZKUserSimpleListView, ZKUserSaveView, ZKAttendanceLogBulkDeleteView,
     ZKAttendanceLogDeleteView,EmployeeAttendanceReportView)
+
+from .views.employee_attendance_report import EmployeeDetailedAttendanceReportView
 app_name = 'hrm'
 
 urlpatterns = [
@@ -341,5 +343,5 @@ urlpatterns = [
     path('zk-users/<int:device_id>/<str:user_id>/delete/', ZKUserDeleteView.as_view(), name='zk_user_delete'),
 
 
-
+    path('attendance/report/', EmployeeDetailedAttendanceReportView.as_view(), name='employee_detailed_attendance_report'),
 ]
