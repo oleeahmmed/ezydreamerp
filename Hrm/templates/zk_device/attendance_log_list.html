@@ -36,10 +36,17 @@
         <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        {% trans "Details Attendance" %}
+        {% trans "Employee Details Attendance" %}
     </a>
     {% endif %}
-
+     {% if can_view %}
+    <a href="{% url 'hrm:attendance_details_report' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-10 px-4 py-2 shadow-md premium-button" aria-label="Add new attendance log">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Details Attendance Report" %}
+    </a>
+    {% endif %}
     <a href="{% url 'hrm:zk_device_sync' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--accent-sync)/0.8)] to-[hsl(var(--accent-sync)/1.2)] text-[hsl(var(--accent-sync-foreground))] hover:opacity-90 h-10 px-4 py-2 shadow-md premium-button" aria-label="Sync data">
         <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M16.023 9.348H21.015V4.356" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>

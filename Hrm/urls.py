@@ -45,6 +45,8 @@ from .views.zktico.zk_attendance_log_views import (
     ZKAttendanceLogDeleteView, MissingAttendanceView, MissingAttendanceExportView
 )
 from .views.employee_attendance_report import EmployeeDetailedAttendanceReportView
+from .views.zktico.attendance_details_report import AttendanceDetailsReportView
+
 app_name = 'hrm'
 
 urlpatterns = [
@@ -378,4 +380,5 @@ path('zk-attendance/import/', ZKAttendanceImportView.as_view(), name='zk_attenda
 path('zk-attendance/<int:device_id>/<str:user_id>/<str:timestamp>/', ZKAttendanceDetailView.as_view(), name='zk_attendance_detail'),
 
 path('attendance/report/', EmployeeDetailedAttendanceReportView.as_view(), name='employee_detailed_attendance_report'),
+path('attendance/details-report/', AttendanceDetailsReportView.as_view(), name='attendance_details_report'),
 ]
