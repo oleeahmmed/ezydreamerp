@@ -1,85 +1,92 @@
-from .employee_view import (
+from .employee.employee_view import (
     EmployeeListView, EmployeeCardView, EmployeeAllView, EmployeeCreateView, 
     EmployeeUpdateView, EmployeeDetailView, EmployeeDeleteView, EmployeeExportView,
     EmployeeBulkDeleteView
 )
-from .employee_dashboard_view import EmployeeDashboardView
-from .employee_separation_view import (
+from .employee.employee_dashboard_view import EmployeeDashboardView
+from .employee.employee_separation_view import (
     EmployeeSeparationListView, EmployeeSeparationCreateView, EmployeeSeparationUpdateView,
     EmployeeSeparationDetailView, EmployeeSeparationDeleteView, EmployeeSeparationExportView,
     EmployeeSeparationBulkDeleteView
 )
-from .department_view import (
+from .employee.department_view import (
     DepartmentListView, DepartmentCreateView, DepartmentUpdateView,
     DepartmentDetailView, DepartmentDeleteView, DepartmentExportView,
     DepartmentBulkDeleteView
 )
-from .designation_view import (
+from .employee.designation_view import (
     DesignationListView, DesignationCreateView, DesignationUpdateView,
     DesignationDetailView, DesignationDeleteView, DesignationExportView,
     DesignationBulkDeleteView
 )
-from .workplace_view import (
+from .shift.workplace_view import (
     WorkPlaceListView, WorkPlaceCreateView, WorkPlaceUpdateView,
     WorkPlaceDetailView, WorkPlaceDeleteView, WorkPlaceExportView,
     WorkPlaceBulkDeleteView
 )
-from .shift_view import (
+from .shift.shift_view import (
     ShiftListView, ShiftCreateView, ShiftUpdateView,
     ShiftDetailView, ShiftDeleteView, ShiftExportView,
     ShiftBulkDeleteView
 )
-from .roster_view import (
+from .shift.roster_view import (
     RosterListView, RosterCreateView, RosterUpdateView,
     RosterDetailView, RosterDeleteView, RosterExportView,
     RosterBulkDeleteView
 )
-from .roster_assignment_view import (
+from .shift.roster_assignment_view import (
     RosterAssignmentListView, RosterAssignmentCreateView, RosterAssignmentUpdateView,
     RosterAssignmentDetailView, RosterAssignmentDeleteView, RosterAssignmentExportView,
     RosterAssignmentBulkDeleteView
 )
-from .leave_type_view import (
+from .shift.roster_day_views import (
+    RosterDayListView, RosterDayCreateView, RosterDayUpdateView,
+    RosterDayDetailView, RosterDayDeleteView, RosterDayExportView,
+    RosterDayBulkDeleteView
+)
+
+
+from .leave.leave_type_view import (
     LeaveTypeListView, LeaveTypeCreateView, LeaveTypeUpdateView,
     LeaveTypeDetailView, LeaveTypeDeleteView, LeaveTypeExportView,
     LeaveTypeBulkDeleteView
 )
-from .leave_application_view import (
+from .leave.leave_application_view import (
     LeaveApplicationListView, LeaveApplicationCreateView, LeaveApplicationUpdateView,
     LeaveApplicationDetailView, LeaveApplicationDeleteView, LeaveApplicationExportView,
     LeaveApplicationBulkDeleteView
 )
-from .short_leave_application_view import (
+from .leave.short_leave_application_view import (
     ShortLeaveApplicationListView, ShortLeaveApplicationCreateView, ShortLeaveApplicationUpdateView,
     ShortLeaveApplicationDetailView, ShortLeaveApplicationDeleteView, ShortLeaveApplicationExportView,
     ShortLeaveApplicationBulkDeleteView
 )
-from .leave_balance_view import (
+from .leave.leave_balance_view import (
     LeaveBalanceListView, LeaveBalanceCreateView, LeaveBalanceUpdateView,
     LeaveBalanceDetailView, LeaveBalanceDeleteView, LeaveBalanceExportView,
     LeaveBalanceBulkDeleteView, LeaveBalanceInitializeView
 )
-from .holiday_view import (
+from .leave.holiday_view import (
     HolidayListView, HolidayCreateView, HolidayUpdateView,
     HolidayDetailView, HolidayDeleteView, HolidayExportView,
     HolidayBulkDeleteView
 )
-from .attendance_view import (
+from .attendance.attendance_view import (
     AttendanceListView, AttendanceCreateView, AttendanceUpdateView,
     AttendanceDetailView, AttendanceDeleteView, AttendanceExportView,
     AttendanceBulkDeleteView
 )
-from .attendance_month_view import (
+from .attendance.attendance_month_view import (
     AttendanceMonthListView, AttendanceMonthCreateView, AttendanceMonthUpdateView,
     AttendanceMonthDetailView, AttendanceMonthDeleteView, AttendanceMonthExportView,
     AttendanceMonthBulkDeleteView
 )
-from .attendance_log_view import (
+from .attendance.attendance_log_view import (
     AttendanceLogListView, AttendanceLogCreateView, AttendanceLogUpdateView,
     AttendanceLogDetailView, AttendanceLogDeleteView, AttendanceLogExportView,
     AttendanceLogBulkDeleteView
 )
-from .overtime_record_view import (
+from .attendance.overtime_record_view import (
     OvertimeRecordListView, OvertimeRecordCreateView, OvertimeRecordUpdateView,
     OvertimeRecordDetailView, OvertimeRecordDeleteView, OvertimeRecordExportView,
     OvertimeRecordBulkDeleteView

@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from datetime import datetime, timedelta
+
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 
@@ -72,7 +74,7 @@ class Employee(models.Model):
     last_name = models.CharField(_("Last Name"), max_length=100)
     name = models.CharField(_("Full Name"), max_length=100, null=True, blank=True)
 
-    card_no = models.CharField(_("Card Number"), max_length=100, null=True, blank=True)
+    card_no = models.CharField(max_length=20, unique=True, null=True, blank=True, verbose_name=_("Card No"))
     gender = models.CharField(_("Gender"), max_length=1, choices=GENDER_CHOICES)
     date_of_birth = models.DateField(_("Date of Birth"))
     blood_group = models.CharField(_("Blood Group"), max_length=3, choices=BLOOD_GROUP_CHOICES, 
@@ -102,7 +104,8 @@ class Employee(models.Model):
                                    related_name='employees', verbose_name=_("Designation"))
     joining_date = models.DateField(_("Joining Date"))
     confirmation_date = models.DateField(_("Confirmation Date"), null=True, blank=True)
-    
+    expected_work_hours = models.PositiveIntegerField(default=8) 
+    overtime_grace_minutes = models.PositiveIntegerField(default=15)    
     # Salary Information
     basic_salary = models.DecimalField(_("Basic Salary"), max_digits=10, decimal_places=2)
     
@@ -257,11 +260,22 @@ class Shift(models.Model):
         minutes = int(duration_in_minutes % 60)
         
         return f"{hours}h {minutes}m"
+    @property
+    def duration_minutes(self):
+        start = timezone.datetime.combine(timezone.now().date(), self.start_time)
+        end = timezone.datetime.combine(timezone.now().date(), self.end_time)
+        if end < start:
+            end += timezone.timedelta(days=1)
+        return int((end - start).total_seconds() / 60 - self.break_time)
 
-    class Meta:
-        verbose_name = _("Shift")
-        verbose_name_plural = _("Shifts")
-        ordering = ['start_time']
+    @property
+    def duration_hours(self):
+        return round(self.duration_minutes / 60, 2)
+
+        class Meta:
+            verbose_name = _("Shift")
+            verbose_name_plural = _("Shifts")
+            ordering = ['start_time']
 
 class Roster(models.Model):
     """Represents a roster schedule for employees."""
@@ -311,6 +325,8 @@ class RosterAssignment(models.Model):
                               related_name='roster_assignments', verbose_name=_("Roster"))
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, 
                                 related_name='roster_assignments', verbose_name=_("Employee"))
+    shift = models.ForeignKey(Shift, on_delete=models.CASCADE, 
+                             related_name='roster_assignment', verbose_name=_("Shift"))                                
     created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated At"), auto_now=True)
     
@@ -331,8 +347,6 @@ class RosterDay(models.Model):
     date = models.DateField(_("Date"))
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE, 
                              related_name='roster_days', verbose_name=_("Shift"))
-    workplace = models.ForeignKey(WorkPlace, on_delete=models.CASCADE, 
-                                 related_name='roster_days', verbose_name=_("WorkPlace"))
     created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated At"), auto_now=True)
     
@@ -344,6 +358,7 @@ class RosterDay(models.Model):
         verbose_name_plural = _("Roster Days")
         unique_together = ('roster_assignment', 'date')
         ordering = ['date']
+
 # -------------------- LEAVE MANAGEMENT --------------------
 
 class Holiday(models.Model):
@@ -1505,7 +1520,8 @@ class ZKAttendanceLog(models.Model):
         """Validate user_id and timestamp."""
         if not self.user_id.strip():
             raise ValidationError(_("User ID cannot be empty."))
-        if self.timestamp > datetime.now(timezone.utc):
+        # Fix: Use timezone.now() instead of timezone.utc
+        if self.timestamp > timezone.now():
             raise ValidationError(_("Timestamp cannot be in the future."))
 
     class Meta:

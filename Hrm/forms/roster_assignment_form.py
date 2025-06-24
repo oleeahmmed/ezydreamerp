@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import inlineformset_factory
-from ..models import RosterAssignment, RosterDay, Employee, Roster
+from ..models import RosterAssignment, RosterDay, Employee, Roster, Shift
 from config.forms import BaseFilterForm
 
 class RosterAssignmentForm(forms.ModelForm):
@@ -8,7 +8,7 @@ class RosterAssignmentForm(forms.ModelForm):
     
     class Meta:
         model = RosterAssignment
-        fields = ['roster', 'employee']
+        fields = ['roster', 'employee', 'shift']
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -21,13 +21,21 @@ class RosterAssignmentForm(forms.ModelForm):
         
         # Only show active employees
         self.fields['employee'].queryset = Employee.objects.filter(is_active=True)
+        
+        # Add labels for better UX
+        self.fields['roster'].label = "Roster"
+        self.fields['employee'].label = "Employee"
+        self.fields['shift'].label = "Default Shift"
+        
+        # Add help text
+        self.fields['shift'].help_text = "Default shift for this roster assignment"
 
 class RosterDayForm(forms.ModelForm):
     """Form for creating and updating Roster Day records"""
     
     class Meta:
         model = RosterDay
-        fields = ['roster_assignment', 'date', 'shift', 'workplace']
+        fields = ['roster_assignment', 'date', 'shift']
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         }
@@ -40,6 +48,14 @@ class RosterDayForm(forms.ModelForm):
                 field.widget.attrs.update({
                     'class': 'form-control'
                 })
+        
+        # Ensure shift field has proper queryset and initial value
+        self.fields['shift'].queryset = Shift.objects.all()
+        self.fields['shift'].empty_label = "Select Shift"
+        
+        # If this is an existing instance, ensure the shift value is properly set
+        if self.instance and self.instance.pk and self.instance.shift:
+            self.fields['shift'].initial = self.instance.shift.pk
 
 # Create formset for RosterDay
 RosterDayFormSet = inlineformset_factory(
@@ -66,4 +82,10 @@ class RosterAssignmentFilterForm(BaseFilterForm):
         empty_label="All Employees",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-
+    
+    shift = forms.ModelChoiceField(
+        queryset=Shift.objects.all(),
+        required=False,
+        empty_label="All Shifts",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )

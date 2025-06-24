@@ -34,14 +34,14 @@ class InventoryReportFilterForm(BaseFilterForm):
         self.fields['date_from'].label = "Start Date"
         self.fields['date_to'].label = "End Date"
 
-# Menu View
+# Report List View
 class InventoryReportListView(TemplateView):
     template_name = 'inventory/reports/inventory_report_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Inventory Reports'
-        logger.debug("Rendering inventory reports menu page")
+        logger.debug("Rendering inventory reports list page")
         return context
 
 # Stock Reports
@@ -1689,3 +1689,13 @@ class ZeroMovementReportView(GenericFilterView):
         context['filter_summary'] = filter_summary
         logger.debug(f"Zero Movement context: {len(records)} items")
         return context
+
+
+class MenuPageView(TemplateView):
+    template_name = 'inventory/inventory_menu_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Reports Menu'
+        logger.debug("Rendering menu page with context")
+        return context               

@@ -1,42 +1,49 @@
 from django.urls import path
 from . import views
-from .views.location_views import (
+from .views.location.location_views import (
     LocationListView, LocationCreateView, LocationUpdateView,
     LocationDetailView, LocationDeleteView, LocationBulkDeleteView,
     LocationExportView
 )
-from .views.location_attendance_views import (
+from .views.location.location_attendance_views import (
     LocationAttendanceListView, LocationAttendanceCreateView,
     LocationAttendanceUpdateView, LocationAttendanceDetailView,
     LocationAttendanceDeleteView, LocationAttendanceBulkDeleteView,
     LocationAttendanceExportView, attendance_page, mark_attendance,
     get_locations
 )
-from .views.user_location_views import (
+from .views.location.user_location_views import (
     UserLocationListView, UserLocationCreateView, UserLocationUpdateView,
     UserLocationDetailView, UserLocationDeleteView, UserLocationBulkDeleteView,
     UserLocationExportView
 )
-from .views.location_debug_view import debug_user_locations
-from .views.zk_device_views import (
+from .views.location.location_debug_view import debug_user_locations
 
-  ZKDeviceAllOperationsView
-)
 
-from .views.zk_device_crud_views import (
+from .views.zktico.zk_device_crud_views import (
     ZKDeviceListView, ZKDeviceCreateView, ZKDeviceUpdateView,
     ZKDeviceDetailView, ZKDeviceDeleteView, ZKDeviceExportView, ZKDeviceBulkDeleteView,
 )
 
-from .views.zk_user_crud_views import (
+from .views.zktico.zk_user_crud_views import (
     ZKUserDeviceListView, ZKUserAddView, ZKUserUpdateView, ZKUserDetailView, ZKUserDeleteView
 )
-from .views.hrm_demo_views import HRMDemoConfigView
-from .views.zk_device_operation_views import (   ZKDeviceConnectionTestView, ZKDeviceSyncView, ZKAttendanceLogListView,
-    ZKDeviceSaveDataView, ZKUserListView,  ZKUserSyncView,
-    ZKUserSimpleListView, ZKUserSaveView, ZKAttendanceLogBulkDeleteView,
-    ZKAttendanceLogDeleteView,EmployeeAttendanceReportView)
 
+from .views.zktico.zk_attendance_crud_views import (
+    ZKAttendanceDeviceListView, 
+    ZKAttendanceDetailView, 
+    ZKAttendanceImportView
+)
+
+from .views.hrm_demo_views import HRMDemoConfigView
+from .views.zktico.zk_device_operation_views import (   ZKDeviceConnectionTestView, ZKDeviceSyncView,
+    ZKDeviceSaveDataView,  ZKUserSyncView,
+    ZKUserSimpleListView, ZKUserSaveView)
+from .views.zktico.zk_attendance_log_views import (
+    ZKAttendanceLogListView, ZKAttendanceLogCreateView, ZKAttendanceLogDetailView,
+    ZKAttendanceLogUpdateView, ZKAttendanceLogExportView, ZKAttendanceLogBulkDeleteView,
+    ZKAttendanceLogDeleteView, MissingAttendanceView, MissingAttendanceExportView
+)
 from .views.employee_attendance_report import EmployeeDetailedAttendanceReportView
 app_name = 'hrm'
 
@@ -107,6 +114,15 @@ urlpatterns = [
     path('roster-assignment/<int:pk>/delete/', views.RosterAssignmentDeleteView.as_view(), name='roster_assignment_delete'),
     path('roster-assignment/export/', views.RosterAssignmentExportView.as_view(), name='roster_assignment_export'),
     path('roster-assignment/bulk-delete/', views.RosterAssignmentBulkDeleteView.as_view(), name='roster_assignment_bulk_delete'),
+    
+    
+    path('roster-day/', views.RosterDayListView.as_view(), name='roster_day_list'),
+    path('roster-day/create/', views.RosterDayCreateView.as_view(), name='roster_day_create'),
+    path('roster-day/<int:pk>/update/', views.RosterDayUpdateView.as_view(), name='roster_day_update'),
+    path('roster-day/<int:pk>/', views.RosterDayDetailView.as_view(), name='roster_day_detail'),
+    path('roster-day/<int:pk>/delete/', views.RosterDayDeleteView.as_view(), name='roster_day_delete'),
+    path('roster-day/export/', views.RosterDayExportView.as_view(), name='roster_day_export'),
+    path('roster-day/bulk-delete/', views.RosterDayBulkDeleteView.as_view(), name='roster_day_bulk_delete'),   
     # Leave Type URLs
     path('leave-type/', views.LeaveTypeListView.as_view(), name='leave_type_list'),
     path('leave-type/create/', views.LeaveTypeCreateView.as_view(), name='leave_type_create'),
@@ -313,6 +329,8 @@ urlpatterns = [
     path('mark-attendance/', mark_attendance, name='mark_attendance'),
     path('get-locations/', get_locations, name='get_locations'),
     path('debug-locations/', debug_user_locations, name='debug_locations'),
+
+
     # ZK Device URLs
     path('zk-devices/', ZKDeviceListView.as_view(), name='zk_device_list'),
     path('zk-devices/create/', ZKDeviceCreateView.as_view(), name='zk_device_create'),
@@ -321,17 +339,28 @@ urlpatterns = [
     path('zk-devices/<int:pk>/delete/', ZKDeviceDeleteView.as_view(), name='zk_device_delete'),
     path('zk-devices/export/', ZKDeviceExportView.as_view(), name='zk_device_export'),
     path('zk-devices/bulk-delete/', ZKDeviceBulkDeleteView.as_view(), name='zk_device_bulk_delete'),
+
+    
     path('zk-devices/test-connection/', ZKDeviceConnectionTestView.as_view(), name='zk_device_test_connection'),
     path('zk-devices/sync/', ZKDeviceSyncView.as_view(), name='zk_device_sync'),
     path('zk-devices/save-data/', ZKDeviceSaveDataView.as_view(), name='zk_device_save_data'),
     path('zk-user-sync/', ZKUserSyncView.as_view(), name='zk_user_sync'),
     path('zk-user-simple-list/', ZKUserSimpleListView.as_view(), name='zk_user_simple_list'),
     path('zk-user-save/', ZKUserSaveView.as_view(), name='zk_user_save'),
+
+
+    # ZK Attendance Log URLs
     path('zk-attendance-logs/', ZKAttendanceLogListView.as_view(), name='zk_attendance_log_list'),
+    path('zk-attendance-logs/create/', ZKAttendanceLogCreateView.as_view(), name='zk_attendance_log_create'),
+    path('zk-attendance-logs/<int:pk>/', ZKAttendanceLogDetailView.as_view(), name='zk_attendance_log_detail'),
+    path('zk-attendance-logs/<int:pk>/update/', ZKAttendanceLogUpdateView.as_view(), name='zk_attendance_log_update'),
+    path('zk-attendance-logs/export/', ZKAttendanceLogExportView.as_view(), name='zk_attendance_log_export'),
     path('zk-attendance-logs/bulk-delete/', ZKAttendanceLogBulkDeleteView.as_view(), name='zk_attendance_log_bulk_delete'),
     path('zk-attendance-logs/delete/<int:pk>/', ZKAttendanceLogDeleteView.as_view(), name='zk_attendance_log_delete'),
-    path('zk-devices/all-operations/', ZKDeviceAllOperationsView.as_view(), name='zk_device_all_operations'),
-    path('attendance-report/', EmployeeAttendanceReportView.as_view(), name='attendance_report'),
+    
+    # Missing Attendance URLs
+    path('missing-attendance/', MissingAttendanceView.as_view(), name='missing_attendance'),
+    path('missing-attendance/export/', MissingAttendanceExportView.as_view(), name='missing_attendance_export'),
     # Demo Config URL
     path('demo/config/', HRMDemoConfigView.as_view(), name='hrm_demo_config'),
 
@@ -341,7 +370,12 @@ urlpatterns = [
     path('zk-users/<int:device_id>/<str:user_id>/', ZKUserDetailView.as_view(), name='zk_user_detail'),
     path('zk-users/<int:device_id>/<str:user_id>/update/', ZKUserUpdateView.as_view(), name='zk_user_update'),
     path('zk-users/<int:device_id>/<str:user_id>/delete/', ZKUserDeleteView.as_view(), name='zk_user_delete'),
+   
 
+# ZK Attendance CRUD URLs (Read-only with Import)
+path('zk-attendance-device/', ZKAttendanceDeviceListView.as_view(), name='zk_attendance_list_device'),
+path('zk-attendance/import/', ZKAttendanceImportView.as_view(), name='zk_attendance_import'),
+path('zk-attendance/<int:device_id>/<str:user_id>/<str:timestamp>/', ZKAttendanceDetailView.as_view(), name='zk_attendance_detail'),
 
-    path('attendance/report/', EmployeeDetailedAttendanceReportView.as_view(), name='employee_detailed_attendance_report'),
+path('attendance/report/', EmployeeDetailedAttendanceReportView.as_view(), name='employee_detailed_attendance_report'),
 ]

@@ -102,6 +102,8 @@ urlpatterns = [
 
 
     path('demo/config/', demo_views.DemoConfigView.as_view(), name='demo_config'),
+    path('menu/', inventory_report_views.MenuPageView.as_view(), name='menu_page'),
+
     # Inventory Reports URLs
     path('reports/', inventory_report_views.InventoryReportListView.as_view(), name='inventory_report_list'),
     path('reports/current-stock/', inventory_report_views.CurrentStockReportView.as_view(), name='current_stock_report'),

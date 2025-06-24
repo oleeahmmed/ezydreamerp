@@ -12,7 +12,7 @@ class EmployeeForm(forms.ModelForm):
             'blood_group',  'default_shift','marital_status', 'email', 'phone', 'emergency_contact_name',
             'emergency_contact_phone', 'present_address', 'permanent_address',
             'department', 'designation', 'joining_date', 'confirmation_date',
-            'basic_salary', 'is_active', 'profile_picture'
+            'basic_salary', 'is_active', 'profile_picture','expected_work_hours','overtime_grace_minutes'
         ]
         widgets = {
             'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
