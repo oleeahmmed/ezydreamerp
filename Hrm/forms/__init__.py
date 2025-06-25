@@ -23,11 +23,10 @@ from .shift_form import (
 )
 
 from .roster_form import (
-    RosterForm, RosterFilterForm
-)
-
-from .roster_assignment_form import (
-    RosterAssignmentForm, RosterDayForm, RosterDayFormSet, RosterAssignmentFilterForm
+    RosterForm, 
+    RosterFilterForm, 
+    RosterAssignmentForm,
+    RosterAssignmentFormSet
 )
 
 from .roster_day_forms import (
@@ -59,7 +58,7 @@ from .attendance_forms import (
 )
 
 from .payroll_forms import (
-    SalaryComponentForm, EmployeeSalaryStructureForm, SalaryStructureComponentForm,
+    SalaryComponentForm, EmployeeSalaryStructureForm, SalaryStructureComponentForm,SalaryStructureComponentFormSet,EmployeeSalaryStructureFilterForm,
     BonusSetupForm, BonusMonthForm, EmployeeBonusForm, AdvanceSetupForm,
     EmployeeAdvanceForm, AdvanceInstallmentForm, SalaryMonthForm,
     EmployeeSalaryForm, SalaryDetailForm, PromotionForm,
@@ -82,7 +81,7 @@ __all__ = [
     'WorkPlaceForm', 'WorkPlaceFilterForm',
     'ShiftForm', 'ShiftFilterForm',
     'RosterForm', 'RosterFilterForm',
-    'RosterAssignmentForm', 'RosterDayForm', 'RosterDayFormSet', 'RosterAssignmentFilterForm',
+    'RosterAssignmentForm', 'RosterAssignmentFormSet','RosterDayForm', 'RosterDayFormSet', 'RosterAssignmentFilterForm',
     
     # Leave related forms
     'LeaveTypeForm', 'LeaveTypeFilterForm',

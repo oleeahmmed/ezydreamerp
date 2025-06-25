@@ -100,7 +100,8 @@ urlpatterns = [
     path('shift/<int:pk>/delete/', views.ShiftDeleteView.as_view(), name='shift_delete'),
     path('shift/export/', views.ShiftExportView.as_view(), name='shift_export'),
     path('shift/bulk-delete/', views.ShiftBulkDeleteView.as_view(), name='shift_bulk_delete'),
-    # Roster URLs
+
+    
     path('roster/', views.RosterListView.as_view(), name='roster_list'),
     path('roster/create/', views.RosterCreateView.as_view(), name='roster_create'),
     path('roster/<int:pk>/update/', views.RosterUpdateView.as_view(), name='roster_update'),
@@ -108,15 +109,6 @@ urlpatterns = [
     path('roster/<int:pk>/delete/', views.RosterDeleteView.as_view(), name='roster_delete'),
     path('roster/export/', views.RosterExportView.as_view(), name='roster_export'),
     path('roster/bulk-delete/', views.RosterBulkDeleteView.as_view(), name='roster_bulk_delete'),
-    # Roster Assignment URLs
-    path('roster-assignment/', views.RosterAssignmentListView.as_view(), name='roster_assignment_list'),
-    path('roster-assignment/create/', views.RosterAssignmentCreateView.as_view(), name='roster_assignment_create'),
-    path('roster-assignment/<int:pk>/update/', views.RosterAssignmentUpdateView.as_view(), name='roster_assignment_update'),
-    path('roster-assignment/<int:pk>/', views.RosterAssignmentDetailView.as_view(), name='roster_assignment_detail'),
-    path('roster-assignment/<int:pk>/delete/', views.RosterAssignmentDeleteView.as_view(), name='roster_assignment_delete'),
-    path('roster-assignment/export/', views.RosterAssignmentExportView.as_view(), name='roster_assignment_export'),
-    path('roster-assignment/bulk-delete/', views.RosterAssignmentBulkDeleteView.as_view(), name='roster_assignment_bulk_delete'),
-    
     
     path('roster-day/', views.RosterDayListView.as_view(), name='roster_day_list'),
     path('roster-day/create/', views.RosterDayCreateView.as_view(), name='roster_day_create'),

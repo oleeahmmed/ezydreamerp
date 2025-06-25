@@ -1,0 +1,780 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block extra_css %}
+<style>
+.salary-summary {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%);
+    color: hsl(var(--primary-foreground));
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.summary-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.calculation-type-toggle {
+    display: none;
+}
+
+.calculation-type-toggle:checked + label {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+}
+
+.component-row {
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.component-row.earning {
+    border-left-color: #10b981;
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.component-row.deduction {
+    border-left-color: #ef4444;
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.real-time-calculation {
+    position: sticky;
+    top: 20px;
+    z-index: 10;
+}
+
+/* Fix table styling consistency */
+.formset-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.formset-table th,
+.formset-table td {
+    padding: 8px 12px;
+    text-align: center;
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card));
+    vertical-align: middle;
+}
+
+.formset-table th {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.formset-table tbody tr:hover td {
+    background: hsl(var(--accent));
+}
+
+/* Ensure consistent input styling */
+.table-input {
+    width: 100%;
+    height: 32px;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border: none;
+    background: transparent;
+    color: hsl(var(--foreground));
+    text-align: center;
+}
+
+.table-input:focus {
+    outline: 2px solid hsl(var(--primary));
+    background: hsl(var(--background));
+    border-radius: 4px;
+}
+
+.table-select {
+    width: 100%;
+    height: 32px;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border: none;
+    background: transparent;
+    color: hsl(var(--foreground));
+}
+
+.table-select:focus {
+    outline: 2px solid hsl(var(--primary));
+    background: hsl(var(--background));
+    border-radius: 4px;
+}
+
+/* Method toggle buttons */
+.method-toggle {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+}
+
+.method-toggle label {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 4px;
+    cursor: pointer;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    transition: all 0.2s;
+}
+
+.method-toggle input:checked + label {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border-color: hsl(var(--primary));
+}
+
+/* Component type badges */
+.type-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.type-badge.earning {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.type-badge.deduction {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Delete button */
+.delete-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.2s;
+}
+
+.formset-table tbody tr:hover .delete-btn {
+    opacity: 1;
+}
+
+.delete-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Calculated amount display */
+.calculated-amount {
+    font-weight: 600;
+    color: hsl(var(--primary));
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-8xl px-2 sm:px-4 lg:px-8 py-2 sm:py-6">
+    <div class="rounded-xl border-2 border-[hsl(var(--border))] bg-[hsl(var(--background))] shadow-xl p-4 sm:p-8 mb-6 relative">
+        
+        <!-- Real-time Salary Summary -->
+        {% if not is_detail_view %}
+        <div class="salary-summary real-time-calculation" id="salaryPreview">
+            <h4 class="text-lg font-bold mb-4">💰 Salary Calculation Preview</h4>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div class="summary-card">
+                    <div class="text-sm opacity-80">Basic Salary</div>
+                    <div class="text-xl font-bold" id="previewBasic">0.00</div>
+                </div>
+                <div class="summary-card">
+                    <div class="text-sm opacity-80">Total Earnings</div>
+                    <div class="text-xl font-bold text-green-300" id="previewEarnings">0.00</div>
+                </div>
+                <div class="summary-card">
+                    <div class="text-sm opacity-80">Total Deductions</div>
+                    <div class="text-xl font-bold text-red-300" id="previewDeductions">0.00</div>
+                </div>
+                <div class="summary-card">
+                    <div class="text-sm opacity-80">Gross Salary</div>
+                    <div class="text-xl font-bold text-yellow-300" id="previewGross">0.00</div>
+                </div>
+                <div class="summary-card">
+                    <div class="text-sm opacity-80">Net Salary</div>
+                    <div class="text-xl font-bold text-blue-300" id="previewNet">0.00</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Form Header -->
+        <div class="mb-8 border-b border-[hsl(var(--border))] pb-6 relative z-10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-icon">
+                        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-foreground))] bg-clip-text text-transparent">{{ title }}</h3>
+                        <p class="text-xs text-[hsl(var(--muted-foreground))]">{{ subtitle }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-4" id="salaryStructureForm">
+            {% csrf_token %}
+            
+            {% include 'common/toast.html'%}
+            {% include 'common/form-details-error.html'%}
+
+            <!-- Form Fields -->
+            <div class="space-y-4">
+                <!-- Basic Salary Structure Information -->
+                <div class="p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))] shadow-sm">
+                    <h3 class="text-base font-semibold mb-3 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[hsl(var(--primary))]" viewBox="0 0 24 24" fill="none">
+                            <path d="M16 4H18C18.5304 4 19.0391 4.21071 19.4142 4.58579C19.7893 4.96086 20 5.46957 20 6V20C20 20.5304 19.7893 21.0391 19.4142 21.4142C19.0391 21.7893 18.5304 22 18 22H6C5.46957 22 4.96086 21.7893 4.58579 21.4142C4.21071 21.0391 4 20.5304 4 20V6C4 5.46957 4.21071 4.96086 4.58579 4.58579C4.96086 4.21071 5.46957 4 6 4H8M16 4C16 2.89543 15.1046 2 14 2H10C8.89543 2 8 2.89543 8 4M16 4C16 5.10457 15.1046 6 14 6H10C8.89543 6 8 5.10457 8 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Basic Salary Information
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {% include 'common/form-loop.html'%}
+                    </div>
+                    
+                    <!-- Display calculated values for existing records -->
+                    {% if form.gross_salary_display or form.net_salary_display %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t">
+                        {% if form.gross_salary_display %}
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-[hsl(var(--foreground))] mb-1">
+                                {{ form.gross_salary_display.label }}
+                            </label>
+                            {{ form.gross_salary_display }}
+                            {% if form.gross_salary_display.help_text %}
+                            <p class="text-xs text-[hsl(var(--muted-foreground))] mt-1">{{ form.gross_salary_display.help_text }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        {% if form.net_salary_display %}
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-[hsl(var(--foreground))] mb-1">
+                                {{ form.net_salary_display.label }}
+                            </label>
+                            {{ form.net_salary_display }}
+                            {% if form.net_salary_display.help_text %}
+                            <p class="text-xs text-[hsl(var(--muted-foreground))] mt-1">{{ form.net_salary_display.help_text }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Salary Components -->
+                <div class="p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))] shadow-sm">
+                    <h3 class="text-base font-semibold mb-3 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[hsl(var(--primary))]" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Salary Components (Earnings & Deductions)
+                    </h3>
+
+                    {{ formset.management_form }}
+
+                    <!-- Desktop Table View -->
+                    <div class="overflow-x-auto overflow-y-auto max-h-[400px] rounded-lg border border-[hsl(var(--border))] shadow-inner">
+                        <table class="formset-table">
+                            <thead class="sticky top-0 z-10">
+                                <tr>
+                                    <th style="width: 25%;">Component</th>
+                                    <th style="width: 12%;">Type</th>
+                                    <th style="width: 15%;">Method</th>
+                                    <th style="width: 15%;">Amount</th>
+                                    <th style="width: 10%;">Percentage</th>
+                                    <th style="width: 15%;">Calculated</th>
+                                    <th style="width: 8%;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="formsetBody" class="formset-container">
+                                {% for form in formset.forms %}
+                                <tr class="formset-row component-row" data-index="{{ forloop.counter0 }}">
+                                    <!-- Hidden fields -->
+                                    {% if form.id %}
+                                    <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
+                                    {% endif %}
+                                    
+                                    <!-- Component -->
+                                    <td>
+                                        <select name="{{ form.component.html_name }}" 
+                                            class="component-select table-select" 
+                                            id="{{ form.component.id_for_label }}">
+                                            <option value="">Select Component</option>
+                                            {% for choice in form.component.field.queryset %}
+                                            <option value="{{ choice.pk }}" 
+                                                data-type="{{ choice.component_type }}"
+                                                {% if form.component.value == choice.pk or form.component.value == choice.pk|stringformat:"s" %}selected{% endif %}>
+                                                {{ choice.name }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    
+                                    <!-- Type Display -->
+                                    <td>
+                                        <span class="component-type-display type-badge"></span>
+                                    </td>
+                                    
+                                    <!-- Calculation Method -->
+                                    <td>
+                                        <div class="method-toggle">
+                                            <input type="radio" name="{{ form.calculation_type.html_name }}" value="amount" 
+                                                   id="{{ form.calculation_type.id_for_label }}_amount_{{ forloop.counter0 }}" 
+                                                   class="calculation-type-toggle" checked>
+                                            <label for="{{ form.calculation_type.id_for_label }}_amount_{{ forloop.counter0 }}">Amt</label>
+                                            
+                                            <input type="radio" name="{{ form.calculation_type.html_name }}" value="percentage" 
+                                                   id="{{ form.calculation_type.id_for_label }}_percentage_{{ forloop.counter0 }}" 
+                                                   class="calculation-type-toggle">
+                                            <label for="{{ form.calculation_type.id_for_label }}_percentage_{{ forloop.counter0 }}">%</label>
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Amount -->
+                                    <td>
+                                        <input type="number" step="0.01" name="{{ form.amount.html_name }}" value="{{ form.amount.value|default:'' }}" 
+                                            class="amount-input calculation-input table-input" 
+                                            id="{{ form.amount.id_for_label }}" placeholder="0.00">
+                                    </td>
+                                    
+                                    <!-- Percentage -->
+                                    <td>
+                                        <input type="number" step="0.01" name="{{ form.percentage.html_name }}" value="{{ form.percentage.value|default:'' }}" 
+                                            class="percentage-input calculation-input table-input" 
+                                            id="{{ form.percentage.id_for_label }}" placeholder="0.00" min="0" max="100" style="display: none;">
+                                    </td>
+                                    
+                                    <!-- Calculated Amount -->
+                                    <td>
+                                        <span class="calculated-value calculated-amount">0.00</span>
+                                    </td>
+                                    
+                                    <!-- Actions (Removed Active column) -->
+                                    <td>
+                                        <div class="flex items-center justify-center gap-2">
+                                            <input type="checkbox" name="{{ form.is_active.html_name }}" 
+                                                   id="{{ form.is_active.id_for_label }}" 
+                                                   class="form-check-input" 
+                                                   {% if form.is_active.value %}checked{% endif %}
+                                                   style="display: none;">
+                                            <button type="button" class="delete-row delete-btn">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        {% if form.DELETE %}
+                                        <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" class="delete-checkbox" style="display: none;">
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% if form.non_field_errors %}
+                                <tr class="error-row">
+                                    <td colspan="7" class="py-2 px-3 text-xs text-red-700 border border-red-200 font-medium bg-red-50">
+                                        <div class="flex items-center">
+                                            <svg class="w-4 h-4 mr-2 text-red-500" viewBox="0 0 24 24" fill="none">
+                                                <path d="M12 9V13M12 17H12.01M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            {% for error in form.non_field_errors %}
+                                            <span>{{ error }}</span>{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Add Component Button -->
+                    <button type="button" id="addRowBtn" class="w-full mt-3 px-3 py-2 rounded-lg text-xs font-medium bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Add New Salary Component
+                    </button>
+                </div>
+            </div>
+
+            <!-- Form Footer -->
+            <div class="border-t pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div class="text-xs text-[hsl(var(--muted-foreground))]">
+                    <span class="flex items-center">
+                        <svg class="w-4 h-4 mr-1 text-green-500" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Salary calculations are automatic and secure
+                    </span>
+                </div>
+                <div class="flex gap-3 w-full sm:w-auto">
+                    {% if cancel_url %}
+                    <a href="{{ cancel_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                        {% if is_detail_view %}Back{% else %}Cancel{% endif %}
+                    </a>
+                    {% endif %}
+                    
+                    {% if is_detail_view %}
+                        {% if update_url %}
+                        <a href="{{ update_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Edit
+                        </a>
+                        {% endif %}
+                        {% if delete_url %}
+                        <a href="{{ delete_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 h-9 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 4 20.5304 4 20V6C4 5.46957 4.21071 4.96086 4.58579 4.58579C4.96086 4.21071 5.46957 4 6 4H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Delete
+                        </a>
+                        {% endif %}
+                    {% else %}
+                    <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                        <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                            <path d="M19 21L5 21C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16L21 8V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M17 21V13H7V21M7 3V8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Save Salary Structure
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- JavaScript for enhanced formset functionality with real-time calculations -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let formsetIndex = parseInt(document.querySelector('#id_components-TOTAL_FORMS').value);
+
+    // Real-time calculation function
+    function calculateSalaryPreview() {
+        const basicSalary = parseFloat(document.querySelector('input[name="basic_salary"]').value) || 0;
+        let totalEarnings = basicSalary;
+        let totalDeductions = 0;
+        
+        // Get all component rows
+        const componentRows = document.querySelectorAll('.formset-row');
+        
+        // First pass: calculate earnings
+        componentRows.forEach(row => {
+            const componentSelect = row.querySelector('.component-select');
+            const amountInput = row.querySelector('.amount-input');
+            const percentageInput = row.querySelector('.percentage-input');
+            const calculatedDisplay = row.querySelector('.calculated-value');
+            const isActiveCheckbox = row.querySelector('input[type="checkbox"][name*="is_active"]');
+            
+            if (!componentSelect || !componentSelect.value || (isActiveCheckbox && !isActiveCheckbox.checked)) {
+                if (calculatedDisplay) calculatedDisplay.textContent = '0.00';
+                return;
+            }
+            
+            const selectedOption = componentSelect.options[componentSelect.selectedIndex];
+            const componentType = selectedOption.getAttribute('data-type');
+            
+            if (componentType === 'EARN') {
+                let amount = 0;
+                const calculationType = row.querySelector('input[name*="calculation_type"]:checked');
+                
+                if (calculationType && calculationType.value === 'percentage') {
+                    const percentage = parseFloat(percentageInput.value) || 0;
+                    amount = (basicSalary * percentage) / 100;
+                } else {
+                    amount = parseFloat(amountInput.value) || 0;
+                }
+                
+                totalEarnings += amount;
+                if (calculatedDisplay) calculatedDisplay.textContent = amount.toFixed(2);
+            }
+        });
+        
+        // Second pass: calculate deductions
+        componentRows.forEach(row => {
+            const componentSelect = row.querySelector('.component-select');
+            const amountInput = row.querySelector('.amount-input');
+            const percentageInput = row.querySelector('.percentage-input');
+            const calculatedDisplay = row.querySelector('.calculated-value');
+            const isActiveCheckbox = row.querySelector('input[type="checkbox"][name*="is_active"]');
+            
+            if (!componentSelect || !componentSelect.value || (isActiveCheckbox && !isActiveCheckbox.checked)) {
+                return;
+            }
+            
+            const selectedOption = componentSelect.options[componentSelect.selectedIndex];
+            const componentType = selectedOption.getAttribute('data-type');
+            
+            if (componentType === 'DED') {
+                let amount = 0;
+                const calculationType = row.querySelector('input[name*="calculation_type"]:checked');
+                
+                if (calculationType && calculationType.value === 'percentage') {
+                    const percentage = parseFloat(percentageInput.value) || 0;
+                    amount = (totalEarnings * percentage) / 100;
+                } else {
+                    amount = parseFloat(amountInput.value) || 0;
+                }
+                
+                totalDeductions += amount;
+                if (calculatedDisplay) calculatedDisplay.textContent = amount.toFixed(2);
+            }
+        });
+        
+        const netSalary = totalEarnings - totalDeductions;
+        
+        // Update preview display
+        const previewElements = {
+            basic: document.getElementById('previewBasic'),
+            earnings: document.getElementById('previewEarnings'),
+            deductions: document.getElementById('previewDeductions'),
+            gross: document.getElementById('previewGross'),
+            net: document.getElementById('previewNet')
+        };
+        
+        if (previewElements.basic) previewElements.basic.textContent = basicSalary.toFixed(2);
+        if (previewElements.earnings) previewElements.earnings.textContent = totalEarnings.toFixed(2);
+        if (previewElements.deductions) previewElements.deductions.textContent = totalDeductions.toFixed(2);
+        if (previewElements.gross) previewElements.gross.textContent = totalEarnings.toFixed(2);
+        if (previewElements.net) previewElements.net.textContent = netSalary.toFixed(2);
+    }
+
+    // Update component type display and styling
+    function updateComponentTypeDisplay(row) {
+        const componentSelect = row.querySelector('.component-select');
+        const typeDisplay = row.querySelector('.component-type-display');
+        
+        if (!componentSelect || !componentSelect.value) {
+            if (typeDisplay) {
+                typeDisplay.textContent = '';
+                typeDisplay.className = 'component-type-display type-badge';
+            }
+            row.classList.remove('earning', 'deduction');
+            return;
+        }
+        
+        const selectedOption = componentSelect.options[componentSelect.selectedIndex];
+        const componentType = selectedOption.getAttribute('data-type');
+        
+        if (componentType === 'EARN') {
+            if (typeDisplay) {
+                typeDisplay.textContent = 'Earning';
+                typeDisplay.className = 'component-type-display type-badge earning';
+            }
+            row.classList.remove('deduction');
+            row.classList.add('earning');
+        } else if (componentType === 'DED') {
+            if (typeDisplay) {
+                typeDisplay.textContent = 'Deduction';
+                typeDisplay.className = 'component-type-display type-badge deduction';
+            }
+            row.classList.remove('earning');
+            row.classList.add('deduction');
+        }
+    }
+
+    // Toggle calculation method inputs
+    function toggleCalculationMethod(row) {
+        const calculationType = row.querySelector('input[name*="calculation_type"]:checked');
+        const amountInput = row.querySelector('.amount-input');
+        const percentageInput = row.querySelector('.percentage-input');
+        
+        if (calculationType && calculationType.value === 'percentage') {
+            amountInput.style.display = 'none';
+            percentageInput.style.display = 'block';
+            amountInput.value = '';
+        } else {
+            amountInput.style.display = 'block';
+            percentageInput.style.display = 'none';
+            percentageInput.value = '';
+        }
+    }
+
+    // Initialize existing rows
+    document.querySelectorAll('.formset-row').forEach(row => {
+        updateComponentTypeDisplay(row);
+        toggleCalculationMethod(row);
+    });
+
+    // Event listeners for real-time calculations
+    document.addEventListener('input', function(e) {
+        if (e.target.matches('input[name="basic_salary"], .calculation-input')) {
+            calculateSalaryPreview();
+        }
+    });
+
+    document.addEventListener('change', function(e) {
+        if (e.target.matches('.component-select')) {
+            const row = e.target.closest('.formset-row');
+            updateComponentTypeDisplay(row);
+            calculateSalaryPreview();
+        }
+        
+        if (e.target.matches('input[name*="calculation_type"]')) {
+            const row = e.target.closest('.formset-row');
+            toggleCalculationMethod(row);
+            calculateSalaryPreview();
+        }
+        
+        if (e.target.matches('input[name*="is_active"]')) {
+            calculateSalaryPreview();
+        }
+    });
+
+    // Function to update form indices
+    function updateFormIndices() {
+        const rows = document.querySelectorAll('.formset-row');
+        rows.forEach((row, index) => {
+            row.setAttribute('data-index', index);
+            const inputs = row.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                if (input.name) {
+                    input.name = input.name.replace(/components-\d+/, `components-${index}`);
+                    input.id = input.id.replace(/id_components-\d+/, `id_components-${index}`);
+                }
+            });
+        });
+        document.querySelector('#id_components-TOTAL_FORMS').value = rows.length;
+    }
+
+    // Function to create new row
+    function createNewRow() {
+        const newRowHtml = `
+            <tr class="formset-row component-row" data-index="${formsetIndex}">
+                <input type="hidden" name="components-${formsetIndex}-id" value="" id="id_components-${formsetIndex}-id">
+                <td>
+                    <select name="components-${formsetIndex}-component" 
+                        class="component-select table-select" 
+                        id="id_components-${formsetIndex}-component">
+                        <option value="">Select Component</option>
+                        ${getComponentOptions()}
+                    </select>
+                </td>
+                <td>
+                    <span class="component-type-display type-badge"></span>
+                </td>
+                <td>
+                    <div class="method-toggle">
+                        <input type="radio" name="components-${formsetIndex}-calculation_type" value="amount" 
+                               id="id_components-${formsetIndex}-calculation_type_amount" 
+                               class="calculation-type-toggle" checked>
+                        <label for="id_components-${formsetIndex}-calculation_type_amount">Amt</label>
+                        
+                        <input type="radio" name="components-${formsetIndex}-calculation_type" value="percentage" 
+                               id="id_components-${formsetIndex}-calculation_type_percentage" 
+                               class="calculation-type-toggle">
+                        <label for="id_components-${formsetIndex}-calculation_type_percentage">%</label>
+                    </div>
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="components-${formsetIndex}-amount" value="" 
+                        class="amount-input calculation-input table-input" 
+                        id="id_components-${formsetIndex}-amount" placeholder="0.00">
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="components-${formsetIndex}-percentage" value="" 
+                        class="percentage-input calculation-input table-input" 
+                        id="id_components-${formsetIndex}-percentage" placeholder="0.00" min="0" max="100" style="display: none;">
+                </td>
+                <td>
+                    <span class="calculated-value calculated-amount">0.00</span>
+                </td>
+                <td>
+                    <div class="flex items-center justify-center gap-2">
+                        <input type="checkbox" name="components-${formsetIndex}-is_active" 
+                               id="id_components-${formsetIndex}-is_active" 
+                               class="form-check-input" checked style="display: none;">
+                        <button type="button" class="delete-row delete-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <input type="checkbox" name="components-${formsetIndex}-DELETE" id="id_components-${formsetIndex}-DELETE" class="delete-checkbox" style="display: none;">
+                </td>
+            </tr>
+        `;
+
+        const tbody = document.querySelector('#formsetBody');
+        tbody.insertAdjacentHTML('beforeend', newRowHtml);
+
+        formsetIndex++;
+        updateFormIndices();
+        calculateSalaryPreview();
+    }
+
+    // Function to get component options
+    function getComponentOptions() {
+        const existingSelect = document.querySelector('select[name*="component"]');
+        if (existingSelect) {
+            return Array.from(existingSelect.options)
+                .slice(1) // Skip the first "Select Component" option
+                .map(option => `<option value="${option.value}" data-type="${option.getAttribute('data-type')}">${option.text}</option>`)
+                .join('');
+        }
+        return '';
+    }
+
+    // Event listeners for formset management
+    document.getElementById('addRowBtn').addEventListener('click', function() {
+        createNewRow();
+    });
+
+    // Delete row functionality
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.delete-row')) {
+            const row = e.target.closest('.formset-row');
+            const deleteCheckbox = row.querySelector('.delete-checkbox');
+            
+            if (deleteCheckbox) {
+                deleteCheckbox.checked = true;
+                row.style.display = 'none';
+            } else {
+                row.remove();
+                updateFormIndices();
+            }
+            calculateSalaryPreview();
+        }
+    });
+
+    // Initial calculation
+    calculateSalaryPreview();
+});
+</script>
+{% endblock %}

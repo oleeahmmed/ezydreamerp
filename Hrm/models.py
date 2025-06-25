@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import datetime, timedelta
-
+from decimal import Decimal
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 
@@ -679,9 +679,8 @@ class OvertimeRecord(models.Model):
         ordering = ['-date']
 
 # -------------------- PAYROLL MANAGEMENT --------------------
-
 class SalaryComponent(models.Model):
-    """Defines components of an employee’s salary."""
+    """Defines components of an employee's salary."""
     COMPONENT_TYPE_CHOICES = (
         ('EARN', 'Earning'),
         ('DED', 'Deduction'),
@@ -702,16 +701,80 @@ class SalaryComponent(models.Model):
     class Meta:
         verbose_name = _("Salary Component")
         verbose_name_plural = _("Salary Components")
-        ordering = ['name']
+        ordering = ['component_type', 'name']
 
 class EmployeeSalaryStructure(models.Model):
-    """Defines an employee’s salary structure."""
-    employee = models.OneToOneField(Employee, on_delete=models.CASCADE, 
+    """Defines an employee's salary structure."""
+    employee = models.OneToOneField('Employee', on_delete=models.CASCADE, 
                                    related_name='salary_structure', verbose_name=_("Employee"))
     effective_date = models.DateField(_("Effective Date"))
-    gross_salary = models.DecimalField(_("Gross Salary"), max_digits=10, decimal_places=2)
+    basic_salary = models.DecimalField(_("Basic Salary"), max_digits=10, decimal_places=2, default=0,
+                                      help_text=_("Base salary amount before allowances"))
+    gross_salary = models.DecimalField(_("Gross Salary"), max_digits=10, decimal_places=2,default=0,
+                                      help_text=_("Total salary including all earnings"))
+    net_salary = models.DecimalField(_("Net Salary"), max_digits=10, decimal_places=2,default=0,
+                                    help_text=_("Final salary after deductions"))
+    total_earnings = models.DecimalField(_("Total Earnings"), max_digits=10, decimal_places=2, 
+                                        default=0, help_text=_("Sum of all earning components"))
+    total_deductions = models.DecimalField(_("Total Deductions"), max_digits=10, decimal_places=2, 
+                                          default=0, help_text=_("Sum of all deduction components"))
     created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated At"), auto_now=True)
+    
+    def calculate_totals(self):
+        """Calculate total earnings, deductions, gross and net salary"""
+        earnings = Decimal('0.00')
+        deductions = Decimal('0.00')
+        
+        # Calculate earnings (including basic salary)
+        earnings += self.basic_salary
+        for component in self.components.filter(component__component_type='EARN'):
+            if component.percentage:
+                # Calculate percentage of basic salary
+                amount = (self.basic_salary * component.percentage) / 100
+            else:
+                amount = component.amount or Decimal('0.00')
+            earnings += amount
+        
+        # Calculate deductions
+        for component in self.components.filter(component__component_type='DED'):
+            if component.percentage:
+                # Calculate percentage of gross salary
+                amount = (earnings * component.percentage) / 100
+            else:
+                amount = component.amount or Decimal('0.00')
+            deductions += amount
+        
+        # Update totals
+        self.total_earnings = earnings
+        self.total_deductions = deductions
+        self.gross_salary = earnings
+        self.net_salary = earnings - deductions
+        
+        return {
+            'total_earnings': self.total_earnings,
+            'total_deductions': self.total_deductions,
+            'gross_salary': self.gross_salary,
+            'net_salary': self.net_salary
+        }
+    
+    def save(self, *args, **kwargs):
+        """Override save to auto-calculate totals"""
+        # Save first to ensure we have an ID for related components
+        super().save(*args, **kwargs)
+        
+        # Calculate and update totals
+        self.calculate_totals()
+        
+        # Save again with calculated values
+        super().save(update_fields=['total_earnings', 'total_deductions', 'gross_salary', 'net_salary'])
+    
+    def clean(self):
+        """Validate salary structure"""
+        super().clean()
+        
+        if self.basic_salary and self.basic_salary < 0:
+            raise ValidationError({'basic_salary': _('Basic salary cannot be negative.')})
     
     def __str__(self):
         return f"{self.employee.get_full_name()} - {self.gross_salary}"
@@ -722,25 +785,80 @@ class EmployeeSalaryStructure(models.Model):
         ordering = ['employee__first_name']
 
 class SalaryStructureComponent(models.Model):
-    """Links salary components to an employee’s salary structure."""
+    """Links salary components to an employee's salary structure."""
     salary_structure = models.ForeignKey(EmployeeSalaryStructure, on_delete=models.CASCADE, 
                                         related_name='components', 
                                         verbose_name=_("Salary Structure"))
     component = models.ForeignKey(SalaryComponent, on_delete=models.CASCADE, 
                                  related_name='structure_components', verbose_name=_("Component"))
-    amount = models.DecimalField(_("Amount"), max_digits=10, decimal_places=2)
+    amount = models.DecimalField(_("Fixed Amount"), max_digits=10, decimal_places=2, 
+                                null=True, blank=True,
+                                help_text=_("Fixed amount for this component"))
     percentage = models.DecimalField(_("Percentage"), max_digits=5, decimal_places=2, 
-                                    null=True, blank=True)
+                                    null=True, blank=True,
+                                    help_text=_("Percentage of basic/gross salary"))
+    calculated_amount = models.DecimalField(_("Calculated Amount"), max_digits=10, decimal_places=2,
+                                           default=0, help_text=_("Final calculated amount"))
+    is_active = models.BooleanField(_("Is Active"), default=True)
     created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated At"), auto_now=True)
     
+    def calculate_amount(self):
+        """Calculate the final amount for this component"""
+        if self.percentage:
+            if self.component.component_type == 'EARN':
+                # Earnings percentage based on basic salary
+                base_amount = self.salary_structure.basic_salary
+            else:
+                # Deductions percentage based on gross salary
+                base_amount = self.salary_structure.gross_salary or self.salary_structure.basic_salary
+            
+            self.calculated_amount = (base_amount * self.percentage) / 100
+        else:
+            self.calculated_amount = self.amount or Decimal('0.00')
+        
+        return self.calculated_amount
+    
+    def save(self, *args, **kwargs):
+        """Override save to calculate amount and update salary structure"""
+        self.calculate_amount()
+        super().save(*args, **kwargs)
+        
+        # Recalculate salary structure totals
+        if self.salary_structure_id:
+            self.salary_structure.save()
+    
+    def delete(self, *args, **kwargs):
+        """Override delete to update salary structure totals"""
+        salary_structure = self.salary_structure
+        super().delete(*args, **kwargs)
+        
+        # Recalculate salary structure totals after deletion
+        if salary_structure:
+            salary_structure.save()
+    
+    def clean(self):
+        """Validate component"""
+        super().clean()
+        
+        if not self.amount and not self.percentage:
+            raise ValidationError(_('Either amount or percentage must be provided.'))
+        
+        if self.amount and self.amount < 0:
+            raise ValidationError({'amount': _('Amount cannot be negative.')})
+        
+        if self.percentage and (self.percentage < 0 or self.percentage > 100):
+            raise ValidationError({'percentage': _('Percentage must be between 0 and 100.')})
+    
     def __str__(self):
-        return f"{self.salary_structure.employee.get_full_name()} - {self.component.name} - {self.amount}"
+        return f"{self.salary_structure.employee.get_full_name()} - {self.component.name} - {self.calculated_amount}"
 
     class Meta:
         verbose_name = _("Salary Structure Component")
         verbose_name_plural = _("Salary Structure Components")
-        ordering = ['salary_structure__employee__first_name', 'component__name']
+        unique_together = ('salary_structure', 'component')
+        ordering = ['salary_structure__employee__first_name', 'component__component_type', 'component__name']
+
 
 class BonusSetup(models.Model):
     """Defines bonus configurations."""

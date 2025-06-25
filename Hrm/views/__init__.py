@@ -19,27 +19,26 @@ from .employee.designation_view import (
     DesignationDetailView, DesignationDeleteView, DesignationExportView,
     DesignationBulkDeleteView
 )
-from .shift.workplace_view import (
+from .roster.workplace_view import (
     WorkPlaceListView, WorkPlaceCreateView, WorkPlaceUpdateView,
     WorkPlaceDetailView, WorkPlaceDeleteView, WorkPlaceExportView,
     WorkPlaceBulkDeleteView
 )
-from .shift.shift_view import (
+from .roster.shift_view import (
     ShiftListView, ShiftCreateView, ShiftUpdateView,
     ShiftDetailView, ShiftDeleteView, ShiftExportView,
     ShiftBulkDeleteView
 )
-from .shift.roster_view import (
-    RosterListView, RosterCreateView, RosterUpdateView,
-    RosterDetailView, RosterDeleteView, RosterExportView,
+from .roster.roster_view import (
+    RosterListView,
+    RosterCreateView, 
+    RosterUpdateView,
+    RosterDetailView,
+    RosterDeleteView,
+    RosterExportView,
     RosterBulkDeleteView
 )
-from .shift.roster_assignment_view import (
-    RosterAssignmentListView, RosterAssignmentCreateView, RosterAssignmentUpdateView,
-    RosterAssignmentDetailView, RosterAssignmentDeleteView, RosterAssignmentExportView,
-    RosterAssignmentBulkDeleteView
-)
-from .shift.roster_day_views import (
+from .roster.roster_day_views import (
     RosterDayListView, RosterDayCreateView, RosterDayUpdateView,
     RosterDayDetailView, RosterDayDeleteView, RosterDayExportView,
     RosterDayBulkDeleteView

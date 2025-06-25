@@ -449,23 +449,7 @@
                             </div>
                         </a>
         
-                        <!-- Roster Assignment -->
-                        <a href="{% url 'hrm:roster_assignment_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:roster_assignment_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
-                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:roster_assignment_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
-                            <div class="flex items-center">
-                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:roster_assignment_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
-                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M3.5 9.09H20.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M19.21 15.77L15.6701 19.31C15.5301 19.45 15.4 19.71 15.37 19.9L15.18 21.25C15.11 21.74 15.45 22.0801 15.94 22.0101L17.29 21.82C17.48 21.79 17.75 21.66 17.88 21.52L21.4201 17.9801C22.0301 17.3701 22.3201 16.6601 21.4201 15.7601C20.5301 14.8701 19.82 15.16 19.21 15.77Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M18.7 16.28C19 17.36 19.84 18.2 20.92 18.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M12 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5V12" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </div>
-                                <span class="text-sm">Roster Assignment</span>
-                            </div>
-                        </a>
+
         
                         <!-- Workplace -->
                         <a href="{% url 'hrm:workplace_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:workplace_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">

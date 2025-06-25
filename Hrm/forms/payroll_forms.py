@@ -1,6 +1,6 @@
 from django import forms
 from datetime import datetime, timedelta
-
+from django.forms import inlineformset_factory
 from ..models import (
     SalaryComponent, EmployeeSalaryStructure, SalaryStructureComponent,
     BonusSetup, BonusMonth, EmployeeBonus, AdvanceSetup, EmployeeAdvance,
@@ -41,9 +41,10 @@ class EmployeeSalaryStructureForm(forms.ModelForm):
     
     class Meta:
         model = EmployeeSalaryStructure
-        fields = ['employee', 'effective_date', 'gross_salary']
+        fields = ['employee', 'effective_date', 'basic_salary']
         widgets = {
             'effective_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'basic_salary': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control', 'min': '0'}),
         }
     
     def __init__(self, *args, **kwargs):
@@ -61,13 +62,56 @@ class EmployeeSalaryStructureForm(forms.ModelForm):
         
         # Only show active employees
         self.fields['employee'].queryset = Employee.objects.filter(is_active=True)
+        
+        # Add labels for better UX
+        self.fields['employee'].label = "Employee"
+        self.fields['effective_date'].label = "Effective Date"
+        self.fields['basic_salary'].label = "Basic Salary"
+        
+        # Add help text
+        self.fields['basic_salary'].help_text = "Base salary amount (earnings and deductions will be calculated automatically)"
+        
+        # If updating, show calculated values as read-only
+        if self.instance and self.instance.pk:
+            self.fields['gross_salary_display'] = forms.CharField(
+                label="Gross Salary",
+                initial=f"{self.instance.gross_salary:,.2f}",
+                widget=forms.TextInput(attrs={'readonly': True, 'class': 'form-control bg-light'}),
+                required=False,
+                help_text="Automatically calculated from basic salary + earnings"
+            )
+            self.fields['net_salary_display'] = forms.CharField(
+                label="Net Salary",
+                initial=f"{self.instance.net_salary:,.2f}",
+                widget=forms.TextInput(attrs={'readonly': True, 'class': 'form-control bg-light'}),
+                required=False,
+                help_text="Automatically calculated as gross salary - deductions"
+            )
+
+    def clean_basic_salary(self):
+        basic_salary = self.cleaned_data.get('basic_salary')
+        if basic_salary and basic_salary < 0:
+            raise forms.ValidationError("Basic salary cannot be negative.")
+        return basic_salary
 
 class SalaryStructureComponentForm(forms.ModelForm):
     """Form for creating and updating Salary Structure Component records"""
     
+    calculation_type = forms.ChoiceField(
+        choices=[('amount', 'Fixed Amount'), ('percentage', 'Percentage')],
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
+        initial='amount',
+        help_text="Choose how to calculate this component"
+    )
+    
     class Meta:
         model = SalaryStructureComponent
-        fields = ['salary_structure', 'component', 'amount', 'percentage']
+        fields = ['salary_structure', 'component', 'amount', 'percentage', 'is_active']
+        widgets = {
+            'amount': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control', 'min': '0'}),
+            'percentage': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control', 'min': '0', 'max': '100'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -81,6 +125,108 @@ class SalaryStructureComponentForm(forms.ModelForm):
                 field.widget.attrs.update({
                     'class': 'form-control'
                 })
+        
+        # Ensure component field has proper queryset
+        self.fields['component'].queryset = SalaryComponent.objects.all().order_by('component_type', 'name')
+        self.fields['component'].empty_label = "Select Component"
+        
+        # Add labels
+        self.fields['component'].label = "Salary Component"
+        self.fields['amount'].label = "Fixed Amount"
+        self.fields['percentage'].label = "Percentage (%)"
+        self.fields['is_active'].label = "Active"
+        
+        # Add help text
+        self.fields['amount'].help_text = "Fixed amount for this component"
+        self.fields['percentage'].help_text = "Percentage of basic salary (for earnings) or gross salary (for deductions)"
+        
+        # Set initial calculation type based on existing data
+        if self.instance and self.instance.pk:
+            if self.instance.percentage:
+                self.fields['calculation_type'].initial = 'percentage'
+            else:
+                self.fields['calculation_type'].initial = 'amount'
+        
+        # If this is an existing instance, show calculated amount
+        if self.instance and self.instance.pk:
+            self.fields['calculated_amount_display'] = forms.CharField(
+                label="Calculated Amount",
+                initial=f"{self.instance.calculated_amount:,.2f}",
+                widget=forms.TextInput(attrs={'readonly': True, 'class': 'form-control bg-light'}),
+                required=False,
+                help_text="Final calculated amount for this component"
+            )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        amount = cleaned_data.get('amount')
+        percentage = cleaned_data.get('percentage')
+        calculation_type = cleaned_data.get('calculation_type')
+        
+        # Clear the field that's not being used
+        if calculation_type == 'amount':
+            cleaned_data['percentage'] = None
+            if not amount:
+                raise forms.ValidationError("Amount is required when using fixed amount calculation.")
+        elif calculation_type == 'percentage':
+            cleaned_data['amount'] = None
+            if not percentage:
+                raise forms.ValidationError("Percentage is required when using percentage calculation.")
+        
+        # Validate values
+        if amount and amount < 0:
+            raise forms.ValidationError("Amount cannot be negative.")
+        
+        if percentage and (percentage < 0 or percentage > 100):
+            raise forms.ValidationError("Percentage must be between 0 and 100.")
+        
+        return cleaned_data
+
+# Create formset for SalaryStructureComponent
+SalaryStructureComponentFormSet = inlineformset_factory(
+    EmployeeSalaryStructure,
+    SalaryStructureComponent,
+    form=SalaryStructureComponentForm,
+    extra=1,
+    can_delete=True,
+    min_num=0,
+    validate_min=False
+)
+
+class EmployeeSalaryStructureFilterForm(BaseFilterForm):
+    """Form for filtering Employee Salary Structure records"""
+    
+    employee = forms.ModelChoiceField(
+        queryset=Employee.objects.filter(is_active=True),
+        required=False,
+        empty_label="All Employees",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    effective_date_from = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        label="Effective Date From"
+    )
+    
+    effective_date_to = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        label="Effective Date To"
+    )
+    
+    min_salary = forms.DecimalField(
+        required=False,
+        widget=forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),
+        label="Minimum Salary"
+    )
+    
+    max_salary = forms.DecimalField(
+        required=False,
+        widget=forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),
+        label="Maximum Salary"
+    )
+
 
 class BonusSetupForm(forms.ModelForm):
     """Form for creating and updating Bonus Setup records"""

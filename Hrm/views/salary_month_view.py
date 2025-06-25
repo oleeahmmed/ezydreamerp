@@ -59,7 +59,7 @@ class SalaryMonthCreateView(CreateView):
     
     def form_valid(self, form):
         self.object = form.save()
-        messages.success(self.request, f'Salary Month {self.object.name} created successfully.')
+        messages.success(self.request, f'Salary Month {self.object.id} created successfully.')
         return HttpResponseRedirect(self.get_success_url())
     
     def get_success_url(self):
