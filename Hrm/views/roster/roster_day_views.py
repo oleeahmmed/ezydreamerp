@@ -21,8 +21,7 @@ class RosterDayListView(GenericFilterView):
         return super().get_queryset().select_related(
             'roster_assignment__employee',
             'roster_assignment__roster',
-            'shift',
-            'workplace'
+            'shift'
         ).order_by('-date', 'roster_assignment__employee__first_name')
     
     def apply_filters(self, queryset):
@@ -41,9 +40,6 @@ class RosterDayListView(GenericFilterView):
             
         if filters.get('shift'):
             queryset = queryset.filter(shift=filters['shift'])
-            
-        if filters.get('workplace'):
-            queryset = queryset.filter(workplace=filters['workplace'])
             
         if filters.get('date_from'):
             queryset = queryset.filter(date__gte=filters['date_from'])
@@ -136,8 +132,7 @@ class RosterDayDetailView(DetailView):
         return super().get_queryset().select_related(
             'roster_assignment__employee',
             'roster_assignment__roster',
-            'shift',
-            'workplace'
+            'shift'
         )
     
     def get_context_data(self, **kwargs):
@@ -175,7 +170,7 @@ class RosterDayExportView(BaseExportView):
     filename = "roster_days.csv"
     permission_required = "Hrm.view_rosterday"
     field_names = [
-        "Employee", "Employee ID", "Roster", "Date", "Shift", "Workplace", 
+        "Employee", "Employee ID", "Roster", "Date", "Shift", 
         "Shift Start", "Shift End", "Created At"
     ]
 
@@ -184,8 +179,7 @@ class RosterDayExportView(BaseExportView):
         return super().get_queryset().select_related(
             'roster_assignment__employee',
             'roster_assignment__roster',
-            'shift',
-            'workplace'
+            'shift'
         ).order_by('-date', 'roster_assignment__employee__first_name')
 
     def get_export_data(self, obj):
@@ -196,7 +190,6 @@ class RosterDayExportView(BaseExportView):
             obj.roster_assignment.roster.name,
             obj.date.strftime('%Y-%m-%d'),
             obj.shift.name,
-            obj.workplace.name,
             obj.shift.start_time.strftime('%H:%M'),
             obj.shift.end_time.strftime('%H:%M'),
             obj.created_at.strftime('%Y-%m-%d %H:%M:%S'),
@@ -213,8 +206,7 @@ class RosterDayBulkDeleteView(BaseBulkDeleteConfirmView):
     display_fields = [
         "roster_assignment__employee__get_full_name", 
         "date", 
-        "shift__name", 
-        "workplace__name"
+        "shift__name"
     ]
     cancel_url = reverse_lazy("hrm:roster_day_list")
     success_url = reverse_lazy("hrm:roster_day_list")

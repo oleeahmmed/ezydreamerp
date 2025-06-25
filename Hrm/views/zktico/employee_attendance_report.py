@@ -12,7 +12,7 @@ from django.http import JsonResponse
 from django.db import transaction
 import json
 
-from ..models import (
+from Hrm.models import (
     ZKAttendanceLog, Employee, Holiday, LeaveApplication, 
     RosterDay, RosterAssignment, Shift, ShortLeaveApplication, Roster,
     OvertimeRecord

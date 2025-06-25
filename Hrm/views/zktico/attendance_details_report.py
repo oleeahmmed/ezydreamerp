@@ -103,7 +103,7 @@ class AttendanceDetailsReportForm(forms.Form):
             'class': 'form-control',
             'placeholder': '15'
         }),
-        help_text=_("Grace time allowed for late arrival. Employees arriving within this time won't be marked as late.")
+        help_text=_("Default grace time for late arrival. Individual employee settings will override this.")
     )
     
     early_departure_threshold = forms.IntegerField(
@@ -119,19 +119,6 @@ class AttendanceDetailsReportForm(forms.Form):
         help_text=_("Minutes before shift end time to consider as early departure. Leaving before this will be flagged.")
     )
     
-    overtime_threshold_minutes = forms.IntegerField(
-        label=_("Overtime Start Threshold (Minutes)"),
-        initial=15,
-        min_value=0,
-        max_value=120,
-        required=False,
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'placeholder': '15'
-        }),
-        help_text=_("Minutes after shift end time to start counting overtime. Work beyond this threshold will be considered overtime.")
-    )
-    
     half_day_threshold_hours = forms.FloatField(
         label=_("Half Day Threshold (Hours)"),
         initial=4.0,
@@ -143,7 +130,7 @@ class AttendanceDetailsReportForm(forms.Form):
             'placeholder': '4.0',
             'step': '0.5'
         }),
-        help_text=_("Work hours below this threshold will be marked as half day. Standard is 4 hours.")
+        help_text=_("Work hours below this threshold will be marked as half day. Individual employee expected hours will be considered.")
     )
     
     # Advanced Options
@@ -423,6 +410,8 @@ class AttendanceDetailsReportView(LoginRequiredMixin, View):
                         'partial_attendance': absent_reason_info['partial_attendance'],
                         'work_minutes': 0,
                         'work_hours': 0.0,
+                        'expected_work_hours': employee.expected_work_hours,
+                        'overtime_grace_minutes': employee.overtime_grace_minutes,
                     }
                     
                     # Calculate work time if there are check-in/out times
@@ -590,7 +579,7 @@ class AttendanceDetailsReportView(LoginRequiredMixin, View):
         return roster_data
     
     def _process_daily_attendance(self, employee, date, employee_logs, roster_data, form_data):
-        """Process attendance for a single day with advanced options."""
+        """Process attendance for a single day with employee-specific settings."""
         
         # Get logs for this specific date
         daily_logs = employee_logs.filter(timestamp__date=date).order_by('timestamp')
@@ -621,7 +610,7 @@ class AttendanceDetailsReportView(LoginRequiredMixin, View):
         # Get shift information for this date
         shift_info = self._get_shift_for_date(employee, date, roster_data)
         
-        # Calculate attendance metrics
+        # Calculate attendance metrics with employee-specific settings
         attendance_record = {
             'employee': employee,
             'employee_id': employee.employee_id,
@@ -648,12 +637,14 @@ class AttendanceDetailsReportView(LoginRequiredMixin, View):
             'is_roster_day': shift_info['source'] in ['RosterDay', 'RosterAssignment'],
             'ready_for_import': True,
             'device_info': first_punch.device.name if form_data.get('show_device_info', False) and first_punch.device else '',
+            'expected_work_hours': employee.expected_work_hours,
+            'overtime_grace_minutes': employee.overtime_grace_minutes,
         }
         
-        # Calculate late arrival
-        grace_minutes = form_data.get('grace_minutes', 15)
-        if shift_info['expected_start'] and grace_minutes is not None:
-            expected_start_with_grace = shift_info['expected_start'] + timedelta(minutes=grace_minutes)
+        # Calculate late arrival using employee's grace time or form default
+        employee_grace_minutes = employee.overtime_grace_minutes if hasattr(employee, 'overtime_grace_minutes') else form_data.get('grace_minutes', 15)
+        if shift_info['expected_start'] and employee_grace_minutes is not None:
+            expected_start_with_grace = shift_info['expected_start'] + timedelta(minutes=employee_grace_minutes)
             if first_punch.timestamp > expected_start_with_grace:
                 late_duration = first_punch.timestamp - shift_info['expected_start']
                 attendance_record['late_minutes'] = int(late_duration.total_seconds() / 60)
@@ -667,17 +658,19 @@ class AttendanceDetailsReportView(LoginRequiredMixin, View):
                 early_duration = shift_info['expected_end'] - attendance_record['check_out']
                 attendance_record['early_out_minutes'] = int(early_duration.total_seconds() / 60)
         
-        # Calculate overtime
-        overtime_threshold_minutes = form_data.get('overtime_threshold_minutes', 15)
-        if shift_info['expected_end'] and attendance_record['check_out'] and overtime_threshold_minutes is not None:
-            overtime_threshold = shift_info['expected_end'] + timedelta(minutes=overtime_threshold_minutes)
+        # Calculate overtime using employee's overtime grace minutes
+        employee_overtime_grace = employee.overtime_grace_minutes if hasattr(employee, 'overtime_grace_minutes') else 15
+        if shift_info['expected_end'] and attendance_record['check_out'] and employee_overtime_grace is not None:
+            overtime_threshold = shift_info['expected_end'] + timedelta(minutes=employee_overtime_grace)
             if attendance_record['check_out'] > overtime_threshold:
                 overtime_duration = attendance_record['check_out'] - overtime_threshold
                 attendance_record['overtime_minutes'] = int(overtime_duration.total_seconds() / 60)
         
-        # Determine final status based on work hours
-        half_day_threshold_hours = form_data.get('half_day_threshold_hours', 4.0)
-        if half_day_threshold_hours and attendance_record['work_hours'] < half_day_threshold_hours:
+        # Determine final status based on employee's expected work hours
+        employee_expected_hours = employee.expected_work_hours if hasattr(employee, 'expected_work_hours') else 8
+        half_day_threshold = employee_expected_hours / 2  # Half of employee's expected hours
+        
+        if attendance_record['work_hours'] < half_day_threshold:
             attendance_record['status'] = 'HAL'
         
         return attendance_record
@@ -849,7 +842,7 @@ class AttendanceDetailsReportView(LoginRequiredMixin, View):
                             'early_out_minutes': record_data.get('early_out_minutes', 0),
                             'overtime_minutes': record_data.get('overtime_minutes', 0),
                             'is_manual': False,
-                            'remarks': f"Imported from ZK attendance logs on {timezone.now().strftime('%Y-%m-%d %H:%M:%S')} by {user.username}",
+                            'remarks': f"Imported from ZK attendance logs on {timezone.now().strftime('%Y-%m-%d %H:%M:%S')} by {user.username}. Employee Expected Hours: {employee.expected_work_hours}h, Overtime Grace: {employee.overtime_grace_minutes}m",
                         }
                         
                         if existing_record:

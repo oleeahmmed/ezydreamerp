@@ -44,8 +44,9 @@ from .views.zktico.zk_attendance_log_views import (
     ZKAttendanceLogUpdateView, ZKAttendanceLogExportView, ZKAttendanceLogBulkDeleteView,
     ZKAttendanceLogDeleteView, MissingAttendanceView, MissingAttendanceExportView
 )
-from .views.employee_attendance_report import EmployeeDetailedAttendanceReportView
+from .views.zktico.employee_attendance_report import EmployeeDetailedAttendanceReportView
 from .views.zktico.attendance_details_report import AttendanceDetailsReportView
+from .views.zktico.attendance_summary_report import AttendanceSummaryReportView
 
 app_name = 'hrm'
 
@@ -101,7 +102,7 @@ urlpatterns = [
     path('shift/export/', views.ShiftExportView.as_view(), name='shift_export'),
     path('shift/bulk-delete/', views.ShiftBulkDeleteView.as_view(), name='shift_bulk_delete'),
 
-    
+
     path('roster/', views.RosterListView.as_view(), name='roster_list'),
     path('roster/create/', views.RosterCreateView.as_view(), name='roster_create'),
     path('roster/<int:pk>/update/', views.RosterUpdateView.as_view(), name='roster_update'),
@@ -373,4 +374,6 @@ path('zk-attendance/<int:device_id>/<str:user_id>/<str:timestamp>/', ZKAttendanc
 
 path('attendance/report/', EmployeeDetailedAttendanceReportView.as_view(), name='employee_detailed_attendance_report'),
 path('attendance/details-report/', AttendanceDetailsReportView.as_view(), name='attendance_details_report'),
+path('attendance/summery-report/', AttendanceSummaryReportView.as_view(), name='attendance_summery_report'),
+
 ]
