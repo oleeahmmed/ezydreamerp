@@ -42,11 +42,16 @@ from .views.zktico.zk_device_operation_views import (   ZKDeviceConnectionTestVi
 from .views.zktico.zk_attendance_log_views import (
     ZKAttendanceLogListView, ZKAttendanceLogCreateView, ZKAttendanceLogDetailView,
     ZKAttendanceLogUpdateView, ZKAttendanceLogExportView, ZKAttendanceLogBulkDeleteView,
-    ZKAttendanceLogDeleteView, MissingAttendanceView, MissingAttendanceExportView
-)
+    ZKAttendanceLogDeleteView)
 from .views.zktico.employee_attendance_report import EmployeeDetailedAttendanceReportView
 from .views.zktico.attendance_details_report import AttendanceDetailsReportView
 from .views.zktico.attendance_summary_report import AttendanceSummaryReportView
+from .views.zktico.missing_punch_report import MissingPunchReportView
+from .views.zktico.late_coming_report import LateComingReportView
+from .views.zktico.monthly_attendance_summary import MonthlyAttendanceSummaryView
+from .views.zktico.daily_attendance_report import DailyAttendanceReportView
+
+
 
 app_name = 'hrm'
 
@@ -353,10 +358,7 @@ urlpatterns = [
     path('zk-attendance-logs/bulk-delete/', ZKAttendanceLogBulkDeleteView.as_view(), name='zk_attendance_log_bulk_delete'),
     path('zk-attendance-logs/delete/<int:pk>/', ZKAttendanceLogDeleteView.as_view(), name='zk_attendance_log_delete'),
     
-    # Missing Attendance URLs
-    path('missing-attendance/', MissingAttendanceView.as_view(), name='missing_attendance'),
-    path('missing-attendance/export/', MissingAttendanceExportView.as_view(), name='missing_attendance_export'),
-    # Demo Config URL
+   # Demo Config URL
     path('demo/config/', HRMDemoConfigView.as_view(), name='hrm_demo_config'),
 
     # ZK User Management (Direct from Device)
@@ -375,5 +377,11 @@ path('zk-attendance/<int:device_id>/<str:user_id>/<str:timestamp>/', ZKAttendanc
 path('attendance/report/', EmployeeDetailedAttendanceReportView.as_view(), name='employee_detailed_attendance_report'),
 path('attendance/details-report/', AttendanceDetailsReportView.as_view(), name='attendance_details_report'),
 path('attendance/summery-report/', AttendanceSummaryReportView.as_view(), name='attendance_summery_report'),
+path('attendance/missing-punch-report/', MissingPunchReportView.as_view(), name='missing_punch_report'),
+path('attendance/late-coming-report/', LateComingReportView.as_view(), name='late_coming_report'),
+path('attendance/daily-attendance-report/', DailyAttendanceReportView.as_view(), name='daily_attendance_report'),
+
+
+path('attendance/monthly-summery-report/', MonthlyAttendanceSummaryView.as_view(), name='monthly_attendance_summery_report'),
 
 ]

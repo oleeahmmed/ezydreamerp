@@ -1,0 +1,1084 @@
+{% extends "common/base-list-modern.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block list_icon %}
+<svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+{% endblock %}
+
+{% block list_title %}{% trans "Daily Attendance Report" %}{% endblock %}
+{% block list_subtitle %}{% trans "Comprehensive daily attendance overview with real-time status tracking, working hours analysis, and performance metrics" %}{% endblock %}
+
+{% block list_actions %}
+<div class="flex gap-3">
+    <button id="generate-daily-attendance-btn" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Generate Daily Report" %}
+    </button>
+    
+    {% if report_generated %}
+    <button id="print-daily-attendance-btn" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-indigo-600 to-indigo-700 text-white hover:from-indigo-700 hover:to-indigo-800 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="6,9 6,2 18,2 18,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 18H4A2 2 0 0 1 2 16V11A2 2 0 0 1 4 9H20A2 2 0 0 1 22 11V16A2 2 0 0 1 20 18H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="6" y="14" width="12" height="8" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Print Report" %}
+    </button>
+    
+    <button id="export-daily-attendance-csv" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-700 hover:to-emerald-800 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2H6A2 2 0 0 0 4 4V20A2 2 0 0 0 6 22H18A2 2 0 0 0 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Export CSV" %}
+    </button>
+    
+    <button id="copy-daily-attendance-data" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 15H4A2 2 0 0 1 2 13V4A2 2 0 0 1 4 2H13A2 2 0 0 1 15 4V5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Copy to Clipboard" %}
+    </button>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block search_filter %}
+{% if report_generated %}
+<div class="flex flex-wrap justify-center gap-3 p-4 bg-white shadow-md rounded-lg border border-gray-200">
+    <input type="text" id="search-daily-attendance" placeholder="{% trans 'Search Employee ID, Name, or Department...' %}" class="w-full sm:w-auto flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200">
+    <select id="status-filter" class="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+        <option value="">{% trans "All Status" %}</option>
+        <option value="PRE">{% trans "Present" %}</option>
+        <option value="ABS">{% trans "Absent" %}</option>
+        <option value="LAT">{% trans "Late" %}</option>
+        <option value="LEA">{% trans "Leave" %}</option>
+        <option value="HOL">{% trans "Holiday" %}</option>
+        <option value="HAL">{% trans "Half Day" %}</option>
+    </select>
+    <select id="department-filter-daily" class="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+        <option value="">{% trans "All Departments" %}</option>
+        {% for dept in departments %}
+        <option value="{{ dept.name }}">{{ dept.name }}</option>
+        {% endfor %}
+    </select>
+    <select id="working-hours-filter" class="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+        <option value="">{% trans "All Working Hours" %}</option>
+        <option value="full">{% trans "Full Day (8+ hrs)" %}</option>
+        <option value="partial">{% trans "Partial Day (4-8 hrs)" %}</option>
+        <option value="minimal">{% trans "Minimal (<4 hrs)" %}</option>
+        <option value="overtime">{% trans "With Overtime" %}</option>
+    </select>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block table_body %}
+{% if report_generated %}
+
+<!-- Date Information Header -->
+<div class="bg-white rounded-lg shadow-md mb-8">
+    <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 rounded-t-lg">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+                <h2 class="text-2xl font-bold">{{ form_data.report_date|date:"l, F d, Y" }}</h2>
+                <p class="text-green-100 mt-1">{% trans "Daily Attendance Report" %}</p>
+            </div>
+            <div class="mt-4 md:mt-0 text-right">
+                <div class="text-sm text-green-100">{% trans "Report Generated" %}</div>
+                <div class="text-lg font-semibold">{{ "now"|date:"M d, Y H:i" }}</div>
+                {% if holiday_info.is_holiday %}
+                <div class="text-xs text-green-200 mt-1">🎉 {{ holiday_info.holiday_name }}</div>
+                {% elif holiday_info.is_weekend %}
+                <div class="text-xs text-green-200 mt-1">📅 {{ holiday_info.day_name }} (Weekend)</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Day Status Information -->
+    <div class="p-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600">{{ holiday_info.day_name }}</div>
+                <div class="text-sm text-gray-600">{% trans "Day of Week" %}</div>
+            </div>
+            <div class="text-center">
+                {% if holiday_info.is_holiday %}
+                    <div class="text-2xl font-bold text-purple-600">{% trans "Holiday" %}</div>
+                    <div class="text-sm text-gray-600">{{ holiday_info.holiday_name }}</div>
+                {% elif holiday_info.is_weekend %}
+                    <div class="text-2xl font-bold text-blue-600">{% trans "Weekend" %}</div>
+                    <div class="text-sm text-gray-600">{% trans "Non-working Day" %}</div>
+                {% else %}
+                    <div class="text-2xl font-bold text-green-600">{% trans "Working Day" %}</div>
+                    <div class="text-sm text-gray-600">{% trans "Regular Day" %}</div>
+                {% endif %}
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-orange-600">{{ summary_data.total_employees }}</div>
+                <div class="text-sm text-gray-600">{% trans "Total Employees" %}</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-indigo-600">{{ summary_data.attendance_percentage }}%</div>
+                <div class="text-sm text-gray-600">{% trans "Attendance Rate" %}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Daily Attendance Statistics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 rounded-lg shadow-md">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-green-100 text-sm font-medium">{% trans "Present Today" %}</p>
+                <p class="text-3xl font-bold">{{ summary_data.present_count }}</p>
+                <p class="text-xs text-green-200 mt-1">{% trans "Including late arrivals" %}</p>
+            </div>
+            <div class="bg-green-500 bg-opacity-30 rounded-full p-3">
+                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-gradient-to-r from-red-600 to-red-700 text-white p-6 rounded-lg shadow-md">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-red-100 text-sm font-medium">{% trans "Absent Today" %}</p>
+                <p class="text-3xl font-bold">{{ summary_data.absent_count }}</p>
+                <p class="text-xs text-red-200 mt-1">{% trans "Unexcused absences" %}</p>
+            </div>
+            <div class="bg-red-500 bg-opacity-30 rounded-full p-3">
+                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-gradient-to-r from-yellow-600 to-yellow-700 text-white p-6 rounded-lg shadow-md">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-yellow-100 text-sm font-medium">{% trans "Late Arrivals" %}</p>
+                <p class="text-3xl font-bold">{{ summary_data.late_count }}</p>
+                <p class="text-xs text-yellow-200 mt-1">{% trans "After grace period" %}</p>
+            </div>
+            <div class="bg-yellow-500 bg-opacity-30 rounded-full p-3">
+                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-lg shadow-md">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-blue-100 text-sm font-medium">{% trans "On Leave" %}</p>
+                <p class="text-3xl font-bold">{{ summary_data.leave_count }}</p>
+                <p class="text-xs text-blue-200 mt-1">{% trans "Approved leave" %}</p>
+            </div>
+            <div class="bg-blue-500 bg-opacity-30 rounded-full p-3">
+                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Statistics -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">{% trans "Total Working Hours" %}</p>
+                <p class="text-2xl font-bold text-purple-600">{{ summary_data.total_working_hours|floatformat:1 }}h</p>
+                <p class="text-xs text-gray-500 mt-1">{% trans "Across all employees" %}</p>
+            </div>
+            <div class="bg-purple-100 rounded-full p-3">
+                <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">{% trans "Overtime Hours" %}</p>
+                <p class="text-2xl font-bold text-indigo-600">{{ summary_data.total_overtime_hours|floatformat:1 }}h</p>
+                <p class="text-xs text-gray-500 mt-1">{{ summary_data.overtime_count }} {% trans "employees" %}</p>
+            </div>
+            <div class="bg-indigo-100 rounded-full p-3">
+                <svg class="w-6 h-6 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">{% trans "Average Hours" %}</p>
+                <p class="text-2xl font-bold text-teal-600">{{ summary_data.average_working_hours|floatformat:1 }}h</p>
+                <p class="text-xs text-gray-500 mt-1">{% trans "Per working employee" %}</p>
+            </div>
+            <div class="bg-teal-100 rounded-full p-3">
+                <svg class="w-6 h-6 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">{% trans "Early Departures" %}</p>
+                <p class="text-2xl font-bold text-orange-600">{{ summary_data.early_out_count }}</p>
+                <p class="text-xs text-gray-500 mt-1">{% trans "Left before shift end" %}</p>
+            </div>
+            <div class="bg-orange-100 rounded-full p-3">
+                <svg class="w-6 h-6 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Applied Configuration Display -->
+<div class="bg-white rounded-lg shadow-md mb-8">
+    <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 rounded-t-lg">
+        <h3 class="text-lg font-bold">{% trans "APPLIED CONFIGURATION" %}</h3>
+        <p class="text-sm opacity-90">{% trans "Daily attendance processing rules and settings applied to this report" %}</p>
+    </div>
+    
+    <div class="p-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-sm">
+            <div class="bg-green-50 p-3 rounded-lg">
+                <div class="font-medium text-green-800">{% trans "Grace Time" %}</div>
+                <div class="text-green-600">{{ form_data.grace_minutes|default:"15" }} min</div>
+            </div>
+            <div class="bg-orange-50 p-3 rounded-lg">
+                <div class="font-medium text-orange-800">{% trans "Early Out Threshold" %}</div>
+                <div class="text-orange-600">{{ form_data.early_out_threshold_minutes|default:"30" }} min</div>
+            </div>
+            <div class="bg-purple-50 p-3 rounded-lg">
+                <div class="font-medium text-purple-800">{% trans "Overtime Start" %}</div>
+                <div class="text-purple-600">{{ form_data.overtime_start_after_minutes|default:"15" }} min</div>
+            </div>
+            <div class="bg-indigo-50 p-3 rounded-lg">
+                <div class="font-medium text-indigo-800">{% trans "Min Overtime" %}</div>
+                <div class="text-indigo-600">{{ form_data.minimum_overtime_minutes|default:"60" }} min</div>
+            </div>
+            <div class="bg-blue-50 p-3 rounded-lg">
+                <div class="font-medium text-blue-800">{% trans "Show Absent" %}</div>
+                <div class="text-blue-600">{{ form_data.show_absent_employees|yesno:"Yes,No" }}</div>
+            </div>
+            <div class="bg-yellow-50 p-3 rounded-lg">
+                <div class="font-medium text-yellow-800">{% trans "Show Leave" %}</div>
+                <div class="text-yellow-600">{{ form_data.show_leave_employees|yesno:"Yes,No" }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Daily Attendance Report Table -->
+<div class="bg-white rounded-lg shadow-md">
+    <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 rounded-t-lg">
+        <h3 class="text-lg font-bold">{% trans "DAILY ATTENDANCE RECORDS" %} ({{ attendance_data|length }})</h3>
+        <p class="text-sm opacity-90">{% trans "Date:" %} {{ form_data.report_date|date:"l, F d, Y" }} | {% trans "Total Employees:" %} {{ summary_data.total_employees }}</p>
+    </div>
+    
+    <div class="w-full overflow-x-auto overflow-y-auto max-h-[70vh]">
+        <table id="daily-attendance-table" class="w-full table-fixed border-collapse">
+            <thead class="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] sticky top-0 z-10">
+                <tr>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% trans "EMPLOYEE ID" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 150px;">
+                        {% trans "EMPLOYEE NAME" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 120px;">
+                        {% trans "DEPARTMENT" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% trans "STATUS" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 120px;">
+                        {% trans "CHECK IN" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 120px;">
+                        {% trans "CHECK OUT" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% trans "WORKING HOURS" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        {% trans "LATE MINUTES" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        {% trans "EARLY OUT" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% trans "OVERTIME" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% trans "SHIFT" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% trans "SHIFT TIMES" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        {% trans "TOTAL LOGS" %}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for record in attendance_data %}
+                <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] transition-colors daily-attendance-row"
+                    data-status="{{ record.status }}"
+                    data-department="{{ record.department }}"
+                    data-working-hours="{{ record.working_hours }}"
+                    data-overtime-hours="{{ record.overtime_hours }}">
+                    
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="employee_id" style="width: 100px;">
+                        <span class="font-medium">{{ record.employee_id }}</span>
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="employee_name" style="width: 150px;">
+                        <div class="font-medium">{{ record.employee_name }}</div>
+                        <div class="text-xs text-gray-500">{{ record.designation }}</div>
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="department" style="width: 120px;">
+                        {{ record.department }}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% if record.status == "PRE" %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Present</span>
+                        {% elif record.status == "ABS" %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Absent</span>
+                        {% elif record.status == "LAT" %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Late</span>
+                        {% elif record.status == "LEA" %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Leave</span>
+                        {% elif record.status == "HOL" %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">Holiday</span>
+                        {% elif record.status == "HAL" %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">Half Day</span>
+                        {% else %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">{{ record.status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 120px;">
+                        {% if record.in_time %}
+                            <div class="text-green-600 font-medium">{{ record.in_time|time:"H:i:s" }}</div>
+                            <div class="text-xs text-gray-500">{{ record.in_time|date:"M d" }}</div>
+                        {% else %}
+                            <span class="text-gray-400">--:--:--</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 120px;">
+                        {% if record.out_time %}
+                            <div class="text-blue-600 font-medium">{{ record.out_time|time:"H:i:s" }}</div>
+                            <div class="text-xs text-gray-500">{{ record.out_time|date:"M d" }}</div>
+                        {% else %}
+                            <span class="text-gray-400">--:--:--</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% if record.working_hours > 0 %}
+                            <span class="font-bold text-purple-600">{{ record.working_hours|floatformat:1 }}h</span>
+                        {% else %}
+                            <span class="text-gray-400">0h</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        {% if record.late_minutes > 0 %}
+                            <span class="font-bold text-red-600">{{ record.late_minutes }} min</span>
+                        {% else %}
+                            <span class="text-gray-400">0</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        {% if record.early_out_minutes > 0 %}
+                            <span class="font-bold text-orange-600">{{ record.early_out_minutes }} min</span>
+                        {% else %}
+                            <span class="text-gray-400">0</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% if record.overtime_hours > 0 %}
+                            <span class="font-bold text-indigo-600">{{ record.overtime_hours|floatformat:1 }}h</span>
+                        {% else %}
+                            <span class="text-gray-400">0h</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {{ record.shift_name|default:"No Shift" }}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        <div class="text-xs">
+                            {% if record.shift_start_time %}
+                                <div>{{ record.shift_start_time|time:"H:i" }}</div>
+                                <div>{{ record.shift_end_time|time:"H:i" }}</div>
+                            {% else %}
+                                <span class="text-gray-400">No Shift</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        <span class="font-medium">{{ record.total_logs }}</span>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+                    <td colspan="13" class="px-4 sm:px-8 py-4 text-center text-sm border border-[hsl(var(--border))]">
+                        <div class="flex flex-col items-center justify-center space-y-4">
+                            <div class="rounded-full bg-[hsl(var(--muted))] p-4">
+                                <svg class="h-8 w-8 text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <div class="text-center">
+                                <h3 class="text-base font-medium">{% trans "No Attendance Data Found" %}</h3>
+                                <p class="text-[hsl(var(--muted-foreground))] text-sm">{% trans "No employees found for the selected date and criteria." %}</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+<div class="text-center py-12 bg-white rounded-lg border border-gray-200">
+    <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+    </svg>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">{% trans "Generate Daily Attendance Report" %}</h3>
+    <p class="text-gray-500">{% trans "Click the Generate Daily Report button to create a comprehensive daily attendance overview with real-time status tracking and performance metrics." %}</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+#daily-attendance-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+#daily-attendance-table th,
+#daily-attendance-table td {
+    padding: 2px;
+    text-align: center;
+    border: 1px solid hsl(var(--border));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#daily-attendance-table thead th {
+    background-color: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.loading-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f4f6;
+    border-top: 4px solid #059669;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        font-size: 12px;
+    }
+    
+    .bg-gradient-to-r {
+        background: #059669 !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact;
+    }
+    
+    th {
+        background: #f0f0f0 !important;
+        -webkit-print-color-adjust: exact;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Loading overlay
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.className = 'loading-overlay';
+    loadingOverlay.innerHTML = `
+        <div class="text-center">
+            <div class="loading-spinner"></div>
+            <div class="text-lg font-semibold text-gray-700">{% trans "Generating Daily Attendance Report..." %}</div>
+            <div class="text-sm text-gray-500 mt-2">{% trans "Processing attendance data for the selected date" %}</div>
+        </div>
+    `;
+    document.body.appendChild(loadingOverlay);
+
+    // Toast notification
+    const toast = document.createElement('div');
+    toast.id = 'daily-attendance-feedback';
+    toast.className = 'hidden fixed top-6 right-6 z-50 bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-xl';
+    toast.innerHTML = `
+        <div class="flex items-center space-x-3">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                <svg class="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div>
+                <p class="font-medium text-gray-900">{% trans "Success!" %}</p>
+                <p class="text-sm text-gray-600">{% trans "Action completed successfully!" %}</p>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+
+    // Print Daily Attendance Report Function
+    function printDailyAttendanceReport() {
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Daily Attendance Report - {{ form_data.report_date|date:"Y-m-d"|default:"" }}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 10px; font-size: 10px; }
+                    .header { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #059669; padding-bottom: 10px; }
+                    .header h1 { font-size: 18px; margin: 0; color: #059669; }
+                    .header p { margin: 2px 0; color: #666; font-size: 9px; }
+                    .config-section { margin-bottom: 15px; border: 1px solid #ddd; padding: 10px; }
+                    .config-section h3 { font-size: 12px; margin: 0 0 5px 0; color: #059669; }
+                    .config-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; font-size: 8px; }
+                    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+                    .stat-card { border: 1px solid #ddd; padding: 10px; text-align: center; }
+                    .stat-card h3 { font-size: 16px; margin: 5px 0; color: #059669; }
+                    .stat-card p { font-size: 8px; margin: 0; }
+                    table { width: 100%; border-collapse: collapse; font-size: 6px; margin-top: 10px; }
+                    th, td { border: 1px solid #000; padding: 1px; text-align: center; }
+                    thead th { 
+                        background-color: #ecfdf5 !important; 
+                        font-weight: bold;
+                        -webkit-print-color-adjust: exact;
+                        color-adjust: exact;
+                        font-size: 5px;
+                    }
+                    tbody td { font-size: 5px; }
+                    .present { background-color: #dcfce7 !important; }
+                    .absent { background-color: #fecaca !important; }
+                    .late { background-color: #fef3c7 !important; }
+                    .leave { background-color: #dbeafe !important; }
+                    .holiday { background-color: #f3e8ff !important; }
+                    @page { margin: 0.3in; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>DAILY ATTENDANCE REPORT</h1>
+                    <p>Generated on: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
+                    <p>Date: {{ form_data.report_date|date:"l, F d, Y"|default:"" }}</p>
+                    <p>Total Employees: {{ summary_data.total_employees }} | Attendance Rate: {{ summary_data.attendance_percentage }}%</p>
+                </div>
+                
+                <div class="config-section">
+                    <h3>Applied Configuration</h3>
+                    <div class="config-grid">
+                        <div>Grace Time: {{ form_data.grace_minutes|default:"15" }} min</div>
+                        <div>Early Out Threshold: {{ form_data.early_out_threshold_minutes|default:"30" }} min</div>
+                        <div>Overtime Start: {{ form_data.overtime_start_after_minutes|default:"15" }} min</div>
+                        <div>Min Overtime: {{ form_data.minimum_overtime_minutes|default:"60" }} min</div>
+                        <div>Show Absent: {{ form_data.show_absent_employees|yesno:"Yes,No" }}</div>
+                        <div>Show Leave: {{ form_data.show_leave_employees|yesno:"Yes,No" }}</div>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>{{ summary_data.present_count }}</h3>
+                        <p>Present Today</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>{{ summary_data.absent_count }}</h3>
+                        <p>Absent Today</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>{{ summary_data.late_count }}</h3>
+                        <p>Late Arrivals</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>{{ summary_data.leave_count }}</h3>
+                        <p>On Leave</p>
+                    </div>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>EMP ID</th>
+                            <th>EMPLOYEE NAME</th>
+                            <th>DEPARTMENT</th>
+                            <th>STATUS</th>
+                            <th>CHECK IN</th>
+                            <th>CHECK OUT</th>
+                            <th>WORK HRS</th>
+                            <th>LATE MIN</th>
+                            <th>EARLY OUT</th>
+                            <th>OVERTIME</th>
+                            <th>SHIFT</th>
+                            <th>TOTAL LOGS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `);
+
+        // Add table rows
+        const rows = document.querySelectorAll('#daily-attendance-table tbody tr.daily-attendance-row');
+        rows.forEach(row => {
+            if (row.style.display !== 'none') {
+                const cells = row.querySelectorAll('td');
+                let rowHtml = '<tr>';
+                let status = row.dataset.status;
+                let className = '';
+                if (status === 'PRE') className = 'present';
+                else if (status === 'ABS') className = 'absent';
+                else if (status === 'LAT') className = 'late';
+                else if (status === 'LEA') className = 'leave';
+                else if (status === 'HOL') className = 'holiday';
+                
+                cells.forEach((cell, index) => {
+                    if (index < 12) { // Only include main columns for print
+                        rowHtml += `<td class="${className}">${cell.textContent.trim()}</td>`;
+                    }
+                });
+                rowHtml += '</tr>';
+                printWindow.document.write(rowHtml);
+            }
+        });
+
+        printWindow.document.write(`
+                    </tbody>
+                </table>
+                <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px;">
+                    <p><strong>Report Summary:</strong> This report provides comprehensive daily attendance overview with real-time status tracking and performance metrics.</p>
+                    <p><strong>Generated by:</strong> {{ user.get_full_name|default:user.username }} | <strong>System:</strong> HR Management System</p>
+                </div>
+            </body>
+            </html>
+        `);
+
+        printWindow.document.close();
+        printWindow.focus();
+        
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 250);
+    }
+
+    // Search functionality
+    document.getElementById('search-daily-attendance')?.addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#daily-attendance-table tbody tr.daily-attendance-row');
+        rows.forEach(row => {
+            const employeeId = row.querySelector('td[data-column="employee_id"]')?.textContent.toLowerCase() || '';
+            const employeeName = row.querySelector('td[data-column="employee_name"]')?.textContent.toLowerCase() || '';
+            const department = row.querySelector('td[data-column="department"]')?.textContent.toLowerCase() || '';
+            if (employeeId.includes(searchTerm) || employeeName.includes(searchTerm) || department.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Status filter
+    document.getElementById('status-filter')?.addEventListener('change', function() {
+        const filterValue = this.value;
+        const rows = document.querySelectorAll('#daily-attendance-table tbody tr.daily-attendance-row');
+        rows.forEach(row => {
+            const status = row.dataset.status;
+            if (!filterValue || status === filterValue) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Department filter
+    document.getElementById('department-filter-daily')?.addEventListener('change', function() {
+        const filterValue = this.value;
+        const rows = document.querySelectorAll('#daily-attendance-table tbody tr.daily-attendance-row');
+        rows.forEach(row => {
+            const department = row.dataset.department;
+            if (!filterValue || department === filterValue) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Working hours filter
+    document.getElementById('working-hours-filter')?.addEventListener('change', function() {
+        const filterValue = this.value;
+        const rows = document.querySelectorAll('#daily-attendance-table tbody tr.daily-attendance-row');
+        rows.forEach(row => {
+            const workingHours = parseFloat(row.dataset.workingHours);
+            const overtimeHours = parseFloat(row.dataset.overtimeHours);
+            let show = true;
+            
+            if (filterValue === 'full' && workingHours < 8) show = false;
+            else if (filterValue === 'partial' && (workingHours < 4 || workingHours >= 8)) show = false;
+            else if (filterValue === 'minimal' && workingHours >= 4) show = false;
+            else if (filterValue === 'overtime' && overtimeHours <= 0) show = false;
+            
+            row.style.display = show ? '' : 'none';
+        });
+    });
+
+    // CSV Export
+    document.getElementById('export-daily-attendance-csv')?.addEventListener('click', function() {
+        const table = document.getElementById('daily-attendance-table');
+        const rows = table.querySelectorAll('tbody tr.daily-attendance-row');
+        const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+        
+        let csvContent = [];
+        csvContent.push(headers.map(header => `"${header.replace(/"/g, '""')}"`).join(','));
+        
+        rows.forEach(row => {
+            if (row.style.display !== 'none') {
+                const cells = Array.from(row.querySelectorAll('td'));
+                const rowData = cells.map(cell => `"${cell.textContent.trim().replace(/"/g, '""')}"`);
+                csvContent.push(rowData.join(','));
+            }
+        });
+        
+        const csv = csvContent.join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'daily_attendance_report_{{ form_data.report_date|date:"Y-m-d"|default:"" }}.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+        
+        // Show success toast
+        document.getElementById('daily-attendance-feedback').classList.remove('hidden');
+        setTimeout(() => document.getElementById('daily-attendance-feedback').classList.add('hidden'), 3000);
+    });
+
+    // Copy to Clipboard
+    document.getElementById('copy-daily-attendance-data')?.addEventListener('click', function() {
+        const table = document.getElementById('daily-attendance-table');
+        const rows = table.querySelectorAll('tbody tr.daily-attendance-row');
+        const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+        
+        let textContent = headers.join('\t') + '\n';
+        
+        rows.forEach(row => {
+            if (row.style.display !== 'none') {
+                const cells = Array.from(row.querySelectorAll('td'));
+                const rowData = cells.map(cell => cell.textContent.trim());
+                textContent += rowData.join('\t') + '\n';
+            }
+        });
+        
+        navigator.clipboard.writeText(textContent).then(() => {
+            // Show success toast
+            document.getElementById('daily-attendance-feedback').classList.remove('hidden');
+            setTimeout(() => document.getElementById('daily-attendance-feedback').classList.add('hidden'), 3000);
+        });
+    });
+
+    // Modal creation function
+    function createModal(id, title, content, size = 'large') {
+        const modal = document.createElement('div');
+        modal.id = id;
+        modal.className = 'hidden fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 backdrop-blur-sm';
+        modal.innerHTML = `
+            <div class="bg-white mx-auto mt-10 p-0 border border-gray-200 rounded-xl w-11/12 ${size === 'large' ? 'max-w-5xl' : 'max-w-lg'} shadow-2xl relative animate-in slide-in-from-bottom-4 duration-300">
+                <div class="bg-white px-6 pt-6 pb-0 border-b border-gray-200 rounded-t-xl relative">
+                    <h2 class="text-lg font-semibold text-gray-900">${title}</h2>
+                    <button class="absolute right-4 top-4 bg-gray-100 hover:bg-gray-200 border-0 rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200 text-gray-600 hover:text-gray-800 hover:scale-105 z-10" data-close-modal="${id}">×</button>
+                </div>
+                <div class="bg-white px-6 py-6 max-h-[70vh] overflow-y-auto rounded-b-xl">
+                    ${content}
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        return modal;
+    }
+
+    const dailyAttendanceModal = createModal('daily-attendance-modal', '{% trans "Generate Daily Attendance Report" %}', `
+        <form id="daily-attendance-form" method="post" class="space-y-5">
+            {% csrf_token %}
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-green-600 mr-2" viewBox="0 0 24 24" fill="none">
+                        <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="text-sm text-green-800">
+                        <strong>{% trans "Daily Attendance Overview:" %}</strong> {% trans "This report provides comprehensive daily attendance overview with real-time status tracking, working hours analysis, and performance metrics." %}
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Report Date" %}</label>
+                <input type="date" name="report_date" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200" required>
+            </div>
+            
+            <div>
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Employee Filter" %}</label>
+                <select name="employee_filter" id="employee_filter_daily" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 cursor-pointer">
+                    <option value="all">{% trans "All Active Employees" %}</option>
+                    <option value="department">{% trans "By Department" %}</option>
+                    <option value="designation">{% trans "By Designation" %}</option>
+                    <option value="specific">{% trans "Specific Employees" %}</option>
+                </select>
+            </div>
+            
+            <div id="department_filter_daily" class="hidden">
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Departments" %}</label>
+                <select name="departments" multiple class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700" size="5">
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}">{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div id="designation_filter_daily" class="hidden">
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Designations" %}</label>
+                <select name="designations" multiple class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700" size="5">
+                    {% for desig in designations %}
+                    <option value="{{ desig.id }}">{{ desig.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div id="employee_filter_specific_daily" class="hidden">
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Employee IDs" %}</label>
+                <input type="text" name="employee_ids" placeholder="{% trans 'Enter employee IDs separated by commas' %}" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200">
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Grace Minutes" %}</label>
+                    <input type="number" name="grace_minutes" value="15" min="0" max="120" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200">
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Early Out Threshold (Minutes)" %}</label>
+                    <input type="number" name="early_out_threshold_minutes" value="30" min="0" max="240" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200">
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Overtime Start After (Minutes)" %}</label>
+                    <input type="number" name="overtime_start_after_minutes" value="15" min="0" max="120" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200">
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Minimum Overtime (Minutes)" %}</label>
+                    <input type="number" name="minimum_overtime_minutes" value="60" min="0" max="480" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Weekend Days" %}</label>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="weekend_days" value="0" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Monday" %}</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="weekend_days" value="1" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Tuesday" %}</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="weekend_days" value="2" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Wednesday" %}</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="weekend_days" value="3" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Thursday" %}</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="weekend_days" value="4" checked class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Friday" %}</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="weekend_days" value="5" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Saturday" %}</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="weekend_days" value="6" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Sunday" %}</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="border-t pt-4">
+                <h4 class="text-sm font-medium text-gray-900 mb-3">{% trans "Display Options" %}</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="show_absent_employees" checked class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Show Absent Employees" %}</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="show_leave_employees" checked class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Show Employees on Leave" %}</span>
+                        </label>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="show_holiday_status" checked class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Show Holiday Status" %}</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_roster_info" checked class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Include Roster Information" %}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 pt-4">
+                <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 h-9 px-4 py-2 shadow-md transition-all duration-200">
+                    {% trans "Generate Daily Report" %}
+                </button>
+                <button type="button" data-close-modal="daily-attendance-modal" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 h-9 px-4 py-2 shadow-sm transition-all duration-200">
+                    {% trans "Cancel" %}
+                </button>
+            </div>
+        </form>
+    `);
+
+    // Employee filter change handler for daily attendance modal
+    document.addEventListener('change', function(e) {
+        if (e.target.id === 'employee_filter_daily') {
+            const value = e.target.value;
+            const departmentFilter = document.getElementById('department_filter_daily');
+            const designationFilter = document.getElementById('designation_filter_daily');
+            const employeeFilterSpecific = document.getElementById('employee_filter_specific_daily');
+            
+            departmentFilter.classList.add('hidden');
+            designationFilter.classList.add('hidden');
+            employeeFilterSpecific.classList.add('hidden');
+            
+            if (value === 'department') {
+                departmentFilter.classList.remove('hidden');
+            } else if (value === 'designation') {
+                designationFilter.classList.remove('hidden');
+            } else if (value === 'specific') {
+                employeeFilterSpecific.classList.remove('hidden');
+            }
+        }
+    });
+
+    // Modal close handlers
+    document.addEventListener('click', function(e) {
+        if (e.target.dataset.closeModal) {
+            document.getElementById(e.target.dataset.closeModal).classList.add('hidden');
+        }
+        if (e.target.classList.contains('bg-black')) {
+            e.target.classList.add('hidden');
+        }
+    });
+
+    // Event listeners
+    document.getElementById('generate-daily-attendance-btn').addEventListener('click', function() {
+        dailyAttendanceModal.classList.remove('hidden');
+        
+        // Set default date to today
+        const today = new Date();
+        const defaultDate = today.toISOString().split('T')[0];
+        
+        const dateInput = document.querySelector('#daily-attendance-modal input[name="report_date"]');
+        
+        if (!dateInput.value) {
+            dateInput.value = defaultDate;
+        }
+    });
+
+    document.getElementById('print-daily-attendance-btn')?.addEventListener('click', printDailyAttendanceReport);
+
+    // Form submission
+    document.getElementById('daily-attendance-form').addEventListener('submit', function(e) {
+        dailyAttendanceModal.classList.add('hidden');
+        loadingOverlay.classList.add('active');
+        
+        // Remove loading overlay after form submission
+        setTimeout(() => {
+            loadingOverlay.classList.remove('active');
+        }, 2000);
+    });
+});
+</script>
+{% endblock %}

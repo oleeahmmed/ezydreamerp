@@ -14,11 +14,12 @@ import json
 from collections import defaultdict, OrderedDict
 
 from Hrm.models import *
+from .unified_attendance_processor import UnifiedAttendanceProcessor
 
 logger = logging.getLogger(__name__)
 
 class AttendanceSummaryReportForm(forms.Form):
-    """Enhanced form for generating comprehensive attendance summary report."""
+    """Enhanced form with advanced modal options matching detailed employee report."""
     
     # Date Range
     start_date = forms.DateField(
@@ -34,23 +35,18 @@ class AttendanceSummaryReportForm(forms.Form):
         help_text=_("Select the end date for attendance summary period.")
     )
     
-    # Weekly Holiday Selection
+    # Weekend Configuration (Multiple Days)
     WEEKDAY_CHOICES = [
-        (0, _('Monday')),
-        (1, _('Tuesday')),
-        (2, _('Wednesday')),
-        (3, _('Thursday')),
-        (4, _('Friday')),
-        (5, _('Saturday')),
-        (6, _('Sunday')),
+        (0, _('Monday')), (1, _('Tuesday')), (2, _('Wednesday')), 
+        (3, _('Thursday')), (4, _('Friday')), (5, _('Saturday')), (6, _('Sunday'))
     ]
     
-    weekly_holidays = forms.MultipleChoiceField(
-        label=_("Weekly Holidays"),
+    weekend_days = forms.MultipleChoiceField(
+        label=_("Weekend Days"),
         choices=WEEKDAY_CHOICES,
         initial=[4],  # Friday by default
         widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
-        help_text=_("Select weekly holidays. Multiple days can be selected. Friday is selected by default.")
+        help_text=_("Select weekend days. Multiple days can be selected.")
     )
     
     # Employee Filtering Options
@@ -91,7 +87,82 @@ class AttendanceSummaryReportForm(forms.Form):
         help_text=_("Enter specific employee IDs separated by commas.")
     )
     
-    # Holiday and Leave Options
+    # Modal Configuration Options (Same as Detailed Report)
+    grace_minutes = forms.IntegerField(
+        label=_("Grace Time (Minutes)"),
+        initial=15,
+        min_value=0,
+        max_value=60,
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        help_text=_("Grace time for late arrival. Uses employee setting if not specified.")
+    )
+    
+    early_out_threshold_minutes = forms.IntegerField(
+        label=_("Early Out Threshold (Minutes)"),
+        initial=30,
+        min_value=0,
+        max_value=120,
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        help_text=_("Minimum minutes before shift end to count as early out.")
+    )
+    
+    overtime_start_after_minutes = forms.IntegerField(
+        label=_("Overtime Start After (Minutes)"),
+        initial=15,
+        min_value=0,
+        max_value=60,
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        help_text=_("Minutes after expected work hours to start counting overtime.")
+    )
+    
+    minimum_overtime_minutes = forms.IntegerField(
+        label=_("Minimum Overtime Minutes"),
+        initial=60,
+        min_value=15,
+        max_value=240,
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        help_text=_("Minimum minutes to count as overtime (e.g., 60 = 1 hour minimum).")
+    )
+    
+    late_to_absent_days = forms.IntegerField(
+        label=_("Late to Absent Conversion"),
+        initial=3,
+        min_value=1,
+        max_value=10,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        help_text=_("Number of late days that convert to 1 absent day.")
+    )
+    
+    # Holiday and Weekend Rules
+    holiday_before_after_absent = forms.BooleanField(
+        label=_("Holiday Between Absences Rule"),
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        help_text=_("Mark holiday as absent if employee is absent before and after holiday.")
+    )
+    
+    weekend_before_after_absent = forms.BooleanField(
+        label=_("Weekend Between Absences Rule"),
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        help_text=_("Apply same rule for weekends as holidays.")
+    )
+    
+    require_holiday_presence = forms.BooleanField(
+        label=_("Require Presence Before/After Holiday"),
+        required=False,
+        initial=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        help_text=_("Employee must be present before or after holiday to get holiday benefit.")
+    )
+    
+    # Analysis Options
     include_holiday_analysis = forms.BooleanField(
         label=_("Include Holiday Analysis"),
         required=False,
@@ -106,10 +177,7 @@ class AttendanceSummaryReportForm(forms.Form):
         min_value=0,
         max_value=5,
         required=False,
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'placeholder': '1'
-        }),
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
         help_text=_("Days before/after holidays to check for absence patterns.")
     )
     
@@ -145,6 +213,14 @@ class AttendanceSummaryReportForm(forms.Form):
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         help_text=_("Group summary results by department.")
     )
+    
+    show_roster_details = forms.BooleanField(
+        label=_("Show Roster Details"),
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        help_text=_("Show detailed roster assignment information.")
+    )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -162,7 +238,7 @@ class AttendanceSummaryReportForm(forms.Form):
         return cleaned_data
 
 class AttendanceSummaryReportView(LoginRequiredMixin, View):
-    """Enhanced view to generate comprehensive attendance summary report."""
+    """Unified view using shared attendance processing logic."""
     template_name = 'report/hrm/attendance_summary_report.html'
     
     def get(self, request, *args, **kwargs):
@@ -183,7 +259,7 @@ class AttendanceSummaryReportView(LoginRequiredMixin, View):
 
         if form.is_valid():
             try:
-                summary_data = self._generate_attendance_summary_report(form.cleaned_data)
+                summary_data = self._generate_unified_attendance_summary_report(form.cleaned_data)
                 
                 context_data.update({
                     'report_generated': True,
@@ -191,11 +267,11 @@ class AttendanceSummaryReportView(LoginRequiredMixin, View):
                     'form_data': form.cleaned_data,
                 })
                 
-                messages.success(request, "Attendance summary report generated successfully for {} employees.".format(
+                messages.success(request, "Unified attendance summary report generated successfully for {} employees with consistent logic.".format(
                     len(summary_data.get('employee_summaries', []))))
                 
             except Exception as e:
-                logger.error(f"Error generating attendance summary report: {str(e)}")
+                logger.error(f"Error generating unified attendance summary report: {str(e)}")
                 messages.error(request, "Failed to generate summary report: {}".format(str(e)))
 
         return render(request, self.template_name, context_data)
@@ -207,17 +283,13 @@ class AttendanceSummaryReportView(LoginRequiredMixin, View):
             'departments': Department.objects.all().order_by('name'),
             'designations': Designation.objects.all().order_by('name'),
             'report_generated': False,
-            'page_title': "Comprehensive Attendance Summary Report",
+            'page_title': "Unified Attendance Summary Report with Consistent Logic",
         }
     
-    def _generate_attendance_summary_report(self, form_data):
-        """Generate comprehensive attendance summary report with holiday and leave analysis."""
+    def _generate_unified_attendance_summary_report(self, form_data):
+        """Generate comprehensive attendance summary report using unified processor."""
         start_date = form_data['start_date']
         end_date = form_data['end_date']
-        weekly_holidays = [int(day) for day in form_data['weekly_holidays']]
-        include_holiday_analysis = form_data['include_holiday_analysis']
-        include_leave_analysis = form_data['include_leave_analysis']
-        holiday_buffer_days = form_data.get('holiday_buffer_days', 1)
         
         # Get employees based on filter
         employees = self._get_filtered_employees(form_data)
@@ -226,10 +298,7 @@ class AttendanceSummaryReportView(LoginRequiredMixin, View):
         holidays = self._get_holidays_in_period(start_date, end_date)
         
         # Get leave applications
-        leave_applications = self._get_leave_applications(employees, start_date, end_date) if include_leave_analysis else {}
-        
-        # Get attendance data
-        attendance_data = self._get_attendance_data(employees, start_date, end_date)
+        leave_applications = self._get_leave_applications(employees, start_date, end_date) if form_data.get('include_leave_analysis', True) else {}
         
         # Get ZK attendance logs for detailed analysis
         zk_logs = self._get_zk_attendance_logs(employees, start_date, end_date)
@@ -237,7 +306,10 @@ class AttendanceSummaryReportView(LoginRequiredMixin, View):
         # Get roster data
         roster_data = self._get_roster_data(employees, start_date, end_date)
         
-        # Generate employee summaries
+        # Initialize unified processor
+        processor = UnifiedAttendanceProcessor(form_data)
+        
+        # Generate employee summaries using unified processing
         employee_summaries = []
         department_summaries = defaultdict(lambda: {
             'total_employees': 0,
@@ -246,19 +318,24 @@ class AttendanceSummaryReportView(LoginRequiredMixin, View):
             'total_leave_days': 0,
             'total_holiday_days': 0,
             'total_overtime_hours': 0,
+            'total_late_days': 0,
+            'total_early_out_days': 0,
+            'converted_absents': 0,
             'employees': []
         })
         
         for employee in employees:
-            employee_summary = self._generate_employee_summary(
-                employee, start_date, end_date, weekly_holidays, holidays,
-                attendance_data.get(employee.id, []),
+            # Process employee attendance using unified logic
+            result = processor.process_employee_attendance(
+                employee, start_date, end_date, 
                 zk_logs.filter(user_id=employee.employee_id),
+                holidays,
                 leave_applications.get(employee.id, []),
-                roster_data.get(employee.id, {}),
-                form_data
+                roster_data.get(employee.id, {'assignments': {}, 'days': {}})
             )
             
+            # Convert to summary format
+            employee_summary = self._convert_to_summary_format(employee, result['summary_stats'], form_data)
             employee_summaries.append(employee_summary)
             
             # Add to department summary
@@ -270,10 +347,13 @@ class AttendanceSummaryReportView(LoginRequiredMixin, View):
             dept_summary['total_leave_days'] += employee_summary['total_leave_days']
             dept_summary['total_holiday_days'] += employee_summary['total_holiday_days']
             dept_summary['total_overtime_hours'] += employee_summary['total_overtime_hours']
+            dept_summary['total_late_days'] += employee_summary['total_late_days']
+            dept_summary['total_early_out_days'] += employee_summary['total_early_out_days']
+            dept_summary['converted_absents'] += employee_summary['converted_absents']
             dept_summary['employees'].append(employee_summary)
         
         # Calculate overall statistics
-        overall_stats = self._calculate_overall_statistics(employee_summaries, start_date, end_date)
+        overall_stats = self._calculate_unified_overall_statistics(employee_summaries, start_date, end_date)
         
         return {
             'employee_summaries': employee_summaries,
@@ -283,116 +363,15 @@ class AttendanceSummaryReportView(LoginRequiredMixin, View):
                 'start_date': start_date,
                 'end_date': end_date,
                 'total_days': (end_date - start_date).days + 1,
-                'working_days': self._calculate_working_days(start_date, end_date, weekly_holidays, holidays),
-                'weekly_holidays': weekly_holidays,
+                'working_days': self._calculate_working_days(start_date, end_date, [int(day) for day in form_data['weekend_days']], holidays),
+                'weekend_days': [int(day) for day in form_data['weekend_days']],
                 'holidays': holidays,
-            }
+            },
+            'applied_config': form_data,
         }
     
-    def _generate_employee_summary(self, employee, start_date, end_date, weekly_holidays, 
-                                 holidays, attendance_records, zk_logs, leave_applications, roster_data, form_data):
-        """Generate comprehensive summary for a single employee."""
-        
-        total_days = (end_date - start_date).days + 1
-        working_days = self._calculate_working_days(start_date, end_date, weekly_holidays, holidays)
-        
-        # Initialize counters
-        present_days = 0
-        absent_days = 0
-        late_days = 0
-        half_days = 0
-        leave_days = 0
-        holiday_days = 0
-        weekly_holiday_days = 0
-        total_overtime_minutes = 0
-        total_work_hours = 0
-        
-        # Holiday analysis
-        holiday_absent_before = 0
-        holiday_absent_after = 0
-        consecutive_holiday_absences = []
-        
-        # Process each day
-        current_date = start_date
-        daily_records = {}
-        
-        # Organize attendance records by date
-        for record in attendance_records:
-            daily_records[record.date] = record
-        
-        # Organize leave applications by date
-        leave_dates = set()
-        for leave_app in leave_applications:
-            if leave_app.status == 'APP':  # Approved leaves only
-                current_leave_date = leave_app.start_date
-                while current_leave_date <= leave_app.end_date:
-                    if start_date <= current_leave_date <= end_date:
-                        leave_dates.add(current_leave_date)
-                    current_leave_date += timedelta(days=1)
-        
-        while current_date <= end_date:
-            is_weekly_holiday = current_date.weekday() in weekly_holidays
-            is_holiday = current_date in [h.date for h in holidays]
-            is_leave = current_date in leave_dates
-            
-            if is_weekly_holiday:
-                weekly_holiday_days += 1
-            elif is_holiday:
-                holiday_days += 1
-            elif is_leave:
-                leave_days += 1
-            elif current_date in daily_records:
-                # Employee was present
-                record = daily_records[current_date]
-                present_days += 1
-                
-                if record.status == 'LAT':
-                    late_days += 1
-                elif record.status == 'HAL':
-                    half_days += 1
-                
-                total_overtime_minutes += record.overtime_minutes
-                if hasattr(record, 'working_hours'):
-                    total_work_hours += record.working_hours
-            else:
-                # Check ZK logs for this date to determine if truly absent
-                daily_zk_logs = zk_logs.filter(timestamp__date=current_date)
-                if daily_zk_logs.exists():
-                    # Has ZK logs but no attendance record - process manually
-                    shift_info = self._get_shift_for_date(employee, current_date, roster_data)
-                    daily_record = self._process_zk_logs_for_date(employee, current_date, daily_zk_logs, shift_info)
-                    
-                    if daily_record and daily_record['work_minutes'] >= 30:  # Minimum work threshold
-                        present_days += 1
-                        if daily_record['status'] == 'LAT':
-                            late_days += 1
-                        elif daily_record['status'] == 'HAL':
-                            half_days += 1
-                        total_overtime_minutes += daily_record.get('overtime_minutes', 0)
-                        total_work_hours += daily_record.get('work_hours', 0)
-                    else:
-                        absent_days += 1
-                        # Check for holiday absence patterns
-                        if form_data.get('include_holiday_analysis', True):
-                            self._check_holiday_absence_pattern(
-                                current_date, holidays, form_data.get('holiday_buffer_days', 1),
-                                holiday_absent_before, holiday_absent_after, consecutive_holiday_absences
-                            )
-                else:
-                    # Employee was absent
-                    absent_days += 1
-                    
-                    # Check for holiday absence patterns
-                    if form_data.get('include_holiday_analysis', True):
-                        self._check_holiday_absence_pattern(
-                            current_date, holidays, form_data.get('holiday_buffer_days', 1),
-                            holiday_absent_before, holiday_absent_after, consecutive_holiday_absences
-                        )
-            
-            current_date += timedelta(days=1)
-        
-        # Calculate attendance percentage
-        attendance_percentage = (present_days / working_days * 100) if working_days > 0 else 0
+    def _convert_to_summary_format(self, employee, summary_stats, form_data):
+        """Convert unified summary stats to expected summary format."""
         
         # Get leave balance information
         leave_balances = []
@@ -403,19 +382,6 @@ class AttendanceSummaryReportView(LoginRequiredMixin, View):
             except:
                 leave_balances = []
         
-        # Calculate overtime hours
-        total_overtime_hours = round(total_overtime_minutes / 60, 2)
-        
-        # Holiday issues analysis
-        holiday_issues = []
-        if form_data.get('include_holiday_analysis', True):
-            if holiday_absent_before > 0:
-                holiday_issues.append(f"Absent {holiday_absent_before} day(s) before holidays")
-            if holiday_absent_after > 0:
-                holiday_issues.append(f"Absent {holiday_absent_after} day(s) after holidays")
-            if consecutive_holiday_absences:
-                holiday_issues.append(f"Consecutive absences around holidays: {len(consecutive_holiday_absences)} instance(s)")
-        
         return {
             'employee': employee,
             'employee_id': employee.employee_id,
@@ -425,224 +391,39 @@ class AttendanceSummaryReportView(LoginRequiredMixin, View):
             'expected_work_hours': employee.expected_work_hours,
             'overtime_grace_minutes': employee.overtime_grace_minutes,
             
-            # Attendance Summary
-            'total_days': total_days,
-            'working_days': working_days,
-            'total_present_days': present_days,
-            'total_absent_days': absent_days,
-            'total_late_days': late_days,
-            'total_half_days': half_days,
-            'total_leave_days': leave_days,
-            'total_holiday_days': holiday_days,
-            'total_weekly_holiday_days': weekly_holiday_days,
-            'attendance_percentage': round(attendance_percentage, 2),
+            # Attendance Summary (directly from unified processor)
+            'total_days': summary_stats['total_days'],
+            'working_days': summary_stats['total_days'] - summary_stats['holiday_days'] - summary_stats['leave_days'],
+            'total_present_days': summary_stats['present_days'],
+            'total_absent_days': summary_stats['absent_days'],
+            'total_late_days': summary_stats['late_days'],
+            'total_half_days': summary_stats['half_days'],
+            'total_leave_days': summary_stats['leave_days'],
+            'total_holiday_days': summary_stats['holiday_days'],
+            'attendance_percentage': summary_stats['attendance_percentage'],
             
             # Work Hours Summary
-            'total_work_hours': round(total_work_hours, 2),
-            'total_overtime_hours': total_overtime_hours,
-            'total_overtime_minutes': total_overtime_minutes,
-            'average_daily_hours': round(total_work_hours / present_days, 2) if present_days > 0 else 0,
+            'total_work_hours': summary_stats['total_working_hours'],
+            'total_overtime_hours': summary_stats['total_overtime_hours'],
+            'average_daily_hours': summary_stats['average_daily_hours'],
+            'total_early_out_days': summary_stats['early_out_days'],
             
-            # Holiday Analysis
-            'holiday_absent_before': holiday_absent_before,
-            'holiday_absent_after': holiday_absent_after,
-            'total_holiday_pattern_absences': holiday_absent_before + holiday_absent_after,
-            'consecutive_holiday_absences': consecutive_holiday_absences,
-            'holiday_issues': holiday_issues,
+            # Advanced Metrics
+            'converted_absents': summary_stats['converted_absents'],
+            'original_late_days': summary_stats['original_late_days'],
+            'punctuality_percentage': summary_stats['punctuality_percentage'],
             
             # Leave Information
             'leave_balances': leave_balances,
-            'approved_leaves': len(leave_applications),
+            'approved_leaves': 0,  # This would need to be calculated separately if needed
             
             # Status Indicators
-            'has_attendance_issues': absent_days > (working_days * 0.1),  # More than 10% absent
-            'has_holiday_pattern': (holiday_absent_before + holiday_absent_after) > 0,
-            'has_excessive_overtime': total_overtime_hours > (working_days * 2),  # More than 2h avg OT
+            'has_attendance_issues': summary_stats['absent_days'] > (summary_stats['total_days'] * 0.1),
+            'has_holiday_pattern': False,  # This would need holiday analysis
+            'has_excessive_overtime': summary_stats['total_overtime_hours'] > (summary_stats['total_days'] * 2),
         }
     
-    def _check_holiday_absence_pattern(self, current_date, holidays, holiday_buffer_days, 
-                                      holiday_absent_before, holiday_absent_after, consecutive_holiday_absences):
-        """Check for absence patterns around holidays and track consecutive absences."""
-        try:
-            holiday_dates = [h.date for h in holidays]
-            
-            # Check if absent before holiday
-            for holiday in holiday_dates:
-                for i in range(1, holiday_buffer_days + 1):
-                    if current_date == holiday - timedelta(days=i):
-                        holiday_absent_before += 1
-                        # Check for consecutive absence
-                        if (current_date - timedelta(days=1)) in holiday_dates or \
-                           (current_date - timedelta(days=1)) in [h - timedelta(days=j) for h in holiday_dates for j in range(1, holiday_buffer_days + 1)]:
-                            consecutive_holiday_absences.append(current_date)
-                        return  # Exit early to avoid double-counting
-            
-            # Check if absent after holiday
-            for holiday in holiday_dates:
-                for i in range(1, holiday_buffer_days + 1):
-                    if current_date == holiday + timedelta(days=i):
-                        holiday_absent_after += 1
-                        # Check for consecutive absence
-                        if (current_date + timedelta(days=1)) in holiday_dates or \
-                           (current_date + timedelta(days=1)) in [h + timedelta(days=j) for h in holiday_dates for j in range(1, holiday_buffer_days + 1)]:
-                            consecutive_holiday_absences.append(current_date)
-                        return  # Exit early to avoid double-counting
-        except Exception as e:
-            logger.warning(f"Error checking holiday absence pattern: {str(e)}")
-    
-    def _process_zk_logs_for_date(self, employee, date, daily_logs, shift_info):
-        """Process ZK logs for a specific date to determine attendance."""
-        if not daily_logs.exists():
-            return None
-        
-        # Get first and last punch
-        first_punch = daily_logs.first()
-        last_punch = daily_logs.last()
-        
-        # Calculate work duration
-        if first_punch != last_punch:
-            work_duration = last_punch.timestamp - first_punch.timestamp
-            work_minutes = work_duration.total_seconds() / 60
-        else:
-            work_minutes = 0
-        
-        # Basic attendance record
-        record = {
-            'date': date,
-            'check_in': first_punch.timestamp,
-            'check_out': last_punch.timestamp if first_punch != last_punch else None,
-            'work_minutes': int(work_minutes),
-            'work_hours': round(work_minutes / 60, 2),
-            'late_minutes': 0,
-            'overtime_minutes': 0,
-            'status': 'PRE',
-        }
-        
-        # Calculate late arrival using employee's grace time
-        if shift_info['expected_start'] and employee.overtime_grace_minutes is not None:
-            expected_start_with_grace = shift_info['expected_start'] + timedelta(minutes=employee.overtime_grace_minutes)
-            if first_punch.timestamp > expected_start_with_grace:
-                late_duration = first_punch.timestamp - shift_info['expected_start']
-                record['late_minutes'] = int(late_duration.total_seconds() / 60)
-                record['status'] = 'LAT'
-        
-        # Calculate overtime using employee's overtime grace minutes
-        if shift_info['expected_end'] and record['check_out'] and employee.overtime_grace_minutes is not None:
-            overtime_threshold = shift_info['expected_end'] + timedelta(minutes=employee.overtime_grace_minutes)
-            if record['check_out'] > overtime_threshold:
-                overtime_duration = record['check_out'] - overtime_threshold
-                record['overtime_minutes'] = int(overtime_duration.total_seconds() / 60)
-        
-        # Determine final status based on employee's expected work hours
-        half_day_threshold = employee.expected_work_hours / 2
-        if record['work_hours'] < half_day_threshold:
-            record['status'] = 'HAL'
-        
-        return record
-    
-    def _get_shift_for_date(self, employee, date, roster_data):
-        """Get shift information for employee on specific date with priority logic."""
-        
-        # Priority 1: Check RosterDay for specific date
-        if 'days' in roster_data and date in roster_data['days']:
-            roster_day = roster_data['days'][date]
-            if roster_day.shift:
-                try:
-                    expected_start = timezone.datetime.combine(date, roster_day.shift.start_time)
-                    expected_start = timezone.make_aware(expected_start, timezone.get_default_timezone())
-                    
-                    expected_end = timezone.datetime.combine(date, roster_day.shift.end_time)
-                    expected_end = timezone.make_aware(expected_end, timezone.get_default_timezone())
-                    
-                    # Handle overnight shifts
-                    if roster_day.shift.end_time < roster_day.shift.start_time:
-                        expected_end += timedelta(days=1)
-                    
-                    return {
-                        'shift': roster_day.shift,
-                        'source': 'RosterDay',
-                        'expected_start': expected_start,
-                        'expected_end': expected_end,
-                    }
-                except Exception as e:
-                    logger.warning(f"Error processing roster day shift: {str(e)}")
-        
-        # Priority 2: Check RosterAssignment for date range
-        if 'assignments' in roster_data and date in roster_data['assignments']:
-            roster_assignment = roster_data['assignments'][date]
-            
-            if roster_assignment.shift:
-                try:
-                    expected_start = timezone.datetime.combine(date, roster_assignment.shift.start_time)
-                    expected_start = timezone.make_aware(expected_start, timezone.get_default_timezone())
-                    
-                    expected_end = timezone.datetime.combine(date, roster_assignment.shift.end_time)
-                    expected_end = timezone.make_aware(expected_end, timezone.get_default_timezone())
-                    
-                    # Handle overnight shifts
-                    if roster_assignment.shift.end_time < roster_assignment.shift.start_time:
-                        expected_end += timedelta(days=1)
-                    
-                    return {
-                        'shift': roster_assignment.shift,
-                        'source': 'RosterAssignment',
-                        'expected_start': expected_start,
-                        'expected_end': expected_end,
-                    }
-                except Exception as e:
-                    logger.warning(f"Error processing roster assignment shift: {str(e)}")
-            
-            elif employee.default_shift:
-                try:
-                    expected_start = timezone.datetime.combine(date, employee.default_shift.start_time)
-                    expected_start = timezone.make_aware(expected_start, timezone.get_default_timezone())
-                    
-                    expected_end = timezone.datetime.combine(date, employee.default_shift.end_time)
-                    expected_end = timezone.make_aware(expected_end, timezone.get_default_timezone())
-                    
-                    # Handle overnight shifts
-                    if employee.default_shift.end_time < employee.default_shift.start_time:
-                        expected_end += timedelta(days=1)
-                    
-                    return {
-                        'shift': employee.default_shift,
-                        'source': 'RosterAssignment',
-                        'expected_start': expected_start,
-                        'expected_end': expected_end,
-                    }
-                except Exception as e:
-                    logger.warning(f"Error processing default shift from roster: {str(e)}")
-        
-        # Priority 3: Use employee's default shift
-        if employee.default_shift:
-            try:
-                expected_start = timezone.datetime.combine(date, employee.default_shift.start_time)
-                expected_start = timezone.make_aware(expected_start, timezone.get_default_timezone())
-                
-                expected_end = timezone.datetime.combine(date, employee.default_shift.end_time)
-                expected_end = timezone.make_aware(expected_end, timezone.get_default_timezone())
-                
-                # Handle overnight shifts
-                if employee.default_shift.end_time < employee.default_shift.start_time:
-                    expected_end += timedelta(days=1)
-                
-                return {
-                    'shift': employee.default_shift,
-                    'source': 'Default',
-                    'expected_start': expected_start,
-                    'expected_end': expected_end,
-                }
-            except Exception as e:
-                logger.warning(f"Error processing employee default shift: {str(e)}")
-        
-        # No shift found
-        return {
-            'shift': None,
-            'source': 'None',
-            'expected_start': None,
-            'expected_end': None,
-        }
-    
+    # Helper methods (same as before but using unified logic)
     def _get_filtered_employees(self, form_data):
         """Get employees based on filter criteria."""
         employee_filter = form_data['employee_filter']
@@ -691,24 +472,6 @@ class AttendanceSummaryReportView(LoginRequiredMixin, View):
         except:
             return {}
     
-    def _get_attendance_data(self, employees, start_date, end_date):
-        """Get attendance records for employees in the period."""
-        try:
-            attendance_records = Attendance.objects.filter(
-                employee__in=employees,
-                date__gte=start_date,
-                date__lte=end_date
-            ).select_related('employee')
-            
-            # Group by employee
-            employee_attendance = defaultdict(list)
-            for record in attendance_records:
-                employee_attendance[record.employee.id].append(record)
-            
-            return employee_attendance
-        except:
-            return {}
-    
     def _get_zk_attendance_logs(self, employees, start_date, end_date):
         """Get ZK attendance logs for detailed analysis."""
         employee_ids = [emp.employee_id for emp in employees]
@@ -750,6 +513,9 @@ class AttendanceSummaryReportView(LoginRequiredMixin, View):
         for employee in employees:
             roster_data[employee.id] = {
                 'assignments': {},
+                'days': {} }
+            roster_data[employee.id] = {
+                'assignments': {},
                 'days': {}
             }
         
@@ -770,22 +536,22 @@ class AttendanceSummaryReportView(LoginRequiredMixin, View):
         
         return roster_data
     
-    def _calculate_working_days(self, start_date, end_date, weekly_holidays, holidays):
-        """Calculate working days excluding weekly holidays and public holidays."""
+    def _calculate_working_days(self, start_date, end_date, weekend_days, holidays):
+        """Calculate working days excluding weekend days and public holidays."""
         working_days = 0
         holiday_dates = {h.date for h in holidays}
         
         current_date = start_date
         while current_date <= end_date:
-            if (current_date.weekday() not in weekly_holidays and 
+            if (current_date.weekday() not in weekend_days and 
                 current_date not in holiday_dates):
                 working_days += 1
             current_date += timedelta(days=1)
         
         return working_days
     
-    def _calculate_overall_statistics(self, employee_summaries, start_date, end_date):
-        """Calculate overall statistics from employee summaries."""
+    def _calculate_unified_overall_statistics(self, employee_summaries, start_date, end_date):
+        """Calculate unified overall statistics from employee summaries."""
         if not employee_summaries:
             return {}
         
@@ -794,12 +560,16 @@ class AttendanceSummaryReportView(LoginRequiredMixin, View):
         total_absent_days = sum(emp['total_absent_days'] for emp in employee_summaries)
         total_leave_days = sum(emp['total_leave_days'] for emp in employee_summaries)
         total_overtime_hours = sum(emp['total_overtime_hours'] for emp in employee_summaries)
+        total_late_days = sum(emp['total_late_days'] for emp in employee_summaries)
+        total_converted_absents = sum(emp['converted_absents'] for emp in employee_summaries)
+        total_early_out_days = sum(emp['total_early_out_days'] for emp in employee_summaries)
         
         employees_with_issues = sum(1 for emp in employee_summaries if emp['has_attendance_issues'])
         employees_with_holiday_pattern = sum(1 for emp in employee_summaries if emp['has_holiday_pattern'])
         employees_with_excessive_overtime = sum(1 for emp in employee_summaries if emp['has_excessive_overtime'])
         
         avg_attendance_percentage = sum(emp['attendance_percentage'] for emp in employee_summaries) / total_employees
+        avg_punctuality_percentage = sum(emp['punctuality_percentage'] for emp in employee_summaries) / total_employees
         
         return {
             'total_employees': total_employees,
@@ -807,7 +577,11 @@ class AttendanceSummaryReportView(LoginRequiredMixin, View):
             'total_absent_days': total_absent_days,
             'total_leave_days': total_leave_days,
             'total_overtime_hours': round(total_overtime_hours, 2),
+            'total_late_days': total_late_days,
+            'total_converted_absents': total_converted_absents,
+            'total_early_out_days': total_early_out_days,
             'average_attendance_percentage': round(avg_attendance_percentage, 2),
+            'average_punctuality_percentage': round(avg_punctuality_percentage, 2),
             'employees_with_issues': employees_with_issues,
             'employees_with_holiday_pattern': employees_with_holiday_pattern,
             'employees_with_excessive_overtime': employees_with_excessive_overtime,
