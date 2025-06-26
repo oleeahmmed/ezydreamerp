@@ -50,6 +50,9 @@ from .views.zktico.missing_punch_report import MissingPunchReportView
 from .views.zktico.late_coming_report import LateComingReportView
 from .views.zktico.monthly_attendance_summary import MonthlyAttendanceSummaryView
 from .views.zktico.daily_attendance_report import DailyAttendanceReportView
+from .views.zktico.early_leaving_report import EarlyLeavingReportView
+from .views.zktico.overtime_report import OvertimeReportView
+
 
 
 
@@ -380,6 +383,9 @@ path('attendance/summery-report/', AttendanceSummaryReportView.as_view(), name='
 path('attendance/missing-punch-report/', MissingPunchReportView.as_view(), name='missing_punch_report'),
 path('attendance/late-coming-report/', LateComingReportView.as_view(), name='late_coming_report'),
 path('attendance/daily-attendance-report/', DailyAttendanceReportView.as_view(), name='daily_attendance_report'),
+path('attendance/early-leaving-report/', EarlyLeavingReportView.as_view(), name='early_leaving_report'),
+path('attendance/overtime-report/', OvertimeReportView.as_view(), name='overtime_report'),
+
 
 
 path('attendance/monthly-summery-report/', MonthlyAttendanceSummaryView.as_view(), name='monthly_attendance_summery_report'),
