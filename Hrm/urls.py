@@ -43,6 +43,9 @@ from .views.zktico.zk_attendance_log_views import (
     ZKAttendanceLogListView, ZKAttendanceLogCreateView, ZKAttendanceLogDetailView,
     ZKAttendanceLogUpdateView, ZKAttendanceLogExportView, ZKAttendanceLogBulkDeleteView,
     ZKAttendanceLogDeleteView)
+
+from .views.zktico.report_views import HrmReportListView
+
 from .views.zktico.employee_attendance_report import EmployeeDetailedAttendanceReportView
 from .views.zktico.attendance_details_report import AttendanceDetailsReportView
 from .views.zktico.attendance_summary_report import AttendanceSummaryReportView
@@ -52,7 +55,10 @@ from .views.zktico.monthly_attendance_summary import MonthlyAttendanceSummaryVie
 from .views.zktico.daily_attendance_report import DailyAttendanceReportView
 from .views.zktico.early_leaving_report import EarlyLeavingReportView
 from .views.zktico.overtime_report import OvertimeReportView
+from .views.zktico.attendance_import_view import AttendanceImportView
 
+from .views.zktico.payslip_report import PayslipReportView
+from .views.zktico.payroll_summary_report import PayrollSummaryReportView
 
 
 
@@ -377,17 +383,22 @@ path('zk-attendance-device/', ZKAttendanceDeviceListView.as_view(), name='zk_att
 path('zk-attendance/import/', ZKAttendanceImportView.as_view(), name='zk_attendance_import'),
 path('zk-attendance/<int:device_id>/<str:user_id>/<str:timestamp>/', ZKAttendanceDetailView.as_view(), name='zk_attendance_detail'),
 
-path('attendance/report/', EmployeeDetailedAttendanceReportView.as_view(), name='employee_detailed_attendance_report'),
-path('attendance/details-report/', AttendanceDetailsReportView.as_view(), name='attendance_details_report'),
-path('attendance/summery-report/', AttendanceSummaryReportView.as_view(), name='attendance_summery_report'),
-path('attendance/missing-punch-report/', MissingPunchReportView.as_view(), name='missing_punch_report'),
-path('attendance/late-coming-report/', LateComingReportView.as_view(), name='late_coming_report'),
-path('attendance/daily-attendance-report/', DailyAttendanceReportView.as_view(), name='daily_attendance_report'),
-path('attendance/early-leaving-report/', EarlyLeavingReportView.as_view(), name='early_leaving_report'),
-path('attendance/overtime-report/', OvertimeReportView.as_view(), name='overtime_report'),
-
-
-
-path('attendance/monthly-summery-report/', MonthlyAttendanceSummaryView.as_view(), name='monthly_attendance_summery_report'),
-
+    # Attendance Reports
+    path('reports/', HrmReportListView.as_view(), name='report-list'),
+    path('attendance/reports/detailed/', EmployeeDetailedAttendanceReportView.as_view(), name='attendance-detailed'),
+    path('attendance/reports/details/', AttendanceDetailsReportView.as_view(), name='attendance-details'),
+    path('attendance/reports/summary/', AttendanceSummaryReportView.as_view(), name='attendance-summary'),
+    path('attendance/reports/missing-punch/', MissingPunchReportView.as_view(), name='attendance-missing-punch'),
+    path('attendance/reports/late-coming/', LateComingReportView.as_view(), name='attendance-late-coming'),
+    path('attendance/reports/daily/', DailyAttendanceReportView.as_view(), name='attendance-daily'),
+    path('attendance/reports/early-leaving/', EarlyLeavingReportView.as_view(), name='attendance-early-leaving'),
+    path('attendance/reports/overtime/', OvertimeReportView.as_view(), name='attendance-overtime'),
+    path('attendance/reports/monthly-summary/', MonthlyAttendanceSummaryView.as_view(), name='attendance-monthly-summary'),
+    
+    # Attendance Import
+    path('attendance/import/', AttendanceImportView.as_view(), name='attendance-import'),
+    
+    # Payroll Reports
+    path('payroll/reports/payslip/', PayslipReportView.as_view(), name='payroll-payslip'),
+    path('payroll/reports/summary/', PayrollSummaryReportView.as_view(), name='payroll-summary'),
 ]

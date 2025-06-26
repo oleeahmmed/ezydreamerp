@@ -1,0 +1,1026 @@
+{% extends "common/base-list-modern.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block list_icon %}
+<svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+{% endblock %}
+
+{% block list_title %}{% trans "Attendance Import from ZK Logs" %}{% endblock %}
+{% block list_subtitle %}{% trans "Process ZK attendance logs using UnifiedAttendanceProcessor and import selected records to Attendance model" %}{% endblock %}
+
+{% block list_actions %}
+<div class="flex gap-3">
+    <button id="generate-import-data-btn" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Generate Import Data" %}
+    </button>
+    
+    {% if import_generated %}
+    <button id="import-selected-btn" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md" disabled>
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Import Selected Records" %}
+    </button>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block search_filter %}
+{% if import_generated %}
+<div class="flex flex-wrap justify-center gap-3 p-4 bg-white shadow-md rounded-lg border border-gray-200">
+    <input type="text" id="search-input" placeholder="{% trans 'Search Employee ID, Name, or Department...' %}" class="w-full sm:w-auto flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+    <select id="status-filter" class="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+        <option value="">{% trans "All Status" %}</option>
+        <option value="PRE">{% trans "Present" %}</option>
+        <option value="LAT">{% trans "Late" %}</option>
+        <option value="HAL">{% trans "Half Day" %}</option>
+    </select>
+    <select id="record-type-filter" class="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+        <option value="">{% trans "All Records" %}</option>
+        <option value="new">{% trans "New Records" %}</option>
+        <option value="existing">{% trans "Existing Records" %}</option>
+        <option value="complete">{% trans "Complete Records" %}</option>
+        <option value="incomplete">{% trans "Incomplete Records" %}</option>
+    </select>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block table_body %}
+{% if import_generated %}
+
+<!-- Summary Statistics -->
+<div class="bg-white rounded-lg shadow-md mb-8">
+    <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-t-lg">
+        <h3 class="text-lg font-bold">{% trans "IMPORT SUMMARY" %}</h3>
+        <p class="text-sm opacity-90">{% trans "Processed using UnifiedAttendanceProcessor with employee-specific settings" %}</p>
+    </div>
+    
+    <div class="p-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600">{{ summary_data.total_records }}</div>
+                <div class="text-sm text-gray-600">{% trans "Total Records" %}</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600">{{ summary_data.complete_records }}</div>
+                <div class="text-sm text-gray-600">{% trans "Complete" %}</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-orange-600">{{ summary_data.incomplete_records }}</div>
+                <div class="text-sm text-gray-600">{% trans "Incomplete" %}</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600">{{ summary_data.new_records }}</div>
+                <div class="text-sm text-gray-600">{% trans "New Records" %}</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-yellow-600">{{ summary_data.existing_records }}</div>
+                <div class="text-sm text-gray-600">{% trans "Existing" %}</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-indigo-600">{{ summary_data.overtime_records }}</div>
+                <div class="text-sm text-gray-600">{% trans "With Overtime" %}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Import Table -->
+<div class="bg-white rounded-lg shadow-md">
+    <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 rounded-t-lg">
+        <h3 class="text-lg font-bold">{% trans "ATTENDANCE RECORDS FOR IMPORT" %} ({{ total_records }})</h3>
+        <p class="text-sm opacity-90">{% trans "Select records to import into Attendance model" %}</p>
+    </div>
+    
+    <div class="w-full overflow-x-auto overflow-y-auto max-h-[70vh]">
+        <table id="import-table" class="w-full table-fixed border-collapse">
+            <thead class="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] sticky top-0 z-10">
+                <tr>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 50px;">
+                        <input type="checkbox" id="select-all" class="form-check-input">
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% trans "EMPLOYEE ID" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 150px;">
+                        {% trans "EMPLOYEE NAME" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 120px;">
+                        {% trans "DEPARTMENT" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% trans "DATE" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        {% trans "STATUS" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% trans "CHECK IN" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% trans "CHECK OUT" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        {% trans "WORK HRS" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        {% trans "LATE MIN" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        {% trans "OVERTIME" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% trans "EMP SETTINGS" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 120px;">
+                        {% trans "IMPORT STATUS" %}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for record in attendance_data %}
+                <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] transition-colors import-row"
+                    data-status="{{ record.status }}"
+                    data-existing="{{ record.existing_record|yesno:'true,false' }}"
+                    data-complete="{% if record.check_out %}true{% else %}false{% endif %}"
+                    data-ready="{{ record.ready_for_import|yesno:'true,false' }}">
+                    
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 50px;">
+                        {% if record.ready_for_import %}
+                        <input type="checkbox" class="import-checkbox form-check-input" 
+                               data-employee-id="{{ record.employee_id }}"
+                               data-date="{{ record.date|date:'Y-m-d' }}"
+                               data-status="{{ record.status }}"
+                               data-check-in="{% if record.check_in %}{{ record.check_in|date:'c' }}{% endif %}"
+                               data-check-out="{% if record.check_out %}{{ record.check_out|date:'c' }}{% endif %}"
+                               data-late-minutes="{{ record.late_minutes }}"
+                               data-overtime-minutes="{{ record.overtime_minutes }}"
+                               data-early-out-minutes="{{ record.early_out_minutes }}"
+                               data-expected-work-hours="{{ record.expected_work_hours }}"
+                               data-overtime-grace-minutes="{{ record.overtime_grace_minutes }}">
+                        {% else %}
+                        <span class="text-gray-400">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="employee_id" style="width: 100px;">
+                        {{ record.employee_id }}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="employee_name" style="width: 150px;">
+                        {{ record.employee_name }}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="department" style="width: 120px;">
+                        {{ record.department }}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        <div>{{ record.date|date:"d-m-Y" }}</div>
+                        <div class="text-xs text-gray-500">{{ record.day_name }}</div>
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                            {% if record.status == 'PRE' %}bg-green-100 text-green-800
+                            {% elif record.status == 'LAT' %}bg-yellow-100 text-yellow-800
+                            {% elif record.status == 'HAL' %}bg-purple-100 text-purple-800
+                            {% endif %}">
+                            {{ record.status_display }}
+                        </span>
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% if record.check_in %}
+                            <span class="text-green-600 font-medium">{{ record.check_in|date:"H:i:s" }}</span>
+                        {% else %}
+                            <span class="text-gray-400">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% if record.check_out %}
+                            <span class="text-red-600 font-medium">{{ record.check_out|date:"H:i:s" }}</span>
+                        {% else %}
+                            <span class="text-gray-400">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        <span class="text-blue-600">{{ record.working_hours|floatformat:2 }}h</span>
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        {% if record.late_minutes > 0 %}
+                            <span class="text-yellow-600">{{ record.late_minutes }}</span>
+                        {% else %}
+                            <span class="text-gray-400">0</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        {% if record.overtime_minutes > 0 %}
+                            <span class="text-blue-600 font-bold">{{ record.overtime_minutes }}m</span>
+                            <div class="text-xs text-green-500">
+                                Grace: {{ record.overtime_grace_minutes }}m
+                            </div>
+                        {% else %}
+                            <span class="text-gray-400">0m</span>
+                            <div class="text-xs text-gray-400">
+                                Grace: {{ record.overtime_grace_minutes }}m
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        <div class="text-xs">
+                            <div class="font-medium text-blue-600">{{ record.expected_work_hours }}h</div>
+                            <div class="text-gray-500">Expected</div>
+                            <div class="text-xs text-orange-600">OT: {{ record.overtime_grace_minutes }}m</div>
+                        </div>
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 120px;">
+                        <div class="space-y-1">
+                            {% if record.existing_record %}
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    {% trans "Exists" %}
+                                </span>
+                            {% else %}
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    {% trans "New" %}
+                                </span>
+                            {% endif %}
+                            
+                            {% if record.check_out %}
+                                <div class="text-xs text-green-600">✓ Complete</div>
+                            {% else %}
+                                <div class="text-xs text-orange-600">⚠ Incomplete</div>
+                            {% endif %}
+                            
+                            {% if not record.ready_for_import %}
+                                <div class="text-xs text-red-600">❌ Skipped</div>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+                    <td colspan="13" class="px-4 sm:px-8 py-4 text-center text-sm border border-[hsl(var(--border))]">
+                        <div class="flex flex-col items-center justify-center space-y-4">
+                            <div class="rounded-full bg-[hsl(var(--muted))] p-4">
+                                <svg class="h-8 w-8 text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <div class="text-center">
+                                <h3 class="text-base font-medium">{% trans "No Import Data Available" %}</h3>
+                                <p class="text-[hsl(var(--muted-foreground))] text-sm">{% trans "No attendance records found for import." %}</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+<div class="text-center py-12 bg-white rounded-lg border border-gray-200">
+    <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+    </svg>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">{% trans "Generate Attendance Import Data" %}</h3>
+    <p class="text-gray-500">{% trans "Click the Generate Import Data button to process ZK attendance logs using UnifiedAttendanceProcessor and prepare records for import to the Attendance model." %}</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+#import-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+#import-table th,
+#import-table td {
+    padding: 2px;
+    text-align: center;
+    border: 1px solid hsl(var(--border));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#import-table thead th {
+    background-color: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.loading-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f4f6;
+    border-top: 4px solid #10b981;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Loading overlay
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.className = 'loading-overlay';
+    loadingOverlay.innerHTML = `
+        <div class="text-center">
+            <div class="loading-spinner"></div>
+            <div class="text-lg font-semibold text-gray-700">{% trans "Processing Attendance Import Data..." %}</div>
+            <div class="text-sm text-gray-500 mt-2">{% trans "Using UnifiedAttendanceProcessor with employee-specific settings" %}</div>
+        </div>
+    `;
+    document.body.appendChild(loadingOverlay);
+
+    // Toast notification
+    const toast = document.createElement('div');
+    toast.id = 'import-feedback';
+    toast.className = 'hidden fixed top-6 right-6 z-50 bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-xl';
+    toast.innerHTML = `
+        <div class="flex items-center space-x-3">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                <svg class="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div>
+                <p class="font-medium text-gray-900">{% trans "Success!" %}</p>
+                <p class="text-sm text-gray-600">{% trans "Import completed successfully!" %}</p>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+
+    // Search functionality
+    document.getElementById('search-input')?.addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#import-table tbody tr.import-row');
+        rows.forEach(row => {
+            const employeeId = row.querySelector('td[data-column="employee_id"]')?.textContent.toLowerCase() || '';
+            const employeeName = row.querySelector('td[data-column="employee_name"]')?.textContent.toLowerCase() || '';
+            const department = row.querySelector('td[data-column="department"]')?.textContent.toLowerCase() || '';
+            if (employeeId.includes(searchTerm) || employeeName.includes(searchTerm) || department.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Status filter
+    document.getElementById('status-filter')?.addEventListener('change', function() {
+        const statusFilter = this.value;
+        const rows = document.querySelectorAll('#import-table tbody tr.import-row');
+        rows.forEach(row => {
+            const status = row.dataset.status || '';
+            if (!statusFilter || status === statusFilter) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Record type filter
+    document.getElementById('record-type-filter')?.addEventListener('change', function() {
+        const typeFilter = this.value;
+        const rows = document.querySelectorAll('#import-table tbody tr.import-row');
+        rows.forEach(row => {
+            let show = true;
+            
+            if (typeFilter === 'new' && row.dataset.existing === 'true') show = false;
+            else if (typeFilter === 'existing' && row.dataset.existing === 'false') show = false;
+            else if (typeFilter === 'complete' && row.dataset.complete === 'false') show = false;
+            else if (typeFilter === 'incomplete' && row.dataset.complete === 'true') show = false;
+            
+            row.style.display = show ? '' : 'none';
+        });
+    });
+
+    // Select all functionality
+    const selectAllCheckbox = document.getElementById('select-all');
+    const importCheckboxes = document.querySelectorAll('.import-checkbox');
+    const importSelectedBtn = document.getElementById('import-selected-btn');
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            importCheckboxes.forEach(checkbox => {
+                if (checkbox.closest('tr').style.display !== 'none') {
+                    checkbox.checked = this.checked;
+                }
+            });
+            updateImportButton();
+        });
+    }
+
+    importCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateImportButton);
+    });
+
+    function updateImportButton() {
+        const checkedBoxes = document.querySelectorAll('.import-checkbox:checked');
+        const visibleCheckedBoxes = Array.from(checkedBoxes).filter(cb => 
+            cb.closest('tr').style.display !== 'none'
+        );
+        
+        if (importSelectedBtn) {
+            importSelectedBtn.disabled = visibleCheckedBoxes.length === 0;
+            if (visibleCheckedBoxes.length > 0) {
+                importSelectedBtn.innerHTML = `
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    {% trans "Import Selected Records" %} (${visibleCheckedBoxes.length})
+                `;
+            } else {
+                importSelectedBtn.innerHTML = `
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    {% trans "Import Selected Records" %}
+                `;
+            }
+        }
+    }
+
+    // Enhanced Modal Creation Function
+    function createModal(id, title, content, size = 'large', type = 'default') {
+        const modal = document.createElement('div');
+        modal.id = id;
+        modal.className = 'hidden fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 backdrop-blur-sm';
+        
+        let headerClass = 'bg-white';
+        let iconHtml = '';
+        
+        if (type === 'success') {
+            headerClass = 'bg-gradient-to-r from-green-600 to-green-700';
+            iconHtml = `
+                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 mx-auto mb-4">
+                    <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+            `;
+        } else if (type === 'error') {
+            headerClass = 'bg-gradient-to-r from-red-600 to-red-700';
+            iconHtml = `
+                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 mx-auto mb-4">
+                    <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </div>
+            `;
+        } else if (type === 'warning') {
+            headerClass = 'bg-gradient-to-r from-yellow-600 to-yellow-700';
+            iconHtml = `
+                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 mx-auto mb-4">
+                    <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                    </svg>
+                </div>
+            `;
+        } else if (type === 'info') {
+            headerClass = 'bg-gradient-to-r from-blue-600 to-blue-700';
+            iconHtml = `
+                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 mx-auto mb-4">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            `;
+        }
+        
+        modal.innerHTML = `
+            <div class="bg-white mx-auto mt-10 p-0 border border-gray-200 rounded-xl w-11/12 ${size === 'large' ? 'max-w-4xl' : size === 'medium' ? 'max-w-2xl' : 'max-w-lg'} shadow-2xl relative animate-in slide-in-from-bottom-4 duration-300">
+                <div class="${headerClass} ${type !== 'default' ? 'text-white' : ''} px-6 pt-6 pb-4 border-b border-gray-200 rounded-t-xl relative">
+                    <button class="absolute right-4 top-4 ${type !== 'default' ? 'bg-white bg-opacity-20 hover:bg-opacity-30 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800'} border-0 rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105 z-10" data-close-modal="${id}">×</button>
+                    ${iconHtml}
+                    <h2 class="text-xl font-bold text-center ${type !== 'default' ? 'text-white' : 'text-gray-900'}">${title}</h2>
+                </div>
+                <div class="bg-white px-6 py-6 max-h-[70vh] overflow-y-auto rounded-b-xl">
+                    ${content}
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        return modal;
+    }
+
+    // Import Confirmation Modal
+    function showImportConfirmationModal(recordCount, callback) {
+        const confirmModal = createModal('import-confirm-modal', 
+            '{% trans "Confirm Attendance Import" %}', 
+            `
+            <div class="text-center">
+                <div class="mb-6">
+                    <div class="text-lg font-semibold text-gray-900 mb-2">
+                        {% trans "Import" %} ${recordCount} {% trans "attendance records?" %}
+                    </div>
+                    <p class="text-gray-600">
+                        {% trans "This will process the selected records using UnifiedAttendanceProcessor rules and import them into the Attendance model." %}
+                    </p>
+                </div>
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <div class="text-left">
+                            <h4 class="text-sm font-medium text-blue-900 mb-1">{% trans "Import Options" %}</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center text-sm text-blue-800">
+                                    <input type="checkbox" id="update-existing-confirm" class="mr-2 rounded border-blue-300 text-blue-600 focus:ring-blue-500">
+                                    {% trans "Update existing attendance records" %}
+                                </label>
+                                <label class="flex items-center text-sm text-blue-800">
+                                    <input type="checkbox" id="import-complete-only-confirm" checked class="mr-2 rounded border-blue-300 text-blue-600 focus:ring-blue-500">
+                                    {% trans "Import only complete records (with both check-in and check-out)" %}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3 justify-center">
+                    <button id="confirm-import-btn" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 px-6 py-3 shadow-md">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% trans "Confirm Import" %}
+                    </button>
+                    <button data-close-modal="import-confirm-modal" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 px-6 py-3 shadow-sm">
+                        {% trans "Cancel" %}
+                    </button>
+                </div>
+            </div>
+            `, 'medium', 'info');
+        
+        confirmModal.classList.remove('hidden');
+        
+        document.getElementById('confirm-import-btn').addEventListener('click', function() {
+            const updateExisting = document.getElementById('update-existing-confirm').checked;
+            const importCompleteOnly = document.getElementById('import-complete-only-confirm').checked;
+            confirmModal.classList.add('hidden');
+            callback(updateExisting, importCompleteOnly);
+        });
+    }
+
+    // Import Result Modal
+    function showImportResultModal(data) {
+        let modalType = 'success';
+        let title = '{% trans "Import Completed Successfully" %}';
+        
+        if (data.errors > 0 && data.imported === 0 && data.updated === 0) {
+            modalType = 'error';
+            title = '{% trans "Import Failed" %}';
+        } else if (data.errors > 0) {
+            modalType = 'warning';
+            title = '{% trans "Import Completed with Warnings" %}';
+        }
+        
+        let resultContent = `
+            <div class="space-y-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                        <div class="text-2xl font-bold text-green-600">${data.imported}</div>
+                        <div class="text-sm text-green-700">{% trans "Imported" %}</div>
+                    </div>
+                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                        <div class="text-2xl font-bold text-blue-600">${data.updated}</div>
+                        <div class="text-sm text-blue-700">{% trans "Updated" %}</div>
+                    </div>
+                    <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                        <div class="text-2xl font-bold text-yellow-600">${data.skipped}</div>
+                        <div class="text-sm text-yellow-700">{% trans "Skipped" %}</div>
+                    </div>
+                    <div class="text-center p-4 bg-red-50 rounded-lg">
+                        <div class="text-2xl font-bold text-red-600">${data.errors}</div>
+                        <div class="text-sm text-red-700">{% trans "Errors" %}</div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="font-medium text-gray-900 mb-2">{% trans "Import Summary" %}</h4>
+                    <p class="text-sm text-gray-600">${data.message}</p>
+                </div>
+        `;
+        
+        if (data.error_details && data.error_details.length > 0) {
+            resultContent += `
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <h4 class="font-medium text-red-900 mb-2 flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                        </svg>
+                        {% trans "Error Details" %}
+                    </h4>
+                    <div class="max-h-32 overflow-y-auto">
+                        <ul class="text-sm text-red-700 space-y-1">
+            `;
+            
+            data.error_details.forEach(error => {
+                resultContent += `<li class="flex items-start"><span class="mr-2">•</span><span>${error}</span></li>`;
+            });
+            
+            resultContent += `
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+        
+        resultContent += `
+                <div class="text-center">
+                    <button data-close-modal="import-result-modal" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 px-6 py-3 shadow-md">
+                        {% trans "Close" %}
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        const resultModal = createModal('import-result-modal', title, resultContent, 'medium', modalType);
+        resultModal.classList.remove('hidden');
+    }
+
+    // Import selected records
+    if (importSelectedBtn) {
+        importSelectedBtn.addEventListener('click', function() {
+            const selectedRecords = [];
+            document.querySelectorAll('.import-checkbox:checked').forEach(checkbox => {
+                if (checkbox.closest('tr').style.display !== 'none') {
+                    selectedRecords.push({
+                        employee_id: checkbox.dataset.employeeId,
+                        date: checkbox.dataset.date,
+                        status: checkbox.dataset.status,
+                        check_in: checkbox.dataset.checkIn,
+                        check_out: checkbox.dataset.checkOut,
+                        late_minutes: parseInt(checkbox.dataset.lateMinutes) || 0,
+                        overtime_minutes: parseInt(checkbox.dataset.overtimeMinutes) || 0,
+                        early_out_minutes: parseInt(checkbox.dataset.earlyOutMinutes) || 0,
+                        expected_work_hours: parseInt(checkbox.dataset.expectedWorkHours) || 8,
+                        overtime_grace_minutes: parseInt(checkbox.dataset.overtimeGraceMinutes) || 15,
+                    });
+                }
+            });
+
+            if (selectedRecords.length === 0) {
+                const noSelectionModal = createModal('no-selection-modal', 
+                    '{% trans "No Records Selected" %}', 
+                    `
+                    <div class="text-center">
+                        <p class="text-gray-600 mb-6">{% trans "Please select at least one attendance record to import." %}</p>
+                        <button data-close-modal="no-selection-modal" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 px-6 py-3 shadow-md">
+                            {% trans "OK" %}
+                        </button>
+                    </div>
+                    `, 'small', 'warning');
+                noSelectionModal.classList.remove('hidden');
+                return;
+            }
+
+            showImportConfirmationModal(selectedRecords.length, function(updateExisting, importCompleteOnly) {
+                importAttendanceRecords(selectedRecords, updateExisting, importCompleteOnly);
+            });
+        });
+    }
+
+    function importAttendanceRecords(records, updateExisting, importCompleteOnly) {
+        loadingOverlay.classList.add('active');
+
+        fetch('', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({
+                action: 'import_attendance',
+                attendance_records: records,
+                update_existing: updateExisting,
+                import_only_complete: importCompleteOnly
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            loadingOverlay.classList.remove('active');
+            
+            if (data.success) {
+                showImportResultModal(data);
+                
+                // Uncheck all checkboxes
+                document.querySelectorAll('.import-checkbox:checked').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.checked = false;
+                }
+                updateImportButton();
+                
+                // Show success toast
+                document.getElementById('import-feedback').classList.remove('hidden');
+                setTimeout(() => document.getElementById('import-feedback').classList.add('hidden'), 3000);
+                
+            } else {
+                const errorModal = createModal('import-error-modal', 
+                    '{% trans "Import Error" %}', 
+                    `
+                    <div class="text-center">
+                        <p class="text-gray-600 mb-6">${data.message}</p>
+                        <button data-close-modal="import-error-modal" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 px-6 py-3 shadow-md">
+                            {% trans "Close" %}
+                        </button>
+                    </div>
+                    `, 'medium', 'error');
+                errorModal.classList.remove('hidden');
+            }
+        })
+        .catch(error => {
+            loadingOverlay.classList.remove('active');
+            console.error('Error:', error);
+            
+            const errorModal = createModal('import-error-modal', 
+                '{% trans "Network Error" %}', 
+                `
+                <div class="text-center">
+                    <p class="text-gray-600 mb-6">{% trans "An error occurred during attendance import. Please try again." %}</p>
+                    <button data-close-modal="import-error-modal" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 px-6 py-3 shadow-md">
+                        {% trans "Close" %}
+                    </button>
+                </div>
+                `, 'medium', 'error');
+            errorModal.classList.remove('hidden');
+        });
+    }
+
+    // Generate import data modal (keeping existing functionality)
+    const importModal = createModal('import-modal', '{% trans "Generate Attendance Import Data" %}', `
+        <form id="import-form" method="post" class="space-y-5">
+            {% csrf_token %}
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-green-600 mr-2" viewBox="0 0 24 24" fill="none">
+                        <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="text-sm text-green-800">
+                        <strong>{% trans "UnifiedAttendanceProcessor Import:" %}</strong> {% trans "This will process ZK attendance logs using the same rules as other reports and prepare data for import to the Attendance model." %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Start Date" %}</label>
+                    <input type="date" name="start_date" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200" required>
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "End Date" %}</label>
+                    <input type="date" name="end_date" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200" required>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Employee Filter" %}</label>
+                <select name="employee_filter" id="employee_filter_import" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 cursor-pointer">
+                    <option value="all">{% trans "All Active Employees" %}</option>
+                    <option value="department">{% trans "By Department" %}</option>
+                    <option value="designation">{% trans "By Designation" %}</option>
+                    <option value="specific">{% trans "Specific Employees" %}</option>
+                </select>
+            </div>
+            
+            <div id="department_filter_import" class="hidden">
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Departments" %}</label>
+                <select name="departments" multiple class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700" size="5">
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}">{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div id="designation_filter_import" class="hidden">
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Designations" %}</label>
+                <select name="designations" multiple class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700" size="5">
+                    {% for desig in designations %}
+                    <option value="{{ desig.id }}">{{ desig.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div id="employee_filter_specific_import" class="hidden">
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Employee IDs" %}</label>
+                <input type="text" name="employee_ids" placeholder="{% trans 'Enter employee IDs separated by commas' %}" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Grace Minutes" %}</label>
+                    <input type="number" name="grace_minutes" value="15" min="0" max="120" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Early Out Threshold (Minutes)" %}</label>
+                    <input type="number" name="early_out_threshold_minutes" value="30" min="0" max="240" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Overtime Start After (Minutes)" %}</label>
+                    <input type="number" name="overtime_start_after_minutes" value="15" min="0" max="120" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Minimum Overtime (Minutes)" %}</label>
+                    <input type="number" name="minimum_overtime_minutes" value="60" min="0" max="480" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                </div>
+            </div>
+            
+            <div>
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Late to Absent Conversion (Days)" %}</label>
+                <input type="number" name="late_to_absent_days" value="3" min="1" max="10" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+            </div>
+            
+            <div class="form-group">
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Weekend Days" %}</label>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="weekend_days" value="0" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Monday" %}</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="weekend_days" value="1" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Tuesday" %}</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="weekend_days" value="2" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Wednesday" %}</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="weekend_days" value="3" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Thursday" %}</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="weekend_days" value="4" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Friday" %}</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="weekend_days" value="5" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Saturday" %}</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="weekend_days" value="6" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Sunday" %}</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="border-t pt-4">
+                <h4 class="text-sm font-medium text-gray-900 mb-3">{% trans "Import Options" %}</h4>
+                <div class="space-y-2">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="update_existing_records" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Update Existing Records" %}</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="import_only_complete" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Import Only Complete Records" %}</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="border-t pt-4">
+                <h4 class="text-sm font-medium text-gray-900 mb-3">{% trans "Advanced Rules" %}</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="holiday_before_after_absent" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Holiday Before/After Absent Rule" %}</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="weekend_before_after_absent" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Weekend Before/After Absent Rule" %}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 pt-4">
+                <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 h-9 px-4 py-2 shadow-md transition-all duration-200">
+                    {% trans "Generate Import Data" %}
+                </button>
+                <button type="button" data-close-modal="import-modal" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 h-9 px-4 py-2 shadow-sm transition-all duration-200">
+                    {% trans "Cancel" %}
+                </button>
+            </div>
+        </form>
+    `);
+
+    // Employee filter change handler for import modal
+    document.addEventListener('change', function(e) {
+        if (e.target.id === 'employee_filter_import') {
+            const value = e.target.value;
+            const departmentFilter = document.getElementById('department_filter_import');
+            const designationFilter = document.getElementById('designation_filter_import');
+            const employeeFilterSpecific = document.getElementById('employee_filter_specific_import');
+            
+            departmentFilter.classList.add('hidden');
+            designationFilter.classList.add('hidden');
+            employeeFilterSpecific.classList.add('hidden');
+            
+            if (value === 'department') {
+                departmentFilter.classList.remove('hidden');
+            } else if (value === 'designation') {
+                designationFilter.classList.remove('hidden');
+            } else if (value === 'specific') {
+                employeeFilterSpecific.classList.remove('hidden');
+            }
+        }
+    });
+
+    // Modal close handlers
+    document.addEventListener('click', function(e) {
+        if (e.target.dataset.closeModal) {
+            document.getElementById(e.target.dataset.closeModal).classList.add('hidden');
+        }
+        if (e.target.classList.contains('bg-black')) {
+            e.target.classList.add('hidden');
+        }
+    });
+
+    // Generate import data button
+    document.getElementById('generate-import-data-btn').addEventListener('click', function() {
+        importModal.classList.remove('hidden');
+        
+        // Set default dates
+        const today = new Date();
+        const defaultEndDate = today.toISOString().split('T')[0];
+        const defaultStartDate = new Date(today);
+        defaultStartDate.setDate(today.getDate() - 7); // Default to last 7 days
+        
+        const startDateInput = document.querySelector('#import-modal input[name="start_date"]');
+        const endDateInput = document.querySelector('#import-modal input[name="end_date"]');
+        
+        if (!startDateInput.value) {
+            startDateInput.value = defaultStartDate.toISOString().split('T')[0];
+        }
+        if (!endDateInput.value) {
+            endDateInput.value = defaultEndDate;
+        }
+    });
+
+    // Form submission
+    document.getElementById('import-form').addEventListener('submit', function(e) {
+        importModal.classList.add('hidden');
+        loadingOverlay.classList.add('active');
+        
+        // Remove loading overlay after form submission
+        setTimeout(() => {
+            loadingOverlay.classList.remove('active');
+        }, 2000);
+    });
+
+    // Initialize import button state
+    updateImportButton();
+});
+</script>
+{% endblock %}
