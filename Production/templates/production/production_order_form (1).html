@@ -1,0 +1,1217 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="mx-auto max-w-8xl px-2 sm:px-4 lg:px-8 py-2 sm:py-6">
+    <div class="rounded-xl border-2 border-[hsl(var(--border))] bg-[hsl(var(--background))] shadow-xl p-4 sm:p-8 mb-6 relative">
+        <!-- Form Header -->
+        <div class="mb-8 border-b border-[hsl(var(--border))] pb-6 relative z-10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-icon">
+                        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8.5 14.5L5 18L2 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M5 10V18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 4L19 4C19.5304 4 20.0391 4.21071 20.4142 4.58579C20.7893 4.96086 21 5.46957 21 6V18C21 18.5304 20.7893 19.0391 20.4142 19.4142C20.0391 19.7893 19.5304 20 19 20H12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 10L13 13L16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-foreground))] bg-clip-text text-transparent">{{ title }}</h3>
+                        <p class="text-xs text-[hsl(var(--muted-foreground))]">{{ subtitle }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    {% if action_buttons %}
+                        {% for button in action_buttons %}
+                        <a href="{{ button.url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium {% if button.class %}{{ button.class }}{% else %}bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))]{% endif %} hover:opacity-90 h-9 px-4 py-2 shadow-md transition">
+                            {% if button.icon %}
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                    <path d="{{ button.icon_path }}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            {% endif %}
+                            <span>{{ button.text }}</span>
+                        </a>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-4" id="productionOrderForm">
+            {% csrf_token %}
+            
+            {% include 'common/toast.html'%}
+            {% include 'common/form-details-error.html'%}
+
+            <!-- Form Fields -->
+            <div class="space-y-4">
+                <!-- Production Order Information -->
+                <div class="p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))] shadow-sm">
+                    <h3 class="text-base font-semibold mb-3 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[hsl(var(--primary))]" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Production Order Information
+                    </h3>
+                    
+                    <!-- Order Number and Document Date -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <!-- Order Number -->
+                        <div class="relative">
+                            <input type="text" 
+                                id="{{ form.order_number.id_for_label }}" 
+                                name="{{ form.order_number.name }}"
+                                class="peer w-full px-3 py-2 rounded-md border-2 {% if form.order_number.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent" 
+                                placeholder="Order Number"
+                                value="{{ form.order_number.value|default:'' }}"
+                                {% if form.order_number.field.required and not is_detail_view %}required{% endif %}
+                                {% if is_detail_view or form.order_number.value %}readonly{% endif %}>
+                            <label for="{{ form.order_number.id_for_label }}" 
+                                class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.order_number.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                Order Number {% if form.order_number.field.required and not is_detail_view %}<span class="text-red-500">*</span>{% endif %}
+                            </label>
+                            {% if form.order_number.errors %}
+                                <div class="text-red-500 text-xs mt-1">
+                                    {% for error in form.order_number.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Document Date -->
+                        <div class="relative">
+                            <input type="date" 
+                                id="{{ form.document_date.id_for_label }}" 
+                                name="{{ form.document_date.name }}"
+                                class="peer w-full px-3 py-2 rounded-md border-2 {% if form.document_date.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent" 
+                                placeholder="Document Date"
+                                value="{{ form.document_date.value|date:'Y-m-d'|default:'' }}"
+                                {% if form.document_date.field.required and not is_detail_view %}required{% endif %}
+                                {% if is_detail_view %}readonly{% endif %}>
+                            <label for="{{ form.document_date.id_for_label }}" 
+                                class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.document_date.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                Document Date {% if form.document_date.field.required and not is_detail_view %}<span class="text-red-500">*</span>{% endif %}
+                            </label>
+                            {% if form.document_date.errors %}
+                                <div class="text-red-500 text-xs mt-1">
+                                    {% for error in form.document_date.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- BOM, Product, and Warehouse -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <!-- BOM - Placed first to auto-select product -->
+                        <div class="relative">
+                            <select id="{{ form.bom.id_for_label }}" 
+                                name="{{ form.bom.name }}"
+                                class="peer w-full px-3 py-2 rounded-md border-2 {% if form.bom.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] appearance-none"
+                                {% if form.bom.field.required and not is_detail_view %}required{% endif %}
+                                {% if is_detail_view %}disabled{% endif %}>
+                                <option value="" disabled {% if not form.bom.value %}selected{% endif %}>Select BOM</option>
+                                {% for choice in form.bom.field.choices %}
+                                    <option value="{{ choice.0 }}" 
+                                        class="py-3 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))]"
+                                        {% if form.bom.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                        {{ choice.1 }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <label for="{{ form.bom.id_for_label }}" 
+                                class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.bom.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                Bill of Materials {% if form.bom.field.required and not is_detail_view %}<span class="text-red-500">*</span>{% endif %}
+                            </label>
+                            {% if not is_detail_view %}
+                            <svg class="absolute right-3 top-3.5 w-5 h-5 pointer-events-none text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            {% endif %}
+                            {% if form.bom.errors %}
+                                <div class="text-red-500 text-xs mt-1">
+                                    {% for error in form.bom.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Product -->
+                        <div class="relative">
+                            <select id="{{ form.product.id_for_label }}" 
+                                name="{{ form.product.name }}"
+                                class="peer w-full px-3 py-2 rounded-md border-2 {% if form.product.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] appearance-none"
+                                {% if form.product.field.required and not is_detail_view %}required{% endif %}
+                                {% if is_detail_view %}disabled{% endif %}>
+                                <option value="" disabled {% if not form.product.value %}selected{% endif %}>Select Product</option>
+                                {% for choice in form.product.field.choices %}
+                                    <option value="{{ choice.0 }}" 
+                                        class="py-3 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))]"
+                                        {% if form.product.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                        {{ choice.1 }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <label for="{{ form.product.id_for_label }}" 
+                                class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.product.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                Product {% if form.product.field.required and not is_detail_view %}<span class="text-red-500">*</span>{% endif %}
+                            </label>
+                            {% if not is_detail_view %}
+                            <svg class="absolute right-3 top-3.5 w-5 h-5 pointer-events-none text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            {% endif %}
+                            {% if form.product.errors %}
+                                <div class="text-red-500 text-xs mt-1">
+                                    {% for error in form.product.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Warehouse -->
+                        <div class="relative">
+                            <select id="{{ form.warehouse.id_for_label }}" 
+                                name="{{ form.warehouse.name }}"
+                                class="peer w-full px-3 py-2 rounded-md border-2 {% if form.warehouse.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] appearance-none"
+                                {% if form.warehouse.field.required and not is_detail_view %}required{% endif %}
+                                {% if is_detail_view %}disabled{% endif %}>
+                                <option value="" disabled {% if not form.warehouse.value %}selected{% endif %}>Select Warehouse</option>
+                                {% for choice in form.warehouse.field.choices %}
+                                    <option value="{{ choice.0 }}" 
+                                        class="py-3 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))]"
+                                        {% if form.warehouse.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                        {{ choice.1 }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <label for="{{ form.warehouse.id_for_label }}" 
+                                class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.warehouse.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                Warehouse {% if form.warehouse.field.required and not is_detail_view %}<span class="text-red-500">*</span>{% endif %}
+                            </label>
+                            {% if not is_detail_view %}
+                            <svg class="absolute right-3 top-3.5 w-5 h-5 pointer-events-none text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            {% endif %}
+                            {% if form.warehouse.errors %}
+                                <div class="text-red-500 text-xs mt-1">
+                                    {% for error in form.warehouse.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Planned Quantity and Status -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <!-- Planned Quantity -->
+                        <div class="relative">
+                            <input type="number" 
+                                id="{{ form.planned_quantity.id_for_label }}" 
+                                name="{{ form.planned_quantity.name }}"
+                                class="peer w-full px-3 py-2 rounded-md border-2 {% if form.planned_quantity.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent" 
+                                placeholder="Planned Quantity"
+                                value="{{ form.planned_quantity.value|default:'1' }}"
+                                min="0.000001" step="0.000001"
+                                {% if form.planned_quantity.field.required and not is_detail_view %}required{% endif %}
+                                {% if is_detail_view %}readonly{% endif %}>
+                            <label for="{{ form.planned_quantity.id_for_label }}" 
+                                class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.planned_quantity.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                Planned Quantity {% if form.planned_quantity.field.required and not is_detail_view %}<span class="text-red-500">*</span>{% endif %}
+                            </label>
+                            {% if form.planned_quantity.errors %}
+                                <div class="text-red-500 text-xs mt-1">
+                                    {% for error in form.planned_quantity.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Status -->
+                        <div class="relative">
+                            <select id="{{ form.status.id_for_label }}" 
+                                name="{{ form.status.name }}"
+                                class="peer w-full px-3 py-2 rounded-md border-2 {% if form.status.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] appearance-none"
+                                {% if form.status.field.required and not is_detail_view %}required{% endif %}
+                                {% if is_detail_view %}disabled{% endif %}>
+                                <option value="" disabled {% if not form.status.value %}selected{% endif %}>Select Status</option>
+                                {% for choice in form.status.field.choices %}
+                                    <option value="{{ choice.0 }}" 
+                                        class="py-3 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))]"
+                                        {% if form.status.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                        {{ choice.1 }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <label for="{{ form.status.id_for_label }}" 
+                                class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.status.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                Status {% if form.status.field.required and not is_detail_view %}<span class="text-red-500">*</span>{% endif %}
+                            </label>
+                            {% if not is_detail_view %}
+                            <svg class="absolute right-3 top-3.5 w-5 h-5 pointer-events-none text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            {% endif %}
+                            {% if form.status.errors %}
+                                <div class="text-red-500 text-xs mt-1">
+                                    {% for error in form.status.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Production Order Components -->
+                <div class="p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))] shadow-sm">
+                    <h3 class="text-base font-semibold mb-3 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[hsl(var(--primary))]" viewBox="0 0 24 24" fill="none">
+                            <path d="M16 3H8C6.89543 3 6 3.89543 6 5V19C6 20.1046 6.89543 21 8 21H16C17.1046 21 18 20.1046 18 19V5C18 3.89543 17.1046 3 16 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 18H12.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Components
+                    </h3>
+
+                    <!-- IMPORTANT: Include management form only once -->
+                    {{ formset.management_form }}
+
+                    <!-- Mobile display view -->
+                    <div class="md:hidden space-y-3" id="mobileFormsetContainer">
+                        {% for form in formset.forms %}
+                        <div class="mobile-formset-row p-3 border border-[hsl(var(--border))] rounded-lg relative" data-index="{{ forloop.counter0 }}">
+                            {% if not is_detail_view %}
+                            <button type="button" class="mobile-context-btn absolute top-2 right-2 w-6 h-6 rounded-full bg-[hsl(var(--muted))] flex items-center justify-center">
+                                <svg class="w-4 h-4 text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 5V5.01M12 12V12.01M12 19V19.01M12 6C11.4477 6 11 5.55228 11 5C11 4.44772 11.4477 4 12 4C12.5523 4 13 4.44772 13 5C13 5.55228 12.5523 6 12 6ZM12 13C11.4477 13 11 12.5523 11 12C11 11.4477 11.4477 11 12 11C12.5523 11 13 11.4477 13 12C13 12.5523 12.5523 13 12 13ZM12 20C11.4477 20 11 19.5523 11 19C11 18.4477 11.4477 18 12 18C12.5523 18 13 18.4477 13 19C13 19.5523 12.5523 20 12 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            {% endif %}
+                            
+                            <div class="space-y-2">
+                                <!-- Hidden fields -->
+                                {% if form.id %}
+                                <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
+                                {% endif %}
+                                
+                                <!-- Item Code and Name -->
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div class="item-input-wrapper relative">
+                                        <label class="text-xs font-medium mb-1 block">Item Code</label>
+                                        <input type="text" name="{{ form.item_code.html_name }}" value="{{ form.item_code.value|default:'' }}" 
+                                            class="w-full px-2 py-1 text-sm border rounded-md {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-[hsl(var(--background))]{% endif %} item-code-input" 
+                                            id="{{ form.item_code.id_for_label }}"
+                                            {% if is_detail_view %}readonly{% endif %}>
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-medium mb-1 block">Item Name</label>
+                                        <input type="text" name="{{ form.item_name.html_name }}" value="{{ form.item_name.value|default:'' }}"
+                                            class="w-full px-2 py-1 text-sm border rounded-md {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-[hsl(var(--background))]{% endif %} item-name-input" 
+                                            id="{{ form.item_name.id_for_label }}"
+                                            {% if is_detail_view %}readonly{% endif %}>
+                                    </div>
+                                </div>
+                                
+                                <!-- Planned Quantity -->
+                                <div>
+                                    <label class="text-xs font-medium mb-1 block">Planned Quantity</label>
+                                    <input type="number" name="{{ form.planned_quantity.html_name }}" value="{{ form.planned_quantity.value|default:'1' }}"
+                                        min="0.000001" step="0.000001"
+                                        class="w-full px-2 py-1 text-sm border rounded-md {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-[hsl(var(--background))]{% endif %} planned-quantity-input" 
+                                        id="{{ form.planned_quantity.id_for_label }}"
+                                        {% if is_detail_view %}readonly{% endif %}>
+                                </div>
+                                
+                                <!-- Delete Button -->
+                                {% if not is_detail_view %}
+                                <div class="flex justify-end mt-2">
+                                    <button type="button" class="delete-row mobile-delete-row inline-flex items-center px-2 py-1 text-xs font-medium text-red-600 hover:text-red-700">
+                                        <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                            <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        Delete
+                                    </button>
+                                    {% if form.DELETE %}
+                                    <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" class="delete-checkbox hidden">
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Mobile context menu -->
+                    {% if not is_detail_view %}
+                    <div id="mobileContextMenu" class="hidden fixed z-[100] w-40 sm:w-48 bg-[hsl(var(--background))] rounded-md shadow-lg border border-[hsl(var(--border))]">
+                        <div class="py-1">
+                            <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors" id="mobileAddRowAboveBtn">
+                                Add Row Above
+                            </button>
+                            <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors" id="mobileAddRowBelowBtn">
+                                Add Row Below
+                            </button>
+                            <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--destructive))] hover:bg-[hsl(var(--accent))] transition-colors" id="mobileDeleteRowBtn">
+                                Delete Row
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Desktop display view -->
+                    <div class="hidden md:block">
+                        <!-- Formset Table with Horizontal and Vertical Scrolling -->
+                        <div class="overflow-x-auto overflow-y-auto max-h-[400px] rounded-lg border border-[hsl(var(--border))] shadow-inner">
+                            <table class="w-full">
+                                <thead class="sticky top-0 bg-[hsl(var(--secondary))] z-10">
+                                    <tr>
+                                        <th scope="col" class="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Item Code</th>
+                                        <th scope="col" class="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Item Name</th>
+                                        <th scope="col" class="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Planned Quantity</th>
+                                        {% if not is_detail_view %}
+                                        <th scope="col" class="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Action</th>
+                                        {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody id="formsetBody" class="formset-container divide-y divide-[hsl(var(--border))]">
+                                    {% for form in formset.forms %}
+                                    <tr class="formset-row group hover:bg-[hsl(var(--accent))] transition-colors duration-150 {% if form.errors %}has-errors{% endif %}" data-index="{{ forloop.counter0 }}">
+                                        <!-- Hidden fields -->
+                                        {% if form.id %}
+                                        <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
+                                        {% endif %}
+                                        
+                                        <!-- Item Code -->
+                                        <td class="py-2 px-4">
+                                            <div class="item-input-wrapper relative">
+                                                <input type="text" name="{{ form.item_code.html_name }}" value="{{ form.item_code.value|default:'' }}" 
+                                                    class="w-full px-3 py-2 text-sm border {% if form.item_code.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} rounded-md {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-[hsl(var(--background))]{% endif %} premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))] focus:border-[hsl(var(--border))] item-code-input" 
+                                                    id="{{ form.item_code.id_for_label }}" placeholder="Enter Item Code"
+                                                    {% if is_detail_view %}readonly{% endif %}>
+                                                {% if form.item_code.errors %}
+                                                <div class="text-red-500 text-xs mt-1">
+                                                    {% for error in form.item_code.errors %}
+                                                    <p>{{ error }}</p>
+                                                    {% endfor %}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        
+                                        <!-- Item Name -->
+                                        <td class="py-2 px-4">
+                                            <input type="text" name="{{ form.item_name.html_name }}" value="{{ form.item_name.value|default:'' }}" 
+                                                class="w-full px-3 py-2 text-sm border {% if form.item_name.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} rounded-md {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-[hsl(var(--background))]{% endif %} premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))] focus:border-[hsl(var(--border))] item-name-input" 
+                                                id="{{ form.item_name.id_for_label }}" placeholder="Item Name"
+                                                {% if is_detail_view %}readonly{% endif %}>
+                                            {% if form.item_name.errors %}
+                                            <div class="text-red-500 text-xs mt-1">
+                                                {% for error in form.item_name.errors %}
+                                                <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                        
+                                        <!-- Planned Quantity -->
+                                        <td class="py-2 px-4">
+                                            <input type="number" name="{{ form.planned_quantity.html_name }}" value="{{ form.planned_quantity.value|default:'1' }}" min="0.000001" step="0.000001" 
+                                                class="w-full px-3 py-2 text-sm border {% if form.planned_quantity.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} rounded-md {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-[hsl(var(--background))]{% endif %} premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))] focus:border-[hsl(var(--border))] planned-quantity-input" 
+                                                id="{{ form.planned_quantity.id_for_label }}"
+                                                {% if is_detail_view %}readonly{% endif %}>
+                                            {% if form.planned_quantity.errors %}
+                                            <div class="text-red-500 text-xs mt-1">
+                                                {% for error in form.planned_quantity.errors %}
+                                                <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                        
+                                        <!-- Action -->
+                                        {% if not is_detail_view %}
+                                        <td class="py-2 px-4 relative">
+                                            <button type="button" class="delete-row desktop-delete-row inline-flex items-center justify-center rounded-full w-8 h-8 bg-[hsl(var(--destructive))] text-[hsl(var(--destructive-foreground))] hover:bg-[hsl(var(--destructive))/90] shadow-md">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                            </button>
+                                            {% if form.DELETE %}
+                                            <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" class="delete-checkbox hidden">
+                                            {% endif %}
+                                        </td>
+                                        {% endif %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Context Menu -->
+                        {% if not is_detail_view %}
+                        <div id="contextMenu" class="hidden fixed z-[100] w-40 sm:w-48 bg-[hsl(var(--background))] rounded-md shadow-lg border border-[hsl(var(--border))]">
+                            <div class="py-1">
+                                <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors" id="addRowAboveBtn">
+                                    Add Row Above
+                                </button>
+                                <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors" id="addRowBelowBtn">
+                                    Add Row Below
+                                </button>
+                                <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--destructive))] hover:bg-[hsl(var(--accent))] transition-colors" id="deleteRowBtn">
+                                    Delete Row
+                                </button>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Add Row Button -->
+                    {% if not is_detail_view %}
+                    <button type="button" id="addRowBtn" class="w-full mt-3 px-3 py-2 rounded-lg text-xs font-medium bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Add New Component
+                    </button>
+                    {% endif %}
+                </div>
+
+                <!-- Remarks Field -->
+                <div class="p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))] shadow-sm">
+                    <h3 class="text-base font-semibold mb-3">Remarks</h3>
+                    <div class="relative">
+                        <textarea id="{{ form.remarks.id_for_label }}" 
+                            name="{{ form.remarks.name }}" 
+                            rows="4" 
+                            class="premium-input peer w-full px-3 py-3 rounded-md border-2 border-[hsl(var(--border))] {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent" 
+                            placeholder="Remarks"
+                            {% if is_detail_view %}readonly{% endif %}>{{ form.remarks.value|default:'' }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Footer -->
+            <div class="border-t pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div class="text-xs text-[hsl(var(--muted-foreground))]">
+                    <span class="flex items-center">
+                        <svg class="w-4 h-4 mr-1 text-green-500" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Your data is secure and encrypted
+                    </span>
+                </div>
+                <div class="flex gap-3 w-full sm:w-auto">
+                    {% if cancel_url %}
+                    <a href="{{ cancel_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                        {% if is_detail_view %}Back{% else %}Cancel{% endif %}
+                    </a>
+                    {% endif %}
+                    
+                    {% if is_detail_view %}
+                        {% if update_url %}
+                        <a href="{{ update_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Edit
+                        </a>
+                        {% endif %}
+                        {% if delete_url %}
+                        <a href="{{ delete_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 h-9 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Delete
+                        </a>
+                        {% endif %}
+                    {% else %}
+                        <button type="reset" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                            Reset
+                        </button>
+                        <button type="submit" id="submitBtn" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 12L10 17L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            {% if submit_text %}{{ submit_text }}{% else %}Submit{% endif %}
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if not is_detail_view %}
+<!-- External JavaScript files -->
+<script src="{% static 'js/formset-cleanup.js' %}"></script>
+<script src="{% static 'js/item-autocomplete.js' %}"></script>
+<script src="{% static 'js/item-search-modal-optimized.js' %}"></script>
+
+<script>
+/**
+ * Production Order Form JavaScript
+ * 
+ * This script handles all formset-related functionality including:
+ * - Adding/removing rows
+ * - Context menu functionality
+ * - Form validation and submission
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    // Get references to form elements
+    const formsetBody = document.getElementById('formsetBody');
+    const mobileFormsetContainer = document.getElementById('mobileFormsetContainer');
+    const totalForms = document.querySelector('[name$="-TOTAL_FORMS"]');
+    const addRowBtn = document.getElementById('addRowBtn');
+    const contextMenu = document.getElementById('contextMenu');
+    const mobileContextMenu = document.getElementById('mobileContextMenu');
+    
+    // Django formset configuration
+    const minForms = parseInt(document.querySelector('[name$="-MIN_NUM_FORMS"]')?.value || '0');
+    const maxForms = parseInt(document.querySelector('[name$="-MAX_NUM_FORMS"]')?.value || '1000');
+    
+    // Track current selected rows for context menu
+    let currentRow = null;
+    let currentMobileRow = null;
+    
+    // Initialize select search if available
+    if (typeof makeSelectSearchable === 'function') {
+        makeSelectSearchable('id_product');
+        makeSelectSearchable('id_bom');
+        makeSelectSearchable('id_warehouse');
+    }
+    
+    // Initialize the form
+    initializeForm();
+    
+    /**
+     * Initialize the form and all its components
+     */
+    function initializeForm() {
+        // Setup event handlers
+        setupEventHandlers();
+        
+        // Initialize existing rows
+        setupRowEventHandlers();
+        
+        // Add an empty row if there are no rows
+        if (formsetBody && formsetBody.querySelectorAll('.formset-row:not([style*="display: none"])').length === 0) {
+            addNewRow();
+        }
+    }
+    
+    /**
+     * Setup all event handlers
+     */
+    function setupEventHandlers() {
+        // Add Row button
+        if (addRowBtn) {
+            addRowBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                addNewRow();
+            });
+        }
+        
+        // Setup context menu for desktop rows
+        setupDesktopContextMenu();
+        
+        // Setup mobile context menu
+        setupMobileContextMenu();
+        
+        // Setup context menu buttons
+        setupContextMenuButtons();
+        
+        // Hide context menus on scroll or click outside
+        setupGlobalEvents();
+        
+        // Form submission handling
+        setupFormSubmission();
+        
+        // Listen for custom events from production-order-bom.js
+        setupCustomEventListeners();
+    }
+    
+    /**
+     * Setup desktop context menu
+     */
+    function setupDesktopContextMenu() {
+        if (!formsetBody) return;
+        
+        // Use event delegation for right-click
+        document.addEventListener('contextmenu', function(e) {
+            // Check if the right-click happened inside a formset row
+            const row = e.target.closest('.formset-row');
+            if (row && formsetBody.contains(row)) {
+                e.preventDefault();
+                currentRow = row;
+                
+                // Position and show context menu
+                if (contextMenu) {
+                    // Adjust position to ensure menu stays within viewport
+                    const viewportWidth = window.innerWidth;
+                    const viewportHeight = window.innerHeight;
+                    const menuWidth = contextMenu.offsetWidth || 200; // Fallback width if not rendered yet
+                    const menuHeight = contextMenu.offsetHeight || 150; // Fallback height
+                    
+                    let left = e.pageX;
+                    let top = e.pageY;
+                    
+                    // Adjust if menu would go off right edge
+                    if (left + menuWidth > viewportWidth) {
+                        left = viewportWidth - menuWidth - 10;
+                    }
+                    
+                    // Adjust if menu would go off bottom edge
+                    if (top + menuHeight > viewportHeight + window.scrollY) {
+                        top = top - menuHeight;
+                    }
+                    
+                    contextMenu.style.left = `${left}px`;
+                    contextMenu.style.top = `${top}px`;
+                    contextMenu.classList.remove('hidden');
+                    
+                    // Add active class to the current row
+                    row.classList.add('bg-[hsl(var(--accent))]');
+                }
+            }
+        });
+    }
+    
+    /**
+     * Setup mobile context menu
+     */
+    function setupMobileContextMenu() {
+        if (!mobileFormsetContainer) return;
+        
+        // Use event delegation for mobile context buttons
+        mobileFormsetContainer.addEventListener('click', function(e) {
+            const contextBtn = e.target.closest('.mobile-context-btn');
+            if (contextBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const mobileRow = contextBtn.closest('.mobile-formset-row');
+                if (mobileRow) {
+                    currentMobileRow = mobileRow;
+                    
+                    // Position and show mobile context menu
+                    if (mobileContextMenu) {
+                        const rect = contextBtn.getBoundingClientRect();
+                        
+                        // Calculate position to ensure menu stays within viewport
+                        const viewportWidth = window.innerWidth;
+                        const menuWidth = mobileContextMenu.offsetWidth || 200;
+                        
+                        let left = rect.left;
+                        if (left + menuWidth > viewportWidth) {
+                            left = viewportWidth - menuWidth - 10;
+                        }
+                        
+                        mobileContextMenu.style.left = `${left}px`;
+                        mobileContextMenu.style.top = `${rect.bottom + window.scrollY + 5}px`;
+                        mobileContextMenu.classList.remove('hidden');
+                        
+                        // Add active class to the current row
+                        mobileRow.classList.add('bg-[hsl(var(--accent))]');
+                    }
+                }
+            }
+        });
+    }
+    
+    /**
+     * Setup context menu buttons
+     */
+    function setupContextMenuButtons() {
+        // Desktop context menu buttons
+        setupButton('addRowAboveBtn', function() {
+            if (currentRow) {
+                const index = currentRow.dataset.index;
+                addNewRow('above', index);
+                hideContextMenus();
+            }
+        });
+        
+        setupButton('addRowBelowBtn', function() {
+            if (currentRow) {
+                const index = currentRow.dataset.index;
+                addNewRow('below', index);
+                hideContextMenus();
+            }
+        });
+        
+        setupButton('deleteRowBtn', function() {
+            if (currentRow) {
+                deleteRow(currentRow);
+                hideContextMenus();
+            }
+        });
+        
+        // Mobile context menu buttons
+        setupButton('mobileAddRowAboveBtn', function() {
+            if (currentMobileRow) {
+                const index = currentMobileRow.dataset.index;
+                addNewRow('above', index);
+                hideContextMenus();
+            }
+        });
+        
+        setupButton('mobileAddRowBelowBtn', function() {
+            if (currentMobileRow) {
+                const index = currentMobileRow.dataset.index;
+                addNewRow('below', index);
+                hideContextMenus();
+            }
+        });
+        
+        setupButton('mobileDeleteRowBtn', function() {
+            if (currentMobileRow) {
+                deleteRow(currentMobileRow);
+                hideContextMenus();
+            }
+        });
+    }
+    
+    /**
+     * Setup a button with click handler
+     */
+    function setupButton(id, handler) {
+        const button = document.getElementById(id);
+        if (button) {
+            // Remove existing event listeners
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+            
+            // Add new event listener
+            newButton.addEventListener('click', handler);
+        }
+    }
+    
+    /**
+     * Setup global events for hiding context menus
+     */
+    function setupGlobalEvents() {
+        // Hide context menus on click outside
+        document.addEventListener('click', function(e) {
+            if (contextMenu && !contextMenu.contains(e.target) && 
+                (!currentRow || !currentRow.contains(e.target))) {
+                hideContextMenus();
+            }
+            
+            if (mobileContextMenu && !mobileContextMenu.contains(e.target) && 
+                (!currentMobileRow || !currentMobileRow.contains(e.target))) {
+                hideContextMenus();
+            }
+        });
+        
+        // Hide context menus on scroll
+        document.addEventListener('scroll', function() {
+            hideContextMenus();
+        }, { passive: true });
+        
+        // Hide context menus on window resize
+        window.addEventListener('resize', function() {
+            hideContextMenus();
+        }, { passive: true });
+        
+        // Hide context menus on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                hideContextMenus();
+            }
+        });
+    }
+    
+    /**
+     * Setup form submission handling
+     */
+    function setupFormSubmission() {
+        const form = document.getElementById('productionOrderForm');
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                // Prevent default form submission
+                event.preventDefault();
+                
+                // Remove required attributes from hidden rows to prevent validation errors
+                document.querySelectorAll('.formset-row[style*="display: none"] input[required], .mobile-formset-row[style*="display: none"] input[required]').forEach(input => {
+                    input.removeAttribute('required');
+                });
+                
+                // Get all formset rows
+                const rows = document.querySelectorAll('#formsetBody .formset-row');
+                
+                // Check each row
+                rows.forEach(row => {
+                    // Skip already hidden rows
+                    if (row.style.display === 'none') return;
+                    
+                    // Get key fields
+                    const itemCodeInput = row.querySelector('.item-code-input');
+                    const itemNameInput = row.querySelector('.item-name-input');
+                    const plannedQuantityInput = row.querySelector('.planned-quantity-input');
+                    
+                    // Check if the row is empty or incomplete
+                    const isEmpty = (
+                        (!itemCodeInput || itemCodeInput.value.trim() === '') &&
+                        (!itemNameInput || itemNameInput.value.trim() === '') &&
+                        (!plannedQuantityInput || plannedQuantityInput.value.trim() === '' || parseFloat(plannedQuantityInput.value) === 0)
+                    );
+                    
+                    if (isEmpty) {
+                        // Mark row for deletion
+                        const deleteCheckbox = row.querySelector('.delete-checkbox');
+                        if (deleteCheckbox) {
+                            deleteCheckbox.checked = true;
+                            row.style.display = 'none';
+                            
+                            // Also hide the corresponding mobile row
+                            const index = row.dataset.index;
+                            const mobileRow = document.querySelector(`.mobile-formset-row[data-index="${index}"]`);
+                            if (mobileRow) {
+                                mobileRow.style.display = 'none';
+                            }
+                        }
+                    }
+                });
+                
+                // Check if we have at least the minimum required forms
+                const visibleRows = document.querySelectorAll('#formsetBody .formset-row:not([style*="display: none"])');
+                if (visibleRows.length < minForms) {
+                    showToast(`At least ${minForms} component${minForms > 1 ? 's are' : ' is'} required.`, 'error');
+                    return;
+                }
+                
+                // Submit the form
+                form.submit();
+            });
+        }
+    }
+    
+    /**
+     * Setup custom event listeners
+     */
+    function setupCustomEventListeners() {
+        // Listen for custom events from production-order-bom.js
+        document.addEventListener('addComponentRow', function(e) {
+            const newRow = addNewRow();
+            if (newRow) {
+                const itemCodeInput = newRow.querySelector('.item-code-input');
+                const itemNameInput = newRow.querySelector('.item-name-input');
+                const plannedQuantityInput = newRow.querySelector('.planned-quantity-input');
+                
+                if (itemCodeInput) itemCodeInput.value = e.detail.itemCode;
+                if (itemNameInput) itemNameInput.value = e.detail.itemName;
+                if (plannedQuantityInput) plannedQuantityInput.value = e.detail.quantity;
+            }
+        });
+        
+        document.addEventListener('clearComponentRows', function() {
+            // Mark all rows for deletion
+            const rows = document.querySelectorAll('#formsetBody .formset-row, #mobileFormsetContainer .mobile-formset-row');
+            rows.forEach(row => {
+                const deleteCheckbox = row.querySelector('.delete-checkbox');
+                if (deleteCheckbox) {
+                    deleteCheckbox.checked = true;
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    /**
+     * Hide all context menus and reset current rows
+     */
+    function hideContextMenus() {
+        if (contextMenu) {
+            contextMenu.classList.add('hidden');
+        }
+        
+        if (mobileContextMenu) {
+            mobileContextMenu.classList.add('hidden');
+        }
+        
+        // Remove active class from current rows
+        if (currentRow) {
+            currentRow.classList.remove('bg-[hsl(var(--accent))]');
+            currentRow = null;
+        }
+        
+        if (currentMobileRow) {
+            currentMobileRow.classList.remove('bg-[hsl(var(--accent))]');
+            currentMobileRow = null;
+        }
+    }
+    
+    /**
+     * Function to add a new row
+     */
+    function addNewRow(position = null, referenceIndex = null) {
+        // Check if we've reached the maximum number of forms
+        const visibleRows = document.querySelectorAll('#formsetBody .formset-row:not([style*="display: none"])');
+        if (visibleRows.length >= maxForms) {
+            showToast(`Maximum of ${maxForms} components allowed.`, 'error');
+            return null;
+        }
+        
+        // Get the template from the first row
+        let template;
+        
+        // Try to get template from desktop view first
+        if (formsetBody && formsetBody.querySelector('.formset-row')) {
+            template = formsetBody.querySelector('.formset-row').cloneNode(true);
+        } 
+        // If no desktop template, create a basic template
+        else {
+            console.error("Could not find template row");
+            return null;
+        }
+        
+        // Get current form count
+        const currentFormCount = parseInt(totalForms.value);
+        const newIndex = currentFormCount;
+        
+        // Update form indices
+        template.querySelectorAll('input, select').forEach(input => {
+            if (input.name) {
+                input.name = input.name.replace(/-\d+-/, `-${newIndex}-`);
+            }
+            if (input.id) {
+                input.id = input.id.replace(/-\d+-/, `-${newIndex}-`);
+            }
+            
+            // Clear values except for hidden fields
+            if (input.type !== 'hidden' && !input.classList.contains('delete-checkbox')) {
+                if (input.classList.contains('planned-quantity-input')) {
+                    input.value = '1'; // Default quantity to 1
+                } else {
+                    input.value = '';
+                }
+            }
+        });
+        
+        // Reset DELETE checkbox
+        const deleteCheckbox = template.querySelector('.delete-checkbox');
+        if (deleteCheckbox) {
+            deleteCheckbox.checked = false;
+        }
+        
+        // Update data-index attribute
+        template.dataset.index = newIndex;
+        
+        // Insert at the specified position in desktop view
+        if (formsetBody) {
+            if (position === 'above' && referenceIndex !== null) {
+                const referenceRow = formsetBody.querySelector(`.formset-row[data-index="${referenceIndex}"]`);
+                if (referenceRow) {
+                    formsetBody.insertBefore(template, referenceRow);
+                } else {
+                    formsetBody.appendChild(template);
+                }
+            } else if (position === 'below' && referenceIndex !== null) {
+                const referenceRow = formsetBody.querySelector(`.formset-row[data-index="${referenceIndex}"]`);
+                if (referenceRow && referenceRow.nextSibling) {
+                    formsetBody.insertBefore(template, referenceRow.nextSibling);
+                } else {
+                    formsetBody.appendChild(template);
+                }
+            } else {
+                formsetBody.appendChild(template);
+            }
+        }
+        
+        // Add to mobile view
+        if (mobileFormsetContainer) {
+            // Clone the mobile template
+            let mobileTemplate;
+            if (mobileFormsetContainer.querySelector('.mobile-formset-row')) {
+                mobileTemplate = mobileFormsetContainer.querySelector('.mobile-formset-row').cloneNode(true);
+                
+                // Update form indices
+                mobileTemplate.querySelectorAll('input, select').forEach(input => {
+                    if (input.name) {
+                        input.name = input.name.replace(/-\d+-/, `-${newIndex}-`);
+                    }
+                    if (input.id) {
+                        input.id = input.id.replace(/-\d+-/, `-${newIndex}-`);
+                    }
+                    
+                    // Clear values except for hidden fields
+                    if (input.type !== 'hidden' && !input.classList.contains('delete-checkbox')) {
+                        if (input.classList.contains('planned-quantity-input')) {
+                            input.value = '1'; // Default quantity to 1
+                        } else {
+                            input.value = '';
+                        }
+                    }
+                });
+                
+                // Reset DELETE checkbox
+                const mobileDeleteCheckbox = mobileTemplate.querySelector('.delete-checkbox');
+                if (mobileDeleteCheckbox) {
+                    mobileDeleteCheckbox.checked = false;
+                }
+                
+                // Update data-index attribute
+                mobileTemplate.dataset.index = newIndex;
+                
+                // Insert at the specified position in mobile view
+                if (position === 'above' && referenceIndex !== null) {
+                    const referenceRow = mobileFormsetContainer.querySelector(`.mobile-formset-row[data-index="${referenceIndex}"]`);
+                    if (referenceRow) {
+                        mobileFormsetContainer.insertBefore(mobileTemplate, referenceRow);
+                    } else {
+                        mobileFormsetContainer.appendChild(mobileTemplate);
+                    }
+                } else if (position === 'below' && referenceIndex !== null) {
+                    const referenceRow = mobileFormsetContainer.querySelector(`.mobile-formset-row[data-index="${referenceIndex}"]`);
+                    if (referenceRow && referenceRow.nextSibling) {
+                        mobileFormsetContainer.insertBefore(mobileTemplate, referenceRow.nextSibling);
+                    } else {
+                        mobileFormsetContainer.appendChild(mobileTemplate);
+                    }
+                } else {
+                    mobileFormsetContainer.appendChild(mobileTemplate);
+                }
+            }
+        }
+        
+        // Update the form count
+        totalForms.value = currentFormCount + 1;
+        
+        // Initialize the new row with event handlers
+        setupRowEventHandlers();
+        
+        return template;
+    }
+    
+    /**
+     * Delete a row
+     */
+    function deleteRow(row) {
+        // Check if we'll have enough rows after deletion
+        const visibleRows = document.querySelectorAll('#formsetBody .formset-row:not([style*="display: none"])');
+        if (visibleRows.length <= minForms) {
+            showToast(`At least ${minForms} component${minForms > 1 ? 's are' : ' is'} required.`, 'error');
+            return;
+        }
+        
+        const index = row.dataset.index;
+        const deleteCheckbox = row.querySelector('.delete-checkbox');
+        
+        if (deleteCheckbox) {
+            deleteCheckbox.checked = true;
+            row.style.display = 'none';
+            
+            // Also hide the corresponding row in the other view
+            if (row.classList.contains('formset-row') && mobileFormsetContainer) {
+                const mobileRow = mobileFormsetContainer.querySelector(`.mobile-formset-row[data-index="${index}"]`);
+                if (mobileRow) {
+                    mobileRow.style.display = 'none';
+                }
+            } else if (row.classList.contains('mobile-formset-row') && formsetBody) {
+                const desktopRow = formsetBody.querySelector(`.formset-row[data-index="${index}"]`);
+                if (desktopRow) {
+                    desktopRow.style.display = 'none';
+                }
+            }
+        }
+    }
+    
+    /**
+     * Setup event handlers for rows
+     */
+    function setupRowEventHandlers() {
+        // Setup delete buttons
+        document.querySelectorAll('.delete-row').forEach(button => {
+            // Remove existing event listeners to prevent duplicates
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+            
+            // Add new event listener
+            newButton.addEventListener('click', function() {
+                const row = this.closest('.formset-row, .mobile-formset-row');
+                if (row) {
+                    deleteRow(row);
+                }
+            });
+        });
+        
+        // Setup item code inputs for autocomplete
+        document.querySelectorAll('.item-code-input').forEach(input => {
+            // Initialize autocomplete if available
+            if (typeof initItemAutocomplete === 'function') {
+                initItemAutocomplete(input);
+            }
+        });
+    }
+    
+    /**
+     * Show a toast message
+     */
+    function showToast(message, type = 'info') {
+        // Check if we have a toast container
+        let toastContainer = document.querySelector('.toast-container');
+        
+        // Create toast container if it doesn't exist
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container fixed bottom-4 right-4 z-50 flex flex-col gap-2';
+            document.body.appendChild(toastContainer);
+        }
+        
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `p-3 rounded shadow-md transition-all duration-300 transform translate-x-full ${
+            type === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' : 'bg-green-100 border-l-4 border-green-500 text-green-700'
+        }`;
+        
+        // Add toast content
+        toast.innerHTML = `
+            <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${
+                        type === 'error' ? 'M6 18L18 6M6 6l12 12' : 'M5 13l4 4L19 7'
+                    }"></path>
+                </svg>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        // Add toast to container
+        toastContainer.appendChild(toast);
+        
+        // Animate toast in
+        setTimeout(() => {
+            toast.classList.remove('translate-x-full');
+        }, 10);
+        
+        // Remove toast after 3 seconds
+        setTimeout(() => {
+            toast.classList.add('translate-x-full');
+            setTimeout(() => {
+                toast.remove();
+                
+                // Remove container if empty
+                if (toastContainer.children.length === 0) {
+                    toastContainer.remove();
+                }
+            }, 300);
+        }, 3000);
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

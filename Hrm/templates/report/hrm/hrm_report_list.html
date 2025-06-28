@@ -251,6 +251,26 @@
 
         <!-- Enhanced Cards Grid -->
         <div class="reports-grid">
+                        <!-- Card 6: Daily Attendance Report -->
+            <div class="card-container visible fade-in stagger-6" data-heading="Daily Attendance Report" data-category="Attendance">
+                <a href="{% url 'hrm:attendance-daily' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Daily Attendance Report</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Daily attendance overview for all employees.
+                            </p>
+                            <span class="report-button mt-auto">
+                                View Report
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
             <!-- Card 1: Detailed Attendance Report -->
             <div class="card-container visible fade-in stagger-1" data-heading="Detailed Attendance Report" data-category="Attendance">
                 <a href="{% url 'hrm:attendance-detailed' %}" class="block group h-full">
@@ -270,15 +290,14 @@
                     </div>
                 </a>
             </div>
-
-            <!-- Card 2: Attendance Details Report -->
-            <div class="card-container visible fade-in stagger-2" data-heading="Attendance Details Report" data-category="Attendance">
-                <a href="{% url 'hrm:attendance-details' %}" class="block group h-full">
+            <!-- Card 8: Overtime Report -->
+            <div class="card-container visible fade-in stagger-2" data-heading="Overtime Report" data-category="Attendance">
+                <a href="{% url 'hrm:attendance-overtime' %}" class="block group h-full">
                     <div class="card-design">
                         <div class="card-content">
-                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">All Employee Attendance Details Report</h3>
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Overtime Report</h3>
                             <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
-                                In-depth analysis of attendance with specific details.
+                                Analyze overtime hours worked by employees.
                             </p>
                             <span class="report-button mt-auto">
                                 View Report
@@ -290,6 +309,28 @@
                     </div>
                 </a>
             </div>
+
+            <!-- Card 9: Monthly Attendance Summary -->
+            <div class="card-container visible fade-in stagger-3" data-heading="Monthly Attendance Summary" data-category="Attendance">
+                <a href="{% url 'hrm:attendance-monthly-summary' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Monthly Attendance Summary</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Monthly summary of attendance data.
+                            </p>
+                            <span class="report-button mt-auto">
+                                View Summary
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+
 
             <!-- Card 3: Attendance Summary Report -->
             <div class="card-container visible fade-in stagger-3" data-heading="Attendance Summary Report" data-category="Attendance">
@@ -351,25 +392,6 @@
                 </a>
             </div>
 
-            <!-- Card 6: Daily Attendance Report -->
-            <div class="card-container visible fade-in stagger-6" data-heading="Daily Attendance Report" data-category="Attendance">
-                <a href="{% url 'hrm:attendance-daily' %}" class="block group h-full">
-                    <div class="card-design">
-                        <div class="card-content">
-                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Daily Attendance Report</h3>
-                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
-                                Daily attendance overview for all employees.
-                            </p>
-                            <span class="report-button mt-auto">
-                                View Report
-                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                            </span>
-                        </div>
-                    </div>
-                </a>
-            </div>
 
             <!-- Card 7: Early Leaving Report -->
             <div class="card-container visible fade-in stagger-1" data-heading="Early Leaving Report" data-category="Attendance">
@@ -391,45 +413,6 @@
                 </a>
             </div>
 
-            <!-- Card 8: Overtime Report -->
-            <div class="card-container visible fade-in stagger-2" data-heading="Overtime Report" data-category="Attendance">
-                <a href="{% url 'hrm:attendance-overtime' %}" class="block group h-full">
-                    <div class="card-design">
-                        <div class="card-content">
-                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Overtime Report</h3>
-                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
-                                Analyze overtime hours worked by employees.
-                            </p>
-                            <span class="report-button mt-auto">
-                                View Report
-                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                            </span>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-            <!-- Card 9: Monthly Attendance Summary -->
-            <div class="card-container visible fade-in stagger-3" data-heading="Monthly Attendance Summary" data-category="Attendance">
-                <a href="{% url 'hrm:attendance-monthly-summary' %}" class="block group h-full">
-                    <div class="card-design">
-                        <div class="card-content">
-                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Monthly Attendance Summary</h3>
-                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
-                                Monthly summary of attendance data.
-                            </p>
-                            <span class="report-button mt-auto">
-                                View Summary
-                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                            </span>
-                        </div>
-                    </div>
-                </a>
-            </div>
 
             <!-- Card 10: Attendance Import -->
             <div class="card-container visible fade-in stagger-4" data-heading="Attendance Import" data-category="Attendance">

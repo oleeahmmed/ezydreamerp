@@ -9,42 +9,31 @@
 {% endblock %}
 
 {% block list_title %}{% trans "Overtime Report" %}{% endblock %}
-{% block list_subtitle %}{% trans "Track and analyze employee overtime hours with comprehensive time tracking, threshold analysis, and overtime calculation management" %}{% endblock %}
+{% block list_subtitle %}{% trans "Comprehensive overtime analysis with advanced metrics, cost analysis, and trend insights" %}{% endblock %}
 
 {% block list_actions %}
 <div class="flex gap-3">
-    <button id="generate-overtime-btn" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-indigo-600 to-indigo-700 text-white hover:from-indigo-700 hover:to-indigo-800 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+    <button id="generate-overtime-report-btn" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/>
         </svg>
-        {% trans "Generate Overtime Report" %}
+        {% trans "Generate Report" %}
     </button>
-    
     {% if report_generated %}
-    <button id="print-overtime-btn" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <polyline points="6,9 6,2 18,2 18,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M6 18H4A2 2 0 0 1 2 16V11A2 2 0 0 1 4 9H20A2 2 0 0 1 22 11V16A2 2 0 0 1 20 18H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <rect x="6" y="14" width="12" height="8" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        {% trans "Print Report" %}
-    </button>
-    
-    <button id="export-overtime-csv" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-700 hover:to-emerald-800 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14 2H6A2 2 0 0 0 4 4V20A2 2 0 0 0 6 22H18A2 2 0 0 0 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        {% trans "Export CSV" %}
-    </button>
-    
-    <button id="copy-overtime-data" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M5 15H4A2 2 0 0 1 2 13V4A2 2 0 0 1 4 2H13A2 2 0 0 1 15 4V5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        {% trans "Copy to Clipboard" %}
-    </button>
+    <form method="post" style="display: inline;">
+        {% csrf_token %}
+        {% for field in form %}
+            {% if field.value %}
+                <input type="hidden" name="{{ field.name }}" value="{{ field.value|join:',' }}">
+            {% endif %}
+        {% endfor %}
+        <button type="submit" name="export" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            {% trans "Export CSV" %}
+        </button>
+    </form>
     {% endif %}
 </div>
 {% endblock %}
@@ -52,7 +41,7 @@
 {% block search_filter %}
 {% if report_generated %}
 <div class="flex flex-wrap justify-center gap-3 p-4 bg-white shadow-md rounded-lg border border-gray-200">
-    <input type="text" id="search-overtime" placeholder="{% trans 'Search Employee ID, Name, or Department...' %}" class="w-full sm:w-auto flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+    <input type="text" id="search-overtime-records" placeholder="{% trans 'Search Employee ID, Name, or Department...' %}" class="w-full sm:w-auto flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
     <select id="department-filter-overtime" class="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
         <option value="">{% trans "All Departments" %}</option>
         {% for dept in departments %}
@@ -60,11 +49,18 @@
         {% endfor %}
     </select>
     <select id="overtime-range-filter" class="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
-        <option value="">{% trans "All Overtime Ranges" %}</option>
-        <option value="0-2">{% trans "0-2 hours" %}</option>
-        <option value="2-4">{% trans "2-4 hours" %}</option>
-        <option value="4-6">{% trans "4-6 hours" %}</option>
-        <option value="6+">{% trans "6+ hours" %}</option>
+        <option value="">{% trans "All Overtime Hours" %}</option>
+        <option value="0-10">{% trans "0-10 hours" %}</option>
+        <option value="10-20">{% trans "10-20 hours" %}</option>
+        <option value="20-30">{% trans "20-30 hours" %}</option>
+        <option value="30-40">{% trans "30-40 hours" %}</option>
+        <option value="40+">{% trans "40+ hours" %}</option>
+    </select>
+    <select id="overtime-type-filter" class="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+        <option value="">{% trans "All Types" %}</option>
+        <option value="regular">{% trans "Regular OT" %}</option>
+        <option value="holiday">{% trans "Holiday OT" %}</option>
+        <option value="weekend">{% trans "Weekend OT" %}</option>
     </select>
 </div>
 {% endif %}
@@ -73,289 +69,350 @@
 {% block table_body %}
 {% if report_generated %}
 
-<!-- Date Range Information Header -->
-<div class="bg-white rounded-lg shadow-md mb-8">
-    <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-6 rounded-t-lg">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+<!-- Overtime Overview Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+        <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-2xl font-bold">{{ form_data.start_date|date:"F d, Y" }} - {{ form_data.end_date|date:"F d, Y" }}</h2>
-                <p class="text-indigo-100 mt-1">{% trans "Overtime Report" %}</p>
+                <p class="text-purple-100 text-sm">{% trans "Total Overtime" %}</p>
+                <p class="text-2xl font-bold">{{ overtime_summary.total_overtime_hours|floatformat:1 }}h</p>
+                <p class="text-purple-100 text-xs">{{ overtime_summary.employees_with_overtime }} {% trans "employees" %}</p>
             </div>
-            <div class="mt-4 md:mt-0 text-right">
-                <div class="text-sm text-indigo-100">{% trans "Report Generated" %}</div>
-                <div class="text-lg font-semibold">{{ "now"|date:"M d, Y H:i" }}</div>
-                <div class="text-xs text-indigo-200 mt-1">{% trans "Overtime Records:" %} {{ attendance_data|length }}</div>
-            </div>
+            <svg class="w-8 h-8 text-purple-200" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+            </svg>
         </div>
     </div>
     
-    <!-- Summary Statistics -->
-    <div class="p-6">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="text-center">
-                <div class="text-2xl font-bold text-indigo-600">{{ summary_data.total_records|default:0 }}</div>
-                <div class="text-sm text-gray-600">{% trans "Total Records" %}</div>
+    <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg p-4 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-indigo-100 text-sm">{% trans "Regular Overtime" %}</p>
+                <p class="text-2xl font-bold">{{ overtime_summary.total_regular_overtime|floatformat:1 }}h</p>
+                <p class="text-indigo-100 text-xs">{% trans "Standard overtime" %}</p>
             </div>
-            <div class="text-center">
-                <div class="text-2xl font-bold text-green-600">{{ summary_data.overtime_count|default:0 }}</div>
-                <div class="text-sm text-gray-600">{% trans "Overtime Records" %}</div>
+            <svg class="w-8 h-8 text-indigo-200" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+    </div>
+    
+    <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg p-4 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-orange-100 text-sm">{% trans "Holiday Overtime" %}</p>
+                <p class="text-2xl font-bold">{{ overtime_summary.total_holiday_overtime|floatformat:1 }}h</p>
+                <p class="text-orange-100 text-xs">{% trans "Holiday work" %}</p>
             </div>
-            <div class="text-center">
-                <div class="text-2xl font-bold text-purple-600">{{ summary_data.employees_with_overtime|default:0 }}</div>
-                <div class="text-sm text-gray-600">{% trans "Employees with OT" %}</div>
+            <svg class="w-8 h-8 text-orange-200" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+    </div>
+    
+    <div class="bg-gradient-to-r from-teal-500 to-teal-600 rounded-lg p-4 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-teal-100 text-sm">{% trans "Weekend Overtime" %}</p>
+                <p class="text-2xl font-bold">{{ overtime_summary.total_weekend_overtime|floatformat:1 }}h</p>
+                <p class="text-teal-100 text-xs">{% trans "Weekend work" %}</p>
             </div>
-            <div class="text-center">
-                <div class="text-2xl font-bold text-yellow-600">{{ summary_data.avg_overtime_hours|floatformat:1|default:"0.0" }}</div>
-                <div class="text-sm text-gray-600">{% trans "Avg OT Hours" %}</div>
-            </div>
+            <svg class="w-8 h-8 text-teal-200" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd"/>
+            </svg>
         </div>
     </div>
 </div>
 
-<!-- Overtime Statistics Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-    <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-6 rounded-lg shadow-md">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-indigo-100 text-sm font-medium">{% trans "Total Overtime Hours" %}</p>
-                <p class="text-3xl font-bold">{{ summary_data.total_overtime_hours|floatformat:1|default:"0.0" }}</p>
-                <p class="text-xs text-indigo-200 mt-1">{% trans "Across all records" %}</p>
-            </div>
-            <div class="bg-indigo-500 bg-opacity-30 rounded-full p-3">
-                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                </svg>
-            </div>
-        </div>
+<!-- Period Overview -->
+<div class="bg-white rounded-lg shadow-md mb-6">
+    <div class="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-4 rounded-t-lg">
+        <h3 class="text-lg font-bold">{% trans "Period Overview" %}</h3>
     </div>
-    
-    <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 rounded-lg shadow-md">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-green-100 text-sm font-medium">{% trans "Departments with OT" %}</p>
-                <p class="text-3xl font-bold">{{ summary_data.departments_with_overtime|default:0 }}</p>
-                <p class="text-xs text-green-200 mt-1">{% trans "Having overtime work" %}</p>
-            </div>
-            <div class="bg-green-500 bg-opacity-30 rounded-full p-3">
-                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
-                </svg>
-            </div>
-        </div>
-    </div>
-    
-    <div class="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-6 rounded-lg shadow-md">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-purple-100 text-sm font-medium">{% trans "Total Working Hours" %}</p>
-                <p class="text-3xl font-bold">{{ summary_data.total_working_hours|floatformat:1|default:"0.0" }}h</p>
-                <p class="text-xs text-purple-200 mt-1">{% trans "Including overtime" %}</p>
-            </div>
-            <div class="bg-purple-500 bg-opacity-30 rounded-full p-3">
-                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                </svg>
-            </div>
-        </div>
-    </div>
-    
-    <div class="bg-gradient-to-r from-yellow-600 to-yellow-700 text-white p-6 rounded-lg shadow-md">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-yellow-100 text-sm font-medium">{% trans "Avg Daily OT" %}</p>
-                <p class="text-3xl font-bold">{{ summary_data.avg_daily_overtime|floatformat:1|default:"0.0" }}h</p>
-                <p class="text-xs text-yellow-200 mt-1">{% trans "Per working day" %}</p>
-            </div>
-            <div class="bg-yellow-500 bg-opacity-30 rounded-full p-3">
-                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"/>
-                </svg>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Applied Configuration Display -->
-<div class="bg-white rounded-lg shadow-md mb-8">
-    <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-4 rounded-t-lg">
-        <h3 class="text-lg font-bold">{% trans "APPLIED CONFIGURATION" %}</h3>
-        <p class="text-sm opacity-90">{% trans "Overtime processing rules and settings applied to this report" %}</p>
-    </div>
-    
     <div class="p-4">
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-sm">
-            <div class="bg-green-50 p-3 rounded-lg">
-                <div class="font-medium text-green-800">{% trans "Grace Time" %}</div>
-                <div class="text-green-600">{{ form_data.grace_minutes|default:"15" }} min</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <h4 class="font-semibold text-gray-800 mb-2">{% trans "Report Period" %}</h4>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Start Date:" %}</span>
+                        <span class="font-medium">{{ period_overview.start_date|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "End Date:" %}</span>
+                        <span class="font-medium">{{ period_overview.end_date|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Total Days:" %}</span>
+                        <span class="font-medium">{{ period_overview.total_days }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Working Days:" %}</span>
+                        <span class="font-medium">{{ period_overview.working_days }}</span>
+                    </div>
+                </div>
             </div>
-            <div class="bg-orange-50 p-3 rounded-lg">
-                <div class="font-medium text-orange-800">{% trans "Early Out Threshold" %}</div>
-                <div class="text-orange-600">{{ form_data.early_out_threshold_minutes|default:"30" }} min</div>
+            <div>
+                <h4 class="font-semibold text-gray-800 mb-2">{% trans "Overtime Statistics" %}</h4>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Total Employees:" %}</span>
+                        <span class="font-medium">{{ overtime_summary.total_employees }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "With Overtime:" %}</span>
+                        <span class="font-medium text-purple-600">{{ overtime_summary.employees_with_overtime }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Average OT/Employee:" %}</span>
+                        <span class="font-medium">{{ overtime_summary.average_overtime_per_employee|floatformat:1 }}h</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Highest OT Employee:" %}</span>
+                        <span class="font-medium text-orange-600">{{ overtime_summary.highest_overtime_employee|default:"N/A" }}</span>
+                    </div>
+                </div>
             </div>
-            <div class="bg-purple-50 p-3 rounded-lg">
-                <div class="font-medium text-purple-800">{% trans "OT Start After" %}</div>
-                <div class="text-purple-600">{{ form_data.overtime_start_after_minutes|default:"15" }} min</div>
+            <div>
+                <h4 class="font-semibold text-gray-800 mb-2">{% trans "Overtime Breakdown" %}</h4>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Regular OT:" %}</span>
+                        <span class="font-medium text-indigo-600">{{ overtime_summary.total_regular_overtime|floatformat:1 }}h</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Holiday OT:" %}</span>
+                        <span class="font-medium text-orange-600">{{ overtime_summary.total_holiday_overtime|floatformat:1 }}h</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Weekend OT:" %}</span>
+                        <span class="font-medium text-teal-600">{{ overtime_summary.total_weekend_overtime|floatformat:1 }}h</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Total OT Days:" %}</span>
+                        <span class="font-medium">{{ overtime_summary.total_overtime_days }}</span>
+                    </div>
+                </div>
             </div>
-            <div class="bg-indigo-50 p-3 rounded-lg">
-                <div class="font-medium text-indigo-800">{% trans "Min Overtime" %}</div>
-                <div class="text-indigo-600">{{ form_data.minimum_overtime_minutes|default:"60" }} min</div>
+            {% if cost_analysis.total_estimated_cost > 0 %}
+            <div>
+                <h4 class="font-semibold text-gray-800 mb-2">{% trans "Cost Analysis" %}</h4>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Total Cost:" %}</span>
+                        <span class="font-medium text-green-600">${{ cost_analysis.total_estimated_cost|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Regular Cost:" %}</span>
+                        <span class="font-medium">${{ cost_analysis.regular_overtime_cost|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Holiday Cost:" %}</span>
+                        <span class="font-medium">${{ cost_analysis.holiday_overtime_cost|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Weekend Cost:" %}</span>
+                        <span class="font-medium">${{ cost_analysis.weekend_overtime_cost|floatformat:2 }}</span>
+                    </div>
+                </div>
             </div>
-            <div class="bg-blue-50 p-3 rounded-lg">
-                <div class="font-medium text-blue-800">{% trans "Include Weekends" %}</div>
-                <div class="text-blue-600">{{ form_data.include_weekends|yesno:"Yes,No" }}</div>
-            </div>
-            <div class="bg-yellow-50 p-3 rounded-lg">
-                <div class="font-medium text-yellow-800">{% trans "Include Holidays" %}</div>
-                <div class="text-yellow-600">{{ form_data.include_holidays|yesno:"Yes,No" }}</div>
-            </div>
+            {% endif %}
         </div>
     </div>
 </div>
 
-<!-- Overtime Report Table -->
-<div class="bg-white rounded-lg shadow-md">
+<!-- Department Summary (if grouped by department) -->
+{% if form_data.group_by_department and department_summaries %}
+<div class="bg-white rounded-lg shadow-md mb-6">
     <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-4 rounded-t-lg">
-        <h3 class="text-lg font-bold">{% trans "OVERTIME RECORDS" %} ({{ attendance_data|length }})</h3>
-        <p class="text-sm opacity-90">{% trans "Period:" %} {{ form_data.start_date|date:"M d, Y" }} - {{ form_data.end_date|date:"M d, Y" }} | {% trans "Only showing records with overtime > 0" %}</p>
+        <h3 class="text-lg font-bold">{% trans "Department-wise Overtime Summary" %}</h3>
+    </div>
+    <div class="p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for dept_name, dept_data in department_summaries.items %}
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h4 class="font-semibold text-gray-800 mb-2">{{ dept_name }}</h4>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Employees:" %}</span>
+                        <span class="font-medium">{{ dept_data.total_employees }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Total OT:" %}</span>
+                        <span class="font-medium text-purple-600">{{ dept_data.total_overtime_hours|floatformat:1 }}h</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Regular OT:" %}</span>
+                        <span class="font-medium text-indigo-600">{{ dept_data.total_regular_overtime|floatformat:1 }}h</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Holiday OT:" %}</span>
+                        <span class="font-medium text-orange-600">{{ dept_data.total_holiday_overtime|floatformat:1 }}h</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Weekend OT:" %}</span>
+                        <span class="font-medium text-teal-600">{{ dept_data.total_weekend_overtime|floatformat:1 }}h</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">{% trans "Avg/Employee:" %}</span>
+                        <span class="font-medium">{{ dept_data.average_overtime_per_employee|floatformat:1 }}h</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Employee Overtime Table -->
+<div class="bg-white rounded-lg shadow-md">
+    <div class="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-4 rounded-t-lg">
+        <h3 class="text-lg font-bold">{% trans "Employee Overtime Summary" %} ({{ employee_overtime_data|length }})</h3>
+        <p class="text-sm opacity-90">{% trans "Period:" %} {{ period_overview.start_date|date:"M d" }} - {{ period_overview.end_date|date:"M d, Y" }} | {% trans "Working Days:" %} {{ period_overview.working_days }}</p>
     </div>
     
     <div class="w-full overflow-x-auto overflow-y-auto max-h-[70vh]">
         <table id="overtime-table" class="w-full table-fixed border-collapse">
             <thead class="bg-gray-50 text-gray-700 sticky top-0 z-10">
                 <tr>
-                    <th class="px-2 py-2 text-xs font-medium text-center border border-gray-300" style="width: 100px;">
+                    <th class="px-3 py-3 text-xs font-medium text-center border border-gray-300" style="width: 100px;">
                         {% trans "EMPLOYEE ID" %}
                     </th>
-                    <th class="px-2 py-2 text-xs font-medium text-center border border-gray-300" style="width: 150px;">
+                    <th class="px-3 py-3 text-xs font-medium text-center border border-gray-300" style="width: 150px;">
                         {% trans "EMPLOYEE NAME" %}
                     </th>
-                    <th class="px-2 py-2 text-xs font-medium text-center border border-gray-300" style="width: 120px;">
+                    <th class="px-3 py-3 text-xs font-medium text-center border border-gray-300" style="width: 120px;">
                         {% trans "DEPARTMENT" %}
                     </th>
-                    <th class="px-2 py-2 text-xs font-medium text-center border border-gray-300" style="width: 100px;">
-                        {% trans "DATE" %}
+                    <th class="px-3 py-3 text-xs font-medium text-center border border-gray-300" style="width: 100px;">
+                        {% trans "TOTAL OT HOURS" %}
                     </th>
-                    <th class="px-2 py-2 text-xs font-medium text-center border border-gray-300" style="width: 100px;">
-                        {% trans "STATUS" %}
+                    <th class="px-3 py-3 text-xs font-medium text-center border border-gray-300" style="width: 100px;">
+                        {% trans "REGULAR OT" %}
                     </th>
-                    <th class="px-2 py-2 text-xs font-medium text-center border border-gray-300" style="width: 120px;">
-                        {% trans "CHECK IN" %}
+                    <th class="px-3 py-3 text-xs font-medium text-center border border-gray-300" style="width: 100px;">
+                        {% trans "HOLIDAY OT" %}
                     </th>
-                    <th class="px-2 py-2 text-xs font-medium text-center border border-gray-300" style="width: 120px;">
-                        {% trans "CHECK OUT" %}
+                    <th class="px-3 py-3 text-xs font-medium text-center border border-gray-300" style="width: 100px;">
+                        {% trans "WEEKEND OT" %}
                     </th>
-                    <th class="px-2 py-2 text-xs font-medium text-center border border-gray-300" style="width: 100px;">
+                    <th class="px-3 py-3 text-xs font-medium text-center border border-gray-300" style="width: 80px;">
+                        {% trans "OT DAYS" %}
+                    </th>
+                    <th class="px-3 py-3 text-xs font-medium text-center border border-gray-300" style="width: 100px;">
                         {% trans "WORKING HOURS" %}
                     </th>
-                    <th class="px-2 py-2 text-xs font-medium text-center border border-gray-300" style="width: 100px;">
-                        {% trans "OVERTIME HRS" %}
+                    <th class="px-3 py-3 text-xs font-medium text-center border border-gray-300" style="width: 100px;">
+                        {% trans "AVG DAILY OT" %}
                     </th>
-                    <th class="px-2 py-2 text-xs font-medium text-center border border-gray-300" style="width: 80px;">
-                        {% trans "LATE MINUTES" %}
+                    <th class="px-3 py-3 text-xs font-medium text-center border border-gray-300" style="width: 100px;">
+                        {% trans "MAX DAILY OT" %}
                     </th>
-                    <th class="px-2 py-2 text-xs font-medium text-center border border-gray-300" style="width: 100px;">
-                        {% trans "SHIFT" %}
+                    <th class="px-3 py-3 text-xs font-medium text-center border border-gray-300" style="width: 100px;">
+                        {% trans "OT PERCENTAGE" %}
                     </th>
-                    <th class="px-2 py-2 text-xs font-medium text-center border border-gray-300" style="width: 80px;">
-                        {% trans "TOTAL LOGS" %}
+                    {% if form_data.show_daily_breakdown %}
+                    <th class="px-3 py-3 text-xs font-medium text-center border border-gray-300" style="width: 100px;">
+                        {% trans "DAILY BREAKDOWN" %}
                     </th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
-            {% for record in attendance_data %}
-                <tr class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors overtime-row"
-                    data-department="{{ record.department }}"
-                    data-overtime-hours="{{ record.overtime_hours }}">
+            {% for emp_data in employee_overtime_data %}
+                <tr class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors overtime-record-row"
+                    data-department="{{ emp_data.department }}"
+                    data-overtime-hours="{{ emp_data.total_overtime_hours }}"
+                    data-employee-id="{{ emp_data.employee_id }}"
+                    data-employee-name="{{ emp_data.employee_name }}"
+                    data-overtime-type="{% if emp_data.holiday_overtime_hours > emp_data.regular_overtime_hours and emp_data.holiday_overtime_hours > emp_data.weekend_overtime_hours %}holiday{% elif emp_data.weekend_overtime_hours > emp_data.regular_overtime_hours %}weekend{% else %}regular{% endif %}">
                     
-                    <td class="px-2 py-0.5 text-sm text-center border border-gray-300" data-column="employee_id" style="width: 100px;">
-                        <span class="font-medium">{{ record.employee_id }}</span>
+                    <td class="px-3 py-2 text-sm text-center border border-gray-300" data-column="employee_id">
+                        <span class="font-medium">{{ emp_data.employee_id }}</span>
                     </td>
-                    <td class="px-2 py-0.5 text-sm text-center border border-gray-300" data-column="employee_name" style="width: 150px;">
-                        <div class="font-medium">{{ record.employee_name }}</div>
-                        <div class="text-xs text-gray-500">{{ record.designation|default:"" }}</div>
+                    <td class="px-3 py-2 text-sm text-center border border-gray-300" data-column="employee_name">
+                        <div class="font-medium">{{ emp_data.employee_name }}</div>
+                        <div class="text-xs text-gray-500">{{ emp_data.designation }}</div>
                     </td>
-                    <td class="px-2 py-0.5 text-sm text-center border border-gray-300" data-column="department" style="width: 120px;">
-                        {{ record.department }}
+                    <td class="px-3 py-2 text-sm text-center border border-gray-300" data-column="department">
+                        {{ emp_data.department }}
                     </td>
-                    <td class="px-2 py-0.5 text-sm text-center border border-gray-300" style="width: 100px;">
-                        <div class="font-medium">{{ record.date|date:"M d" }}</div>
-                        <div class="text-xs text-gray-500">{{ record.day_name|default:"" }}</div>
+                    <td class="px-3 py-2 text-sm text-center border border-gray-300">
+                        <span class="font-bold text-purple-600">{{ emp_data.total_overtime_hours|floatformat:1 }}h</span>
                     </td>
-                    <td class="px-2 py-0.5 text-sm text-center border border-gray-300" style="width: 100px;">
-                        {% if record.status == "PRE" %}
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Present</span>
-                        {% elif record.status == "ABS" %}
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Absent</span>
-                        {% elif record.status == "LAT" %}
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Late</span>
-                        {% elif record.status == "LEA" %}
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Leave</span>
-                        {% elif record.status == "HOL" %}
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">Holiday</span>
-                        {% elif record.status == "HAL" %}
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">Half Day</span>
-                        {% else %}
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">{{ record.status_display|default:record.status }}</span>
-                        {% endif %}
-                        
-                        {% if record.is_weekend %}
-                            <div class="text-xs text-purple-600 mt-1">Weekend</div>
-                        {% elif record.is_holiday %}
-                            <div class="text-xs text-blue-600 mt-1">Holiday</div>
-                        {% endif %}
-                    </td>
-                    <td class="px-2 py-0.5 text-sm text-center border border-gray-300" style="width: 120px;">
-                        {% if record.in_time %}
-                            <div class="text-green-600 font-medium">{{ record.in_time|time:"H:i:s" }}</div>
-                            <div class="text-xs text-gray-500">{{ record.in_time|date:"M d" }}</div>
-                        {% else %}
-                            <span class="text-gray-400">--:--:--</span>
-                        {% endif %}
-                    </td>
-                    <td class="px-2 py-0.5 text-sm text-center border border-gray-300" style="width: 120px;">
-                        {% if record.out_time %}
-                            <div class="text-blue-600 font-medium">{{ record.out_time|time:"H:i:s" }}</div>
-                            <div class="text-xs text-gray-500">{{ record.out_time|date:"M d" }}</div>
-                        {% else %}
-                            <span class="text-gray-400">--:--:--</span>
-                        {% endif %}
-                    </td>
-                    <td class="px-2 py-0.5 text-sm text-center border border-gray-300" style="width: 100px;">
-                        {% if record.working_hours %}
-                            <span class="font-bold text-purple-600">{{ record.working_hours|floatformat:1 }}h</span>
+                    <td class="px-3 py-2 text-sm text-center border border-gray-300">
+                        {% if emp_data.regular_overtime_hours > 0 %}
+                            <span class="font-medium text-indigo-600">{{ emp_data.regular_overtime_hours|floatformat:1 }}h</span>
                         {% else %}
                             <span class="text-gray-400">0h</span>
                         {% endif %}
                     </td>
-                    <td class="px-2 py-0.5 text-sm text-center border border-gray-300" style="width: 100px;">
-                        <div class="font-bold text-indigo-600">{{ record.overtime_hours|floatformat:1 }}h</div>
-                    </td>
-                    <td class="px-2 py-0.5 text-sm text-center border border-gray-300" style="width: 80px;">
-                        {% if record.late_minutes %}
-                            <span class="font-bold text-red-600">{{ record.late_minutes }} min</span>
+                    <td class="px-3 py-2 text-sm text-center border border-gray-300">
+                        {% if emp_data.holiday_overtime_hours > 0 %}
+                            <span class="font-medium text-orange-600">{{ emp_data.holiday_overtime_hours|floatformat:1 }}h</span>
                         {% else %}
-                            <span class="text-gray-400">0</span>
+                            <span class="text-gray-400">0h</span>
                         {% endif %}
                     </td>
-                    <td class="px-2 py-0.5 text-sm text-center border border-gray-300" style="width: 100px;">
-                        {{ record.shift_name|default:"No Shift" }}
+                    <td class="px-3 py-2 text-sm text-center border border-gray-300">
+                        {% if emp_data.weekend_overtime_hours > 0 %}
+                            <span class="font-medium text-teal-600">{{ emp_data.weekend_overtime_hours|floatformat:1 }}h</span>
+                        {% else %}
+                            <span class="text-gray-400">0h</span>
+                        {% endif %}
                     </td>
-                    <td class="px-2 py-0.5 text-sm text-center border border-gray-300" style="width: 80px;">
-                        <span class="font-medium">{{ record.total_logs|default:0 }}</span>
+                    <td class="px-3 py-2 text-sm text-center border border-gray-300">
+                        <span class="font-medium">{{ emp_data.overtime_days_count }}</span>
                     </td>
+                    <td class="px-3 py-2 text-sm text-center border border-gray-300">
+                        <span class="font-medium">{{ emp_data.total_working_hours|floatformat:1 }}h</span>
+                    </td>
+                    <td class="px-3 py-2 text-sm text-center border border-gray-300">
+                        <span class="font-medium">{{ emp_data.average_daily_overtime|floatformat:1 }}h</span>
+                    </td>
+                    <td class="px-3 py-2 text-sm text-center border border-gray-300">
+                        <span class="font-medium text-red-600">{{ emp_data.max_daily_overtime|floatformat:1 }}h</span>
+                    </td>
+                    <td class="px-3 py-2 text-sm text-center border border-gray-300">
+                        {% if emp_data.overtime_percentage >= 20 %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                {{ emp_data.overtime_percentage|floatformat:1 }}%
+                            </span>
+                        {% elif emp_data.overtime_percentage >= 10 %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                {{ emp_data.overtime_percentage|floatformat:1 }}%
+                            </span>
+                        {% else %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                {{ emp_data.overtime_percentage|floatformat:1 }}%
+                            </span>
+                        {% endif %}
+                    </td>
+                    {% if form_data.show_daily_breakdown %}
+                    <td class="px-3 py-2 text-sm text-center border border-gray-300">
+                        {% if emp_data.daily_breakdown %}
+                            <button class="text-purple-600 hover:text-purple-800 text-xs" onclick="showDailyBreakdown('{{ emp_data.employee_id }}')">
+                                {{ emp_data.daily_breakdown|length }} days
+                            </button>
+                        {% else %}
+                            <span class="text-gray-400 text-xs">No data</span>
+                        {% endif %}
+                    </td>
+                    {% endif %}
                 </tr>
             {% empty %}
                 <tr class="bg-white border-b border-gray-200">
-                    <td colspan="12" class="px-4 sm:px-8 py-4 text-center text-sm border border-gray-300">
+                    <td colspan="{% if form_data.show_daily_breakdown %}13{% else %}12{% endif %}" class="px-4 py-8 text-center text-sm border border-gray-300">
                         <div class="flex flex-col items-center justify-center space-y-4">
                             <div class="rounded-full bg-gray-100 p-4">
-                                <svg class="h-8 w-8 text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <svg class="h-8 w-8 text-gray-400" viewBox="0 0 24 24" fill="none">
                                     <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/>
                                 </svg>
                             </div>
                             <div class="text-center">
-                                <h3 class="text-base font-medium">{% trans "No Overtime Records Found" %}</h3>
-                                <p class="text-gray-500 text-sm">{% trans "No employees worked overtime during the selected period with the specified criteria." %}</p>
+                                <h3 class="text-base font-medium">{% trans "No Overtime Data Found" %}</h3>
+                                <p class="text-gray-500 text-sm">{% trans "No overtime records found for the selected criteria." %}</p>
                             </div>
                         </div>
                     </td>
@@ -364,7 +421,170 @@
             </tbody>
         </table>
     </div>
+    
+    <!-- Summary Footer -->
+    <div class="bg-gray-50 border-t border-gray-200 p-4 rounded-b-lg">
+        <div class="text-sm">
+            <h4 class="font-semibold text-gray-800 mb-3">{% trans "Period Summary" %}</h4>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 text-xs">
+                <div class="bg-purple-100 p-2 rounded">
+                    <div class="font-medium text-purple-800">{% trans "Total OT Hours" %}</div>
+                    <div class="text-purple-600">{{ overtime_summary.total_overtime_hours|floatformat:0 }}h</div>
+                </div>
+                <div class="bg-indigo-100 p-2 rounded">
+                    <div class="font-medium text-indigo-800">{% trans "Regular OT" %}</div>
+                    <div class="text-indigo-600">{{ overtime_summary.total_regular_overtime|floatformat:0 }}h</div>
+                </div>
+                <div class="bg-orange-100 p-2 rounded">
+                    <div class="font-medium text-orange-800">{% trans "Holiday OT" %}</div>
+                    <div class="text-orange-600">{{ overtime_summary.total_holiday_overtime|floatformat:0 }}h</div>
+                </div>
+                <div class="bg-teal-100 p-2 rounded">
+                    <div class="font-medium text-teal-800">{% trans "Weekend OT" %}</div>
+                    <div class="text-teal-600">{{ overtime_summary.total_weekend_overtime|floatformat:0 }}h</div>
+                </div>
+                <div class="bg-gray-100 p-2 rounded">
+                    <div class="font-medium text-gray-800">{% trans "Employees" %}</div>
+                    <div class="text-gray-600">{{ overtime_summary.employees_with_overtime }}/{{ overtime_summary.total_employees }}</div>
+                </div>
+                <div class="bg-green-100 p-2 rounded">
+                    <div class="font-medium text-green-800">{% trans "Avg/Employee" %}</div>
+                    <div class="text-green-600">{{ overtime_summary.average_overtime_per_employee|floatformat:1 }}h</div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Overtime Trends (if available) -->
+{% if overtime_trends %}
+<div class="bg-white rounded-lg shadow-md mt-6">
+    <div class="bg-gradient-to-r from-teal-600 to-teal-700 text-white p-4 rounded-t-lg">
+        <h3 class="text-lg font-bold">{% trans "Overtime Trends & Analysis" %}</h3>
+    </div>
+    <div class="p-4">
+        <!-- Weekly Patterns -->
+        {% if overtime_trends.weekly_patterns %}
+        <div class="mb-6">
+            <h4 class="font-semibold text-gray-800 mb-3">{% trans "Weekly Overtime Patterns" %}</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {% for day_name, day_stats in overtime_trends.weekly_patterns.items %}
+                <div class="border border-gray-200 rounded-lg p-3">
+                    <h5 class="font-medium text-gray-800 mb-2">{{ day_name }}</h5>
+                    <div class="space-y-1 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">{% trans "Total OT:" %}</span>
+                            <span class="font-medium text-purple-600">{{ day_stats.total_overtime_hours|floatformat:1 }}h</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">{% trans "Avg OT:" %}</span>
+                            <span class="font-medium">{{ day_stats.average_overtime_hours|floatformat:1 }}h</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">{% trans "OT Instances:" %}</span>
+                            <span class="font-medium">{{ day_stats.overtime_instances }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">{% trans "Max OT:" %}</span>
+                            <span class="font-medium text-red-600">{{ day_stats.max_overtime|floatformat:1 }}h</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Department Comparison -->
+        {% if overtime_trends.department_comparison %}
+        <div class="mb-6">
+            <h4 class="font-semibold text-gray-800 mb-3">{% trans "Department Overtime Comparison" %}</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for dept, dept_stats in overtime_trends.department_comparison.items %}
+                <div class="border border-gray-200 rounded-lg p-3">
+                    <h5 class="font-medium text-gray-800 mb-2">{{ dept }}</h5>
+                    <div class="space-y-1 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">{% trans "Employees:" %}</span>
+                            <span class="font-medium">{{ dept_stats.employees }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">{% trans "Avg OT:" %}</span>
+                            <span class="font-medium text-purple-600">{{ dept_stats.average_overtime_hours|floatformat:1 }}h</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">{% trans "Regular:" %}</span>
+                            <span class="font-medium text-indigo-600">{{ dept_stats.average_regular_overtime|floatformat:1 }}h</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">{% trans "Holiday:" %}</span>
+                            <span class="font-medium text-orange-600">{{ dept_stats.average_holiday_overtime|floatformat:1 }}h</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">{% trans "Weekend:" %}</span>
+                            <span class="font-medium text-teal-600">{{ dept_stats.average_weekend_overtime|floatformat:1 }}h</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Overtime Distribution -->
+        {% if overtime_trends.overtime_distribution %}
+        <div class="mb-6">
+            <h4 class="font-semibold text-gray-800 mb-3">{% trans "Overtime Distribution" %}</h4>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                {% for range, count in overtime_trends.overtime_distribution.items %}
+                <div class="text-center p-3 border border-gray-200 rounded-lg">
+                    <div class="text-lg font-bold text-gray-800">{{ count }}</div>
+                    <div class="text-sm text-gray-600">{{ range }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Shift Analysis (if enabled) -->
+{% if form_data.enable_dynamic_shift_detection and shift_analysis %}
+<div class="bg-white rounded-lg shadow-md mt-6">
+    <div class="bg-gradient-to-r from-cyan-600 to-cyan-700 text-white p-4 rounded-t-lg">
+        <h3 class="text-lg font-bold">{% trans "Shift Detection Analysis" %}</h3>
+    </div>
+    <div class="p-4">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div class="text-center p-3 bg-blue-50 rounded-lg">
+                <div class="text-lg font-bold text-blue-600">{{ shift_analysis.roster_day_usage|default:0 }}</div>
+                <div class="text-sm text-blue-800">{% trans "Roster Day" %}</div>
+            </div>
+            <div class="text-center p-3 bg-green-50 rounded-lg">
+                <div class="text-lg font-bold text-green-600">{{ shift_analysis.roster_assignment_usage|default:0 }}</div>
+                <div class="text-sm text-green-800">{% trans "Roster Assignment" %}</div>
+            </div>
+            <div class="text-center p-3 bg-yellow-50 rounded-lg">
+                <div class="text-lg font-bold text-yellow-600">{{ shift_analysis.default_shift_usage|default:0 }}</div>
+                <div class="text-sm text-yellow-800">{% trans "Default Shift" %}</div>
+            </div>
+            <div class="text-center p-3 bg-cyan-50 rounded-lg">
+                <div class="text-lg font-bold text-cyan-600">{{ shift_analysis.dynamic_detection_usage|default:0 }}</div>
+                <div class="text-sm text-cyan-800">{% trans "Dynamic Detection" %}</div>
+            </div>
+            <div class="text-center p-3 bg-purple-50 rounded-lg">
+                <div class="text-lg font-bold text-purple-600">{{ shift_analysis.multiple_shift_matches|default:0 }}</div>
+                <div class="text-sm text-purple-800">{% trans "Multiple Matches" %}</div>
+            </div>
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+                <div class="text-lg font-bold text-gray-600">{{ shift_analysis.no_shift_days|default:0 }}</div>
+                <div class="text-sm text-gray-800">{% trans "No Shift" %}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 {% else %}
 <div class="text-center py-12 bg-white rounded-lg border border-gray-200">
@@ -372,7 +592,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
     </svg>
     <h3 class="text-lg font-medium text-gray-900 mb-2">{% trans "Generate Overtime Report" %}</h3>
-    <p class="text-gray-500">{% trans "Click the Generate Overtime Report button to track and analyze employee overtime hours with comprehensive time tracking and threshold analysis." %}</p>
+    <p class="text-gray-500">{% trans "Click the Generate Report button to create a comprehensive overtime analysis with advanced metrics, cost analysis, and trend insights." %}</p>
 </div>
 {% endif %}
 {% endblock %}
@@ -384,15 +604,15 @@
     table-layout: fixed;
     border-collapse: collapse;
 }
+
 #overtime-table th,
 #overtime-table td {
-    padding: 2px;
-    text-align: center;
     border: 1px solid #d1d5db;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 #overtime-table thead th {
     background-color: #f9fafb;
     color: #374151;
@@ -428,7 +648,7 @@
     width: 50px;
     height: 50px;
     border: 4px solid #f3f4f6;
-    border-top: 4px solid #4f46e5;
+    border-top: 4px solid #7c3aed;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 15px;
@@ -438,32 +658,10 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
-@media print {
-    .no-print {
-        display: none !important;
-    }
-    
-    body {
-        font-size: 12px;
-    }
-    
-    .bg-gradient-to-r {
-        background: #4f46e5 !important;
-        color: white !important;
-        -webkit-print-color-adjust: exact;
-    }
-    
-    th {
-        background: #f0f0f0 !important;
-        -webkit-print-color-adjust: exact;
-    }
-}
 </style>
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     
@@ -473,124 +671,20 @@ document.addEventListener('DOMContentLoaded', function() {
     loadingOverlay.innerHTML = `
         <div class="text-center">
             <div class="loading-spinner"></div>
-            <div class="text-lg font-semibold text-gray-700">Generating Overtime Report...</div>
-            <div class="text-sm text-gray-500 mt-2">Processing attendance data for overtime calculations</div>
+            <div class="text-lg font-semibold text-gray-700">{% trans "Generating Overtime Report..." %}</div>
+            <div class="text-sm text-gray-500 mt-2">{% trans "Processing overtime data with advanced analytics" %}</div>
         </div>
     `;
     document.body.appendChild(loadingOverlay);
 
-    // Toast notification
-    const toast = document.createElement('div');
-    toast.id = 'overtime-feedback';
-    toast.className = 'hidden fixed top-6 right-6 z-50 bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-xl';
-    toast.innerHTML = `
-        <div class="flex items-center space-x-3">
-            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100">
-                <svg class="h-4 w-4 text-indigo-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </div>
-            <div>
-                <p class="font-medium text-gray-900">Success!</p>
-                <p class="text-sm text-gray-600">Action completed successfully!</p>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(toast);
-
-    // Print Overtime Report Function
-    function printOvertimeReport() {
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Overtime Report</title>
-                <style>
-                    body { font-family: Arial, sans-serif; margin: 10px; font-size: 10px; }
-                    .header { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #4f46e5; padding-bottom: 10px; }
-                    .header h1 { font-size: 18px; margin: 0; color: #4f46e5; }
-                    .header p { margin: 2px 0; color: #666; font-size: 9px; }
-                    table { width: 100%; border-collapse: collapse; font-size: 6px; margin-top: 10px; }
-                    th, td { border: 1px solid #000; padding: 1px; text-align: center; }
-                    thead th { 
-                        background-color: #c7d2fe !important; 
-                        font-weight: bold;
-                        -webkit-print-color-adjust: exact;
-                        color-adjust: exact;
-                        font-size: 5px;
-                    }
-                    tbody td { font-size: 5px; }
-                    @page { margin: 0.3in; }
-                </style>
-            </head>
-            <body>
-                <div class="header">
-                    <h1>OVERTIME REPORT</h1>
-                    <p>Generated on: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
-                </div>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th>EMP ID</th>
-                            <th>EMPLOYEE NAME</th>
-                            <th>DEPARTMENT</th>
-                            <th>DATE</th>
-                            <th>STATUS</th>
-                            <th>CHECK IN</th>
-                            <th>CHECK OUT</th>
-                            <th>WORK HRS</th>
-                            <th>OT HOURS</th>
-                            <th>LATE MIN</th>
-                            <th>SHIFT</th>
-                            <th>LOGS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `);
-
-        // Add table rows
-        const rows = document.querySelectorAll('#overtime-table tbody tr.overtime-row');
-        rows.forEach(row => {
-            if (row.style.display !== 'none') {
-                const cells = row.querySelectorAll('td');
-                let rowHtml = '<tr>';
-                
-                cells.forEach((cell, index) => {
-                    if (index < 12) {
-                        rowHtml += `<td>${cell.textContent.trim()}</td>`;
-                    }
-                });
-                rowHtml += '</tr>';
-                printWindow.document.write(rowHtml);
-            }
-        });
-
-        printWindow.document.write(`
-                    </tbody>
-                </table>
-            </body>
-            </html>
-        `);
-
-        printWindow.document.close();
-        printWindow.focus();
-        
-        setTimeout(() => {
-            printWindow.print();
-            printWindow.close();
-        }, 250);
-    }
-
     // Search functionality
-    document.getElementById('search-overtime')?.addEventListener('keyup', function() {
+    document.getElementById('search-overtime-records')?.addEventListener('keyup', function() {
         const searchTerm = this.value.toLowerCase();
-        const rows = document.querySelectorAll('#overtime-table tbody tr.overtime-row');
+        const rows = document.querySelectorAll('#overtime-table tbody tr.overtime-record-row');
         rows.forEach(row => {
-            const employeeId = row.querySelector('td[data-column="employee_id"]')?.textContent.toLowerCase() || '';
-            const employeeName = row.querySelector('td[data-column="employee_name"]')?.textContent.toLowerCase() || '';
-            const department = row.querySelector('td[data-column="department"]')?.textContent.toLowerCase() || '';
+            const employeeId = row.dataset.employeeId?.toLowerCase() || '';
+            const employeeName = row.dataset.employeeName?.toLowerCase() || '';
+            const department = row.dataset.department?.toLowerCase() || '';
             if (employeeId.includes(searchTerm) || employeeName.includes(searchTerm) || department.includes(searchTerm)) {
                 row.style.display = '';
             } else {
@@ -602,7 +696,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Department filter
     document.getElementById('department-filter-overtime')?.addEventListener('change', function() {
         const filterValue = this.value;
-        const rows = document.querySelectorAll('#overtime-table tbody tr.overtime-row');
+        const rows = document.querySelectorAll('#overtime-table tbody tr.overtime-record-row');
         rows.forEach(row => {
             const department = row.dataset.department;
             if (!filterValue || department === filterValue) {
@@ -616,71 +710,42 @@ document.addEventListener('DOMContentLoaded', function() {
     // Overtime range filter
     document.getElementById('overtime-range-filter')?.addEventListener('change', function() {
         const filterValue = this.value;
-        const rows = document.querySelectorAll('#overtime-table tbody tr.overtime-row');
+        const rows = document.querySelectorAll('#overtime-table tbody tr.overtime-record-row');
         rows.forEach(row => {
-            const overtimeHours = parseFloat(row.dataset.overtimeHours);
-            let show = true;
+            const overtimeHours = parseFloat(row.dataset.overtimeHours) || 0;
+            let shouldShow = true;
             
-            if (filterValue === '0-2' && (overtimeHours < 0 || overtimeHours > 2)) show = false;
-            else if (filterValue === '2-4' && (overtimeHours < 2 || overtimeHours > 4)) show = false;
-            else if (filterValue === '4-6' && (overtimeHours < 4 || overtimeHours > 6)) show = false;
-            else if (filterValue === '6+' && overtimeHours < 6) show = false;
+            if (filterValue === '0-10') {
+                shouldShow = overtimeHours >= 0 && overtimeHours <= 10;
+            } else if (filterValue === '10-20') {
+                shouldShow = overtimeHours > 10 && overtimeHours <= 20;
+            } else if (filterValue === '20-30') {
+                shouldShow = overtimeHours > 20 && overtimeHours <= 30;
+            } else if (filterValue === '30-40') {
+                shouldShow = overtimeHours > 30 && overtimeHours <= 40;
+            } else if (filterValue === '40+') {
+                shouldShow = overtimeHours > 40;
+            }
             
-            row.style.display = show ? '' : 'none';
+            if (shouldShow) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
         });
     });
 
-    // CSV Export
-    document.getElementById('export-overtime-csv')?.addEventListener('click', function() {
-        const table = document.getElementById('overtime-table');
-        const rows = table.querySelectorAll('tbody tr.overtime-row');
-        const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
-        
-        let csvContent = [];
-        csvContent.push(headers.map(header => `"${header.replace(/"/g, '""')}"`).join(','));
-        
+    // Overtime type filter
+    document.getElementById('overtime-type-filter')?.addEventListener('change', function() {
+        const filterValue = this.value;
+        const rows = document.querySelectorAll('#overtime-table tbody tr.overtime-record-row');
         rows.forEach(row => {
-            if (row.style.display !== 'none') {
-                const cells = Array.from(row.querySelectorAll('td'));
-                const rowData = cells.map(cell => `"${cell.textContent.trim().replace(/"/g, '""')}"`);
-                csvContent.push(rowData.join(','));
+            const overtimeType = row.dataset.overtimeType;
+            if (!filterValue || overtimeType === filterValue) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
             }
-        });
-        
-        const csv = csvContent.join('\n');
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'overtime_report.csv';
-        a.click();
-        window.URL.revokeObjectURL(url);
-        
-        // Show success toast
-        document.getElementById('overtime-feedback').classList.remove('hidden');
-        setTimeout(() => document.getElementById('overtime-feedback').classList.add('hidden'), 3000);
-    });
-
-    // Copy to Clipboard
-    document.getElementById('copy-overtime-data')?.addEventListener('click', function() {
-        const table = document.getElementById('overtime-table');
-        const rows = table.querySelectorAll('tbody tr.overtime-row');
-        const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
-        
-        let textContent = headers.join('\t') + '\n';
-        
-        rows.forEach(row => {
-            if (row.style.display !== 'none') {
-                const cells = Array.from(row.querySelectorAll('td'));
-                const rowData = cells.map(cell => cell.textContent.trim());
-                textContent += rowData.join('\t') + '\n';
-            }
-        });
-        
-        navigator.clipboard.writeText(textContent).then(() => {
-            // Show success toast
-            document.getElementById('overtime-feedback').classList.remove('hidden');
-            setTimeout(() => document.getElementById('overtime-feedback').classList.add('hidden'), 3000);
         });
     });
 
@@ -690,12 +755,12 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.id = id;
         modal.className = 'hidden fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 backdrop-blur-sm';
         modal.innerHTML = `
-            <div class="bg-white mx-auto mt-10 p-0 border border-gray-200 rounded-xl w-11/12 ${size === 'large' ? 'max-w-5xl' : 'max-w-lg'} shadow-2xl relative animate-in slide-in-from-bottom-4 duration-300">
+            <div class="bg-white mx-auto mt-10 p-0 border border-gray-200 rounded-xl w-11/12 ${size === 'large' ? 'max-w-5xl' : 'max-w-lg'} shadow-2xl relative">
                 <div class="bg-white px-6 pt-6 pb-0 border-b border-gray-200 rounded-t-xl relative">
                     <h2 class="text-lg font-semibold text-gray-900">${title}</h2>
                     <button class="absolute right-4 top-4 bg-gray-100 hover:bg-gray-200 border-0 rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200 text-gray-600 hover:text-gray-800 hover:scale-105 z-10" data-close-modal="${id}">×</button>
                 </div>
-                <div class="bg-white px-6 py-6 max-h-[70vh] overflow-y-auto rounded-b-xl">
+                <div class="bg-white px-6 py-6 max-h-[80vh] overflow-y-auto rounded-b-xl">
                     ${content}
                 </div>
             </div>
@@ -704,124 +769,355 @@ document.addEventListener('DOMContentLoaded', function() {
         return modal;
     }
 
-    // Create the modal
-    const overtimeModal = createModal('overtime-modal', 'Generate Overtime Report', `
-        <form id="overtime-form" method="post" class="space-y-5">
-            <input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''}">
-            <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-4">
+    const overtimeReportModal = createModal('overtime-report-modal', '{% trans "Generate Overtime Report" %}', `
+        <form id="overtime-report-form" method="post" class="space-y-5">
+            {% csrf_token %}
+            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
                 <div class="flex items-center">
-                    <svg class="w-5 h-5 text-indigo-600 mr-2" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <svg class="w-5 h-5 text-purple-600 mr-2" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/>
                     </svg>
-                    <div class="text-sm text-indigo-800">
-                        <strong>Overtime Analysis:</strong> This report tracks and analyzes employee overtime hours with comprehensive time tracking, threshold analysis, and overtime calculation management.
+                    <div class="text-sm text-purple-800">
+                        <strong>{% trans "Overtime Report:" %}</strong> {% trans "Comprehensive overtime analysis with advanced metrics, cost analysis, and trend insights." %}
                     </div>
                 </div>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-700">Start Date</label>
-                    <input type="date" name="start_date" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" required>
-                </div>
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-700">End Date</label>
-                    <input type="date" name="end_date" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" required>
+            <!-- Date Range and Employee Selection -->
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Period & Employee Selection" %}</h3>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Start Date" %}</label>
+                            <input type="date" name="start_date" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700" required>
+                        </div>
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "End Date" %}</label>
+                            <input type="date" name="end_date" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700" required>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Employee Filter" %}</label>
+                        <select name="employee_filter" id="employee_filter_overtime" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+                            <option value="all">{% trans "All Active Employees" %}</option>
+                            <option value="department">{% trans "Filter by Department" %}</option>
+                            <option value="designation">{% trans "Filter by Designation" %}</option>
+                            <option value="specific">{% trans "Specific Employee IDs" %}</option>
+                        </select>
+                    </div>
+                    
+                    <div id="department_filter_overtime" class="hidden">
+                        <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Select Departments" %}</label>
+                        <select name="departments" multiple class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700" size="5">
+                            {% for dept in departments %}
+                            <option value="{{ dept.id }}">{{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div id="designation_filter_overtime" class="hidden">
+                        <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Select Designations" %}</label>
+                        <select name="designations" multiple class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700" size="5">
+                            {% for desig in designations %}
+                            <option value="{{ desig.id }}">{{ desig.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div id="specific_employees_overtime" class="hidden">
+                        <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Employee IDs (comma-separated)" %}</label>
+                        <input type="text" name="employee_ids" placeholder="EMP001, EMP002, EMP003" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+                    </div>
                 </div>
             </div>
             
-            <div>
-                <label class="block mb-2 text-sm font-medium text-gray-700">Employee Filter</label>
-                <select name="employee_filter" id="employee_filter_overtime" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 cursor-pointer">
-                    <option value="all">All Employees</option>
-                    <option value="department">By Department</option>
-                    <option value="designation">By Designation</option>
-                    <option value="specific">Specific Employees</option>
-                </select>
+            <!-- Overtime Filtering Options -->
+            <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                <h3 class="text-lg font-semibold text-purple-800 mb-4">{% trans "Overtime Filtering Options" %}</h3>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Minimum Overtime Hours" %}</label>
+                            <input type="number" name="minimum_overtime_hours" value="0" min="0" max="24" step="0.5" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+                        </div>
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Overtime Type Filter" %}</label>
+                            <select name="overtime_type_filter" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+                                <option value="all">{% trans "All Overtime Types" %}</option>
+                                <option value="regular">{% trans "Regular Overtime Only" %}</option>
+                                <option value="holiday">{% trans "Holiday Overtime Only" %}</option>
+                                <option value="weekend">{% trans "Weekend Overtime Only" %}</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="show_daily_breakdown" checked class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Show Daily Breakdown" %}</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="group_by_department" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Group by Department" %}</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_zero_overtime" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Include Zero Overtime Days" %}</span>
+                        </label>
+                    </div>
+                </div>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-700">Grace Minutes</label>
-                    <input type="number" name="grace_minutes" value="15" min="0" max="120" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
-                </div>
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-700">Early Out Threshold (Minutes)</label>
-                    <input type="number" name="early_out_threshold_minutes" value="30" min="0" max="240" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+            <!-- Dynamic Shift Detection -->
+            <div class="bg-cyan-50 p-4 rounded-lg border border-cyan-200">
+                <h3 class="text-lg font-semibold text-cyan-800 mb-4">{% trans "Dynamic Shift Detection" %}</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="enable_dynamic_shift_detection" id="enable_dynamic_shift_overtime" class="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm font-medium text-gray-700">{% trans "Enable Dynamic Shift Detection" %}</span>
+                        </label>
+                        <p class="text-xs text-gray-600 mt-1">{% trans "Automatically detect shifts based on actual check-in/out times" %}</p>
+                    </div>
+                    
+                    <div id="dynamic_shift_options_overtime" class="hidden space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Tolerance (Minutes)" %}</label>
+                                <input type="number" name="dynamic_shift_tolerance_minutes" value="30" min="5" max="120" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+                            </div>
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Multiple Match Priority" %}</label>
+                                <select name="multiple_shift_priority" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+                                    <option value="least_break">{% trans "Least Break Time" %}</option>
+                                    <option value="shortest_duration">{% trans "Shortest Duration" %}</option>
+                                    <option value="alphabetical">{% trans "Alphabetical Order" %}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-700">Overtime Start After (Minutes)</label>
-                    <input type="number" name="overtime_start_after_minutes" value="15" min="0" max="120" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
-                </div>
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-700">Minimum Overtime (Minutes)</label>
-                    <input type="number" name="minimum_overtime_minutes" value="60" min="0" max="480" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+            <!-- Advanced Overtime Configuration -->
+            <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                <h3 class="text-lg font-semibold text-indigo-800 mb-4">{% trans "Advanced Overtime Rules" %}</h3>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Overtime Calculation Method" %}</label>
+                            <select name="overtime_calculation_method" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+                                <option value="shift_based">{% trans "Shift-Based" %}</option>
+                                <option value="expected_hours">{% trans "Expected Hours-Based" %}</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Separate OT Break Time (Minutes)" %}</label>
+                            <input type="number" name="separate_ot_break_time" value="0" min="0" max="120" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="holiday_overtime_full_day" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Holiday Overtime - Full Day" %}</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="weekend_overtime_full_day" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Weekend Overtime - Full Day" %}</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="late_affects_overtime" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Late Affects Overtime" %}</span>
+                        </label>
+                    </div>
                 </div>
             </div>
             
-            <div class="form-group">
-                <label class="block mb-2 text-sm font-medium text-gray-700">Weekend Days</label>
+            <!-- Break Time Configuration -->
+            <div class="bg-teal-50 p-4 rounded-lg border border-teal-200">
+                <h3 class="text-lg font-semibold text-teal-800 mb-4">{% trans "Break Time Management" %}</h3>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Default Break Time (Minutes)" %}</label>
+                            <input type="number" name="default_break_minutes" value="60" min="0" max="240" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+                        </div>
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Break Deduction Method" %}</label>
+                            <select name="break_deduction_method" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+                                <option value="fixed">{% trans "Fixed Break Time" %}</option>
+                                <option value="proportional">{% trans "Proportional to Working Hours" %}</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="use_shift_break_time" checked class="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Use Shift-Specific Break Time" %}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Time Settings -->
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Time Settings" %}</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Grace Minutes" %}</label>
+                        <input type="number" name="grace_minutes" value="15" min="0" max="120" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Early Out Threshold (Minutes)" %}</label>
+                        <input type="number" name="early_out_threshold_minutes" value="30" min="0" max="240" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Overtime Start After (Minutes)" %}</label>
+                        <input type="number" name="overtime_start_after_minutes" value="15" min="0" max="120" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Minimum Overtime (Minutes)" %}</label>
+                        <input type="number" name="minimum_overtime_minutes" value="60" min="0" max="480" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Weekend Configuration -->
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">{% trans "Weekend Configuration" %}</h3>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <label class="flex items-center">
-                        <input type="checkbox" name="weekend_days" value="0" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                        <span class="ml-2 text-sm text-gray-700">Monday</span>
+                        <input type="checkbox" name="weekend_days" value="0" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Monday" %}</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" name="weekend_days" value="1" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                        <span class="ml-2 text-sm text-gray-700">Tuesday</span>
+                        <input type="checkbox" name="weekend_days" value="1" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Tuesday" %}</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" name="weekend_days" value="2" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                        <span class="ml-2 text-sm text-gray-700">Wednesday</span>
+                        <input type="checkbox" name="weekend_days" value="2" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Wednesday" %}</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" name="weekend_days" value="3" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                        <span class="ml-2 text-sm text-gray-700">Thursday</span>
+                        <input type="checkbox" name="weekend_days" value="3" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Thursday" %}</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" name="weekend_days" value="4" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                        <span class="ml-2 text-sm text-gray-700">Friday</span>
+                        <input type="checkbox" name="weekend_days" value="4" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Friday" %}</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" name="weekend_days" value="5" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                        <span class="ml-2 text-sm text-gray-700">Saturday</span>
+                        <input type="checkbox" name="weekend_days" value="5" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Saturday" %}</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" name="weekend_days" value="6" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                        <span class="ml-2 text-sm text-gray-700">Sunday</span>
+                        <input type="checkbox" name="weekend_days" value="6" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Sunday" %}</span>
                     </label>
                 </div>
             </div>
             
-            <div class="border-t pt-4">
-                <h4 class="text-sm font-medium text-gray-900 mb-3">Display Options</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-2">
+            <!-- Advanced Rules -->
+            <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                <h3 class="text-lg font-semibold text-orange-800 mb-4">{% trans "Advanced Rules" %}</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Late to Absent Conversion (Days)" %}</label>
+                        <input type="number" name="late_to_absent_days" value="3" min="1" max="10" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+                        <p class="text-xs text-gray-600 mt-1">{% trans "Convert to absent after this many consecutive late days" %}</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <label class="flex items-center">
-                            <input type="checkbox" name="include_weekends" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                            <span class="ml-2 text-sm text-gray-700">Include Weekends</span>
+                            <input type="checkbox" name="holiday_before_after_absent" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Holiday Before/After Absent Rule" %}</span>
                         </label>
                         <label class="flex items-center">
-                            <input type="checkbox" name="include_holidays" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                            <span class="ml-2 text-sm text-gray-700">Include Holidays</span>
+                            <input type="checkbox" name="weekend_before_after_absent" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Weekend Before/After Absent Rule" %}</span>
                         </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Employee Override Settings -->
+            <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                <h3 class="text-lg font-semibold text-purple-800 mb-4">{% trans "Employee Override Settings" %}</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="use_employee_specific_grace" checked class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Employee-Specific Grace" %}</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="use_employee_specific_overtime" checked class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Employee-Specific OT Rules" %}</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="use_employee_expected_hours" checked class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-700">{% trans "Employee Expected Hours" %}</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Analysis Options -->
+            <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                <h3 class="text-lg font-semibold text-green-800 mb-4">{% trans "Analysis Options" %}</h3>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="show_overtime_trends" checked class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Show Overtime Trends" %}</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="show_cost_analysis" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Show Cost Analysis" %}</span>
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Overtime Rate Multiplier" %}</label>
+                        <input type="number" name="overtime_rate_multiplier" value="1.5" min="1.0" max="3.0" step="0.1" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+                        <p class="text-xs text-gray-600 mt-1">{% trans "Multiplier for overtime rate calculation (e.g., 1.5 for time-and-a-half)" %}</p>
                     </div>
                 </div>
             </div>
             
             <div class="flex gap-3 pt-4">
-                <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium bg-gradient-to-r from-indigo-600 to-indigo-700 text-white hover:from-indigo-700 hover:to-indigo-800 h-9 px-4 py-2 shadow-md transition-all duration-200">
-                    Generate Overtime Report
+                <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 h-10 px-6 py-2 shadow-md transition-all duration-200">
+                    {% trans "Generate Report" %}
                 </button>
-                <button type="button" data-close-modal="overtime-modal" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 h-9 px-4 py-2 shadow-sm transition-all duration-200">
-                    Cancel
+                <button type="button" data-close-modal="overtime-report-modal" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 h-10 px-6 py-2 shadow-sm transition-all duration-200">
+                    {% trans "Cancel" %}
                 </button>
             </div>
         </form>
     `);
+
+    // Employee filter toggle
+    document.addEventListener('change', function(e) {
+        if (e.target.id === 'employee_filter_overtime') {
+            const filterValue = e.target.value;
+            document.getElementById('department_filter_overtime').classList.toggle('hidden', filterValue !== 'department');
+            document.getElementById('designation_filter_overtime').classList.toggle('hidden', filterValue !== 'designation');
+            document.getElementById('specific_employees_overtime').classList.toggle('hidden', filterValue !== 'specific');
+        }
+        
+        if (e.target.id === 'enable_dynamic_shift_overtime') {
+            const dynamicOptions = document.getElementById('dynamic_shift_options_overtime');
+            if (e.target.checked) {
+                dynamicOptions.classList.remove('hidden');
+            } else {
+                dynamicOptions.classList.add('hidden');
+            }
+        }
+    });
 
     // Modal close handlers
     document.addEventListener('click', function(e) {
@@ -834,38 +1130,72 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Event listeners
-    document.getElementById('generate-overtime-btn').addEventListener('click', function() {
-        overtimeModal.classList.remove('hidden');
+    document.getElementById('generate-overtime-report-btn').addEventListener('click', function() {
+        overtimeReportModal.classList.remove('hidden');
         
-        // Set default dates
+        // Set default dates (last 30 days)
         const today = new Date();
-        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        const defaultStartDate = startOfMonth.toISOString().split('T')[0];
-        const defaultEndDate = today.toISOString().split('T')[0];
+        const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
         
-        const startDateInput = document.querySelector('#overtime-modal input[name="start_date"]');
-        const endDateInput = document.querySelector('#overtime-modal input[name="end_date"]');
+        const startDateInput = document.querySelector('#overtime-report-modal input[name="start_date"]');
+        const endDateInput = document.querySelector('#overtime-report-modal input[name="end_date"]');
         
         if (!startDateInput.value) {
-            startDateInput.value = defaultStartDate;
+            startDateInput.value = thirtyDaysAgo.toISOString().split('T')[0];
         }
         if (!endDateInput.value) {
-            endDateInput.value = defaultEndDate;
+            endDateInput.value = today.toISOString().split('T')[0];
         }
     });
 
-    document.getElementById('print-overtime-btn')?.addEventListener('click', printOvertimeReport);
-
     // Form submission
-    document.getElementById('overtime-form').addEventListener('submit', function(e) {
-        overtimeModal.classList.add('hidden');
+    document.getElementById('overtime-report-form').addEventListener('submit', function(e) {
+        overtimeReportModal.classList.add('hidden');
         loadingOverlay.classList.add('active');
         
         // Remove loading overlay after form submission
         setTimeout(() => {
             loadingOverlay.classList.remove('active');
-        }, 2000);
+        }, 3000);
     });
+
+    // Daily breakdown modal functionality
+    window.showDailyBreakdown = function(employeeId) {
+        {% if form_data.show_daily_breakdown %}
+        const employeeData = {{ employee_overtime_data|safe }};
+        const employee = employeeData.find(emp => emp.employee_id === employeeId);
+        
+        if (employee && employee.daily_breakdown) {
+            let breakdownContent = '<h4 class="font-semibold mb-3">Daily Overtime Breakdown for ' + employee.employee_name + '</h4>';
+            breakdownContent += '<div class="overflow-x-auto">';
+            breakdownContent += '<table class="w-full border-collapse border border-gray-300">';
+            breakdownContent += '<thead><tr class="bg-gray-50">';
+            breakdownContent += '<th class="border border-gray-300 px-3 py-2 text-sm font-medium">Date</th>';
+            breakdownContent += '<th class="border border-gray-300 px-3 py-2 text-sm font-medium">Day</th>';
+            breakdownContent += '<th class="border border-gray-300 px-3 py-2 text-sm font-medium">OT Hours</th>';
+            breakdownContent += '<th class="border border-gray-300 px-3 py-2 text-sm font-medium">Type</th>';
+            breakdownContent += '<th class="border border-gray-300 px-3 py-2 text-sm font-medium">Shift</th>';
+            breakdownContent += '<th class="border border-gray-300 px-3 py-2 text-sm font-medium">Working Hours</th>';
+            breakdownContent += '</tr></thead><tbody>';
+            
+            employee.daily_breakdown.forEach(day => {
+                breakdownContent += '<tr>';
+                breakdownContent += '<td class="border border-gray-300 px-3 py-2 text-sm">' + day.date + '</td>';
+                breakdownContent += '<td class="border border-gray-300 px-3 py-2 text-sm">' + day.day_name + '</td>';
+                breakdownContent += '<td class="border border-gray-300 px-3 py-2 text-sm font-bold text-purple-600">' + day.overtime_hours.toFixed(1) + 'h</td>';
+                breakdownContent += '<td class="border border-gray-300 px-3 py-2 text-sm">' + day.overtime_type + '</td>';
+                breakdownContent += '<td class="border border-gray-300 px-3 py-2 text-sm">' + day.shift_name + '</td>';
+                breakdownContent += '<td class="border border-gray-300 px-3 py-2 text-sm">' + day.working_hours.toFixed(1) + 'h</td>';
+                breakdownContent += '</tr>';
+            });
+            
+            breakdownContent += '</tbody></table></div>';
+            
+            const modal = createModal('daily-breakdown-modal', 'Daily Overtime Breakdown', breakdownContent, 'large');
+            modal.classList.remove('hidden');
+        }
+        {% endif %}
+    };
 });
 </script>
 {% endblock %}

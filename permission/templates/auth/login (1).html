@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP System Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-width: 17rem;
+            --sidebar-width-collapsed: 3rem;
+            --topbar-height: 3.5rem;
+            --background: 0 0% 100%;
+            --foreground: 240 10% 3.9%;
+            --muted: 240 4.8% 95.9%;
+            --muted-foreground: 240 3.8% 46.1%;
+            --popover: 0 0% 100%;
+            --popover-foreground: 240 10% 3.9%;
+            --border: 240 5.9% 90%;
+            --input: 240 5.9% 90%;
+            --primary: 240 5.9% 10%;
+            --primary-foreground: 0 0% 98%;
+            --secondary: 240 4.8% 95.9%;
+            --secondary-foreground: 240 5.9% 10%;
+            --accent: 240 4.8% 95.9%;
+            --accent-foreground: 240 5.9% 10%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 0 0% 98%;
+            --ring: 240 5% 64.9%;
+            --radius: 0.5rem;
+        }
+
+        .dark {
+            --background: 240 10% 3.9%;
+            --foreground: 0 0% 98%;
+            --muted: 240 3.7% 15.9%;
+            --muted-foreground: 240 5% 64.9%;
+            --popover: 240 10% 3.9%;
+            --popover-foreground: 0 0% 98%;
+            --border: 240 3.7% 15.9%;
+            --input: 240 3.7% 15.9%;
+            --primary: 0 0% 98%;
+            --primary-foreground: 240 5.9% 10%;
+            --secondary: 240 3.7% 15.9%;
+            --secondary-foreground: 0 0% 98%;
+            --accent: 240 3.7% 15.9%;
+            --accent-foreground: 0 0% 98%;
+            --destructive: 0 62.8% 30.6%;
+            --destructive-foreground: 0 0% 98%;
+            --ring: 240 3.7% 15.9%;
+        }
+
+        @keyframes moduleRotate {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes dataFlow {
+            0% { stroke-dashoffset: 1000; }
+            100% { stroke-dashoffset: 0; }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+        @keyframes moduleHover {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0); }
+        }
+        @keyframes glossyShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .module {
+            animation: moduleHover 3s ease-in-out infinite;
+        }
+        .module:nth-child(2) { animation-delay: 0.5s; }
+        .module:nth-child(3) { animation-delay: 1s; }
+        .data-flow {
+            stroke-dasharray: 10;
+            animation: dataFlow 20s linear infinite;
+        }
+        .glossy {
+            position: relative;
+            overflow: hidden;
+        }
+        .glossy::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                to right,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.3) 50%,
+                rgba(255,255,255,0) 100%
+            );
+            transform: translateX(-100%);
+            animation: glossyShine 3s infinite;
+        }
+        .form-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        .form-field {
+            width: 100%;
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+            background-color: hsla(var(--muted), 0.5);
+            backdrop-filter: blur(4px);
+            border: 1px solid hsla(var(--border), 0.5);
+            border-radius: 0.5rem;
+            color: hsl(var(--foreground));
+            outline: none;
+            transition: all 0.3s;
+        }
+        .form-field:focus {
+            border-color: hsl(var(--primary));
+            box-shadow: 0 0 0 2px hsla(var(--primary), 0.2);
+        }
+        .form-label {
+            position: absolute;
+            left: 1rem;
+            top: 0.75rem;
+            color: hsl(var(--muted-foreground));
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+        .form-field:focus + .form-label,
+        .form-field:not(:placeholder-shown) + .form-label {
+            top: -0.5rem;
+            left: 0.5rem;
+            font-size: 0.75rem;
+            color: hsl(var(--primary));
+            background-color: hsl(var(--background));
+            padding: 0 0.25rem;
+        }
+        .input-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: hsl(var(--muted-foreground));
+        }
+        .shine-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        .shine-effect::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.1) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-[hsl(var(--primary))] via-[hsl(var(--background))] to-[hsl(var(--accent))] flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-[hsl(var(--background))] bg-opacity-80 backdrop-blur-xl p-8 rounded-2xl shadow-2xl relative overflow-hidden glossy">
+        <!-- ERP Modules Visualization -->
+        <div class="absolute top-0 left-0 w-full h-full pointer-events-none">
+            <svg class="w-full h-full" viewBox="0 0 400 400">
+                <!-- Connecting Lines -->
+                <path class="data-flow" d="M200,50 Q100,200 200,350" fill="none" stroke="hsl(var(--primary))" stroke-width="2"/>
+                <path class="data-flow" d="M200,50 Q300,200 200,350" fill="none" stroke="hsl(var(--primary))" stroke-width="2"/>
+                <path class="data-flow" d="M50,200 H350" fill="none" stroke="hsl(var(--primary))" stroke-width="2"/>
+                
+                <!-- Module Icons -->
+                <g class="module" transform="translate(180,30)">
+                    <rect x="0" y="0" width="40" height="40" rx="8" fill="hsl(var(--primary))" class="pulse"/>
+                    <text x="20" y="25" text-anchor="middle" fill="hsl(var(--primary-foreground))" font-size="20">$</text>
+                </g>
+                <g class="module" transform="translate(30,180)">
+                    <rect x="0" y="0" width="40" height="40" rx="8" fill="hsl(var(--primary))" class="pulse"/>
+                    <text x="20" y="25" text-anchor="middle" fill="hsl(var(--primary-foreground))" font-size="20">📦</text>
+                </g>
+                <g class="module" transform="translate(330,180)">
+                    <rect x="0" y="0" width="40" height="40" rx="8" fill="hsl(var(--primary))" class="pulse"/>
+                    <text x="20" y="25" text-anchor="middle" fill="hsl(var(--primary-foreground))" font-size="20">👥</text>
+                </g>
+                <g class="module" transform="translate(180,330)">
+                    <rect x="0" y="0" width="40" height="40" rx="8" fill="hsl(var(--primary))" class="pulse"/>
+                    <text x="20" y="25" text-anchor="middle" fill="hsl(var(--primary-foreground))" font-size="20">📊</text>
+                </g>
+            </svg>
+        </div>
+
+        <!-- System Status Display -->
+        <div class="mb-8 text-center relative">
+            <div class="inline-block">
+                <svg class="w-32 h-32" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--primary))" stroke-width="2" class="pulse"/>
+                    <circle cx="50" cy="50" r="35" fill="none" stroke="hsl(var(--primary))" stroke-width="4" stroke-dasharray="10,5"/>
+                    <text x="50" y="45" text-anchor="middle" fill="hsl(var(--primary))" font-size="8">ENTERPRISE</text>
+                    <text x="50" y="55" text-anchor="middle" fill="hsl(var(--primary))" font-size="8">SYSTEM</text>
+                </svg>
+            </div>
+            <div class="mt-4">
+                <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))]">
+                    ERP System Access
+                </h2>
+                <div class="flex justify-center space-x-2 mt-2">
+                    <div class="flex items-center">
+                        <div class="w-2 h-2 rounded-full bg-[hsl(var(--accent))] animate-pulse"></div>
+                        <span class="text-xs text-[hsl(var(--muted-foreground))] ml-1">DB</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-2 h-2 rounded-full bg-[hsl(var(--primary))] animate-pulse"></div>
+                        <span class="text-xs text-[hsl(var(--muted-foreground))] ml-1">API</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-2 h-2 rounded-full bg-[hsl(var(--secondary))] animate-pulse"></div>
+                        <span class="text-xs text-[hsl(var(--muted-foreground))] ml-1">CACHE</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if messages %}
+        <div class="messages mb-4">
+            {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} bg-[hsl(var(--muted))] bg-opacity-20 backdrop-blur-sm text-[hsl(var(--foreground))] p-3 rounded-lg mb-2">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="space-y-6 relative z-10">
+            {% csrf_token %}
+            
+            {% for field in form %}
+            <div class="form-group">
+                <input type="{{ field.field.widget.input_type }}"
+                       name="{{ field.name }}"
+                       id="{{ field.id_for_label }}"
+                       class="form-field"
+                       placeholder=" "
+                       {% if field.field.required %}required{% endif %}>
+                
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                
+                <i class="fas fa-{% if field.name == 'username' %}user{% elif field.name == 'password' %}lock{% else %}pencil-alt{% endif %} input-icon"></i>
+                
+                {% if field.errors %}
+                <div class="mt-1 text-sm text-[hsl(var(--destructive))]">
+                    {% for error in field.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            
+            <button type="submit" class="w-full py-3 px-4 bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))] text-[hsl(var(--primary-foreground))] rounded-lg font-medium relative overflow-hidden group glossy">
+                <i class="fas fa-sign-in-alt mr-2"></i>
+                <span>LOGIN</span>
+            </button>
+        </form>
+
+        <!-- System Info -->
+        <div class="mt-6 text-center">
+            <div class="text-xs text-[hsl(var(--muted-foreground))] flex items-center justify-center space-x-2">
+                <span>System Status: Active</span>
+                <span>•</span>
+                <span>Load: 23%</span>
+                <span>•</span>
+                <span>Region: EU-West</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check for dark mode preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+
+        const loginForm = document.querySelector('form');
+        const submitBtn = document.querySelector('button[type="submit"]');
+        const modules = document.querySelectorAll('.module');
+
+        // Animate modules on hover
+        modules.forEach(module => {
+            module.addEventListener('mouseover', () => {
+                module.style.transform = 'scale(1.1)';
+            });
+            module.addEventListener('mouseout', () => {
+                module.style.transform = 'scale(1)';
+            });
+        });
+
+        // Form submission animation
+        loginForm.addEventListener('submit', (e) => {
+            // Don't prevent default here, as we want the form to actually submit
+            
+            // Disable form
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <span class="relative z-10 flex items-center justify-center">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-[hsl(var(--primary-foreground))]" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Initializing System Access...
+                </span>
+            `;
+
+            // Animate modules
+            modules.forEach(module => {
+                module.style.animation = 'pulse 0.5s ease-in-out infinite';
+            });
+        });
+    </script>
+</body>
+</html>

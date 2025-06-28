@@ -47,7 +47,6 @@ from .views.zktico.zk_attendance_log_views import (
 from .views.zktico.report_views import HrmReportListView
 
 from .views.zktico.employee_attendance_report import EmployeeDetailedAttendanceReportView
-from .views.zktico.attendance_details_report import AttendanceDetailsReportView
 from .views.zktico.attendance_summary_report import AttendanceSummaryReportView
 from .views.zktico.missing_punch_report import MissingPunchReportView
 from .views.zktico.late_coming_report import LateComingReportView
@@ -386,7 +385,6 @@ path('zk-attendance/<int:device_id>/<str:user_id>/<str:timestamp>/', ZKAttendanc
     # Attendance Reports
     path('reports/', HrmReportListView.as_view(), name='report-list'),
     path('attendance/reports/detailed/', EmployeeDetailedAttendanceReportView.as_view(), name='attendance-detailed'),
-    path('attendance/reports/details/', AttendanceDetailsReportView.as_view(), name='attendance-details'),
     path('attendance/reports/summary/', AttendanceSummaryReportView.as_view(), name='attendance-summary'),
     path('attendance/reports/missing-punch/', MissingPunchReportView.as_view(), name='attendance-missing-punch'),
     path('attendance/reports/late-coming/', LateComingReportView.as_view(), name='attendance-late-coming'),

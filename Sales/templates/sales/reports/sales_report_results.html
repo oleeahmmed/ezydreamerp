@@ -1,0 +1,1119 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Sales Report Results" %}{% endblock %}
+{% block page_title %}{% trans "Sales Report Results" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tab-content {
+        display: none;
+    }
+    .tab-content.active {
+        display: block;
+    }
+    .subtab-content {
+        display: none;
+    }
+    .subtab-content.active {
+        display: block;
+    }
+    .tab-button {
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+    }
+    .tab-button.active {
+        border-bottom: 2px solid #3b82f6;
+        color: #3b82f6;
+    }
+    .tab-button:hover:not(.active) {
+        border-bottom: 2px solid #e5e7eb;
+    }
+    
+    .export-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background-color: #4f46e5;
+        color: white;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .export-btn:hover {
+        background-color: #4338ca;
+    }
+    
+    .export-btn svg {
+        margin-right: 0.5rem;
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+    
+    @media print {
+        .no-print {
+            display: none;
+        }
+        .print-break {
+            page-break-before: always;
+        }
+    }
+    
+    .table-container {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+    
+    .table-actions {
+        position: absolute;
+        top: -3rem;
+        right: 0;
+        display: flex;
+        gap: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
+    <!-- Report Header -->
+    <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex flex-col md:flex-row justify-between items-start md:items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">{% trans "Sales Report" %}</h1>
+            <div class="flex flex-wrap gap-2 mt-2">
+                {% for desc in filter_descriptions %}
+                <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">{{ desc }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="mt-4 md:mt-0 flex space-x-3">
+            <a href="{% url 'Sales:sales_report' %}" class="no-print px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+                <i class="fas fa-filter mr-2"></i> {% trans "Change Filters" %}
+            </a>
+        </div>
+    </div>
+    
+    <!-- Main Navigation Tabs -->
+    <div class="border-b border-gray-200 dark:border-gray-700 no-print overflow-x-auto">
+        <div class="flex">
+            <button class="tab-button active" data-tab="summary">
+                {% trans "Summary" %}
+            </button>
+            <button class="tab-button" data-tab="product">
+                {% trans "Products" %}
+            </button>
+            <button class="tab-button" data-tab="employee">
+                {% trans "Sales Employees" %}
+            </button>
+            <button class="tab-button" data-tab="customer">
+                {% trans "Customers" %}
+            </button>
+            <button class="tab-button" data-tab="orders">
+                {% trans "Orders" %}
+            </button>
+            <button class="tab-button" data-tab="chart">
+                {% trans "Charts" %}
+            </button>
+        </div>
+    </div>
+    
+    <!-- Tab Contents -->
+    <div class="p-6">
+        <!-- Summary Tab -->
+        <div id="summary-tab" class="tab-content active">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Total Orders Card -->
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 p-6 rounded-lg shadow-sm">
+                    <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200">{% trans "Total Orders" %}</h3>
+                    <p class="text-3xl font-bold text-blue-900 dark:text-white mt-2">{{ summary_data.total_orders }}</p>
+                </div>
+                
+                <!-- Total Amount Card -->
+                <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 p-6 rounded-lg shadow-sm">
+                    <h3 class="text-lg font-semibold text-green-800 dark:text-green-200">{% trans "Total Amount" %}</h3>
+                    <p class="text-3xl font-bold text-green-900 dark:text-white mt-2">{{ summary_data.total_amount|floatformat:2 }}</p>
+                </div>
+                
+                <!-- Total Items Card -->
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 p-6 rounded-lg shadow-sm">
+                    <h3 class="text-lg font-semibold text-purple-800 dark:text-purple-200">{% trans "Total Items" %}</h3>
+                    <p class="text-3xl font-bold text-purple-900 dark:text-white mt-2">{{ summary_data.total_items|floatformat:0 }}</p>
+                </div>
+                
+                <!-- Average Order Value Card -->
+                <div class="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900 dark:to-amber-800 p-6 rounded-lg shadow-sm">
+                    <h3 class="text-lg font-semibold text-amber-800 dark:text-amber-200">{% trans "Avg. Order Value" %}</h3>
+                    <p class="text-3xl font-bold text-amber-900 dark:text-white mt-2">{{ summary_data.avg_order_value|floatformat:2 }}</p>
+                </div>
+            </div>
+            
+            <!-- Top Products Table -->
+            <div class="mt-8 table-container">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{% trans "Top Products" %}</h3>
+                <div class="table-actions">
+                    <button class="export-btn" data-table-id="top-products-table" data-title="Top Products">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        {% trans "Export PDF" %}
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table id="top-products-table" class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                        <thead>
+                            <tr class="bg-gray-100 dark:bg-gray-700">
+                                <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Product" %}</th>
+                                <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Quantity" %}</th>
+                                <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Total Amount" %}</th>
+                                <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Avg. Price" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in product_summary|slice:":10" %}
+                            <tr class="border-t border-gray-200 dark:border-gray-700">
+                                <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ product.item_name }}</td>
+                                <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ product.total_quantity|floatformat:0 }}</td>
+                                <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ product.total_amount|floatformat:2 }}</td>
+                                <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ product.avg_price|floatformat:2 }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">{% trans "No products found" %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Product Tab -->
+        <div id="product-tab" class="tab-content">
+            <!-- Product Sub-tabs -->
+            <div class="mb-6 border-b border-gray-200 dark:border-gray-700 no-print">
+                <div class="flex">
+                    <button class="tab-button active" data-subtab="product-summary">
+                        {% trans "Summary" %}
+                    </button>
+                    <button class="tab-button" data-subtab="product-details">
+                        {% trans "Details" %}
+                    </button>
+                    <button class="tab-button" data-subtab="product-date">
+                        {% trans "Date Summary" %}
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Product Summary Sub-tab -->
+            <div id="product-summary-subtab" class="subtab-content active">
+                <div class="table-container">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{% trans "Product Sales Summary" %}</h3>
+                    <div class="table-actions">
+                        <button class="export-btn" data-table-id="product-summary-table" data-title="Product Sales Summary">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            {% trans "Export PDF" %}
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="product-summary-table" class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                            <thead>
+                                <tr class="bg-gray-100 dark:bg-gray-700">
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Product Code" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Product Name" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Quantity" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Total Amount" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Avg. Price" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in product_summary %}
+                                <tr class="border-t border-gray-200 dark:border-gray-700">
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ product.item_code }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ product.item_name }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ product.total_quantity|floatformat:0 }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ product.total_amount|floatformat:2 }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ product.avg_price|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">{% trans "No products found" %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product Details Sub-tab -->
+            <div id="product-details-subtab" class="subtab-content">
+                <div class="table-container">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{% trans "Product Order Details" %}</h3>
+                    <div class="table-actions">
+                        <button class="export-btn" data-table-id="product-details-table" data-title="Product Order Details">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            {% trans "Export PDF" %}
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="product-details-table" class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                            <thead>
+                                <tr class="bg-gray-100 dark:bg-gray-700">
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Product" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Order ID" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Date" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Customer" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Sales Employee" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Quantity" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Unit Price" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Total" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in product_order_details %}
+                                <tr class="border-t border-gray-200 dark:border-gray-700">
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.item_name }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.order__id }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.order__document_date|date:"M d, Y" }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.order__customer__name }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.order__sales_employee__name|default:"-" }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ item.quantity|floatformat:0 }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ item.unit_price|floatformat:2 }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ item.line_total|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">{% trans "No product order details found" %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product Date Summary Sub-tab -->
+            <div id="product-date-subtab" class="subtab-content">
+                <div class="table-container">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{% trans "Product Date-wise Summary" %}</h3>
+                    <div class="table-actions">
+                        <button class="export-btn" data-table-id="product-date-table" data-title="Product Date-wise Summary">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            {% trans "Export PDF" %}
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="product-date-table" class="min-w-full bg-white dark:bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+                            <thead>
+                                <tr class="bg-gray-100 dark:bg-gray-700">
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Date" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Product Code" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Product Name" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Quantity" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Total Amount" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in product_date_summary %}
+                                <tr class="border-t border-gray-200 dark:border-gray-700">
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ product.date|date:"M d, Y" }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ product.item_code }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ product.item_name }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ product.total_quantity|floatformat:0 }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ product.total_amount|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">{% trans "No product data found" %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Employee Tab -->
+        <div id="employee-tab" class="tab-content">
+            <!-- Employee Sub-tabs -->
+            <div class="mb-6 border-b border-gray-200 dark:border-gray-700 no-print">
+                <div class="flex">
+                    <button class="tab-button active" data-subtab="employee-summary">
+                        {% trans "Summary" %}
+                    </button>
+                    <button class="tab-button" data-subtab="employee-details">
+                        {% trans "Details" %}
+                    </button>
+                    <button class="tab-button" data-subtab="employee-date">
+                        {% trans "Date Summary" %}
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Employee Summary Sub-tab -->
+            <div id="employee-summary-subtab" class="subtab-content active">
+                <div class="table-container">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{% trans "Sales Employee Summary" %}</h3>
+                    <div class="table-actions">
+                        <button class="export-btn" data-table-id="employee-summary-table" data-title="Sales Employee Summary">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            {% trans "Export PDF" %}
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="employee-summary-table" class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                            <thead>
+                                <tr class="bg-gray-100 dark:bg-gray-700">
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Employee" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Order Count" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Total Amount" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Avg. Order Value" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for employee in employee_summary %}
+                                <tr class="border-t border-gray-200 dark:border-gray-700">
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ employee.sales_employee__name|default:"Not Assigned" }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ employee.order_count }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ employee.total_amount|floatformat:2 }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ employee.avg_order_value|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">{% trans "No employee data found" %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Employee Details Sub-tab -->
+            <div id="employee-details-subtab" class="subtab-content">
+                <div class="table-container">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{% trans "Employee Order Details" %}</h3>
+                    <div class="table-actions">
+                        <button class="export-btn" data-table-id="employee-details-table" data-title="Employee Order Details">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            {% trans "Export PDF" %}
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="employee-details-table" class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                            <thead>
+                                <tr class="bg-gray-100 dark:bg-gray-700">
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Employee" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Order ID" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Date" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Customer" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Product" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Quantity" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Unit Price" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Total" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in employee_order_details %}
+                                <tr class="border-t border-gray-200 dark:border-gray-700">
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.order__sales_employee__name|default:"Not Assigned" }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.order__id }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.order__document_date|date:"M d, Y" }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.order__customer__name }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.item_name }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ item.quantity|floatformat:0 }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ item.unit_price|floatformat:2 }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ item.line_total|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">{% trans "No employee order details found" %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Employee Date Summary Sub-tab -->
+            <div id="employee-date-subtab" class="subtab-content">
+                <div class="table-container">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{% trans "Employee Date-wise Summary" %}</h3>
+                    <div class="table-actions">
+                        <button class="export-btn" data-table-id="employee-date-table" data-title="Employee Date-wise Summary">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            {% trans "Export PDF" %}
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="employee-date-table" class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                            <thead>
+                                <tr class="bg-gray-100 dark:bg-gray-700">
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Date" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Employee" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Order Count" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Total Amount" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in employee_date_summary %}
+                                <tr class="border-t border-gray-200 dark:border-gray-700">
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.date|date:"M d, Y" }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.sales_employee__name|default:"Not Assigned" }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ item.order_count }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ item.total_amount|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">{% trans "No employee date data found" %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Customer Tab -->
+        <div id="customer-tab" class="tab-content">
+            <!-- Customer Sub-tabs -->
+            <div class="mb-6 border-b border-gray-200 dark:border-gray-700 no-print">
+                <div class="flex">
+                    <button class="tab-button active" data-subtab="customer-summary">
+                        {% trans "Summary" %}
+                    </button>
+                    <button class="tab-button" data-subtab="customer-details">
+                        {% trans "Details" %}
+                    </button>
+                    <button class="tab-button" data-subtab="customer-date">
+                        {% trans "Date Summary" %}
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Customer Summary Sub-tab -->
+            <div id="customer-summary-subtab" class="subtab-content active">
+                <div class="table-container">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{% trans "Customer Summary" %}</h3>
+                    <div class="table-actions">
+                        <button class="export-btn" data-table-id="customer-summary-table" data-title="Customer Summary">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            {% trans "Export PDF" %}
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="customer-summary-table" class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                            <thead>
+                                <tr class="bg-gray-100 dark:bg-gray-700">
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Customer" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Order Count" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Total Amount" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Avg. Order Value" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for customer in customer_summary %}
+                                <tr class="border-t border-gray-200 dark:border-gray-700">
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ customer.customer__name }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ customer.order_count }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ customer.total_amount|floatformat:2 }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ customer.avg_order_value|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">{% trans "No customer data found" %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Customer Details Sub-tab -->
+            <div id="customer-details-subtab" class="subtab-content">
+                <div class="table-container">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{% trans "Customer Order Details" %}</h3>
+                    <div class="table-actions">
+                        <button class="export-btn" data-table-id="customer-details-table" data-title="Customer Order Details">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            {% trans "Export PDF" %}
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="customer-details-table" class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                            <thead>
+                                <tr class="bg-gray-100 dark:bg-gray-700">
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Customer" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Order ID" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Date" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Sales Employee" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Product" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Quantity" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Unit Price" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Total" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in customer_order_details %}
+                                <tr class="border-t border-gray-200 dark:border-gray-700">
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.order__customer__name }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.order__id }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.order__document_date|date:"M d, Y" }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.order__sales_employee__name|default:"-" }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.item_name }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ item.quantity|floatformat:0 }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ item.unit_price|floatformat:2 }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ item.line_total|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">{% trans "No customer order details found" %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Customer Date Summary Sub-tab -->
+            <div id="customer-date-subtab" class="subtab-content">
+                <div class="table-container">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{% trans "Customer Date-wise Summary" %}</h3>
+                    <div class="table-actions">
+                        <button class="export-btn" data-table-id="customer-date-table" data-title="Customer Date-wise Summary">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            {% trans "Export PDF" %}
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="customer-date-table" class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                            <thead>
+                                <tr class="bg-gray-100 dark:bg-gray-700">
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Date" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Customer" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Order Count" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Total Amount" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in customer_date_summary %}
+                                <tr class="border-t border-gray-200 dark:border-gray-700">
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.date|date:"M d, Y" }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.customer__name }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ item.order_count }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ item.total_amount|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">{% trans "No customer date data found" %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Orders Tab -->
+        <div id="orders-tab" class="tab-content">
+            <!-- Orders Sub-tabs -->
+            <div class="mb-6 border-b border-gray-200 dark:border-gray-700 no-print">
+                <div class="flex">
+                    <button class="tab-button active" data-subtab="orders-list">
+                        {% trans "Orders List" %}
+                    </button>
+                    <button class="tab-button" data-subtab="order-details">
+                        {% trans "Order Details" %}
+                    </button>
+                    <button class="tab-button" data-subtab="date-summary">
+                        {% trans "Date Summary" %}
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Orders List Sub-tab -->
+            <div id="orders-list-subtab" class="subtab-content active">
+                <div class="table-container">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{% trans "Sales Orders" %}</h3>
+                    <div class="table-actions">
+                        <button class="export-btn" data-table-id="sales-orders-table" data-title="Sales Orders">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            {% trans "Export PDF" %}
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="sales-orders-table" class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                            <thead>
+                                <tr class="bg-gray-100 dark:bg-gray-700">
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Order ID" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Date" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Customer" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Sales Employee" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Status" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Total Amount" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Due Amount" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                <tr class="border-t border-gray-200 dark:border-gray-700">
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ order.id }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ order.document_date|date:"M d, Y" }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ order.customer.name }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ order.sales_employee.name|default:"-" }}</td>
+                                    <td class="py-3 px-4">
+                                        <span class="px-2 py-1 text-xs rounded-full 
+                                            {% if order.status == 'Open' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
+                                            {% elif order.status == 'Delivered' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                                            {% elif order.status == 'Partially Delivered' %}bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200
+                                            {% elif order.status == 'Cancelled' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                                            {% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300{% endif %}">
+                                            {{ order.status }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ order.total_amount|floatformat:2 }}</td>
+                                    <td class="py-3 px-4 text-right {% if order.due_amount > 0 %}text-red-600 dark:text-red-400{% else %}text-green-600 dark:text-green-400{% endif %}">
+                                        {{ order.due_amount|floatformat:2 }}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">{% trans "No orders found" %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Details Sub-tab -->
+            <div id="order-details-subtab" class="subtab-content">
+                <div class="table-container">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{% trans "Order Line Details" %}</h3>
+                    <div class="table-actions">
+                        <button class="export-btn" data-table-id="order-details-table" data-title="Order Line Details">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            {% trans "Export PDF" %}
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="order-details-table" class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                            <thead>
+                                <tr class="bg-gray-100 dark:bg-gray-700">
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Order ID" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Date" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Customer" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Sales Employee" %}</th>
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Product" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Quantity" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Unit Price" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Total" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for line in order_lines %}
+                                <tr class="border-t border-gray-200 dark:border-gray-700">
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ line.order.id }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ line.order.document_date|date:"M d, Y" }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ line.order.customer.name }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ line.order.sales_employee.name|default:"-" }}</td>
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ line.item_name }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ line.quantity|floatformat:0 }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ line.unit_price|floatformat:2 }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ line.total_amount|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">{% trans "No order lines found" %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Date Summary Sub-tab -->
+            <div id="date-summary-subtab" class="subtab-content">
+                <div class="table-container">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{% trans "Date-wise Summary" %}</h3>
+                    <div class="table-actions">
+                        <button class="export-btn" data-table-id="date-summary-table" data-title="Date-wise Summary">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            {% trans "Export PDF" %}
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="date-summary-table" class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                            <thead>
+                                <tr class="bg-gray-100 dark:bg-gray-700">
+                                    <th class="py-3 px-4 text-left text-gray-700 dark:text-gray-300 font-semibold">{% trans "Date" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Order Count" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Total Amount" %}</th>
+                                    <th class="py-3 px-4 text-right text-gray-700 dark:text-gray-300 font-semibold">{% trans "Avg. Order Value" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in date_summary %}
+                                <tr class="border-t border-gray-200 dark:border-gray-700">
+                                    <td class="py-3 px-4 text-gray-800 dark:text-gray-300">{{ item.date|date:"M d, Y" }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ item.order_count }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ item.total_amount|floatformat:2 }}</td>
+                                    <td class="py-3 px-4 text-right text-gray-800 dark:text-gray-300">{{ item.avg_order_value|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">{% trans "No data found" %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Tab -->
+        <div id="chart-tab" class="tab-content">
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">{% trans "Sales Trends" %}</h3>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Daily Sales Chart -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <h4 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">{% trans "Daily Sales" %}</h4>
+                    <div class="h-80">
+                        <canvas id="dailySalesChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Product Distribution Chart -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <h4 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">{% trans "Product Distribution" %}</h4>
+                    <div class="h-80">
+                        <canvas id="productDistributionChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Employee Performance Chart -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <h4 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">{% trans "Employee Performance" %}</h4>
+                    <div class="h-80">
+                        <canvas id="employeePerformanceChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Customer Distribution Chart -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <h4 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">{% trans "Customer Distribution" %}</h4>
+                    <div class="h-80">
+                        <canvas id="customerDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+// Tab switching functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Main tabs
+    const tabButtons = document.querySelectorAll('.tab-button[data-tab]');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tabId = this.getAttribute('data-tab');
+            
+            // Remove active class from all buttons and contents
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Add active class to current button and content
+            this.classList.add('active');
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+        });
+    });
+    
+    // Sub-tabs
+    const subTabButtons = document.querySelectorAll('.tab-button[data-subtab]');
+    const subTabContents = document.querySelectorAll('.subtab-content');
+    
+    subTabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const parentTab = this.closest('.tab-content');
+            const subTabId = this.getAttribute('data-subtab');
+            
+            // Remove active class from all sub-tab buttons and contents within this parent tab
+            parentTab.querySelectorAll('.tab-button[data-subtab]').forEach(btn => btn.classList.remove('active'));
+            parentTab.querySelectorAll('.subtab-content').forEach(content => content.classList.remove('active'));
+            
+            // Add active class to current sub-tab button and content
+            this.classList.add('active');
+            document.getElementById(`${subTabId}-subtab`).classList.add('active');
+        });
+    });
+    
+    // Initialize charts if data exists
+    if (document.getElementById('dailySalesChart')) {
+        initializeCharts();
+    }
+    
+    // Export functionality
+    const exportButtons = document.querySelectorAll('.export-btn');
+    exportButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tableId = this.getAttribute('data-table-id');
+            const title = this.getAttribute('data-title');
+            exportTableToPDF(tableId, title);
+        });
+    });
+});
+
+// Export table to PDF
+function exportTableToPDF(tableId, title) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'pt', 'a4');
+    
+    // Add title
+    doc.setFontSize(18);
+    doc.text(title, 40, 40);
+    
+    // Add date
+    const today = new Date();
+    const dateStr = today.toLocaleDateString();
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${dateStr}`, 40, 60);
+    
+    // Get the table element
+    const table = document.getElementById(tableId);
+    
+    // Use html2canvas to render the table
+    html2canvas(table, {
+        scale: 1.5,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff'
+    }).then(canvas => {
+        // Add the canvas as an image to the PDF
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = doc.internal.pageSize.getWidth() - 80;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        doc.addImage(imgData, 'PNG', 40, 80, imgWidth, imgHeight);
+        
+        // Save the PDF
+        doc.save(`${title.toLowerCase().replace(/\s+/g, '-')}-${dateStr}.pdf`);
+    });
+}
+
+function initializeCharts() {
+    // Daily Sales Chart
+    const dailySalesCtx = document.getElementById('dailySalesChart').getContext('2d');
+    const dailySalesChart = new Chart(dailySalesCtx, {
+        type: 'line',
+        data: {
+            labels: [
+                {% for item in daily_sales %}
+                    '{{ item.date|date:"M d" }}',
+                {% endfor %}
+            ],
+            datasets: [{
+                label: '{% trans "Sales Amount" %}',
+                data: [
+                    {% for item in daily_sales %}
+                        {{ item.total|floatformat:2 }},
+                    {% endfor %}
+                ],
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(160, 174, 192, 0.1)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            }
+        }
+    });
+    
+    // Product Distribution Chart
+    const productDistributionCtx = document.getElementById('productDistributionChart').getContext('2d');
+    const productDistributionChart = new Chart(productDistributionCtx, {
+        type: 'pie',
+        data: {
+            labels: [
+                {% for product in product_summary|slice:":7" %}
+                    '{{ product.item_name }}',
+                {% endfor %}
+                {% if product_summary|length > 7 %}
+                    '{% trans "Others" %}',
+                {% endif %}
+            ],
+            datasets: [{
+                data: [
+                    {% for product in product_summary|slice:":7" %}
+                        {{ product.total_amount|floatformat:2 }},
+                    {% endfor %}
+                    {% if product_summary|length > 7 %}
+                        {{ product_summary|slice:"7:"|length }},
+                    {% endif %}
+                ],
+                backgroundColor: [
+                    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', 
+                    '#8b5cf6', '#ec4899', '#06b6d4',
+                    '#6b7280'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+    
+    // Employee Performance Chart
+    const employeePerformanceCtx = document.getElementById('employeePerformanceChart').getContext('2d');
+    const employeePerformanceChart = new Chart(employeePerformanceCtx, {
+        type: 'bar',
+        data: {
+            labels: [
+                {% for employee in employee_summary|slice:":10" %}
+                    '{{ employee.sales_employee__name|default:"Not Assigned" }}',
+                {% endfor %}
+            ],
+            datasets: [{
+                label: '{% trans "Sales Amount" %}',
+                data: [
+                    {% for employee in employee_summary|slice:":10" %}
+                        {{ employee.total_amount|floatformat:2 }},
+                    {% endfor %}
+                ],
+                backgroundColor: '#4f46e5',
+                borderColor: '#4338ca',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    
+    // Customer Distribution Chart
+    const customerDistributionCtx = document.getElementById('customerDistributionChart').getContext('2d');
+    const customerDistributionChart = new Chart(customerDistributionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [
+                {% for customer in customer_summary|slice:":7" %}
+                    '{{ customer.customer__name }}',
+                {% endfor %}
+                {% if customer_summary|length > 7 %}
+                    '{% trans "Others" %}',
+                {% endif %}
+            ],
+            datasets: [{
+                data: [
+                    {% for customer in customer_summary|slice:":7" %}
+                        {{ customer.total_amount|floatformat:2 }},
+                    {% endfor %}
+                    {% if customer_summary|length > 7 %}
+                        {{ customer_summary|slice:"7:"|length }},
+                    {% endif %}
+                ],
+                backgroundColor: [
+                    '#f97316', '#84cc16', '#06b6d4', '#8b5cf6', 
+                    '#ec4899', '#f43f5e', '#14b8a6',
+                    '#6b7280'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

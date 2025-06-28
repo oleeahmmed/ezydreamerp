@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Sales Report" %}{% endblock %}
+{% block page_title %}{% trans "Sales Report" %}{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+    <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">{% trans "Sales Report" %}</h1>
+    
+    <form method="get" action="{% url 'Sales:sales_report_results' %}">
+        <!-- Date Range Section -->
+        <div class="mb-6 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <h2 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">{% trans "Date Range" %}</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="id_from_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        {% trans "From Date" %}
+                    </label>
+                    {{ form.from_date }}
+                </div>
+                
+                <div>
+                    <label for="id_to_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        {% trans "To Date" %}
+                    </label>
+                    {{ form.to_date }}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filters Section -->
+        <div class="mb-6 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <h2 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">{% trans "Filters" %}</h2>
+            
+            <!-- Filter Tabs -->
+            <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
+                <ul class="flex flex-wrap -mb-px" id="filterTabs" role="tablist">
+                    <li class="mr-2" role="presentation">
+                        <button class="inline-block p-4 border-b-2 border-blue-600 rounded-t-lg active" 
+                                id="customer-tab" data-tabs-target="#customer-content" type="button" role="tab" 
+                                aria-controls="customer" aria-selected="true">
+                            {% trans "Customer" %}
+                        </button>
+                    </li>
+                    <li class="mr-2" role="presentation">
+                        <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:border-gray-300" 
+                                id="employee-tab" data-tabs-target="#employee-content" type="button" role="tab" 
+                                aria-controls="employee" aria-selected="false">
+                            {% trans "Sales Employee" %}
+                        </button>
+                    </li>
+                    <li role="presentation">
+                        <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:border-gray-300" 
+                                id="product-tab" data-tabs-target="#product-content" type="button" role="tab" 
+                                aria-controls="product" aria-selected="false">
+                            {% trans "Product" %}
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Tab Content -->
+            <div id="filterTabContent">
+                <!-- Customer Tab -->
+                <div class="block" id="customer-content" role="tabpanel" aria-labelledby="customer-tab">
+                    <div>
+                        <label for="id_business_partner" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            {% trans "Customer" %}
+                        </label>
+                        {{ form.business_partner }}
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{% trans "Select a customer to filter the report" %}</p>
+                    </div>
+                </div>
+                
+                <!-- Employee Tab -->
+                <div class="hidden" id="employee-content" role="tabpanel" aria-labelledby="employee-tab">
+                    <div>
+                        <label for="id_sales_employee" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            {% trans "Sales Employee" %}
+                        </label>
+                        {{ form.sales_employee }}
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{% trans "Select a sales employee to filter the report" %}</p>
+                    </div>
+                </div>
+                
+                <!-- Product Tab -->
+                <div class="hidden" id="product-content" role="tabpanel" aria-labelledby="product-tab">
+                    <div>
+                        <label for="id_product" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            {% trans "Product" %}
+                        </label>
+                        {{ form.product }}
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{% trans "Select a product to filter the report" %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Report Type -->
+        <div class="mb-6 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <h2 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">{% trans "Report Type" %}</h2>
+            <div class="flex space-x-4">
+                <label class="inline-flex items-center">
+                    <input type="radio" name="report_type" value="detail" checked class="form-radio text-blue-600">
+                    <span class="ml-2 text-gray-700 dark:text-gray-300">{% trans "Detailed Report" %}</span>
+                </label>
+                <label class="inline-flex items-center">
+                    <input type="radio" name="report_type" value="summary" class="form-radio text-blue-600">
+                    <span class="ml-2 text-gray-700 dark:text-gray-300">{% trans "Summary Report" %}</span>
+                </label>
+            </div>
+        </div>
+        
+        <!-- Submit Button -->
+        <div class="mt-8">
+            <button type="submit" class="w-full md:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md transition duration-200">
+                {% trans "Generate Report" %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab functionality
+        const tabs = document.querySelectorAll('[data-tabs-target]');
+        const tabContents = document.querySelectorAll('[role="tabpanel"]');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = document.querySelector(tab.dataset.tabsTarget);
+                
+                // Hide all tab contents
+                tabContents.forEach(tabContent => {
+                    tabContent.classList.add('hidden');
+                    tabContent.classList.remove('block');
+                });
+                
+                // Remove active state from all tabs
+                tabs.forEach(t => {
+                    t.classList.remove('border-blue-600');
+                    t.classList.add('border-transparent', 'hover:border-gray-300');
+                    t.setAttribute('aria-selected', 'false');
+                });
+                
+                // Show the selected tab content
+                target.classList.remove('hidden');
+                target.classList.add('block');
+                
+                // Set active state on the clicked tab
+                tab.classList.remove('border-transparent', 'hover:border-gray-300');
+                tab.classList.add('border-blue-600');
+                tab.setAttribute('aria-selected', 'true');
+            });
+        });
+    });
+</script>
+{% endblock %}
