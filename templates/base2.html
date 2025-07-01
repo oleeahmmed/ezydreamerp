@@ -1,0 +1,1867 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+/* Base Theme Colors */
+:root {
+    /* Core UI Colors */
+    --background: 0 0% 100%;
+    --foreground: 230 14% 12%;
+    --muted: 220 20% 98%;
+    --muted-foreground: 218 17% 47%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 230 14% 12%;
+    --border: 210 20% 91%;
+    --input: 210 20% 91%;
+    
+    /* Action Colors */
+    --primary: 222 84% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 20% 98%;
+    --secondary-foreground: 230 14% 12%;
+    --accent: 213 94% 68%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* UI Elements */
+    --ring: 222 84% 53%;
+    --radius: 0.5rem;
+    
+    /* Extended Color System */
+    /* Monochromatic themes */
+    --mono-black-start: 0 0% 7%;
+    --mono-black-end: 0 0% 18%;
+    --mono-black-accent: 0 0% 23%;
+    --mono-black-foreground: 0 0% 100%;
+    
+    --mono-white-start: 210 40% 98%;
+    --mono-white-end: 210 20% 91%;
+    --mono-white-accent: 214 20% 84%;
+    --mono-white-foreground: 222 47% 11%;
+    
+    --mono-grey-start: 215 27% 27%;
+    --mono-grey-end: 216 19% 35%;
+    --mono-grey-accent: 218 17% 47%;
+    --mono-grey-foreground: 210 40% 98%;
+    
+    /* Modern vibrant themes */
+    --vibrant-blue-start: 222 84% 53%;
+    --vibrant-blue-end: 217 91% 60%;
+    --vibrant-blue-accent: 213 94% 68%;
+    --vibrant-blue-foreground: 0 0% 100%;
+    
+    --vibrant-purple-start: 262 83% 58%;
+    --vibrant-purple-end: 263 70% 63%;
+    --vibrant-purple-accent: 263 85% 76%;
+    --vibrant-purple-foreground: 0 0% 100%;
+    
+    --vibrant-pink-start: 328 81% 50%;
+    --vibrant-pink-end: 330 81% 60%;
+    --vibrant-pink-accent: 330 79% 70%;
+    --vibrant-pink-foreground: 0 0% 100%;
+    
+    --vibrant-orange-start: 25 91% 48%;
+    --vibrant-orange-end: 28 92% 53%;
+    --vibrant-orange-accent: 28 96% 61%;
+    --vibrant-orange-foreground: 0 0% 100%;
+    
+    --vibrant-green-start: 142 70% 36%;
+    --vibrant-green-end: 142 69% 45%;
+    --vibrant-green-accent: 142 70% 56%;
+    --vibrant-green-foreground: 0 0% 100%;
+    
+    /* Pastel themes */
+    --pastel-blue-start: 214 93% 79%;
+    --pastel-blue-end: 213 93% 88%;
+    --pastel-blue-accent: 214 100% 93%;
+    --pastel-blue-foreground: 226 71% 33%;
+    
+    --pastel-purple-start: 255 89% 85%;
+    --pastel-purple-end: 255 92% 92%;
+    --pastel-purple-accent: 255 100% 96%;
+    --pastel-purple-foreground: 272 76% 43%;
+    
+    --pastel-pink-start: 330 87% 82%;
+    --pastel-pink-end: 330 85% 89%;
+    --pastel-pink-accent: 330 100% 95%;
+    --pastel-pink-foreground: 336 83% 36%;
+    
+    --pastel-orange-start: 33 96% 72%;
+    --pastel-orange-end: 34 100% 83%;
+    --pastel-orange-accent: 36 100% 92%;
+    --pastel-orange-foreground: 24 83% 34%;
+    
+    --pastel-green-start: 142 76% 73%;
+    --pastel-green-end: 141 78% 85%;
+    --pastel-green-accent: 141 84% 93%;
+    --pastel-green-foreground: 142 76% 29%;
+    
+    /* Vibrantium Plus themes */
+    --vibrantium-blue-start: 222 90% 50%;
+    --vibrantium-blue-end: 217 95% 58%;
+    --vibrantium-blue-accent: 213 98% 65%;
+    --vibrantium-blue-foreground: 0 0% 100%;
+    
+    --vibrantium-purple-start: 262 90% 55%;
+    --vibrantium-purple-end: 263 85% 60%;
+    --vibrantium-purple-accent: 263 95% 73%;
+    --vibrantium-purple-foreground: 0 0% 100%;
+    
+    --vibrantium-pink-start: 328 90% 48%;
+    --vibrantium-pink-end: 330 90% 58%;
+    --vibrantium-pink-accent: 330 95% 68%;
+    --vibrantium-pink-foreground: 0 0% 100%;
+    
+    --vibrantium-orange-start: 25 95% 45%;
+    --vibrantium-orange-end: 28 95% 50%;
+    --vibrantium-orange-accent: 28 98% 58%;
+    --vibrantium-orange-foreground: 0 0% 100%;
+    
+    --vibrantium-green-start: 142 85% 33%;
+    --vibrantium-green-end: 142 85% 42%;
+    --vibrantium-green-accent: 142 90% 53%;
+    --vibrantium-green-foreground: 0 0% 100%;
+    
+    /* Status colors */
+    --success-start: 160 64% 40%;
+    --success-end: 158 64% 52%;
+    --warning-start: 35 92% 50%;
+    --warning-end: 42 96% 56%;
+    --danger-start: 0 84% 60%;
+    --danger-end: 0 91% 71%;
+    
+    /* UI elements */
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    
+    /* Animation speeds */
+    --transition-fast: 150ms;
+    --transition-normal: 250ms;
+    --transition-slow: 350ms;
+    
+    /* Current theme color - can be changed via JS */
+    --theme-current-start: var(--vibrant-blue-start);
+    --theme-current-end: var(--vibrant-blue-end);
+    --theme-current-accent: var(--vibrant-blue-accent);
+    --theme-current-foreground: var(--vibrant-blue-foreground);
+    
+    /* Global Component Colors - These will be updated when theme changes */
+    --component-bg: hsl(var(--background));
+    --component-fg: hsl(var(--foreground));
+    --component-muted-bg: hsl(var(--muted));
+    --component-muted-fg: hsl(var(--muted-foreground));
+    --component-border: hsl(var(--border));
+    
+    /* Sidebar specific */
+    --sidebar-bg: hsl(var(--background));
+    --sidebar-fg: hsl(var(--foreground));
+    --sidebar-muted: hsl(var(--muted));
+    --sidebar-border: hsl(var(--border));
+    --sidebar-item-hover: hsl(var(--muted));
+    --sidebar-item-active-bg: hsl(var(--theme-current-start));
+    --sidebar-item-active-fg: hsl(var(--theme-current-foreground));
+    --sidebar-icon-color: hsl(var(--muted-foreground));
+    --sidebar-icon-hover: hsl(var(--theme-current-start));
+    
+    /* Topbar specific */
+    --topbar-bg: hsl(var(--background));
+    --topbar-fg: hsl(var(--foreground));
+    --topbar-border: hsl(var(--border));
+    --topbar-button-hover: hsl(var(--muted));
+    
+    /* Card and container elements */
+    --card-bg: hsl(var(--background));
+    --card-fg: hsl(var(--foreground));
+    --card-border: hsl(var(--border));
+    --card-shadow: var(--shadow-md);
+    --card-header-bg: hsl(var(--muted));
+    --card-header-fg: hsl(var(--foreground));
+    
+    /* Form elements */
+    --input-bg: hsl(var(--background));
+    --input-fg: hsl(var(--foreground));
+    --input-border: hsl(var(--border));
+    --input-focus-border: hsl(var(--theme-current-start));
+    --input-placeholder: hsl(var(--muted-foreground));
+    
+    /* Button styles */
+    --button-primary-bg: hsl(var(--theme-current-start));
+    --button-primary-bg-hover: hsl(var(--theme-current-end));
+    --button-primary-fg: hsl(var(--theme-current-foreground));
+    --button-secondary-bg: hsl(var(--muted));
+    --button-secondary-bg-hover: hsl(var(--border));
+    --button-secondary-fg: hsl(var(--foreground));
+    
+    /* Badge and tag elements */
+    --badge-bg: hsl(var(--theme-current-start));
+    --badge-fg: hsl(var(--theme-current-foreground));
+    
+    /* Notification elements */
+    --notification-bg: hsl(var(--danger-start));
+    --notification-fg: hsl(0 0% 100%);
+    
+    /* Dropdown and popover elements */
+    --dropdown-bg: hsl(var(--background));
+    --dropdown-fg: hsl(var(--foreground));
+    --dropdown-border: hsl(var(--border));
+    --dropdown-shadow: var(--shadow-lg);
+    --dropdown-item-hover: hsl(var(--muted));
+}
+
+.dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
+    --border: 215 27% 27%;
+    --input: 215 27% 27%;
+    
+    /* Action Colors */
+    --primary: 222 83% 48%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 71% 51%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* UI Elements */
+    --ring: 222 83% 48%;
+    
+    /* Monochromatic themes - darker versions */
+    --mono-black-start: 0 0% 0%;
+    --mono-black-end: 0 0% 9%;
+    --mono-black-accent: 0 0% 15%;
+    --mono-black-foreground: 0 0% 100%;
+    
+    --mono-white-start: 210 20% 91%;
+    --mono-white-end: 214 20% 84%;
+    --mono-white-accent: 215 20% 65%;
+    --mono-white-foreground: 222 47% 11%;
+    
+    --mono-grey-start: 217 33% 17%;
+    --mono-grey-end: 215 27% 27%;
+    --mono-grey-accent: 216 19% 35%;
+    --mono-grey-foreground: 210 40% 98%;
+    
+    /* Vibrant themes - darker versions */
+    --vibrant-blue-start: 222 83% 48%;
+    --vibrant-blue-end: 222 84% 53%;
+    --vibrant-blue-accent: 217 91% 60%;
+    --vibrant-blue-foreground: 0 0% 100%;
+    
+    --vibrant-purple-start: 263 81% 50%;
+    --vibrant-purple-end: 262 83% 58%;
+    --vibrant-purple-accent: 263 70% 63%;
+    --vibrant-purple-foreground: 0 0% 100%;
+    
+    --vibrant-pink-start: 328 81% 42%;
+    --vibrant-pink-end: 328 81% 50%;
+    --vibrant-pink-accent: 330 81% 60%;
+    --vibrant-pink-foreground: 0 0% 100%;
+    
+    --vibrant-orange-start: 23 90% 41%;
+    --vibrant-orange-end: 25 91% 48%;
+    --vibrant-orange-accent: 28 92% 53%;
+    --vibrant-orange-foreground: 0 0% 100%;
+    
+    --vibrant-green-start: 142 70% 30%;
+    --vibrant-green-end: 142 70% 36%;
+    --vibrant-green-accent: 142 69% 45%;
+    --vibrant-green-foreground: 0 0% 100%;
+    
+    /* Vibrantium Plus themes - darker versions */
+    --vibrantium-blue-start: 222 85% 45%;
+    --vibrantium-blue-end: 217 90% 53%;
+    --vibrantium-blue-accent: 213 93% 60%;
+    --vibrantium-blue-foreground: 0 0% 100%;
+    
+    --vibrantium-purple-start: 262 85% 50%;
+    --vibrantium-purple-end: 263 80% 55%;
+    --vibrantium-purple-accent: 263 90% 68%;
+    --vibrantium-purple-foreground: 0 0% 100%;
+    
+    --vibrantium-pink-start: 328 85% 43%;
+    --vibrantium-pink-end: 330 85% 53%;
+    --vibrantium-pink-accent: 330 90% 63%;
+    --vibrantium-pink-foreground: 0 0% 100%;
+    
+    --vibrantium-orange-start: 25 90% 40%;
+    --vibrantium-orange-end: 28 90% 45%;
+    --vibrantium-orange-accent: 28 93% 53%;
+    --vibrantium-orange-foreground: 0 0% 100%;
+    
+    --vibrantium-green-start: 142 80% 28%;
+    --vibrantium-green-end: 142 80% 37%;
+    --vibrantium-green-accent: 142 85% 48%;
+    --vibrantium-green-foreground: 0 0% 100%;
+    
+    /* Pastel themes - darker versions */
+    --pastel-blue-start: 213 94% 68%;
+    --pastel-blue-end: 214 93% 79%;
+    --pastel-blue-accent: 213 93% 88%;
+    --pastel-blue-foreground: 226 71% 33%;
+    
+    --pastel-purple-start: 263 85% 76%;
+    --pastel-purple-end: 255 89% 85%;
+    --pastel-purple-accent: 255 92% 92%;
+    --pastel-purple-foreground: 272 76% 43%;
+    
+    --pastel-pink-start: 330 79% 70%;
+    --pastel-pink-end: 330 87% 82%;
+    --pastel-pink-accent: 330 85% 89%;
+    --pastel-pink-foreground: 336 83% 36%;
+    
+    --pastel-orange-start: 28 96% 61%;
+    --pastel-orange-end: 33 96% 72%;
+    --pastel-orange-accent: 34 100% 83%;
+    --pastel-orange-foreground: 24 83% 34%;
+    
+    --pastel-green-start: 142 70% 56%;
+    --pastel-green-end: 142 76% 73%;
+    --pastel-green-accent: 141 78% 85%;
+    --pastel-green-foreground: 142 76% 29%;
+    
+    /* Status colors - darker versions */
+    --success-start: 161 84% 31%;
+    --success-end: 160 64% 40%;
+    --warning-start: 27 94% 44%;
+    --warning-end: 35 92% 50%;
+    --danger-start: 0 71% 51%;
+    --danger-end: 0 84% 60%;
+    
+    /* Card and container elements - dark mode */
+    --card-bg: hsl(217 33% 17%);
+    --card-fg: hsl(210 40% 98%);
+    --card-border: hsl(215 27% 27%);
+    --card-header-bg: hsl(222 47% 11%);
+    --card-header-fg: hsl(210 40% 98%);
+    
+    /* Form elements - dark mode */
+    --input-bg: hsl(217 33% 17%);
+    --input-fg: hsl(210 40% 98%);
+    --input-border: hsl(215 27% 27%);
+    
+    /* Sidebar specific - dark mode */
+    --sidebar-bg: hsl(var(--background));
+    --sidebar-fg: hsl(var(--foreground));
+    --sidebar-muted: hsl(var(--muted));
+    --sidebar-border: hsl(var(--border));
+    --sidebar-item-hover: hsl(217 33% 17%);
+    --sidebar-item-active-bg: hsl(var(--theme-current-start));
+    --sidebar-item-active-fg: hsl(var(--theme-current-foreground));
+    
+    /* Dropdown and popover elements - dark mode */
+    --dropdown-bg: hsl(217 33% 17%);
+    --dropdown-fg: hsl(210 40% 98%);
+    --dropdown-border: hsl(215 27% 27%);
+    --dropdown-item-hover: hsl(222 47% 11%);
+}
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--component-muted-bg);
+            color: var(--component-fg);
+            height: 100vh;
+            overflow: hidden;
+            transition: background-color var(--transition-normal) ease, color var(--transition-normal) ease;
+            position: relative;
+        }
+
+        /* Layout */
+        .layout {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+            position: relative;
+        }
+
+        .content-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            margin-left: 70px;
+            transition: margin-left var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: var(--component-muted-bg);
+            position: relative;
+            z-index: 10; /* Lower z-index than sidebar and topbar */
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding-bottom: 5rem; /* Space for mobile nav */
+            }
+        }
+
+        /* Topbar */
+        .topbar {
+            height: 64px;
+            background-color: var(--topbar-bg);
+            border-bottom: 1px solid var(--topbar-border);
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 50; /* Higher than main content, same as sidebar */
+            box-shadow: var(--shadow-sm);
+            transition: background-color var(--transition-normal) ease, border-color var(--transition-normal) ease;
+            width: 100%;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .mobile-menu-trigger {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--topbar-fg);
+            cursor: pointer;
+            transition: color var(--transition-normal) ease;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-trigger {
+                display: flex;
+            }
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-left: auto;
+        }
+
+        .notification-button {
+            position: relative;
+            background: none;
+            border: none;
+            color: var(--topbar-fg);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color var(--transition-normal) ease, color var(--transition-normal) ease;
+        }
+
+        .notification-button:hover {
+            background-color: var(--topbar-button-hover);
+            color: var(--button-primary-bg);
+        }
+
+        .notification-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--notification-bg), var(--danger-end));
+        }
+
+        /* Color theme button in topbar */
+        .color-theme-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--button-primary-bg), var(--button-primary-bg-hover));
+            color: var(--button-primary-fg);
+            border: none;
+            border-radius: var(--radius);
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-normal) ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .color-theme-button:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .color-theme-button svg {
+            width: 16px;
+            height: 16px;
+            margin-right: 0.5rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 70px;
+            height: 100vh;
+            position: fixed;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--sidebar-border);
+            box-shadow: var(--shadow-md);
+            transition: width var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1), 
+                        transform var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1),
+                        background-color var(--transition-normal) ease,
+                        border-color var(--transition-normal) ease;
+            overflow: hidden;
+            z-index: 50; /* Higher than main content, same as topbar */
+            display: flex;
+            flex-direction: column;
+            left: 0;
+            top: 0;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+                width: 260px;
+            }
+        }
+
+        .sidebar:hover {
+            width: 260px;
+        }
+
+        .logo-container {
+            padding: 1.5rem 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--button-primary-bg), var(--button-primary-bg-hover));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--button-primary-fg);
+            font-weight: 700;
+            font-size: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+            transition: background var(--transition-normal) ease;
+        }
+
+        .logo-text {
+            margin-left: 1rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--sidebar-fg);
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all var(--transition-normal) ease;
+            white-space: nowrap;
+        }
+
+        .sidebar:hover .logo-text,
+        .sidebar.mobile-open .logo-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .nav-section {
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--component-muted-fg);
+            padding: 0 0.75rem;
+            margin-bottom: 0.75rem;
+            opacity: 0;
+            transition: opacity var(--transition-normal) ease;
+        }
+
+        .sidebar:hover .nav-section-title,
+        .sidebar.mobile-open .nav-section-title {
+            opacity: 1;
+        }
+
+        .nav-item {
+            position: relative;
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            color: var(--component-muted-fg);
+            text-decoration: none;
+            border-radius: var(--radius);
+            transition: all var(--transition-normal) ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--button-primary-bg), var(--button-primary-bg-hover));
+            opacity: 0;
+            transition: opacity var(--transition-normal) ease;
+        }
+
+        .nav-link:hover {
+            background: var(--sidebar-item-hover);
+            color: var(--sidebar-fg);
+        }
+
+        .nav-link.active {
+            background: var(--sidebar-item-active-bg);
+            color: var(--sidebar-item-active-fg);
+            font-weight: 500;
+        }
+
+        .nav-link.active::before {
+            opacity: 1;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            transition: transform var(--transition-normal) ease;
+            color: var(--sidebar-icon-color);
+        }
+
+        .nav-link:hover .nav-icon {
+            transform: translateY(-2px);
+            color: var(--sidebar-icon-hover);
+        }
+
+        .nav-link.active .nav-icon {
+            color: var(--sidebar-item-active-fg);
+        }
+
+        .nav-text {
+            margin-left: 0.875rem;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all var(--transition-normal) ease;
+            white-space: nowrap;
+        }
+
+        .sidebar:hover .nav-text,
+        .sidebar.mobile-open .nav-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height var(--transition-normal) ease;
+            padding-left: 2.75rem;
+            margin-top: -0.25rem;
+            position: relative;
+            z-index: 51; /* Higher than sidebar to ensure proper layering */
+        }
+
+        .submenu.expanded {
+            max-height: 200px;
+        }
+
+        .submenu-item {
+            padding: 0.625rem 0.75rem;
+            color: var(--component-muted-fg);
+            text-decoration: none;
+            display: block;
+            font-size: 0.875rem;
+            border-radius: var(--radius);
+            margin-bottom: 0.125rem;
+            transition: all var(--transition-normal) ease;
+            position: relative;
+        }
+
+        .submenu-item::before {
+            content: '';
+            position: absolute;
+            left: -1rem;
+            top: 50%;
+            width: 0.5rem;
+            height: 1px;
+            background-color: var(--component-border);
+            transition: width var(--transition-normal) ease, background-color var(--transition-normal) ease;
+        }
+
+        .submenu-item:hover {
+            background: var(--sidebar-item-hover);
+            color: var(--button-primary-bg);
+        }
+
+        .submenu-item:hover::before {
+            width: 0.75rem;
+            background: linear-gradient(to right, var(--button-primary-bg), var(--button-primary-bg-hover));
+        }
+
+        .submenu-item.active {
+            color: var(--button-primary-bg);
+            font-weight: 500;
+        }
+
+        .chevron {
+            margin-left: auto;
+            transition: transform var(--transition-normal) ease, opacity var(--transition-normal) ease;
+            opacity: 0;
+            width: 16px;
+            height: 16px;
+            color: var(--component-muted-fg);
+        }
+
+        .sidebar:hover .chevron,
+        .sidebar.mobile-open .chevron {
+            opacity: 1;
+        }
+
+        .chevron.expanded {
+            transform: rotate(180deg);
+        }
+
+        .badge {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--badge-bg), var(--danger-end));
+            transition: all var(--transition-normal) ease;
+        }
+
+        .sidebar:hover .badge,
+        .sidebar.mobile-open .badge {
+            width: auto;
+            height: 18px;
+            padding: 0 0.375rem;
+            border-radius: 9px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            content: attr(data-count);
+            color: var(--badge-fg);
+        }
+
+        .badge[data-count]::after {
+            content: attr(data-count);
+            opacity: 0;
+            transition: opacity var(--transition-normal) ease;
+        }
+
+        .sidebar:hover .badge[data-count]::after,
+        .sidebar.mobile-open .badge[data-count]::after {
+            opacity: 1;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: var(--component-border);
+            margin: 0.5rem 0.75rem 1rem;
+            opacity: 0.6;
+            transition: background-color var(--transition-normal) ease;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 1rem 0.75rem;
+            border-top: 1px solid var(--component-border);
+            transition: border-color var(--transition-normal) ease;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius);
+            transition: background var(--transition-normal) ease;
+            cursor: pointer;
+        }
+
+        .user-profile:hover {
+            background: var(--sidebar-item-hover);
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--button-primary-bg), var(--button-primary-bg-hover));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--button-primary-fg);
+            font-weight: 600;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+            transition: background var(--transition-normal) ease;
+        }
+
+        .user-info {
+            margin-left: 0.75rem;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all var(--transition-normal) ease;
+        }
+
+        .sidebar:hover .user-info,
+        .sidebar.mobile-open .user-info {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .user-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--component-fg);
+            transition: color var(--transition-normal) ease;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--component-muted-fg);
+            transition: color var(--transition-normal) ease;
+        }
+
+        /* Mobile Bottom Navigation */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background-color: var(--component-bg);
+            border-top: 1px solid var(--component-border);
+            z-index: 45; /* Higher than main content but lower than sidebar */
+            box-shadow: var(--shadow-md);
+            transition: background-color var(--transition-normal) ease, border-color var(--transition-normal) ease;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-nav {
+                display: flex;
+            }
+        }
+
+        .mobile-nav-items {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .mobile-nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            color: var(--component-muted-fg);
+            text-decoration: none;
+            transition: color var(--transition-normal) ease;
+        }
+
+        .mobile-nav-item.active {
+            color: var(--button-primary-bg);
+        }
+
+        .mobile-nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-bottom: 0.25rem;
+            transition: transform var(--transition-fast) ease;
+        }
+
+        .mobile-nav-item:hover .mobile-nav-icon {
+            transform: translateY(-2px);
+        }
+
+        .mobile-nav-text {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--component-bg);
+            border: 1px solid var(--component-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            z-index: 100; /* Higher than sidebar and topbar */
+            transition: background var(--transition-normal) ease, border-color var(--transition-normal) ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--component-muted-bg);
+        }
+
+        .theme-icon {
+            width: 18px;
+            height: 18px;
+            color: var(--component-fg);
+            transition: color var(--transition-normal) ease;
+        }
+
+        .sun-icon {
+            display: none;
+        }
+
+        .dark .sun-icon {
+            display: block;
+        }
+
+        .dark .moon-icon {
+            display: none;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--component-fg);
+            color: var(--component-bg);
+            padding: 0.375rem 0.75rem;
+            border-radius: var(--radius);
+            font-size: 0.75rem;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity var(--transition-normal) ease, transform var(--transition-normal) ease;
+            box-shadow: var(--shadow-md);
+            margin-left: 0.5rem;
+            z-index: 100; /* Higher than sidebar */
+        }
+
+        .tooltip::before {
+            content: '';
+            position: absolute;
+            left: -4px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-width: 4px 4px 4px 0;
+            border-style: solid;
+            border-color: transparent var(--component-fg) transparent transparent;
+        }
+
+        .nav-link:hover .tooltip {
+            opacity: 1;
+        }
+
+        .sidebar:hover .tooltip,
+        .sidebar.mobile-open .tooltip {
+            opacity: 0;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 45; /* Lower than sidebar but higher than main content */
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-normal) ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Enhanced Color Selector */
+        .theme-selector {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+            z-index: 60; /* Higher than sidebar and topbar */
+            background: var(--dropdown-bg);
+            padding: 0.75rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--dropdown-shadow);
+            border: 1px solid var(--dropdown-border);
+            transition: all var(--transition-normal) ease;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+        }
+
+        .theme-selector.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .theme-selector {
+                right: 10px;
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        .theme-selector-header {
+            grid-column: 1 / -1;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--component-muted-fg);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .color-group {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform var(--transition-fast) ease, box-shadow var(--transition-fast) ease;
+            position: relative;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-md);
+        }
+
+        .color-option.active {
+            box-shadow: 0 0 0 2px var(--component-bg), 0 0 0 4px var(--button-primary-bg);
+        }
+
+        /* Monochromatic themes */
+        .color-black-white {
+            background: linear-gradient(135deg, hsl(var(--mono-black-start)), hsl(var(--mono-black-end)));
+        }
+
+        .color-white-grey {
+            background: linear-gradient(135deg, hsl(var(--mono-white-start)), hsl(var(--mono-white-end)));
+        }
+
+        .color-grey {
+            background: linear-gradient(135deg, hsl(var(--mono-grey-start)), hsl(var(--mono-grey-end)));
+        }
+
+        /* Vibrant themes */
+        .color-blue {
+            background: linear-gradient(135deg, hsl(var(--vibrant-blue-start)), hsl(var(--vibrant-blue-end)));
+        }
+
+        .color-purple {
+            background: linear-gradient(135deg, hsl(var(--vibrant-purple-start)), hsl(var(--vibrant-purple-end)));
+        }
+
+        .color-pink {
+            background: linear-gradient(135deg, hsl(var(--vibrant-pink-start)), hsl(var(--vibrant-pink-end)));
+        }
+
+        .color-orange {
+            background: linear-gradient(135deg, hsl(var(--vibrant-orange-start)), hsl(var(--vibrant-orange-end)));
+        }
+
+        .color-green {
+            background: linear-gradient(135deg, hsl(var(--vibrant-green-start)), hsl(var(--vibrant-green-end)));
+        }
+
+        /* Vibrantium Plus themes */
+        .color-vibrantium-blue {
+            background: linear-gradient(135deg, hsl(var(--vibrantium-blue-start)), hsl(var(--vibrantium-blue-end)));
+        }
+
+        .color-vibrantium-purple {
+            background: linear-gradient(135deg, hsl(var(--vibrantium-purple-start)), hsl(var(--vibrantium-purple-end)));
+        }
+
+        .color-vibrantium-pink {
+            background: linear-gradient(135deg, hsl(var(--vibrantium-pink-start)), hsl(var(--vibrantium-pink-end)));
+        }
+
+        .color-vibrantium-orange {
+            background: linear-gradient(135deg, hsl(var(--vibrantium-orange-start)), hsl(var(--vibrantium-orange-end)));
+        }
+
+        .color-vibrantium-green {
+            background: linear-gradient(135deg, hsl(var(--vibrantium-green-start)), hsl(var(--vibrantium-green-end)));
+        }
+
+        /* Pastel themes */
+        .color-pastel-blue {
+            background: linear-gradient(135deg, hsl(var(--pastel-blue-start)), hsl(var(--pastel-blue-end)));
+        }
+
+        .color-pastel-purple {
+            background: linear-gradient(135deg, hsl(var(--pastel-purple-start)), hsl(var(--pastel-purple-end)));
+        }
+
+        .color-pastel-pink {
+            background: linear-gradient(135deg, hsl(var(--pastel-pink-start)), hsl(var(--pastel-pink-end)));
+        }
+
+        .color-pastel-orange {
+            background: linear-gradient(135deg, hsl(var(--pastel-orange-start)), hsl(var(--pastel-orange-end)));
+        }
+
+        .color-pastel-green {
+            background: linear-gradient(135deg, hsl(var(--pastel-green-start)), hsl(var(--pastel-green-end)));
+        }
+
+        /* Dropdown styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            min-width: 200px;
+            background: var(--dropdown-bg);
+            border: 1px solid var(--dropdown-border);
+            border-radius: var(--radius);
+            box-shadow: var(--dropdown-shadow);
+            z-index: 55; /* Higher than sidebar and topbar */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: opacity var(--transition-normal) ease, transform var(--transition-normal) ease, visibility var(--transition-normal) ease;
+        }
+
+        .dropdown-content.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            color: var(--dropdown-fg);
+            text-decoration: none;
+            display: block;
+            transition: background-color var(--transition-normal) ease;
+            font-size: 0.875rem;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--dropdown-item-hover);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--dropdown-border);
+            margin: 0.5rem 0;
+        }
+    </style>
+        {% block custom_css %}{% endblock %}
+
+</head>
+<body>
+    <!-- Theme Toggle Button -->
+    <button id="themeToggle" class="theme-toggle">
+        <svg class="theme-icon sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        </svg>
+        <svg class="theme-icon moon-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+    </button>
+
+    <!-- Overlay for mobile sidebar -->
+    <div id="overlay" class="overlay"></div>
+
+    <!-- Enhanced Theme Selector -->
+    <div id="themeSelector" class="theme-selector">
+        <div class="theme-selector-header">Monochrome</div>
+        <div class="color-group">
+            <div class="color-option color-black-white" data-color="black-white"></div>
+            <div class="color-option color-white-grey" data-color="white-grey"></div>
+            <div class="color-option color-grey" data-color="grey"></div>
+        </div>
+        
+        <div class="theme-selector-header">Vibrant</div>
+        <div class="color-group">
+            <div class="color-option color-blue" data-color="blue"></div>
+            <div class="color-option color-purple" data-color="purple"></div>
+            <div class="color-option color-pink" data-color="pink"></div>
+            <div class="color-option color-orange" data-color="orange"></div>
+            <div class="color-option color-green" data-color="green"></div>
+        </div>
+        
+        <div class="theme-selector-header">Vibrantium Plus</div>
+        <div class="color-group">
+            <div class="color-option color-vibrantium-blue active" data-color="vibrantium-blue"></div>
+            <div class="color-option color-vibrantium-purple" data-color="vibrantium-purple"></div>
+            <div class="color-option color-vibrantium-pink" data-color="vibrantium-pink"></div>
+            <div class="color-option color-vibrantium-orange" data-color="vibrantium-orange"></div>
+            <div class="color-option color-vibrantium-green" data-color="vibrantium-green"></div>
+        </div>
+        
+        <div class="theme-selector-header">Pastel</div>
+        <div class="color-group">
+            <div class="color-option color-pastel-blue" data-color="pastel-blue"></div>
+            <div class="color-option color-pastel-purple" data-color="pastel-purple"></div>
+            <div class="color-option color-pastel-pink" data-color="pastel-pink"></div>
+            <div class="color-option color-pastel-orange" data-color="pastel-orange"></div>
+            <div class="color-option color-pastel-green" data-color="pastel-green"></div>
+        </div>
+    </div>
+
+    <div class="layout">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button id="mobileMenuTrigger" class="mobile-menu-trigger">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="topbar-right">
+                <!-- Color Theme Button in Topbar -->
+                <button id="colorThemeButton" class="color-theme-button">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                    </svg>
+                    Theme
+                </button>
+                <div class="dropdown">
+                    <button class="notification-button" id="notificationDropdown">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        <span class="notification-indicator"></span>
+                    </button>
+                    <div class="dropdown-content" id="notificationContent">
+                        <div class="dropdown-item">New message received</div>
+                        <div class="dropdown-item">System update available</div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item">View all notifications</div>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <button class="notification-button" id="messagesDropdown">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                    </button>
+                    <div class="dropdown-content" id="messagesContent">
+                        <div class="dropdown-item">John: Hi there!</div>
+                        <div class="dropdown-item">Sarah: Meeting at 3pm</div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item">View all messages</div>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <button class="notification-button" id="settingsDropdown">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </button>
+                    <div class="dropdown-content" id="settingsContent">
+                        <div class="dropdown-item">Account Settings</div>
+                        <div class="dropdown-item">Privacy</div>
+                        <div class="dropdown-item">Security</div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item">Help & Support</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            <!-- Premium Sidebar -->
+            <div id="sidebar" class="sidebar">
+                <div class="logo-container">
+                    <div class="logo">M</div>
+                    <span class="logo-text">ModernApp</span>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="nav-section-title">MAIN</h3>
+                    
+                    <div class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                            <span class="nav-text">Dashboard</span>
+                            <span class="tooltip">Dashboard</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="#" class="nav-link" onclick="toggleSubmenu(this, event)">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            <span class="nav-text">Inventory</span>
+                            <svg class="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                            <span class="badge" data-count="3"></span>
+                            <span class="tooltip">Inventory</span>
+                        </a>
+                        <div class="submenu">
+                            <a href="#" class="submenu-item">Products</a>
+                            <a href="#" class="submenu-item">Categories</a>
+                            <a href="#" class="submenu-item">Stock Management</a>
+                        </div>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="#" class="nav-link" onclick="toggleSubmenu(this, event)">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                            </svg>
+                            <span class="nav-text">Orders</span>
+                            <svg class="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                            <span class="tooltip">Orders</span>
+                        </a>
+                        <div class="submenu">
+                            <a href="#" class="submenu-item">All Orders</a>
+                            <a href="#" class="submenu-item">Pending</a>
+                            <a href="#" class="submenu-item">Completed</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="nav-section">
+                    <h3 class="nav-section-title">ANALYTICS</h3>
+                    
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            <span class="nav-text">Reports</span>
+                            <span class="tooltip">Reports</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="nav-text">Finance</span>
+                            <span class="tooltip">Finance</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="nav-section">
+                    <h3 class="nav-section-title">SYSTEM</h3>
+                    
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <span class="nav-text">Settings</span>
+                            <span class="tooltip">Settings</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="sidebar-footer">
+                    <div class="user-profile">
+                        <div class="avatar">JD</div>
+                        <div class="user-info">
+                            <div class="user-name">John Doe</div>
+                            <div class="user-role">Administrator</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+
+        <!-- Mobile Bottom Navigation -->
+        <nav class="mobile-nav">
+            <div class="mobile-nav-items">
+                <a href="#" class="mobile-nav-item active">
+                    <svg class="mobile-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    <span class="mobile-nav-text">Home</span>
+                </a>
+                <a href="#" class="mobile-nav-item">
+                    <svg class="mobile-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    <span class="mobile-nav-text">Inventory</span>
+                </a>
+                <a href="#" class="mobile-nav-item">
+                    <svg class="mobile-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                    <span class="mobile-nav-text">Orders</span>
+                </a>
+                <a href="#" class="mobile-nav-item">
+                    <svg class="mobile-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <span class="mobile-nav-text">Reports</span>
+                </a>
+                <a href="#" class="mobile-nav-item">
+                    <svg class="mobile-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <span class="mobile-nav-text">Settings</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        // Check for saved theme preference or use system preference
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
+
+        // Toggle theme when button is clicked
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            
+            if (html.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+            
+            // Update UI elements with current theme
+            updateThemeElements();
+            updateComponentColors();
+        });
+        
+        // Sidebar dropdown functionality
+        function toggleSubmenu(link, event) {
+            event.preventDefault();
+            
+            const submenu = link.nextElementSibling;
+            const chevron = link.querySelector('.chevron');
+            
+            // Toggle submenu
+            if (submenu && submenu.classList.contains('submenu')) {
+                submenu.classList.toggle('expanded');
+                if (chevron) {
+                    chevron.classList.toggle('expanded');
+                }
+            }
+        }
+        
+        // Auto-expand active submenu
+        document.addEventListener('DOMContentLoaded', () => {
+            const activeLink = document.querySelector('.nav-link.active');
+            if (activeLink) {
+                const submenu = activeLink.nextElementSibling;
+                const chevron = activeLink.querySelector('.chevron');
+                if (submenu && submenu.classList.contains('submenu') && chevron) {
+                    submenu.classList.add('expanded');
+                    chevron.classList.add('expanded');
+                }
+            }
+            
+            // Set default color theme
+            const savedColorTheme = localStorage.getItem('colorTheme');
+            if (savedColorTheme) {
+                setColorTheme(savedColorTheme);
+                
+                // Find and activate the correct color option
+                const colorOption = document.querySelector(`.color-option[data-color="${savedColorTheme}"]`);
+                if (colorOption) {
+                    document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('active'));
+                    colorOption.classList.add('active');
+                }
+            } else {
+                setColorTheme('vibrantium-blue');
+            }
+            
+            // Update color theme button
+            updateColorThemeButton();
+            
+            // Update component colors
+            updateComponentColors();
+        });
+
+        // Mobile menu functionality
+        const mobileMenuTrigger = document.getElementById('mobileMenuTrigger');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        mobileMenuTrigger.addEventListener('click', () => {
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('active');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+        });
+        
+        // Color theme button functionality
+        const colorThemeButton = document.getElementById('colorThemeButton');
+        const themeSelector = document.getElementById('themeSelector');
+        
+        colorThemeButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            themeSelector.classList.toggle('visible');
+            
+            // Close any open dropdowns
+            document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+                dropdown.classList.remove('visible');
+            });
+        });
+        
+        // Dropdown functionality
+        const dropdownButtons = document.querySelectorAll('.dropdown button');
+        
+        dropdownButtons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                event.stopPropagation();
+                
+                // Get the dropdown content
+                const dropdownId = button.id;
+                const contentId = dropdownId.replace('Dropdown', 'Content');
+                const content = document.getElementById(contentId);
+                
+                // Close all other dropdowns
+                document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+                    if (dropdown.id !== contentId) {
+                        dropdown.classList.remove('visible');
+                    }
+                });
+                
+                // Close theme selector if open
+                themeSelector.classList.remove('visible');
+                
+                // Toggle this dropdown
+                content.classList.toggle('visible');
+            });
+        });
+        
+        // Close dropdowns and theme selector when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!themeSelector.contains(event.target) && !colorThemeButton.contains(event.target)) {
+                themeSelector.classList.remove('visible');
+            }
+            
+            // Close all dropdowns if clicking outside
+            if (!event.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+                    dropdown.classList.remove('visible');
+                });
+            }
+        });
+        
+        // Color theme functionality
+        const colorOptions = document.querySelectorAll('.color-option');
+        
+        colorOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const color = option.getAttribute('data-color');
+                
+                // Remove active class from all options
+                colorOptions.forEach(opt => opt.classList.remove('active'));
+                
+                // Add active class to clicked option
+                option.classList.add('active');
+                
+                // Set the color theme
+                setColorTheme(color);
+                
+                // Save the selected color theme
+                localStorage.setItem('colorTheme', color);
+            });
+        });
+        
+        function setColorTheme(color) {
+            const root = document.documentElement;
+            
+            // Reset current theme
+            root.style.removeProperty('--theme-current-start');
+            root.style.removeProperty('--theme-current-end');
+            root.style.removeProperty('--theme-current-accent');
+            root.style.removeProperty('--theme-current-foreground');
+            
+            // Set new theme based on color selection
+            switch(color) {
+                // Monochromatic themes
+                case 'black-white':
+                    root.style.setProperty('--theme-current-start', 'var(--mono-black-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--mono-black-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--mono-black-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--mono-black-foreground)');
+                    break;
+                case 'white-grey':
+                    root.style.setProperty('--theme-current-start', 'var(--mono-white-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--mono-white-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--mono-white-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--mono-white-foreground)');
+                    break;
+                case 'grey':
+                    root.style.setProperty('--theme-current-start', 'var(--mono-grey-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--mono-grey-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--mono-grey-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--mono-grey-foreground)');
+                    break;
+                
+                // Vibrant themes
+                case 'blue':
+                    root.style.setProperty('--theme-current-start', 'var(--vibrant-blue-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--vibrant-blue-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--vibrant-blue-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--vibrant-blue-foreground)');
+                    break;
+                case 'purple':
+                    root.style.setProperty('--theme-current-start', 'var(--vibrant-purple-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--vibrant-purple-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--vibrant-purple-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--vibrant-purple-foreground)');
+                    break;
+                case 'pink':
+                    root.style.setProperty('--theme-current-start', 'var(--vibrant-pink-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--vibrant-pink-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--vibrant-pink-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--vibrant-pink-foreground)');
+                    break;
+                case 'orange':
+                    root.style.setProperty('--theme-current-start', 'var(--vibrant-orange-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--vibrant-orange-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--vibrant-orange-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--vibrant-orange-foreground)');
+                    break;
+                case 'green':
+                    root.style.setProperty('--theme-current-start', 'var(--vibrant-green-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--vibrant-green-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--vibrant-green-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--vibrant-green-foreground)');
+                    break;
+                
+                // Vibrantium Plus themes
+                case 'vibrantium-blue':
+                    root.style.setProperty('--theme-current-start', 'var(--vibrantium-blue-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--vibrantium-blue-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--vibrantium-blue-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--vibrantium-blue-foreground)');
+                    break;
+                case 'vibrantium-purple':
+                    root.style.setProperty('--theme-current-start', 'var(--vibrantium-purple-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--vibrantium-purple-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--vibrantium-purple-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--vibrantium-purple-foreground)');
+                    break;
+                case 'vibrantium-pink':
+                    root.style.setProperty('--theme-current-start', 'var(--vibrantium-pink-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--vibrantium-pink-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--vibrantium-pink-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--vibrantium-pink-foreground)');
+                    break;
+                case 'vibrantium-orange':
+                    root.style.setProperty('--theme-current-start', 'var(--vibrantium-orange-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--vibrantium-orange-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--vibrantium-orange-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--vibrantium-orange-foreground)');
+                    break;
+                case 'vibrantium-green':
+                    root.style.setProperty('--theme-current-start', 'var(--vibrantium-green-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--vibrantium-green-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--vibrantium-green-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--vibrantium-green-foreground)');
+                    break;
+                
+                // Pastel themes
+                case 'pastel-blue':
+                    root.style.setProperty('--theme-current-start', 'var(--pastel-blue-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--pastel-blue-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--pastel-blue-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--pastel-blue-foreground)');
+                    break;
+                case 'pastel-purple':
+                    root.style.setProperty('--theme-current-start', 'var(--pastel-purple-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--pastel-purple-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--pastel-purple-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--pastel-purple-foreground)');
+                    break;
+                case 'pastel-pink':
+                    root.style.setProperty('--theme-current-start', 'var(--pastel-pink-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--pastel-pink-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--pastel-pink-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--pastel-pink-foreground)');
+                    break;
+                case 'pastel-orange':
+                    root.style.setProperty('--theme-current-start', 'var(--pastel-orange-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--pastel-orange-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--pastel-orange-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--pastel-orange-foreground)');
+                    break;
+                case 'pastel-green':
+                    root.style.setProperty('--theme-current-start', 'var(--pastel-green-start)');
+                    root.style.setProperty('--theme-current-end', 'var(--pastel-green-end)');
+                    root.style.setProperty('--theme-current-accent', 'var(--pastel-green-accent)');
+                    root.style.setProperty('--theme-current-foreground', 'var(--pastel-green-foreground)');
+                    break;
+            }
+            
+            // Update UI elements with new theme
+            updateThemeElements();
+            
+            // Update color theme button
+            updateColorThemeButton();
+            
+            // Update component colors
+            updateComponentColors();
+        }
+        
+        // Update UI elements with current theme colors
+        function updateThemeElements() {
+            const logo = document.querySelector('.logo');
+            const avatar = document.querySelector('.avatar');
+            const activeLinks = document.querySelectorAll('.nav-link.active');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            // Update logo and avatar background
+            if (logo) {
+                logo.style.background = `linear-gradient(135deg, var(--button-primary-bg), var(--button-primary-bg-hover))`;
+                logo.style.color = `var(--button-primary-fg)`;
+            }
+            
+            if (avatar) {
+                avatar.style.background = `linear-gradient(135deg, var(--button-primary-bg), var(--button-primary-bg-hover))`;
+                avatar.style.color = `var(--button-primary-fg)`;
+            }
+            
+            // Update active links
+            activeLinks.forEach(link => {
+                link.style.setProperty('--active-indicator', `linear-gradient(to bottom, var(--button-primary-bg), var(--button-primary-bg-hover))`);
+            });
+            
+            // Update nav links hover indicator
+            navLinks.forEach(link => {
+                link.style.setProperty('--hover-color', `var(--button-primary-bg)`);
+            });
+        }
+        
+        // Update color theme button
+        function updateColorThemeButton() {
+            const colorThemeButton = document.getElementById('colorThemeButton');
+            if (colorThemeButton) {
+                colorThemeButton.style.background = `linear-gradient(135deg, var(--button-primary-bg), var(--button-primary-bg-hover))`;
+                colorThemeButton.style.color = `var(--button-primary-fg)`;
+            }
+        }
+        
+        // Update component colors based on theme
+        function updateComponentColors() {
+            const root = document.documentElement;
+            
+            // Update sidebar specific colors
+            root.style.setProperty('--sidebar-item-active-bg', 'var(--button-primary-bg)');
+            root.style.setProperty('--sidebar-item-active-fg', 'var(--button-primary-fg)');
+            root.style.setProperty('--sidebar-icon-hover', 'var(--button-primary-bg)');
+            
+            // Update badge colors
+            root.style.setProperty('--badge-bg', 'var(--button-primary-bg)');
+            root.style.setProperty('--badge-fg', 'var(--button-primary-fg)');
+            
+            // Update form elements
+            root.style.setProperty('--input-focus-border', 'var(--button-primary-bg)');
+        }
+    </script>
+    <script src="{% static 'js/toast.js' %}"></script>
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>
+

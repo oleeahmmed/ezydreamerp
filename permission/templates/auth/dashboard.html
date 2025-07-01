@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block page_title %}Admin Dashboard{% endblock %}
+
+{% block custom_css %}
+<style>
+    .dashboard-card {
+        transition: all 0.3s ease;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        border-color: hsl(var(--primary));
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: hsl(var(--primary));
+    }
+    
+    .activity-item {
+        transition: all 0.2s ease;
+    }
+    
+    .activity-item:hover {
+        background-color: hsl(var(--accent));
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Welcome Section -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold">Welcome back, {{ user.username }}</h1>
+            <p class="text-[hsl(var(--muted-foreground))]">Here's an overview of your user management system.</p>
+        </div>
+        <div class="flex gap-3">
+            {% if perms.auth.add_user %}
+            <a href="{% url 'permission:user_create' %}" class="px-4 py-2 rounded-lg bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:bg-[hsl(var(--primary)/0.9)] transition-colors">
+                <span>Add New User</span>
+            </a>
+            {% endif %}
+            {% if perms.auth.add_group %}
+            <a href="{% url 'permission:group_create' %}" class="px-4 py-2 rounded-lg border border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] transition-colors">
+                <span>Create Group</span>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Users Card -->
+        <div class="dashboard-card p-6 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] premium-card">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Total Users</p>
+                    <h3 class="stat-value">{{ user_count }}</h3>
+                </div>
+                <div class="p-2 rounded-lg bg-blue-500/10 text-blue-500">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'permission:user_list' %}" class="text-sm text-[hsl(var(--primary))] hover:underline">View all users</a>
+            </div>
+        </div>
+
+        <!-- Groups Card -->
+        <div class="dashboard-card p-6 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] premium-card">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Total Groups</p>
+                    <h3 class="stat-value">{{ group_count }}</h3>
+                </div>
+                <div class="p-2 rounded-lg bg-green-500/10 text-green-500">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17 20H22V18C22 16.3431 20.6569 15 19 15C18.0444 15 17.1931 15.4468 16.6438 16.1429M17 20H7M17 20V18C17 17.3438 16.8736 16.717 16.6438 16.1429M7 20H2V18C2 16.3431 3.34315 15 5 15C5.95561 15 6.80686 15.4468 7.35625 16.1429M7 20V18C7 17.3438 7.12642 16.717 7.35625 16.1429M7.35625 16.1429C8.0935 14.301 9.89482 13 12 13C14.1052 13 15.9065 14.301 16.6438 16.1429M15 7C15 8.65685 13.6569 10 12 10C10.3431 10 9 8.65685 9 7C9 5.34315 10.3431 4 12 4C13.6569 4 15 5.34315 15 7ZM21 10C21 11.1046 20.1046 12 19 12C17.8954 12 17 11.1046 17 10C17 8.89543 17.8954 8 19 8C20.1046 8 21 8.89543 21 10ZM7 10C7 11.1046 6.10457 12 5 12C3.89543 12 3 11.1046 3 10C3 8.89543 3.89543 8 5 8C6.10457 8 7 8.89543 7 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'permission:group_list' %}" class="text-sm text-[hsl(var(--primary))] hover:underline">Manage groups</a>
+            </div>
+        </div>
+
+        <!-- Permissions Card -->
+        <div class="dashboard-card p-6 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] premium-card">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm font-medium text-[hsl(var(--muted-foreground))]">Total Permissions</p>
+                    <h3 class="stat-value">{{ permission_count }}</h3>
+                </div>
+                <div class="p-2 rounded-lg bg-purple-500/10 text-purple-500">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 15V17M6 21H18C19.1046 21 20 20.1046 20 19V13C20 11.8954 19.1046 11 18 11H6C4.89543 11 4 11.8954 4 13V19C4 20.1046 4.89543 21 6 21ZM16 11V7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7V11H16Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'permission:permission_list' %}" class="text-sm text-[hsl(var(--primary))] hover:underline">View all permissions</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] premium-card">
+        <div class="p-6">
+            <h2 class="text-xl font-semibold mb-4">Recent Activities</h2>
+            <div class="space-y-4">
+                <!-- This is a placeholder. In a real application, you would iterate over recent activities -->
+                <div class="activity-item flex items-center justify-between p-3 rounded-lg hover:bg-[hsl(var(--accent))] transition-colors">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] flex items-center justify-center">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-medium">New user created</p>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))]">John Doe was added to the system</p>
+                        </div>
+                    </div>
+                    <span class="text-sm text-[hsl(var(--muted-foreground))]">2 hours ago</span>
+                </div>
+                <!-- Add more activity items here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show a welcome toast when the dashboard loads
+        // showToast('Welcome to your admin dashboard!', 'success', 5000);
+        
+        // Add hover effects to dashboard cards
+        const cards = document.querySelectorAll('.dashboard-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.1)';
+                this.style.borderColor = 'hsl(var(--primary))';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+                this.style.borderColor = 'hsl(var(--border))';
+            });
+        });
+    });
+</script>
+{% endblock %}

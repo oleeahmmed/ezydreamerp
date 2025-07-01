@@ -1,0 +1,666 @@
+{% extends "common/base-list-modern.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block list_icon %}
+<svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 21 7 21 17 21C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" stroke="currentColor" stroke-width="2"/>
+    <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5C15 6.10457 14.1046 7 13 7H11C9.89543 7 9 6.10457 9 5Z" stroke="currentColor" stroke-width="2"/>
+    <path d="M9 12H15M9 16H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <path d="M16 12L12 8L8 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+{% endblock %}
+
+{% block list_title %}{% trans "Return Report Details" %}{% endblock %}
+{% block list_subtitle %}{% trans "View detailed return line item data with advanced analytics" %}{% endblock %}
+
+{% block list_actions %}
+{% endblock %}
+
+{% block search_filter %}
+<div class="flex flex-wrap justify-center gap-3 p-4 bg-white shadow-md rounded-lg border border-gray-200">
+    <input type="text" id="search-input" placeholder="{% trans 'Search Customer or Sales Employee...' %}" class="w-full sm:w-auto flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+    <button id="filter-button" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Filter" %}
+    </button>
+    <button id="export-csv" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2H6A2 2 0 0 0 4 4V20A2 2 0 0 0 6 22H18A2 2 0 0 0 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Export CSV" %}
+    </button>
+    <button id="copy-clipboard" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-gray-600 to-gray-700 text-white hover:from-gray-700 hover:to-gray-800 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 15H4A2 2 0 0 1 2 13V4A2 2 0 0 1 4 2H13A2 2 0 0 1 15 4V5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Copy" %}
+    </button>
+    <button id="pivot-table" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="14" y="14" width="7" height="7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Pivot Table" %}
+    </button>
+    <button id="customize-columns" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-indigo-600 to-indigo-700 text-white hover:from-indigo-700 hover:to-indigo-800 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="3" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Columns" %}
+    </button>
+</div>
+{% endblock %}
+
+{% block table_headers %}
+<thead>
+    <tr>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="return" onclick="sortTable('return')" style="width: 60px;">{% trans "RETURN #" %}<span id="sort-return" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="date" onclick="sortTable('date')" style="width: 80px;">{% trans "DATE" %}<span id="sort-date" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="customer" onclick="sortTable('customer')" style="width: 150px;">{% trans "CUSTOMER" %}<span id="sort-customer" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="sales_employee" onclick="sortTable('sales_employee')" style="width: 120px;">{% trans "SALES EMPLOYEE" %}<span id="sort-sales_employee" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="item_code" onclick="sortTable('item_code')" style="width: 100px;">{% trans "ITEM CODE" %}<span id="sort-item_code" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="item_name" onclick="sortTable('item_name')" style="width: 120px;">{% trans "ITEM NAME" %}<span id="sort-item_name" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="unit" onclick="sortTable('unit')" style="width: 80px;">{% trans "UNIT" %}<span id="sort-unit" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="quantity" onclick="sortTable('quantity')" style="width: 80px;">{% trans "QUANTITY" %}<span id="sort-quantity" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="unit_price" onclick="sortTable('unit_price')" style="width: 100px;">{% trans "UNIT PRICE" %}<span id="sort-unit_price" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="total_amount" onclick="sortTable('total_amount')" style="width: 120px;">{% trans "TOTAL AMOUNT" %}<span id="sort-total_amount" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="payable_amount" onclick="sortTable('payable_amount')" style="width: 120px;">{% trans "PAYABLE AMOUNT" %}<span id="sort-payable_amount" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="paid_amount" onclick="sortTable('paid_amount')" style="width: 120px;">{% trans "PAID AMOUNT" %}<span id="sort-paid_amount" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="due_amount" onclick="sortTable('due_amount')" style="width: 120px;">{% trans "DUE AMOUNT" %}<span id="sort-due_amount" class="ml-1"></span></th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10 cursor-pointer" data-column="status" onclick="sortTable('status')" style="width: 100px;">{% trans "STATUS" %}<span id="sort-status" class="ml-1"></span></th>
+    </tr>
+</thead>
+{% endblock %}
+
+{% block table_body %}
+<div class="w-full overflow-x-auto overflow-y-auto max-h-[70vh]">
+    <table id="return-table" class="w-full table-fixed border-collapse">
+        <tbody>
+        {% for return_obj in returns %}
+            {% for line in return_obj.lines.all %}
+            <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] transition-colors">
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="return" style="width: 60px;">#{{ return_obj.id }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="date" style="width: 80px;">{{ return_obj.document_date|date:"M d, Y" }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="customer" style="width: 150px;">{{ return_obj.customer.name }} ({{ return_obj.customer.code }})</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="sales_employee" style="width: 120px;">{{ return_obj.sales_employee.name|default:"N/A" }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="item_code" style="width: 100px;">{{ line.item_code }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="item_name" style="width: 120px;">{{ line.item_name }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="unit" style="width: 80px;">{{ line.uom|default:"—" }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="quantity" style="width: 80px;">{{ line.quantity|floatformat:2 }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="unit_price" style="width: 100px;">{{ line.unit_price|floatformat:2 }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="total_amount" style="width: 120px;">{{ line.total_amount|floatformat:2 }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="payable_amount" style="width: 120px;">{{ return_obj.payable_amount|default:"0.00"|floatformat:2 }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="paid_amount" style="width: 120px;">{{ return_obj.paid_amount|default:"0.00"|floatformat:2 }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="due_amount" style="width: 120px;">{{ return_obj.due_amount|default:"0.00"|floatformat:2 }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="status" style="width: 100px;">{{ return_obj.status|default:"Draft" }}</td>
+            </tr>
+            {% endfor %}
+        {% empty %}
+            <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+                <td colspan="14" class="px-4 sm:px-8 py-4 text-center text-sm border border-[hsl(var(--border))]">
+                    <div class="flex flex-col items-center justify-center space-y-4">
+                        <div class="rounded-full bg-[hsl(var(--muted))] p-4">
+                            <svg class="h-8 w-8 text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 21 7 21 17 21C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" stroke="currentColor" stroke-width="2"/>
+                                <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5C15 6.10457 14.1046 7 13 7H11C9.89543 7 9 6.10457 9 5Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="text-center">
+                            <h3 class="text-base font-medium">{% trans "No Data Available" %}</h3>
+                            <p class="text-[hsl(var(--muted-foreground))] text-sm">{% trans "No return lines found for the selected date range." %}</p>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        {% if returns %}
+        <tfoot class="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] font-semibold">
+            <tr>
+                <td colspan="7" class="px-2 py-0.5 text-right font-semibold text-sm text-center border border-[hsl(var(--border))]" style="width: 710px;">{% trans "Total:" %}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="quantity" style="width: 80px;" id="total_quantity"></td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="unit_price" style="width: 100px;" id="total_unit_price"></td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="total_amount" style="width: 120px;" id="total_total_amount"></td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="payable_amount" style="width: 120px;" id="total_payable_amount"></td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="paid_amount" style="width: 120px;" id="total_paid_amount"></td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="due_amount" style="width: 120px;" id="total_due_amount"></td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="status" style="width: 100px;" id="total_status"></td>
+            </tr>
+        </tfoot>
+        {% endif %}
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+#return-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+#return-table th,
+#return-table td {
+    padding: 2px;
+    text-align: center;
+    border: 1px solid hsl(var(--border));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#return-table th[data-column="return"],
+#return-table td[data-column="return"] { width: 60px; }
+#return-table th[data-column="date"],
+#return-table td[data-column="date"] { width: 80px; }
+#return-table th[data-column="customer"],
+#return-table td[data-column="customer"] { width: 150px; }
+#return-table th[data-column="sales_employee"],
+#return-table td[data-column="sales_employee"] { width: 120px; }
+#return-table th[data-column="item_code"],
+#return-table td[data-column="item_code"] { width: 100px; }
+#return-table th[data-column="item_name"],
+#return-table td[data-column="item_name"] { width: 120px; }
+#return-table th[data-column="unit"],
+#return-table td[data-column="unit"] { width: 80px; }
+#return-table th[data-column="quantity"],
+#return-table td[data-column="quantity"] { width: 80px; }
+#return-table th[data-column="unit_price"],
+#return-table td[data-column="unit_price"] { width: 100px; }
+#return-table th[data-column="total_amount"],
+#return-table td[data-column="total_amount"] { width: 120px; }
+#return-table th[data-column="payable_amount"],
+#return-table td[data-column="payable_amount"] { width: 120px; }
+#return-table th[data-column="paid_amount"],
+#return-table td[data-column="paid_amount"] { width: 120px; }
+#return-table th[data-column="due_amount"],
+#return-table td[data-column="due_amount"] { width: 120px; }
+#return-table th[data-column="status"],
+#return-table td[data-column="status"] { width: 100px; }
+#return-table thead th {
+    position: sticky;
+    top: 0;
+    background-color: hsl(var(--background));
+    z-index: 10;
+}
+#return-table::-webkit-scrollbar { width: 8px; height: 8px; }
+#return-table::-webkit-scrollbar-thumb { background-color: hsl(var(--muted)); border-radius: 4px; }
+#return-table::-webkit-scrollbar-track { background-color: hsl(var(--background)); }
+.sort-asc::after { content: " ↑"; color: #3b82f6; }
+.sort-desc::after { content: " ↓"; color: #3b82f6; }
+#pivot-table-output .pvtTable { background-color: white !important; border: 1px solid #e5e7eb !important; }
+#pivot-table-output .pvtTable th { background-color: #f9fafb !important; color: #374151 !important; border: 1px solid #e5e7eb !important; }
+#pivot-table-output .pvtTable td { background-color: white !important; color: #374151 !important; border: 1px solid #e5e7eb !important; }
+#pivot-table-output .pvtUi { background-color: white !important; color: #374151 !important; }
+#pivot-table-output .pvtAxisContainer { background-color: #f9fafb !important; border: 1px solid #e5e7eb !important; }
+#pivot-table-output .pvtVals { background-color: #f9fafb !important; border: 1px solid #e5e7eb !important; }
+#pivot-table-output select { background-color: white !important; color: #374151 !important; border: 1px solid #d1d5db !important; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/pivot.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/pivot.min.css">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function calculateTotals() {
+        let totalQuantity = 0, totalUnitPrice = 0, totalTotalAmount = 0;
+        let totalPayableAmount = 0, totalPaidAmount = 0, totalDueAmount = 0;
+        const rows = document.querySelectorAll('#return-table tbody tr');
+        rows.forEach(row => {
+            const quantityCell = row.querySelector('td[data-column="quantity"]');
+            const unitPriceCell = row.querySelector('td[data-column="unit_price"]');
+            const totalAmountCell = row.querySelector('td[data-column="total_amount"]');
+            const payableAmountCell = row.querySelector('td[data-column="payable_amount"]');
+            const paidAmountCell = row.querySelector('td[data-column="paid_amount"]');
+            const dueAmountCell = row.querySelector('td[data-column="due_amount"]');
+            
+            if (quantityCell) totalQuantity += parseFloat(quantityCell.textContent.trim()) || 0;
+            if (unitPriceCell) totalUnitPrice += parseFloat(unitPriceCell.textContent.trim()) || 0;
+            if (totalAmountCell) totalTotalAmount += parseFloat(totalAmountCell.textContent.trim()) || 0;
+            if (payableAmountCell) totalPayableAmount += parseFloat(payableAmountCell.textContent.trim()) || 0;
+            if (paidAmountCell) totalPaidAmount += parseFloat(paidAmountCell.textContent.trim()) || 0;
+            if (dueAmountCell) totalDueAmount += parseFloat(dueAmountCell.textContent.trim()) || 0;
+        });
+        
+        document.getElementById('total_quantity').textContent = totalQuantity.toFixed(2);
+        document.getElementById('total_unit_price').textContent = totalUnitPrice.toFixed(2);
+        document.getElementById('total_total_amount').textContent = totalTotalAmount.toFixed(2);
+        document.getElementById('total_payable_amount').textContent = totalPayableAmount.toFixed(2);
+        document.getElementById('total_paid_amount').textContent = totalPaidAmount.toFixed(2);
+        document.getElementById('total_due_amount').textContent = totalDueAmount.toFixed(2);
+    }
+    calculateTotals();
+
+    let sortDirection = {};
+    const sortIcons = { asc: ' ↑', desc: ' ↓' };
+
+    function sortTable(column) {
+        const tbody = document.querySelector('#return-table tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const th = document.querySelector(`th[data-column="${column}"]`);
+        const sortSpan = document.getElementById(`sort-${column}`);
+
+        sortDirection[column] = sortDirection[column] === 'asc' ? 'desc' : 'asc';
+
+        document.querySelectorAll('th span').forEach(span => span.textContent = '');
+        sortSpan.textContent = sortIcons[sortDirection[column]];
+        th.classList.remove('sort-asc', 'sort-desc');
+        th.classList.add(`sort-${sortDirection[column]}`);
+
+        rows.sort((a, b) => {
+            const aValue = a.querySelector(`td[data-column="${column}"]`)?.textContent.trim() || '';
+            const bValue = b.querySelector(`td[data-column="${column}"]`)?.textContent.trim() || '';
+
+            if (!isNaN(aValue) && !isNaN(bValue)) {
+                return sortDirection[column] === 'asc' ? parseFloat(aValue) - parseFloat(bValue) : parseFloat(bValue) - parseFloat(aValue);
+            } else if (column === 'date') {
+                const aDate = new Date(aValue.split(',').reverse().join('-'));
+                const bDate = new Date(bValue.split(',').reverse().join('-'));
+                return sortDirection[column] === 'asc' ? aDate - bDate : bDate - aDate;
+            } else {
+                return sortDirection[column] === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+            }
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+        calculateTotals();
+    }
+
+    document.getElementById('search-input').addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#return-table tbody tr');
+
+        rows.forEach(row => {
+            const customerCell = row.querySelector('td[data-column="customer"]')?.textContent.toLowerCase() || '';
+            const salesEmployeeCell = row.querySelector('td[data-column="sales_employee"]')?.textContent.toLowerCase() || '';
+            if (customerCell.includes(searchTerm) || salesEmployeeCell.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        calculateTotals();
+    });
+
+    function createModal(id, title, content, size = 'default') {
+        const modal = document.createElement('div');
+        modal.id = id;
+        modal.className = 'hidden fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 backdrop-blur-sm';
+        modal.innerHTML = `
+            <div class="bg-white mx-auto mt-20 p-0 border border-gray-200 rounded-xl w-11/12 ${size === 'large' ? 'max-w-7xl' : 'max-w-lg'} shadow-2xl relative animate-in slide-in-from-bottom-4 duration-300">
+                <div class="bg-white px-6 pt-6 pb-0 border-b border-gray-200 rounded-t-xl relative">
+                    <h2 class="text-lg font-semibold text-gray-900">${title}</h2>
+                    <button class="absolute right-4 top-4 bg-gray-100 hover:bg-gray-200 border-0 rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200 text-gray-600 hover:text-gray-800 hover:scale-105 z-10" data-close-modal="${id}">×</button>
+                </div>
+                <div class="bg-white px-6 py-6 max-h-[70vh] overflow-y-auto rounded-b-xl">
+                    ${content}
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        return modal;
+    }
+
+    const filterModal = createModal('filter-modal', '{% trans "Filter Returns" %}', `
+        <form id="filter-form" class="space-y-5">
+            <div class="mb-5">
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Search Return ID" %}</label>
+                <input type="text" name="search" value="{{ search_term|default:'' }}" placeholder="{% trans 'Search Return ID...' %}" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="mb-5">
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Start Date" %}</label>
+                    <input type="date" name="start_date" value="{{ start_date|default:'' }}" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                </div>
+                <div class="mb-5">
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "End Date" %}</label>
+                    <input type="date" name="end_date" value="{{ end_date|default:'' }}" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                </div>
+            </div>
+            <div class="mb-5">
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Customer" %}</label>
+                <select name="customer" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 cursor-pointer">
+                    <option value="">{% trans "All Customers" %}</option>
+                    {% for customer in all_customers %}
+                        <option value="{{ customer.id }}" {% if selected_customer and selected_customer.id == customer.id %}selected{% endif %}>{{ customer.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-5">
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Sales Employee" %}</label>
+                <select name="sales_employee" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 cursor-pointer">
+                    <option value="">{% trans "All Sales Employees" %}</option>
+                    {% for employee in all_sales_employees %}
+                        <option value="{{ employee.id }}" {% if selected_employee and selected_employee.id == employee.id %}selected{% endif %}>{{ employee.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex gap-3 pt-4">
+                <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 h-9 px-4 py-2 shadow-md transition-all duration-200">
+                    {% trans "Apply Filter" %}
+                </button>
+                <button type="button" id="clear-filters" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 h-9 px-4 py-2 shadow-sm transition-all duration-200">
+                    {% trans "Clear" %}
+                </button>
+            </div>
+        </form>
+    `);
+
+    const pivotModal = createModal('pivot-modal', '{% trans "Return Pivot Table" %}', `
+        <div id="pivot-table-output" class="bg-white rounded-lg p-4 min-h-96"></div>
+    `, 'large');
+
+    const columnsModal = createModal('columns-modal', '{% trans "Customize Columns" %}', `
+        <p class="text-sm text-gray-600 mb-4">{% trans "Select columns to display." %}</p>
+        <ul id="sortable-columns" class="space-y-2"></ul>
+        <div class="pt-4 text-center">
+            <button id="save-columns" class="inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 h-9 px-4 py-2 shadow-md transition-all duration-200">
+                {% trans "Save Changes" %}
+            </button>
+        </div>
+    `);
+
+    const toast = document.createElement('div');
+    toast.id = 'copy-feedback';
+    toast.className = 'hidden fixed top-6 right-6 z-50 bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-xl';
+    toast.innerHTML = `
+        <div class="flex items-center space-x-3">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                <svg class="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div>
+                <p class="font-medium text-gray-900">{% trans "Success!" %}</p>
+                <p class="text-sm text-gray-600">{% trans "Copied to clipboard!" %}</p>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+
+    function updatePaginationLinks() {
+        const links = document.querySelectorAll('.pagination-link');
+        const params = new URLSearchParams(window.location.search);
+        links.forEach(link => {
+            const page = link.dataset.page;
+            params.set('page', page);
+            link.href = '?' + params.toString();
+        });
+    }
+    updatePaginationLinks();
+
+    document.addEventListener('click', function(e) {
+        if (e.target.dataset.closeModal) {
+            document.getElementById(e.target.dataset.closeModal).classList.add('hidden');
+        }
+        if (e.target.classList.contains('bg-black')) {
+            e.target.classList.add('hidden');
+        }
+    });
+
+    document.getElementById('filter-button').addEventListener('click', function() {
+        filterModal.classList.remove('hidden');
+    });
+
+    document.getElementById('export-csv').addEventListener('click', function() {
+        const table = document.getElementById('return-table');
+        const rows = table.querySelectorAll('tbody tr');
+        const footer = table.querySelector('tfoot tr');
+        const columnDefs = [
+            { id: 'return', label: '{% trans "RETURN #" %}' },
+            { id: 'date', label: '{% trans "DATE" %}' },
+            { id: 'customer', label: '{% trans "CUSTOMER" %}' },
+            { id: 'sales_employee', label: '{% trans "SALES EMPLOYEE" %}' },
+            { id: 'item_code', label: '{% trans "ITEM CODE" %}' },
+            { id: 'item_name', label: '{% trans "ITEM NAME" %}' },
+            { id: 'unit', label: '{% trans "UNIT" %}' },
+            { id: 'quantity', label: '{% trans "QUANTITY" %}' },
+            { id: 'unit_price', label: '{% trans "UNIT PRICE" %}' },
+            { id: 'total_amount', label: '{% trans "TOTAL AMOUNT" %}' },
+            { id: 'payable_amount', label: '{% trans "PAYABLE AMOUNT" %}' },
+            { id: 'paid_amount', label: '{% trans "PAID AMOUNT" %}' },
+            { id: 'due_amount', label: '{% trans "DUE AMOUNT" %}' },
+            { id: 'status', label: '{% trans "STATUS" %}' }
+        ];
+        let csvContent = [];
+
+        csvContent.push(columnDefs.map(col => `"${col.label.replace(/"/g, '""')}"`).join(','));
+
+        rows.forEach(row => {
+            const rowData = columnDefs.map(col => {
+                const cell = row.querySelector(`td[data-column="${col.id}"]`);
+                if (!cell) return '""';
+                return `"${cell.textContent.trim().replace(/"/g, '""')}"`;
+            });
+            csvContent.push(rowData.join(','));
+        });
+
+        if (footer) {
+            const footerData = columnDefs.map(col => {
+                const cell = footer.querySelector(`td[data-column="${col.id}"]`);
+                return cell ? `"${cell.textContent.trim().replace(/"/g, '""')}"` : '""';
+            });
+            csvContent.push(footerData.join(','));
+        }
+
+        const csv = csvContent.join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'return_report_details.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('copy-clipboard').addEventListener('click', function() {
+        const table = document.getElementById('return-table');
+        const rows = table.querySelectorAll('tbody tr');
+        const footer = table.querySelector('tfoot tr');
+        const columnDefs = [
+            { id: 'return', label: '{% trans "RETURN #" %}' },
+            { id: 'date', label: '{% trans "DATE" %}' },
+            { id: 'customer', label: '{% trans "CUSTOMER" %}' },
+            { id: 'sales_employee', label: '{% trans "SALES EMPLOYEE" %}' },
+            { id: 'item_code', label: '{% trans "ITEM CODE" %}' },
+            { id: 'item_name', label: '{% trans "ITEM NAME" %}' },
+            { id: 'unit', label: '{% trans "UNIT" %}' },
+            { id: 'quantity', label: '{% trans "QUANTITY" %}' },
+            { id: 'unit_price', label: '{% trans "UNIT PRICE" %}' },
+            { id: 'total_amount', label: '{% trans "TOTAL AMOUNT" %}' },
+            { id: 'payable_amount', label: '{% trans "PAYABLE AMOUNT" %}' },
+            { id: 'paid_amount', label: '{% trans "PAID AMOUNT" %}' },
+            { id: 'due_amount', label: '{% trans "DUE AMOUNT" %}' },
+            { id: 'status', label: '{% trans "STATUS" %}' }
+        ];
+        let tsvContent = [];
+
+        tsvContent.push(columnDefs.map(col => col.label).join('\t'));
+
+        rows.forEach(row => {
+            const rowData = columnDefs.map(col => {
+                const cell = row.querySelector(`td[data-column="${col.id}"]`);
+                if (!cell) return '';
+                return cell.textContent.trim();
+            });
+            tsvContent.push(rowData.join('\t'));
+        });
+
+        if (footer) {
+            const footerData = columnDefs.map(col => {
+                const cell = footer.querySelector(`td[data-column="${col.id}"]`);
+                return cell ? cell.textContent.trim() : '';
+            });
+            tsvContent.push(footerData.join('\t'));
+        }
+
+        const tsv = tsvContent.join('\n');
+        navigator.clipboard.writeText(tsv).then(() => {
+            document.getElementById('copy-feedback').classList.remove('hidden');
+            setTimeout(() => document.getElementById('copy-feedback').classList.add('hidden'), 3000);
+        }).catch(err => console.error('Failed to copy:', err));
+    });
+
+    document.getElementById('pivot-table').addEventListener('click', function() {
+        pivotModal.classList.remove('hidden');
+        const table = document.getElementById('return-table');
+        const rows = table.querySelectorAll('tbody tr');
+        const data = [];
+        rows.forEach(row => {
+            const cols = row.querySelectorAll('td');
+            if (cols.length > 0) {
+                const dateStr = cols[1].textContent.trim();
+                const date = new Date(dateStr);
+                const month = date.toLocaleString('default', { month: 'long' });
+                const year = date.getFullYear();
+                data.push({
+                    'RETURN #': cols[0].textContent.trim(),
+                    'DATE': dateStr,
+                    'MONTH': month,
+                    'YEAR': year,
+                    'CUSTOMER': cols[2].textContent.trim(),
+                    'SALES EMPLOYEE': cols[3].textContent.trim(),
+                    'ITEM CODE': cols[4].textContent.trim(),
+                    'ITEM NAME': cols[5].textContent.trim(),
+                    'UNIT': cols[6].textContent.trim(),
+                    'QUANTITY': parseFloat(cols[7].textContent.trim()) || 0,
+                    'UNIT PRICE': parseFloat(cols[8].textContent.trim()) || 0,
+                    'TOTAL AMOUNT': parseFloat(cols[9].textContent.trim()) || 0,
+                    'PAYABLE AMOUNT': parseFloat(cols[10].textContent.trim()) || 0,
+                    'PAID AMOUNT': parseFloat(cols[11].textContent.trim()) || 0,
+                    'DUE AMOUNT': parseFloat(cols[12].textContent.trim()) || 0,
+                    'STATUS': cols[13].textContent.trim()
+                });
+            }
+        });
+        if (data.length === 0) {
+            document.getElementById('pivot-table-output').innerHTML = '<p class="text-center text-gray-600">{% trans "No data available for pivot table." %}</p>';
+            return;
+        }
+        $('#pivot-table-output').pivotUI(data, {
+            rows: ['YEAR', 'MONTH'],
+            cols: ['CUSTOMER'],
+            vals: ['TOTAL AMOUNT', 'QUANTITY', 'PAYABLE AMOUNT', 'PAID AMOUNT', 'DUE AMOUNT'],
+            aggregators: {
+                'Sum of TOTAL AMOUNT': function() { return $.pivotUtilities.aggregatorTemplates.sum()(['TOTAL AMOUNT']); },
+                'Sum of QUANTITY': function() { return $.pivotUtilities.aggregatorTemplates.sum()(['QUANTITY']); },
+                'Sum of PAYABLE AMOUNT': function() { return $.pivotUtilities.aggregatorTemplates.sum()(['PAYABLE AMOUNT']); },
+                'Sum of PAID AMOUNT': function() { return $.pivotUtilities.aggregatorTemplates.sum()(['PAID AMOUNT']); },
+                'Sum of DUE AMOUNT': function() { return $.pivotUtilities.aggregatorTemplates.sum()(['DUE AMOUNT']); },
+                'Count': function() { return $.pivotUtilities.aggregatorTemplates.count()(); }
+            },
+            aggregatorName: 'Sum of TOTAL AMOUNT',
+            rendererName: 'Table'
+        });
+    });
+
+    document.getElementById('customize-columns').addEventListener('click', function() {
+        columnsModal.classList.remove('hidden');
+        populateColumnsModal();
+    });
+
+    const defaultColumns = [
+        { id: 'return', label: 'RETURN #', visible: true },
+        { id: 'date', label: 'DATE', visible: true },
+        { id: 'customer', label: 'CUSTOMER', visible: true },
+        { id: 'sales_employee', label: 'SALES EMPLOYEE', visible: true },
+        { id: 'item_code', label: 'ITEM CODE', visible: true },
+        { id: 'item_name', label: 'ITEM NAME', visible: true },
+        { id: 'unit', label: 'UNIT', visible: true },
+        { id: 'quantity', label: 'QUANTITY', visible: true },
+        { id: 'unit_price', label: 'UNIT PRICE', visible: true },
+        { id: 'total_amount', label: 'TOTAL AMOUNT', visible: true },
+        { id: 'payable_amount', label: 'PAYABLE AMOUNT', visible: true },
+        { id: 'paid_amount', label: 'PAID AMOUNT', visible: true },
+        { id: 'due_amount', label: 'DUE AMOUNT', visible: true },
+        { id: 'status', label: 'STATUS', visible: true }
+    ];
+
+    let currentColumns = [...defaultColumns];
+
+    function applyColumnPrefs(prefs) {
+        const headers = document.querySelectorAll('#return-table th');
+        const rows = document.querySelectorAll('#return-table tbody tr');
+        const footerRow = document.querySelector('#return-table tfoot tr');
+        
+        headers.forEach(header => {
+            const colId = header.dataset.column;
+            const pref = prefs.find(p => p.id === colId);
+            header.style.display = pref && pref.visible ? '' : 'none';
+        });
+        
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            cells.forEach(cell => {
+                const colId = cell.dataset.column;
+                const pref = prefs.find(p => p.id === colId);
+                cell.style.display = pref && pref.visible ? '' : 'none';
+            });
+        });
+        
+        if (footerRow) {
+            const footerCells = footerRow.querySelectorAll('td');
+            footerCells.forEach(cell => {
+                const colId = cell.dataset.column;
+                const pref = prefs.find(p => p.id === colId);
+                cell.style.display = pref && pref.visible ? '' : 'none';
+            });
+        }
+        calculateTotals();
+    }
+
+    function populateColumnsModal() {
+        const sortableList = document.getElementById('sortable-columns');
+        sortableList.innerHTML = '';
+        currentColumns.forEach(col => {
+            const li = document.createElement('li');
+            li.className = 'px-4 py-3 bg-gray-50 my-2 rounded-lg cursor-pointer flex justify-between items-center border border-gray-200 transition-all duration-200 hover:bg-gray-100 hover:-translate-y-0.5 hover:shadow-md';
+            li.dataset.id = col.id;
+            li.innerHTML = `
+                <span class="font-medium text-gray-700">${col.label}</span>
+                <input type="checkbox" ${col.visible ? 'checked' : ''} data-id="${col.id}" class="accent-blue-600">
+            `;
+            sortableList.appendChild(li);
+        });
+    }
+
+    document.getElementById('save-columns').addEventListener('click', function() {
+        const items = document.querySelectorAll('#sortable-columns li');
+        currentColumns = Array.from(items).map(item => {
+            const id = item.dataset.id;
+            const checkbox = item.querySelector('input');
+            return { id, label: defaultColumns.find(col => col.id === id).label, visible: checkbox.checked };
+        });
+        applyColumnPrefs(currentColumns);
+        columnsModal.classList.add('hidden');
+    });
+
+    document.getElementById('filter-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const params = new URLSearchParams(formData).toString();
+        window.location.search = params;
+        filterModal.classList.add('hidden');
+    });
+
+    document.getElementById('clear-filters').addEventListener('click', function() {
+        document.getElementById('filter-form').reset();
+        window.location.search = '';
+        filterModal.classList.add('hidden');
+    });
+});
+</script>
+{% endblock %}

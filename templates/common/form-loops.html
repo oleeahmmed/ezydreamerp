@@ -1,0 +1,486 @@
+{% for field in form %}
+    <div class="mb-1.5 {% if field.field.widget.input_type == 'select-multiple' or field.field.widget.input_type == 'file' or field.field.widget.input_type == 'checkbox' and field.field.choices %}w-full{% endif %}">
+        {% if field.field.widget.input_type == 'text' or field.field.widget.input_type == 'email' or field.field.widget.input_type == 'password' or field.field.widget.input_type == 'number' or field.field.widget.input_type == 'url' %}
+            <!-- Text, Email, Password, Number, URL Input - SAP Style -->
+            <div class="relative rounded-[calc(var(--radius)-2px)] border border-[hsl(var(--border))]">
+                <div class="flex items-center">
+                    <label for="{{ field.id_for_label }}" 
+                        class="text-xs font-medium text-[hsl(var(--foreground))] min-w-[110px] px-2 py-1 bg-[hsl(var(--muted))]">
+                        {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}:
+                    </label>
+                    <input type="{{ field.field.widget.input_type }}" 
+                        id="{{ field.id_for_label }}" 
+                        name="{{ field.name }}"
+                        value="{{ field.value|default:'' }}"
+                        {% if field.field.required %}required{% endif %}
+                        {% if field.field.widget.attrs.min %}min="{{ field.field.widget.attrs.min }}"{% endif %}
+                        {% if field.field.widget.attrs.max %}max="{{ field.field.widget.attrs.max }}"{% endif %}
+                        {% if is_disabled %}disabled{% endif %}
+                        class="w-full h-7 px-2 py-0 rounded-r-[calc(var(--radius)-2px)] border-0 border-l border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] text-sm transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                </div>
+                {% if field.errors %}
+                <div class="text-[hsl(var(--destructive))] text-xs px-2 py-0.5">
+                    {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if field.help_text %}
+                <div class="text-xs text-[hsl(var(--muted-foreground))] px-2 py-0.5">
+                    {{ field.help_text }}
+                </div>
+                {% endif %}
+            </div>
+
+        {% elif field.field.widget.input_type == 'datetime-local' or field.field|default:""|stringformat:"s"|lower|slice:":8" == "datetime" %}
+            <!-- Datetime Input - SAP Style -->
+            <div class="relative rounded-[calc(var(--radius)-2px)] border border-[hsl(var(--border))]">
+                <div class="flex items-center">
+                    <label for="{{ field.id_for_label }}" 
+                        class="text-xs font-medium text-[hsl(var(--foreground))] min-w-[110px] px-2 py-1 bg-[hsl(var(--muted))]">
+                        {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}:
+                    </label>
+                    <div class="relative w-full">
+                        <input type="datetime-local" 
+                            id="{{ field.id_for_label }}" 
+                            name="{{ field.name }}"
+                            value="{% if field.value %}{{ field.value|date:'Y-m-d' }}T{{ field.value|time:'H:i' }}{% endif %}"
+                            {% if field.field.required %}required{% endif %}
+                            {% if is_disabled %}disabled{% endif %}
+                            class="w-full h-7 px-2 py-0 rounded-r-[calc(var(--radius)-2px)] border-0 border-l border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] text-sm transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                    </div>
+                </div>
+                {% if field.errors %}
+                <div class="text-[hsl(var(--destructive))] text-xs px-2 py-0.5">
+                    {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if field.help_text %}
+                <div class="text-xs text-[hsl(var(--muted-foreground))] px-2 py-0.5">
+                    {{ field.help_text }}
+                </div>
+                {% endif %}
+            </div>
+
+        {% elif field.field.widget.input_type == 'date' %}
+            <!-- Date Input - SAP Style -->
+            <div class="relative rounded-[calc(var(--radius)-2px)] border border-[hsl(var(--border))]">
+                <div class="flex items-center">
+                    <label for="{{ field.id_for_label }}" 
+                        class="text-xs font-medium text-[hsl(var(--foreground))] min-w-[110px] px-2 py-1 bg-[hsl(var(--muted))]">
+                        {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}:
+                    </label>
+                    <div class="relative w-full">
+                        <input type="date" 
+                            id="{{ field.id_for_label }}" 
+                            name="{{ field.name }}"
+                            value="{{ field.value|date:'Y-m-d'|default:'' }}"
+                            {% if field.field.required %}required{% endif %}
+                            {% if is_disabled %}disabled{% endif %}
+                            class="w-full h-7 px-2 py-0 rounded-r-[calc(var(--radius)-2px)] border-0 border-l border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] text-sm transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute right-2 top-1.5 text-[hsl(var(--muted-foreground))]">
+                            <path d="M8 2v4"></path>
+                            <path d="M16 2v4"></path>
+                            <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+                            <path d="M3 10h18"></path>
+                        </svg>
+                    </div>
+                </div>
+                {% if field.errors %}
+                <div class="text-[hsl(var(--destructive))] text-xs px-2 py-0.5">
+                    {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if field.help_text %}
+                <div class="text-xs text-[hsl(var(--muted-foreground))] px-2 py-0.5">
+                    {{ field.help_text }}
+                </div>
+                {% endif %}
+            </div>
+
+        {% elif field.field.widget.input_type == 'time' %}
+            <!-- Time Input - SAP Style -->
+            <div class="relative rounded-[calc(var(--radius)-2px)] border border-[hsl(var(--border))]">
+                <div class="flex items-center">
+                    <label for="{{ field.id_for_label }}" 
+                        class="text-xs font-medium text-[hsl(var(--foreground))] min-w-[110px] px-2 py-1 bg-[hsl(var(--muted))]">
+                        {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}:
+                    </label>
+                    <div class="relative w-full">
+                        <input type="time" 
+                            id="{{ field.id_for_label }}" 
+                            name="{{ field.name }}"
+                            value="{{ field.value|time:'H:i'|default:'' }}"
+                            {% if field.field.required %}required{% endif %}
+                            {% if is_disabled %}disabled{% endif %}
+                            class="w-full h-7 px-2 py-0 rounded-r-[calc(var(--radius)-2px)] border-0 border-l border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] text-sm transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute right-2 top-1.5 text-[hsl(var(--muted-foreground))]">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                </div>
+                {% if field.errors %}
+                <div class="text-[hsl(var(--destructive))] text-xs px-2 py-0.5">
+                    {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if field.help_text %}
+                <div class="text-xs text-[hsl(var(--muted-foreground))] px-2 py-0.5">
+                    {{ field.help_text }}
+                </div>
+                {% endif %}
+            </div>
+
+        {% elif field.field.widget.input_type == 'color' %}
+            <!-- Color Input - SAP Style -->
+            <div class="relative rounded-[calc(var(--radius)-2px)] border border-[hsl(var(--border))]">
+                <div class="flex items-center">
+                    <label for="{{ field.id_for_label }}" 
+                        class="text-xs font-medium text-[hsl(var(--foreground))] min-w-[110px] px-2 py-1 bg-[hsl(var(--muted))]">
+                        {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}:
+                    </label>
+                    <div class="flex items-center w-full">
+                        <input type="color" 
+                            id="{{ field.id_for_label }}" 
+                            name="{{ field.name }}"
+                            value="{{ field.value|default:'#000000' }}"
+                            {% if field.field.required %}required{% endif %}
+                            {% if is_disabled %}disabled{% endif %}
+                            class="w-10 h-7 px-0 py-0 rounded-none border-0 border-l border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] cursor-pointer">
+                        <span class="text-xs px-2 text-[hsl(var(--foreground))]">{{ field.value|default:'#000000' }}</span>
+                    </div>
+                </div>
+                {% if field.errors %}
+                <div class="text-[hsl(var(--destructive))] text-xs px-2 py-0.5">
+                    {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if field.help_text %}
+                <div class="text-xs text-[hsl(var(--muted-foreground))] px-2 py-0.5">
+                    {{ field.help_text }}
+                </div>
+                {% endif %}
+            </div>
+
+        {% elif field.field.widget.input_type == 'range' %}
+            <!-- Range Input - SAP Style -->
+            <div class="relative rounded-[calc(var(--radius)-2px)] border border-[hsl(var(--border))]">
+                <div class="flex items-center">
+                    <label for="{{ field.id_for_label }}" 
+                        class="text-xs font-medium text-[hsl(var(--foreground))] min-w-[110px] px-2 py-1 bg-[hsl(var(--muted))]">
+                        {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}:
+                    </label>
+                    <div class="flex items-center w-full px-2 h-7">
+                        <input type="range" 
+                            id="{{ field.id_for_label }}" 
+                            name="{{ field.name }}"
+                            min="{{ field.field.widget.attrs.min|default:0 }}" 
+                            max="{{ field.field.widget.attrs.max|default:100 }}"
+                            value="{{ field.value|default:0 }}"
+                            {% if field.field.required %}required{% endif %}
+                            {% if is_disabled %}disabled{% endif %}
+                            class="w-full h-1.5 bg-[hsl(var(--secondary))] rounded-full appearance-none cursor-pointer focus:outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[hsl(var(--primary))] [&::-webkit-slider-thumb]:cursor-pointer">
+                        <span class="text-xs ml-2 min-w-[30px] text-[hsl(var(--foreground))]">{{ field.value|default:0 }}</span>
+                    </div>
+                </div>
+                {% if field.errors %}
+                <div class="text-[hsl(var(--destructive))] text-xs px-2 py-0.5">
+                    {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if field.help_text %}
+                <div class="text-xs text-[hsl(var(--muted-foreground))] px-2 py-0.5">
+                    {{ field.help_text }}
+                </div>
+                {% endif %}
+            </div>
+
+        {% elif field.field.widget.input_type == 'select' %}
+            <!-- Select Input - SAP Style -->
+            <div class="relative rounded-[calc(var(--radius)-2px)] border border-[hsl(var(--border))]">
+                <div class="flex items-center">
+                    <label for="{{ field.id_for_label }}" 
+                        class="text-xs font-medium text-[hsl(var(--foreground))] min-w-[110px] px-2 py-1 bg-[hsl(var(--muted))]">
+                        {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}:
+                    </label>
+                    <div class="relative w-full">
+                        <select id="{{ field.id_for_label }}" 
+                            name="{{ field.name }}"
+                            {% if field.field.required %}required{% endif %}
+                            {% if is_disabled %}disabled{% endif %}
+                            class="w-full h-7 px-2 py-0 rounded-r-[calc(var(--radius)-2px)] border-0 border-l border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] text-sm transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-[hsl(var(--primary))] appearance-none">
+                            <option value="" disabled {% if not field.value %}selected{% endif %}></option>
+                            {% for choice in field.field.choices %}
+                                <option value="{{ choice.0 }}" {% if field.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                    {{ choice.1 }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <svg class="absolute right-2 top-1.5 w-4 h-4 pointer-events-none text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+                {% if field.errors %}
+                <div class="text-[hsl(var(--destructive))] text-xs px-2 py-0.5">
+                    {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if field.help_text %}
+                <div class="text-xs text-[hsl(var(--muted-foreground))] px-2 py-0.5">
+                    {{ field.help_text }}
+                </div>
+                {% endif %}
+            </div>
+
+        {% elif field.field.widget.input_type == 'select-multiple' %}
+            <!-- Multiple Select - SAP Style -->
+            <div class="relative rounded-[calc(var(--radius)-2px)] border border-[hsl(var(--border))]">
+                <div class="flex flex-col">
+                    <label for="{{ field.id_for_label }}" 
+                        class="text-xs font-medium text-[hsl(var(--foreground))] w-full px-2 py-1 bg-[hsl(var(--muted))]">
+                        {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}:
+                    </label>
+                    <select id="{{ field.id_for_label }}" 
+                        name="{{ field.name }}" 
+                        multiple 
+                        size="3"
+                        {% if field.field.required %}required{% endif %}
+                        {% if is_disabled %}disabled{% endif %}
+                        class="w-full px-2 py-1 border-t border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] text-sm transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                        {% for choice in field.field.choices %}
+                            <option value="{{ choice.0 }}" {% if choice.0 in field.value %}selected{% endif %}>
+                                {{ choice.1 }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if field.errors %}
+                <div class="text-[hsl(var(--destructive))] text-xs px-2 py-0.5">
+                    {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if field.help_text %}
+                <div class="text-xs text-[hsl(var(--muted-foreground))] px-2 py-0.5">
+                    {{ field.help_text }}
+                </div>
+                {% endif %}
+            </div>
+
+        {% elif field.field.widget.input_type == 'radio' %}
+            <!-- Radio Buttons - SAP Style -->
+            <div class="relative rounded-[calc(var(--radius)-2px)] border border-[hsl(var(--border))]">
+                <div class="flex flex-col">
+                    <label class="text-xs font-medium text-[hsl(var(--foreground))] w-full px-2 py-1 bg-[hsl(var(--muted))]">
+                        {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}:
+                    </label>
+                    <div class="p-2 space-y-1">
+                        {% for choice in field.field.choices %}
+                            <div class="flex items-center gap-2">
+                                <input type="radio" 
+                                    id="{{ field.id_for_label }}_{{ forloop.counter }}" 
+                                    name="{{ field.name }}" 
+                                    value="{{ choice.0 }}"
+                                    {% if field.value|stringformat:"s" == choice.0|stringformat:"s" %}checked{% endif %}
+                                    {% if field.field.required %}required{% endif %}
+                                    {% if is_disabled %}disabled{% endif %}
+                                    class="w-3.5 h-3.5 text-[hsl(var(--primary))] border-[hsl(var(--border))] focus:ring-[hsl(var(--primary))]">
+                                <label for="{{ field.id_for_label }}_{{ forloop.counter }}" class="text-xs text-[hsl(var(--foreground))]">{{ choice.1 }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% if field.errors %}
+                <div class="text-[hsl(var(--destructive))] text-xs px-2 py-0.5">
+                    {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if field.help_text %}
+                <div class="text-xs text-[hsl(var(--muted-foreground))] px-2 py-0.5">
+                    {{ field.help_text }}
+                </div>
+                {% endif %}
+            </div>
+
+        {% elif field.field.widget.input_type == 'checkbox' %}
+            {% if field.field.choices %}
+                <!-- Checkbox Group - SAP Style -->
+                <div class="relative rounded-[calc(var(--radius)-2px)] border border-[hsl(var(--border))]">
+                    <div class="flex flex-col">
+                        <label class="text-xs font-medium text-[hsl(var(--foreground))] w-full px-2 py-1 bg-[hsl(var(--muted))]">
+                            {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}:
+                        </label>
+                        <div class="p-2 space-y-1">
+                            {% for choice in field.field.choices %}
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" 
+                                        id="{{ field.id_for_label }}_{{ forloop.counter }}" 
+                                        name="{{ field.name }}" 
+                                        value="{{ choice.0 }}"
+                                        {% if choice.0 in field.value %}checked{% endif %}
+                                        {% if is_disabled %}disabled{% endif %}
+                                        class="w-3.5 h-3.5 text-[hsl(var(--primary))] border-[hsl(var(--border))] rounded focus:ring-[hsl(var(--primary))]">
+                                    <label for="{{ field.id_for_label }}_{{ forloop.counter }}" class="text-xs text-[hsl(var(--foreground))]">{{ choice.1 }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% if field.errors %}
+                    <div class="text-[hsl(var(--destructive))] text-xs px-2 py-0.5">
+                        {% for error in field.errors %}
+                        <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if field.help_text %}
+                    <div class="text-xs text-[hsl(var(--muted-foreground))] px-2 py-0.5">
+                        {{ field.help_text }}
+                    </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <!-- Single Checkbox - SAP Style -->
+                <div class="relative rounded-[calc(var(--radius)-2px)] border border-[hsl(var(--border))]">
+                    <div class="flex items-center">
+                        <label for="{{ field.id_for_label }}" 
+                            class="text-xs font-medium text-[hsl(var(--foreground))] min-w-[110px] px-2 py-1 bg-[hsl(var(--muted))]">
+                            {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}:
+                        </label>
+                        <div class="flex items-center h-7 px-2">
+                            <input type="checkbox" 
+                                id="{{ field.id_for_label }}" 
+                                name="{{ field.name }}" 
+                                {% if field.value %}checked{% endif %}
+                                {% if field.field.required %}required{% endif %}
+                                {% if is_disabled %}disabled{% endif %}
+                                class="w-4 h-4 text-[hsl(var(--primary))] border-[hsl(var(--border))] rounded focus:ring-[hsl(var(--primary))]">
+                            <span class="text-xs ml-2 text-[hsl(var(--muted-foreground))]">Yes</span>
+                        </div>
+                    </div>
+                    {% if field.errors %}
+                    <div class="text-[hsl(var(--destructive))] text-xs px-2 py-0.5">
+                        {% for error in field.errors %}
+                        <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if field.help_text %}
+                    <div class="text-xs text-[hsl(var(--muted-foreground))] px-2 py-0.5">
+                        {{ field.help_text }}
+                    </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+        {% elif field.field.widget.input_type == 'file' %}
+            <!-- File Input - SAP Style -->
+            <div class="relative rounded-[calc(var(--radius)-2px)] border border-[hsl(var(--border))]">
+                <div class="flex flex-col">
+                    <label for="{{ field.id_for_label }}" 
+                        class="text-xs font-medium text-[hsl(var(--foreground))] w-full px-2 py-1 bg-[hsl(var(--muted))]">
+                        {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}:
+                    </label>
+                    <div class="p-2">
+                        <input type="file" 
+                            id="{{ field.id_for_label }}" 
+                            name="{{ field.name }}"
+                            {% if field.field.required %}required{% endif %}
+                            {% if is_disabled %}disabled{% endif %}
+                            class="w-full text-xs text-[hsl(var(--foreground))] file:mr-2 file:py-1 file:px-2 file:text-xs file:font-medium file:border-0 file:rounded file:bg-[hsl(var(--primary))] file:text-[hsl(var(--primary-foreground))]">
+                        {% if field.value %}
+                        <div class="mt-1 text-xs text-[hsl(var(--muted-foreground))]">
+                            Current: {{ field.value }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if field.errors %}
+                <div class="text-[hsl(var(--destructive))] text-xs px-2 py-0.5">
+                    {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if field.help_text %}
+                <div class="text-xs text-[hsl(var(--muted-foreground))] px-2 py-0.5">
+                    {{ field.help_text }}
+                </div>
+                {% endif %}
+            </div>
+
+        {% elif field.field.widget.input_type == 'textarea' %}
+            <!-- Textarea - SAP Style -->
+            <div class="relative rounded-[calc(var(--radius)-2px)] border border-[hsl(var(--border))]">
+                <div class="flex flex-col">
+                    <label for="{{ field.id_for_label }}" 
+                        class="text-xs font-medium text-[hsl(var(--foreground))] w-full px-2 py-1 bg-[hsl(var(--muted))]">
+                        {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}:
+                    </label>
+                    <textarea id="{{ field.id_for_label }}" 
+                        name="{{ field.name }}" 
+                        rows="3" 
+                        {% if field.field.required %}required{% endif %}
+                        {% if is_disabled %}disabled{% endif %}
+                        endif%}
+                        {% if is_disabled %}disabled{% endif %}
+                        class="w-full px-2 py-1 border-t border-[hsl(var(--border))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] text-sm transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-[hsl(var(--primary))]">{{ field.value|default:'' }}</textarea>
+                </div>
+                {% if field.errors %}
+                <div class="text-[hsl(var(--destructive))] text-xs px-2 py-0.5">
+                    {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if field.help_text %}
+                <div class="text-xs text-[hsl(var(--muted-foreground))] px-2 py-0.5">
+                    {{ field.help_text }}
+                </div>
+                {% endif %}
+            </div>
+
+        {% else %}
+            <!-- Fallback for any other field types - SAP Style -->
+            <div class="relative rounded-[calc(var(--radius)-2px)] border border-[hsl(var(--border))]">
+                <div class="flex items-center">
+                    <label for="{{ field.id_for_label }}" 
+                        class="text-xs font-medium text-[hsl(var(--foreground))] min-w-[110px] px-2 py-1 bg-[hsl(var(--muted))]">
+                        {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}:
+                    </label>
+                    <div class="w-full px-2 py-1">
+                        {{ field }}
+                    </div>
+                </div>
+                {% if field.errors %}
+                <div class="text-[hsl(var(--destructive))] text-xs px-2 py-0.5">
+                    {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if field.help_text %}
+                <div class="text-xs text-[hsl(var(--muted-foreground))] px-2 py-0.5">
+                    {{ field.help_text }}
+                </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endfor %}

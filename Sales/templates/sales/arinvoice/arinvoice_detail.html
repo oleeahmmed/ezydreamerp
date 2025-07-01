@@ -1,0 +1,12 @@
+<!-- Add this to your detail view template -->
+<div class="mt-4">
+    <h3 class="text-lg font-semibold mb-2">Print Invoice</h3>
+    <div class="flex flex-wrap gap-2">
+        <a href="{% url 'Sales:arinvoice_print' arinvoice.id %}?style=default" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-sm" target="_blank">Default</a>
+        <a href="{% url 'Sales:arinvoice_print' arinvoice.id %}?style=modern" class="px-3 py-1 bg-indigo-100 hover:bg-indigo-200 rounded text-sm" target="_blank">Modern</a>
+        <a href="{% url 'Sales:arinvoice_print' arinvoice.id %}?style=minimalist" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-sm" target="_blank">Minimalist</a>
+        <a href="{% url 'Sales:arinvoice_print' arinvoice.id %}?style=blue" class="px-3 py-1 bg-blue-100 hover:bg-blue-200 rounded text-sm" target="_blank">Blue</a>
+        <a href="{% url 'Sales:arinvoice_print' arinvoice.id %}?style=creative" class="px-3 py-1 bg-orange-100 hover:bg-orange-200 rounded text-sm" target="_blank">Creative</a>
+        <a href="{% url 'Sales:arinvoice_print' arinvoice.id %}?style=elegant" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-sm" target="_blank">Elegant</a>
+    </div>
+</div>

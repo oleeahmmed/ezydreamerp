@@ -1,0 +1,181 @@
+{% extends "common/base-list-modern.html" %}
+{% load static %}
+
+{% block list_icon %}
+<svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5C15 6.10457 14.1046 7 13 7H11C9.89543 7 9 6.10457 9 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M9 12H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M9 16H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+{% endblock %}
+
+{% block list_title %}Leave Balances{% endblock %}
+{% block list_subtitle %}Manage employee leave balances{% endblock %}
+
+{% block list_actions %}
+{% if can_create %}
+<a href="{% url 'hrm:leave_balance_create' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-10 px-4 py-2 shadow-md premium-button">
+    <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Add New
+</a>
+{% endif %}
+{% if can_create %}
+<a href="{% url 'hrm:leave_balance_initialize' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:bg-[hsl(var(--secondary-hover))] h-10 px-4 py-2 shadow-md">
+    <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19 14C20.1046 14 21 13.1046 21 12C21 10.8954 20.1046 10 19 10C17.8954 10 17 10.8954 17 12C17 13.1046 17.8954 14 19 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M5 14C6.10457 14 7 13.1046 7 12C7 10.8954 6.10457 10 5 10C3.89543 10 3 10.8954 3 12C3 13.1046 3.89543 14 5 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Initialize Balances
+</a>
+{% endif %}
+{% if can_export %}
+<a href="{% url 'hrm:leave_balance_export' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:bg-[hsl(var(--secondary-hover))] h-10 px-4 py-2 shadow-md">
+    <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Export CSV
+</a>
+{% endif %}
+{% if can_delete %}
+<button id="bulk-delete-button" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-red-100 text-red-700 hover:bg-red-200 h-10 px-4 py-2 shadow-md">
+    <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Bulk Delete
+</button>
+{% endif %}
+{% endblock %}
+
+{% block additional_filters %}
+<div class="flex-grow mr-2">
+    <select name="employee" class="w-full px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+        <option value="">All Employees</option>
+        {% for employee_choice in filter_form.employee.field.queryset %}
+        <option value="{{ employee_choice.id }}" {% if filter_form.employee.value|stringformat:"s" == employee_choice.id|stringformat:"s" %}selected{% endif %}>{{ employee_choice.get_full_name }}</option>
+        {% endfor %}
+    </select>
+</div>
+<div class="flex-grow mr-2">
+    <select name="leave_type" class="w-full px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+        <option value="">All Leave Types</option>
+        {% for leave_type_choice in filter_form.leave_type.field.queryset %}
+        <option value="{{ leave_type_choice.id }}" {% if filter_form.leave_type.value|stringformat:"s" == leave_type_choice.id|stringformat:"s" %}selected{% endif %}>{{ leave_type_choice.name }}</option>
+        {% endfor %}
+    </select>
+</div>
+<div class="flex-grow">
+    <select name="year" class="w-full px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+        <option value="">All Years</option>
+        {% for year_choice in filter_form.year.field.choices %}
+        {% if year_choice.0 %}
+        <option value="{{ year_choice.0 }}" {% if filter_form.year.value == year_choice.0 %}selected{% endif %}>{{ year_choice.1 }}</option>
+        {% endif %}
+        {% endfor %}
+    </select>
+</div>
+{% endblock %}
+
+{% block table_headers %}
+<th scope="col" class="px-6 py-3">
+    <input type="checkbox" id="select-all" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+</th>
+<th scope="col" class="px-6 py-3">Employee</th>
+<th scope="col" class="px-6 py-3">Leave Type</th>
+<th scope="col" class="px-6 py-3">Year</th>
+<th scope="col" class="px-6 py-3">Total Days</th>
+<th scope="col" class="px-6 py-3">Used Days</th>
+<th scope="col" class="px-6 py-3">Available Days</th>
+<th scope="col" class="px-6 py-3 text-right">Actions</th>
+{% endblock %}
+
+{% block table_body %}
+<form id="bulk-delete-form" action="{% url 'hrm:leave_balance_bulk_delete' %}" method="get">
+    {% for object in objects %}
+    <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]">
+        <td class="px-6 py-4">
+            <input type="checkbox" name="ids" value="{{ object.id }}" class="item-checkbox rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+        </td>
+        <td class="px-6 py-4 font-medium">{{ object.employee.get_full_name }}</td>
+        <td class="px-6 py-4">{{ object.leave_type.name }}</td>
+        <td class="px-6 py-4">{{ object.year }}</td>
+        <td class="px-6 py-4">{{ object.total_days }}</td>
+        <td class="px-6 py-4">{{ object.used_days }}</td>
+        <td class="px-6 py-4">{{ object.available_days }}</td>
+        <td class="px-6 py-4 text-right">
+            <div class="flex justify-end gap-2">
+                <a href="{% url 'hrm:leave_balance_detail' object.pk %}" 
+                   class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 12C2 12 5.63636 5 12 5C18.3636 5 22 12 22 12C22 12 18.3636 19 12 19C5.63636 19 2 12 2 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+                <a href="{% url 'hrm:leave_balance_update' object.pk %}" 
+                   class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+                <a href="{% url 'hrm:leave_balance_delete' object.pk %}" 
+                   class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-red-100 hover:text-red-700 h-9 px-3 py-2">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% empty %}
+    <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+        <td colspan="8" class="px-6 py-4 text-center text-[hsl(var(--muted-foreground))]">
+            No leave balances found. {% if can_create %}<a href="{% url 'hrm:leave_balance_create' %}" class="text-[hsl(var(--primary))] hover:underline">Add one now</a> or <a href="{% url 'hrm:leave_balance_initialize' %}" class="text-[hsl(var(--primary))] hover:underline">initialize balances</a>.{% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</form>
+{% endblock %}
+
+{% block empty_colspan %}8{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('select-all');
+    const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+    const bulkDeleteForm = document.getElementById('bulk-delete-form');
+    const bulkDeleteButton = document.getElementById('bulk-delete-button');
+
+    if (selectAllCheckbox && bulkDeleteButton) {
+        // Handle "Select All" checkbox
+        selectAllCheckbox.addEventListener('change', function() {
+            itemCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        });
+
+        // Handle bulk delete button click
+        bulkDeleteButton.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent default button behavior
+            
+            const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
+            if (checkedBoxes.length === 0) {
+                alert('Please select at least one leave balance record to delete.');
+                return;
+            }
+            
+            // Submit the form to redirect to the bulk delete confirmation page
+            bulkDeleteForm.submit();
+        });
+    }
+});
+</script>
+{% endblock %}

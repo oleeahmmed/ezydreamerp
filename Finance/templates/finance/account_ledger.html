@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block page_title %}Account Ledger - {{ account.code }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <!-- Card Container -->
+  <div class="rounded-lg border-2 border-[hsl(var(--border))] bg-[hsl(var(--background))] shadow-sm p-6 sm:p-8">
+    <!-- Header -->
+    <div class="mb-6 border-b border-[hsl(var(--border))] pb-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center justify-center w-14 h-14 rounded-lg bg-gradient-to-r from-[hsl(var(--primary)/0.95)] to-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-md">
+            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10 9H9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-foreground))] bg-clip-text text-transparent">{{ title }}</h3>
+            <p class="text-sm text-[hsl(var(--muted-foreground))]">{{ subtitle }}</p>
+          </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-3">
+          <a href="{% url 'Finance:account_list' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary))] focus-visible:ring-offset-2 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-10 px-4 py-2">
+            <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {% trans "Back to Accounts" %}
+          </a>
+          <button onclick="window.print()" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary))] focus-visible:ring-offset-2 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-10 px-4 py-2">
+            <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 9V2H18V9M6 18H4C3.44772 18 3 17.5523 3 17V11C3 10.4477 3.44772 10 4 10H20C20.5523 10 21 10.4477 21 11V17C21 17.5523 20.5523 18 20 18H18M6 14H18V22H6V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {% trans "Print" %}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Info -->
+    <div class="mb-6 bg-gradient-to-r from-[hsl(var(--muted))] to-[hsl(var(--muted)/0.9)] rounded-lg p-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <div class="text-sm text-[hsl(var(--muted-foreground))]">{% trans "Account Code" %}</div>
+          <div class="font-semibold text-[hsl(var(--foreground))]">{{ account.code }}</div>
+        </div>
+        <div>
+          <div class="text-sm text-[hsl(var(--muted-foreground))]">{% trans "Account Type" %}</div>
+          <div class="font-semibold text-[hsl(var(--foreground))]">{{ account.account_type.name }}</div>
+        </div>
+        <div>
+          <div class="text-sm text-[hsl(var(--muted-foreground))]">{% trans "Total Debits" %}</div>
+          <div class="font-semibold text-[hsl(var(--foreground))]">{{ total_debits|floatformat:2 }}</div>
+        </div>
+        <div>
+          <div class="text-sm text-[hsl(var(--muted-foreground))]">{% trans "Total Credits" %}</div>
+          <div class="font-semibold text-[hsl(var(--foreground))]">{{ total_credits|floatformat:2 }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ledger Table -->
+    <div class="mb-8">
+      <div class="relative overflow-x-auto rounded-lg border border-[hsl(var(--border))] shadow-sm">
+        <table class="w-full text-sm text-left">
+          <thead class="text-xs uppercase bg-gradient-to-r from-[hsl(var(--muted))] to-[hsl(var(--muted)/0.9)] text-[hsl(var(--muted-foreground))]">
+            <tr>
+              <th scope="col" class="px-6 py-3">{% trans "Date" %}</th>
+              <th scope="col" class="px-6 py-3">{% trans "Journal Entry" %}</th>
+              <th scope="col" class="px-6 py-3">{% trans "Description" %}</th>
+              <th scope="col" class="px-6 py-3 text-right">{% trans "Debit" %}</th>
+              <th scope="col" class="px-6 py-3 text-right">{% trans "Credit" %}</th>
+              <th scope="col" class="px-6 py-3 text-right">{% trans "Balance" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in ledger_data %}
+            <tr class="border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]">
+              <td class="px-6 py-4 text-[hsl(var(--foreground))]">{{ item.entry.posting_date|date:"M d, Y" }}</td>
+              <td class="px-6 py-4">
+                <a href="{% url 'Finance:journal_entry_detail' pk=item.entry.journal_entry.id %}" class="text-[hsl(var(--primary))] hover:underline">
+                  {{ item.entry.journal_entry.doc_num }}
+                </a>
+              </td>
+              <td class="px-6 py-4 text-[hsl(var(--foreground))]">{{ item.entry.journal_entry.remarks|truncatechars:50 }}</td>
+              <td class="px-6 py-4 text-right text-[hsl(var(--foreground))]">
+                {% if item.entry.debit_amount > 0 %}{{ item.entry.debit_amount|floatformat:2 }}{% else %}-{% endif %}
+              </td>
+              <td class="px-6 py-4 text-right text-[hsl(var(--foreground))]">
+                {% if item.entry.credit_amount > 0 %}{{ item.entry.credit_amount|floatformat:2 }}{% else %}-{% endif %}
+              </td>
+              <td class="px-6 py-4 text-right font-medium {% if item.running_balance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                {{ item.running_balance|floatformat:2 }}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="px-6 py-8 text-center text-[hsl(var(--muted-foreground))]">
+                <div class="flex flex-col items-center">
+                  <svg class="w-12 h-12 mb-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <p class="text-base font-medium">{% trans "No Transactions Found" %}</p>
+                  <p class="text-sm">{% trans "No ledger entries available for this account." %}</p>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Final Balance -->
+    {% if ledger_data %}
+    <div class="mb-6 bg-gradient-to-r from-[hsl(var(--muted))] to-[hsl(var(--muted)/0.9)] rounded-lg p-6 shadow-sm">
+      <div class="flex justify-between items-center">
+        <h4 class="text-lg font-semibold text-[hsl(var(--foreground))]">{% trans "Final Balance" %}</h4>
+        <span class="text-lg font-bold {% if final_balance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">{{ final_balance|floatformat:2 }}</span>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Generated On -->
+    <div class="text-sm text-[hsl(var(--muted-foreground))]">
+      {% trans "Generated on" %}: {{ generated_on|date:"F j, Y, g:i a" }}
+    </div>
+  </div>
+</div>
+
+<style>
+@media print {
+  .no-print { display: none !important; }
+  body { print-color-adjust: exact; }
+}
+</style>
+{% endblock %}

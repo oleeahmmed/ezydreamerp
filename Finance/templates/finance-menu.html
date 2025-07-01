@@ -1,0 +1,183 @@
+            {% if show_finance_menu %}
+            <div class="relative">
+                <button data-dropdown-toggle="financeMenu" class="relative w-full flex items-center px-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Finance:' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                    <!-- Active indicator line with animation -->
+                    <div class="absolute left-[-4px] top-0 bottom-0 w-[3px] bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.7)] rounded-r-full {% if 'Finance:' in request.path %}opacity-100{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-all duration-300 shadow-[0_0_8px_rgba(var(--primary),0.5)]"></div>
+                    
+                    <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-md group-hover:shadow-[0_0_12px_rgba(var(--primary),0.4)] transition-all duration-300 group-hover:scale-105">
+                        <!-- Finance Module icon -->
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 17H22M2 12H22M2 7H22M16 3V21M8 3V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <span class="sidebar-text font-medium group-hover:translate-x-0.5 transition-transform">Finance</span>
+                    <svg class="w-4 h-4 ml-auto transition-transform duration-200" id="financeArrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                
+                <!-- Finance Submenu -->
+                <div id="financeMenu" class="{% if 'Finance:' in request.path %}block animate-fade-in{% else %}hidden{% endif %} mt-2 space-y-1 ml-11 relative">
+                    <!-- Premium submenu vertical line indicator with gradient and glow -->
+                    <div class="absolute left-[-14px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-[hsl(var(--primary))] via-[hsl(var(--primary)/0.6)] to-[hsl(var(--primary)/0.2)] rounded-full shadow-[0_0_8px_rgba(var(--primary),0.3)]"></div>
+                  <!-- Demo Config -->
+                    <a href="{% url 'Finance:demo_config' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Finance:demo_config' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'Finance:demo_config' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'Finance:demo_config' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 6C12.8284 6 13.5 5.32843 13.5 4.5C13.5 3.67157 12.8284 3 12 3C11.1716 3 10.5 3.67157 10.5 4.5C10.5 5.32843 11.1716 6 12 6ZM12 18C12.8284 18 13.5 17.3284 13.5 16.5C13.5 15.6716 12.8284 15 12 15C11.1716 15 10.5 15.6716 10.5 16.5C10.5 17.3284 11.1716 18 12 18ZM12 21C11.1716 21 10.5 20.3284 10.5 19.5C10.5 18.6716 11.1716 18 12 18C12.8284 18 13.5 18.6716 13.5 19.5C13.5 20.3284 12.8284 21 12 21ZM12 12C11.1716 12 10.5 11.3284 10.5 10.5C10.5 9.67157 11.1716 9 12 9C12.8284 9 13.5 9.67157 13.5 10.5C13.5 11.3284 12.8284 12 12 12ZM15.5 4.5C15.5 5.32843 16.1716 6 17 6C17.8284 6 18.5 5.32843 18.5 4.5C18.5 3.67157 17.8284 3 17 3C16.1716 3 15.5 3.67157 15.5 4.5ZM15.5 16.5C15.5 17.3284 16.1716 18 17 18C17.8284 18 18.5 17.3284 18.5 16.5C18.5 15.6716 17.8284 15 17 15C16.1716 15 15.5 15.6716 15.5 16.5ZM15.5 19.5C15.5 20.3284 16.1716 21 17 21C17.8284 21 18.5 20.3284 18.5 19.5C18.5 18.6716 17.8284 18 17 18C16.1716 18 15.5 18.6716 15.5 19.5ZM6.5 4.5C6.5 5.32843 7.17157 6 8 6C8.82843 6 9.5 5.32843 9.5 4.5C9.5 3.67157 8.82843 3 8 3C7.17157 3 6.5 3.67157 6.5 4.5ZM6.5 16.5C6.5 17.3284 7.17157 18 8 18C8.82843 18 9.5 17.3284 9.5 16.5C9.5 15.6716 8.82843 15 8 15C7.17157 15 6.5 15.6716 6.5 16.5ZM6.5 19.5C6.5 20.3284 7.17157 21 8 21C8.82843 21 9.5 20.3284 9.5 19.5C9.5 18.6716 8.82843 18 8 18C7.17157 18 6.5 18.6716 6.5 19.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Demo Config</span>
+                                <span class="text-xs {% if 'Finance:demo_config' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Configure demo settings</span>
+                            </div>
+                        </div>
+                    </a>  
+                                        <!-- Account Types -->
+                    <a href="{% url 'Finance:account_type_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Finance:account_type_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'Finance:account_type_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                        
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'Finance:account_type_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8 6H16M8 10H16M8 14H11M8 18H11M3 2H21V22H3V2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Account Types</span>
+                                <span class="text-xs {% if 'Finance:account_type_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage account categories</span>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <!-- Accounts -->
+                    <a href="{% url 'Finance:account_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Finance:account_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                        <!-- Submenu item indicator dot with pulse animation -->
+                        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'Finance:account_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                        
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'Finance:account_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                <!-- Accounts icon -->
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 7C3 5.89543 3.89543 5 5 5H19C20.1046 5 21 5.89543 21 7V17C21 18.1046 20.1046 19 19 19H5C3.89543 19 3 18.1046 3 17V7Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M7 15C8.10457 15 9 14.1046 9 13C9 11.8954 8.10457 11 7 11C5.89543 11 5 11.8954 5 13C5 14.1046 5.89543 15 7 15Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 9H17M12 13H  stroke-linejoin="round"/>
+                                    <path d="M12 9H17M12 13H17M12 17H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Chart Of Accounts</span>
+                                <span class="text-xs {% if 'Finance:account_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Chart of accounts</span>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <!-- Journal Entries -->
+                    <a href="{% url 'Finance:journal_entry_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Finance:journal_entry_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                        <!-- Submenu item indicator dot with pulse animation -->
+                        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'Finance:journal_entry_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                        
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'Finance:journal_entry_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                <!-- Journal Entries icon -->
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9 12H15M9 16H15M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H12.5858C12.851 3 13.1054 3.10536 13.2929 3.29289L18.7071 8.70711C18.8946 8.89464 19 9.149 19 9.41421V19C19 20.1046 18.1046 21 17 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M13 3V7C13 8.10457 13.8954 9 15 9H19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Journal Entries</span>
+                                <span class="text-xs {% if 'Finance:journal_entry_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage transactions</span>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <!-- General Ledger -->
+                    <a href="{% url 'Finance:general_ledger_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Finance:general_ledger_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                        <!-- Submenu item indicator dot with pulse animation -->
+                        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'Finance:general_ledger_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                        
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'Finance:general_ledger_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                <!-- General Ledger icon -->
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 7C3 5.89543 3.89543 5 5 5H19C20.1046 5 21 5.89543 21 7V17C21 18.1046 20.1046 19 19 19H5C3.89543 19 3 18.1046 3 17V7Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M7 9H17M7 13H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">General Ledger</span>
+                                <span class="text-xs {% if 'Finance:general_ledger_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">View transaction history</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Cost Centers -->
+                    <a href="{% url 'Finance:cost_center_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Finance:cost_center_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'Finance:cost_center_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'Finance:cost_center_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM8 17V14H11V10H8V7H14V14H11V17H8ZM12 17C14.21 17 16 15.21 16 13C16 10.79 14.21 9 12 9C9.79 9 8 10.79 8 13C8 15.21 9.79 17 12 17Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Cost Centers</span>
+                                <span class="text-xs {% if 'Finance:cost_center_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage cost centers</span>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <!-- Trial Balance -->
+                    <a href="{% url 'Finance:trial_balance' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Finance:trial_balance' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'Finance:trial_balance' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'Finance:trial_balance' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 2H18V6H6V2ZM4 8H20V22H4V8ZM8 10H16V12H8V10ZM8 14H16V16H8V14ZM8 18H16V20H8V18Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Trial Balance</span>
+                                <span class="text-xs {% if 'Finance:trial_balance' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">View account balances</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Profit and Loss -->
+                    <a href="{% url 'Finance:profit_loss' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Finance:profit_loss' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'Finance:profit_loss' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'Finance:profit_loss' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 7C3 5.89543 3.89543 5 5 5H19C20.1046 5 21 5.89543 21 7V17C21 18.1046 20.1046 19 19 19H5C3.89543 19 3 18.1046 3 17V7Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M7 9H17M7 13H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Profit and Loss</span>
+                                <span class="text-xs {% if 'Finance:profit_loss' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">View financial performance</span>
+                            </div>
+                        </div>
+                    </a>
+
+                                        <a href="{% url 'Finance:balance_sheet' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Finance:profit_loss' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'Finance:profit_loss' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'Finance:balance_sheet' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 7C3 5.89543 3.89543 5 5 5H19C20.1046 5 21 5.89543 21 7V17C21 18.1046 20.1046 19 19 19H5C3.89543 19 3 18.1046 3 17V7Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M7 9H17M7 13H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Balance Sheet </span>
+                                <span class="text-xs {% if 'Finance:balance_sheet' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">View financial performance</span>
+                            </div>
+                        </div>
+                    </a>
+                 </div>
+            </div>
+            {% endif %}

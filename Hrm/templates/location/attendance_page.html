@@ -1,0 +1,780 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="mx-auto">
+    <div class="rounded-xl border-2 bg-[hsl(var(--background))] shadow-lg p-4 sm:p-8 mb-6 premium-card relative">
+        <!-- Decorative Elements -->
+        <div class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-[hsl(var(--primary))] to-transparent opacity-10 rounded-bl-full"></div>
+        <div class="absolute bottom-0 left-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-tr from-[hsl(var(--primary))] to-transparent opacity-10 rounded-tr-full"></div>
+        
+        <!-- Header -->
+        <div class="mb-6 sm:mb-8 border-b border-[hsl(var(--border))] pb-4 sm:pb-6 relative z-10">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <div class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-icon">
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-foreground))] bg-clip-text text-transparent">{{ title }}</h3>
+                        <p class="text-xs sm:text-sm text-[hsl(var(--muted-foreground))]">{{ subtitle }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include "common/toast.html" %}
+
+        <!-- Debug Information -->
+        {% if debug_info %}
+        <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <h4 class="font-medium text-blue-800 mb-2">Debug Information</h4>
+            <p class="text-sm text-blue-700">User: {{ debug_info.username }} (ID: {{ debug_info.user_id }})</p>
+            <p class="text-sm text-blue-700">Assigned Locations: {{ debug_info.location_count }}</p>
+            {% if debug_info.locations %}
+            <div class="mt-2">
+                <h5 class="text-xs font-medium text-blue-800 mb-1">Location Details:</h5>
+                <ul class="text-xs text-blue-700 list-disc pl-5">
+                    {% for loc in debug_info.locations %}
+                    <li>{{ loc.name }} (ID: {{ loc.id }}) - {% if loc.is_primary %}Primary{% else %}Secondary{% endif %}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Location Access Request Banner -->
+        <div id="location-access-banner" class="bg-amber-100 border border-amber-400 text-amber-700 px-4 py-3 rounded relative mb-4 hidden" role="alert">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="block sm:inline">Location access is required to use this feature.</span>
+            </div>
+            <button id="enable-location-btn" class="mt-2 inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-amber-200 text-amber-800 hover:bg-amber-300 h-9 px-4 py-2">
+                <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 11C20 15.4183 16 19 12 22C8 19 4 15.4183 4 11C4 6.58172 7.58172 3 12 3C16.4183 3 20 6.58172 20 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Enable Location Access
+            </button>
+        </div>
+
+        <!-- Current Location Map -->
+        <div id="map-container" class="mb-6 rounded-lg overflow-hidden border border-[hsl(var(--border))] hidden">
+            <div class="bg-[hsl(var(--muted))] p-3 flex justify-between items-center">
+                <h4 class="font-medium">Your Current Location</h4>
+                <span id="location-accuracy" class="text-xs text-[hsl(var(--muted-foreground))]"></span>
+            </div>
+            <div id="map" class="h-48 w-full bg-gray-100"></div>
+        </div>
+
+        <div id="loading" class="text-center py-8 hidden">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--primary))]"></div>
+            <p class="mt-2 text-[hsl(var(--muted-foreground))]">Loading your locations...</p>
+        </div>
+
+        <div id="error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 hidden" role="alert">
+            <strong class="font-bold">Error!</strong>
+            <span class="block sm:inline" id="error-text"></span>
+        </div>
+
+        <div id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4 hidden" role="alert">
+            <strong class="font-bold">Success!</strong>
+            <span class="block sm:inline" id="success-text"></span>
+        </div>
+
+        <div id="location-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Location cards will be dynamically added here -->
+            <div class="text-center py-8 col-span-full" id="no-locations-message">
+                <svg class="w-16 h-16 mx-auto text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <p class="mt-4 text-[hsl(var(--muted-foreground))]">You don't have any assigned locations yet.</p>
+                <p class="mt-2">Please contact your administrator to assign locations to you.</p>
+                
+                {% if debug_info and debug_info.location_count > 0 %}
+                <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-md text-left max-w-md mx-auto">
+                    <h4 class="font-medium text-amber-800 mb-2">Troubleshooting</h4>
+                    <p class="text-sm text-amber-700">You have {{ debug_info.location_count }} location(s) assigned, but they're not showing up.</p>
+                    <p class="text-sm text-amber-700 mt-2">Possible reasons:</p>
+                    <ul class="text-xs text-amber-700 list-disc pl-5 mt-1">
+                        <li>JavaScript error in the browser console</li>
+                        <li>Network error when fetching locations</li>
+                        <li>Location data format issue</li>
+                    </ul>
+                    <p class="text-xs text-amber-700 mt-3">Try refreshing the page or check with your administrator.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Location Card Template -->
+        <template id="location-card-template">
+            <div class="location-card rounded-lg border border-[hsl(var(--border))] overflow-hidden">
+                <div class="location-header p-4 bg-[hsl(var(--muted))]">
+                    <h3 class="text-lg font-semibold location-name"></h3>
+                    <p class="text-sm text-[hsl(var(--muted-foreground))] location-address"></p>
+                </div>
+                <div class="p-4">
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium">Your Status:</span>
+                            <span class="location-status px-2 py-1 text-xs rounded-full"></span>
+                        </div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium">Distance:</span>
+                            <span class="location-distance text-sm"></span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium">Within Radius:</span>
+                            <span class="location-within-radius text-sm"></span>
+                        </div>
+                    </div>
+                    <div class="location-map h-32 w-full bg-gray-100 rounded mb-3"></div>
+                    <div class="flex gap-2 mt-4">
+                        <button class="check-in-btn flex-1 inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-green-100 text-green-700 hover:bg-green-200 h-10 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 8H15.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M17 2H7C4.79086 2 3 3.79086 3 6V18C3 20.2091 4.79086 22 7 22H17C19.2091 22 21 20.2091 21 18V6C21 3.79086 19.2091 2 17 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3 13L7 9L11 13L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Check In
+                        </button>
+                        <button class="check-out-btn flex-1 inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-red-100 text-red-700 hover:bg-red-200 h-10 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M17 16L21 12L17 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Check Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include Leaflet CSS and JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Attendance page loaded');
+    window.onerror = function(message, source, lineno, colno, error) {
+        console.error('JS Error:', message, 'at', source, lineno, colno);
+        showError(`JavaScript error: ${message}`);
+        return true;
+    };
+
+    const locationContainer = document.getElementById('location-container');
+    const noLocationsMessage = document.getElementById('no-locations-message');
+    const loadingElement = document.getElementById('loading');
+    const errorMessage = document.getElementById('error-message');
+    const errorText = document.getElementById('error-text');
+    const successMessage = document.getElementById('success-message');
+    const successText = document.getElementById('success-text');
+    const locationCardTemplate = document.getElementById('location-card-template');
+    const locationAccessBanner = document.getElementById('location-access-banner');
+    const enableLocationBtn = document.getElementById('enable-location-btn');
+    const mapContainer = document.getElementById('map-container');
+    const locationAccuracy = document.getElementById('location-accuracy');
+    
+    let userLocations = [];
+    let userPosition = null;
+    let mainMap = null;
+    let locationMaps = {};
+    let userMarker = null;
+    let locationMarkers = {};
+    let locationCircles = {};
+    
+    // Show loading
+    function showLoading() {
+        loadingElement.classList.remove('hidden');
+    }
+    
+    // Hide loading
+    function hideLoading() {
+        loadingElement.classList.add('hidden');
+    }
+    
+    // Show error
+    function showError(message) {
+        errorText.textContent = message;
+        errorMessage.classList.remove('hidden');
+        setTimeout(() => {
+            errorMessage.classList.add('hidden');
+        }, 5000);
+    }
+    
+    // Show success
+    function showSuccess(message) {
+        successText.textContent = message;
+        successMessage.classList.remove('hidden');
+        setTimeout(() => {
+            successMessage.classList.add('hidden');
+        }, 5000);
+    }
+    
+    // Calculate distance between two points
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Radius of the earth in km
+        const dLat = deg2rad(lat2 - lat1);
+        const dLon = deg2rad(lon2 - lon1);
+        const a = 
+            Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+            Math.sin(dLon/2) * Math.sin(dLon/2); 
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+        const distance = R * c; // Distance in km
+        return distance;
+    }
+    
+    function deg2rad(deg) {
+        return deg * (Math.PI/180);
+    }
+    
+    // Initialize main map
+    function initMainMap() {
+        if (mainMap) {
+            mainMap.remove();
+        }
+        
+        mainMap = L.map('map').setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(mainMap);
+        
+        // Add user marker if position is available
+        if (userPosition) {
+            updateUserMarker();
+        }
+    }
+    
+    // Initialize location map
+    function initLocationMap(locationId, latitude, longitude, radius) {
+        const mapElement = document.querySelector(`.location-card[data-location-id="${locationId}"] .location-map`);
+        if (!mapElement) return;
+        
+        if (locationMaps[locationId]) {
+            locationMaps[locationId].remove();
+        }
+        
+        const map = L.map(mapElement, {
+            zoomControl: false,
+            attributionControl: false,
+            dragging: false,
+            scrollWheelZoom: false
+        }).setView([latitude, longitude], 15);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        
+        // Add location marker
+        const locationIcon = L.divIcon({
+            html: `<div class="w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-md"></div>`,
+            className: 'location-marker-icon',
+            iconSize: [16, 16],
+            iconAnchor: [8, 8]
+        });
+        
+        const marker = L.marker([latitude, longitude], {icon: locationIcon}).addTo(map);
+        locationMarkers[locationId] = marker;
+        
+        // Add radius circle
+        const circle = L.circle([latitude, longitude], {
+            radius: radius * 1000, // Convert km to meters
+            color: '#3b82f6',
+            fillColor: '#93c5fd',
+            fillOpacity: 0.2,
+            weight: 1
+        }).addTo(map);
+        locationCircles[locationId] = circle;
+        
+        // Add user marker if position is available
+        if (userPosition) {
+            const userIcon = L.divIcon({
+                html: `<div class="w-3 h-3 rounded-full bg-red-500 border-2 border-white shadow-md"></div>`,
+                className: 'user-marker-icon',
+                iconSize: [12, 12],
+                iconAnchor: [6, 6]
+            });
+            
+            L.marker([userPosition.latitude, userPosition.longitude], {icon: userIcon}).addTo(map);
+        }
+        
+        locationMaps[locationId] = map;
+    }
+    
+    // Update user marker on main map
+    function updateUserMarker() {
+        if (!mainMap) return;
+        
+        if (userMarker) {
+            userMarker.setLatLng([userPosition.latitude, userPosition.longitude]);
+        } else {
+            const userIcon = L.divIcon({
+                html: `<div class="w-4 h-4 rounded-full bg-red-500 border-2 border-white shadow-md"></div>`,
+                className: 'user-marker-icon',
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            });
+            
+            userMarker = L.marker([userPosition.latitude, userPosition.longitude], {icon: userIcon}).addTo(mainMap);
+        }
+        
+        mainMap.setView([userPosition.latitude, userPosition.longitude], 15);
+        
+        // Add all location markers to main map
+        userLocations.forEach(location => {
+            const locationId = location.id;
+            const locationIcon = L.divIcon({
+                html: `<div class="w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-md"></div>`,
+                className: 'location-marker-icon',
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            });
+            
+            if (!locationMarkers[`main-${locationId}`]) {
+                const marker = L.marker([location.latitude, location.longitude], {icon: locationIcon}).addTo(mainMap);
+                marker.bindPopup(`<b>${location.name}</b><br>${location.address}`);
+                locationMarkers[`main-${locationId}`] = marker;
+                
+                const circle = L.circle([location.latitude, location.longitude], {
+                    radius: location.radius * 1000, // Convert km to meters
+                    color: '#3b82f6',
+                    fillColor: '#93c5fd',
+                    fillOpacity: 0.2,
+                    weight: 1
+                }).addTo(mainMap);
+                locationCircles[`main-${locationId}`] = circle;
+            }
+        });
+    }
+    
+    // Check if geolocation is available
+    function checkGeolocation() {
+        if (!navigator.geolocation) {
+            locationAccessBanner.classList.remove('hidden');
+            showError('Geolocation is not supported by your browser');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // Request location permission
+    function requestLocationPermission() {
+        return new Promise((resolve, reject) => {
+            if (navigator.permissions && navigator.permissions.query) {
+                navigator.permissions.query({name: 'geolocation'}).then(permissionStatus => {
+                    if (permissionStatus.state === 'granted') {
+                        locationAccessBanner.classList.add('hidden');
+                        resolve(true);
+                    } else if (permissionStatus.state === 'prompt') {
+                        locationAccessBanner.classList.remove('hidden');
+                        enableLocationBtn.addEventListener('click', () => {
+                            getUserPosition()
+                                .then(() => {
+                                    locationAccessBanner.classList.add('hidden');
+                                    resolve(true);
+                                })
+                                .catch(error => {
+                                    reject(error);
+                                });
+                        });
+                        resolve(false);
+                    } else if (permissionStatus.state === 'denied') {
+                        locationAccessBanner.classList.remove('hidden');
+                        showError('Location access has been denied. Please enable it in your browser settings.');
+                        reject(new Error('Location permission denied'));
+                    }
+                    
+                    permissionStatus.onchange = function() {
+                        if (this.state === 'granted') {
+                            locationAccessBanner.classList.add('hidden');
+                            resolve(true);
+                        }
+                    };
+                });
+            } else {
+                // Fallback for browsers that don't support permissions API
+                locationAccessBanner.classList.remove('hidden');
+                enableLocationBtn.addEventListener('click', () => {
+                    getUserPosition()
+                        .then(() => {
+                            locationAccessBanner.classList.add('hidden');
+                            resolve(true);
+                        })
+                        .catch(error => {
+                            reject(error);
+                        });
+                });
+                resolve(false);
+            }
+        });
+    }
+    
+    // Get user's current position
+    function getUserPosition() {
+        return new Promise((resolve, reject) => {
+            if (!checkGeolocation()) {
+                reject(new Error('Geolocation is not supported by your browser'));
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    userPosition = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy
+                    };
+                    
+                    // Show map container
+                    mapContainer.classList.remove('hidden');
+                    
+                    // Initialize main map
+                    if (!mainMap) {
+                        initMainMap();
+                    } else {
+                        updateUserMarker();
+                    }
+                    
+                    // Update accuracy display
+                    if (locationAccuracy) {
+                        locationAccuracy.textContent = `Accuracy: ±${Math.round(userPosition.accuracy)} meters`;
+                    }
+                    
+                    resolve(userPosition);
+                },
+                error => {
+                    console.error('Geolocation error:', error);
+                    
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            locationAccessBanner.classList.remove('hidden');
+                            reject(new Error('Location access denied. Please enable location services.'));
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            reject(new Error('Location information is unavailable.'));
+                            break;
+                        case error.TIMEOUT:
+                            reject(new Error('Location request timed out.'));
+                            break;
+                        default:
+                            reject(new Error(`Error getting location: ${error.message}`));
+                    }
+                },
+                { 
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        });
+    }
+    
+    // Fetch user's assigned locations
+    async function fetchLocations() {
+        showLoading();
+        try {
+            console.log('Fetching locations...');
+            const response = await fetch('{% url "hrm:get_locations" %}');
+            if (!response.ok) {
+                throw new Error(`Server responded with status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Locations response:', data);
+            
+            if (data.status === 'success') {
+                userLocations = data.data || [];
+                console.log(`Found ${userLocations.length} locations`);
+                
+                if (userLocations.length === 0) {
+                    noLocationsMessage.classList.remove('hidden');
+                    console.log('No locations found, showing message');
+                } else {
+                    noLocationsMessage.classList.add('hidden');
+                    console.log('Locations found, checking location permission');
+                    
+                    // Check location permission
+                    requestLocationPermission()
+                        .then(hasPermission => {
+                            if (hasPermission) {
+                                getUserPosition()
+                                    .then(() => {
+                                        renderLocations();
+                                    })
+                                    .catch(error => {
+                                        showError(error.message);
+                                        renderLocationsWithoutPosition();
+                                    });
+                            } else {
+                                renderLocationsWithoutPosition();
+                            }
+                        })
+                        .catch(error => {
+                            showError(error.message);
+                            renderLocationsWithoutPosition();
+                        });
+                }
+            } else {
+                showError(data.message || 'Failed to fetch locations');
+                noLocationsMessage.classList.remove('hidden');
+                console.error('API error:', data.message);
+            }
+        } catch (error) {
+            showError(`Error: ${error.message}`);
+            noLocationsMessage.classList.remove('hidden');
+            console.error('Fetch error:', error);
+        } finally {
+            hideLoading();
+        }
+    }
+    
+    // Render locations with user position
+    function renderLocations() {
+        // Clear existing cards
+        const existingCards = document.querySelectorAll('.location-card');
+        existingCards.forEach(card => card.remove());
+        
+        if (userLocations.length === 0) {
+            noLocationsMessage.classList.remove('hidden');
+            return;
+        }
+        
+        noLocationsMessage.classList.add('hidden');
+        
+        userLocations.forEach(location => {
+            try {
+                const distance = calculateDistance(
+                    userPosition.latitude,
+                    userPosition.longitude,
+                    location.latitude,
+                    location.longitude
+                );
+                const isWithinRadius = distance <= location.radius;
+                
+                // Clone template
+                const template = locationCardTemplate.content.cloneNode(true);
+                const card = template.querySelector('.location-card');
+                
+                // Set location details
+                card.dataset.locationId = location.id;
+                card.querySelector('.location-name').textContent = location.name;
+                card.querySelector('.location-address').textContent = location.address;
+                
+                // Set status (primary/secondary)
+                const statusElement = card.querySelector('.location-status');
+                if (location.is_primary) {
+                    statusElement.textContent = 'Primary';
+                    statusElement.classList.add('bg-green-100', 'text-green-800');
+                } else {
+                    statusElement.textContent = 'Secondary';
+                    statusElement.classList.add('bg-blue-100', 'text-blue-800');
+                }
+                
+                // Set distance
+                card.querySelector('.location-distance').textContent = `${distance.toFixed(2)} km`;
+                
+                // Set within radius
+                const withinRadiusElement = card.querySelector('.location-within-radius');
+                if (isWithinRadius) {
+                    withinRadiusElement.textContent = 'Yes';
+                    withinRadiusElement.classList.add('text-green-600');
+                } else {
+                    withinRadiusElement.textContent = 'No';
+                    withinRadiusElement.classList.add('text-red-600');
+                    
+                    // Disable check-in/out buttons if not within radius
+                    const checkInBtn = card.querySelector('.check-in-btn');
+                    const checkOutBtn = card.querySelector('.check-out-btn');
+                    
+                    checkInBtn.disabled = true;
+                    checkOutBtn.disabled = true;
+                    checkInBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    checkOutBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    
+                    // Add warning message
+                    const warningDiv = document.createElement('div');
+                    warningDiv.className = 'mt-2 text-xs text-red-600';
+                    warningDiv.textContent = 'You must be within the location radius to mark attendance';
+                    card.querySelector('.p-4').appendChild(warningDiv);
+                }
+                
+                // Add event listeners
+                const checkInBtn = card.querySelector('.check-in-btn');
+                const checkOutBtn = card.querySelector('.check-out-btn');
+                
+                checkInBtn.addEventListener('click', () => markAttendance(location.id, 'IN'));
+                checkOutBtn.addEventListener('click', () => markAttendance(location.id, 'OUT'));
+                
+                // Append card to container
+                locationContainer.appendChild(card);
+                
+                // Initialize map for this location
+                setTimeout(() => {
+                    initLocationMap(location.id, location.latitude, location.longitude, location.radius);
+                }, 100);
+            } catch (error) {
+                console.error(`Error rendering location ${location.name}:`, error);
+            }
+        });
+    }
+    
+    // Render locations without user position
+    function renderLocationsWithoutPosition() {
+        // Clear existing cards
+        const existingCards = document.querySelectorAll('.location-card');
+        existingCards.forEach(card => card.remove());
+        
+        if (userLocations.length === 0) {
+            noLocationsMessage.classList.remove('hidden');
+            return;
+        }
+        
+        noLocationsMessage.classList.add('hidden');
+        
+        userLocations.forEach(location => {
+            try {
+                // Clone template
+                const template = locationCardTemplate.content.cloneNode(true);
+                const card = template.querySelector('.location-card');
+                
+                // Set location details
+                card.dataset.locationId = location.id;
+                card.querySelector('.location-name').textContent = location.name;
+                card.querySelector('.location-address').textContent = location.address;
+                
+                // Set status (primary/secondary)
+                const statusElement = card.querySelector('.location-status');
+                if (location.is_primary) {
+                    statusElement.textContent = 'Primary';
+                    statusElement.classList.add('bg-green-100', 'text-green-800');
+                } else {
+                    statusElement.textContent = 'Secondary';
+                    statusElement.classList.add('bg-blue-100', 'text-blue-800');
+                }
+                
+                // Hide distance and radius info
+                const distanceRow = card.querySelector('.location-distance').parentNode.parentNode;
+                const radiusRow = card.querySelector('.location-within-radius').parentNode.parentNode;
+                distanceRow.classList.add('hidden');
+                radiusRow.classList.add('hidden');
+                
+                // Add warning message
+                const warningDiv = document.createElement('div');
+                warningDiv.className = 'mt-2 text-xs text-amber-600';
+                warningDiv.textContent = 'Location services are disabled. Enable them to check distance.';
+                card.querySelector('.p-4').appendChild(warningDiv);
+                
+                // Disable check-in/out buttons
+                const checkInBtn = card.querySelector('.check-in-btn');
+                const checkOutBtn = card.querySelector('.check-out-btn');
+                
+                checkInBtn.disabled = true;
+                checkOutBtn.disabled = true;
+                checkInBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                checkOutBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                
+                // Append card to container
+                locationContainer.appendChild(card);
+                
+                // Initialize map for this location (without user position)
+                setTimeout(() => {
+                    initLocationMap(location.id, location.latitude, location.longitude, location.radius);
+                }, 100);
+            } catch (error) {
+                console.error(`Error rendering location ${location.name}:`, error);
+            }
+        });
+    }
+    
+    // Mark attendance
+    async function markAttendance(locationId, attendanceType) {
+        showLoading();
+        
+        try {
+            // Get current position
+            const position = await getUserPosition();
+            
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('location_id', locationId);
+            formData.append('attendance_type', attendanceType);
+            formData.append('latitude', position.latitude);
+            formData.append('longitude', position.longitude);
+            formData.append('device_info', navigator.userAgent);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            
+            // Send request
+            const response = await fetch('{% url "hrm:mark_attendance" %}', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                showSuccess(data.message);
+                // Update UI if needed
+                const locationCard = document.querySelector(`.location-card[data-location-id="${locationId}"]`);
+                if (locationCard) {
+                    const statusText = attendanceType === 'IN' ? 'Checked In' : 'Checked Out';
+                    const statusTime = new Date().toLocaleTimeString();
+                    locationCard.querySelector('.location-status').textContent = `${statusText} at ${statusTime}`;
+                }
+            } else {
+                showError(data.message);
+            }
+        } catch (error) {
+            showError(`Error: ${error.message}`);
+        } finally {
+            hideLoading();
+        }
+    }
+    
+    // Enable location button event
+    enableLocationBtn.addEventListener('click', () => {
+        getUserPosition()
+            .then(() => {
+                locationAccessBanner.classList.add('hidden');
+                renderLocations();
+            })
+            .catch(error => {
+                showError(error.message);
+            });
+    });
+    
+    // Initialize
+    fetchLocations();
+    
+    // Refresh button
+    const refreshButton = document.createElement('button');
+    refreshButton.className = 'absolute top-4 right-4 p-2 rounded-full bg-[hsl(var(--muted))] hover:bg-[hsl(var(--accent))] transition-colors';
+    refreshButton.innerHTML = `
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M23 20V14H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20.49 9.00001C19.9828 7.56329 19.1209 6.28161 17.9845 5.27205C16.8482 4.26249 15.4745 3.55947 13.9917 3.22529C12.5089 2.89111 10.9652 2.93647 9.50481 3.35693C8.04437 3.77739 6.71475 4.55741 5.64 5.62001L1 10M23 14L18.36 18.38C17.2853 19.4426 15.9556 20.2226 14.4952 20.6431C13.0348 21.0635 11.4911 21.1089 10.0083 20.7747C8.52547 20.4405 7.1518 19.7375 6.01547 18.728C4.87913 17.7184 4.01717 16.4367 3.51 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    `;
+    refreshButton.addEventListener('click', fetchLocations);
+    document.querySelector('.premium-card').appendChild(refreshButton);
+});
+</script>
+{% endblock %}

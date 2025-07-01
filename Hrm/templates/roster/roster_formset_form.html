@@ -1,0 +1,674 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="mx-auto max-w-8xl px-2 sm:px-4 lg:px-8 py-2 sm:py-6">
+    <div class="rounded-xl border-2 border-[hsl(var(--border))] bg-[hsl(var(--background))] shadow-xl p-4 sm:p-8 mb-6 relative">
+        <!-- Form Header - Optimized for mobile -->
+        <div class="mb-8 border-b border-[hsl(var(--border))] pb-6 relative z-10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-icon">
+                        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 2V5M16 2V5M3.5 9.09H20.5M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M11.995 13.7H12.005M11.995 17.7H12.005M15.995 13.7H16.005" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-foreground))] bg-clip-text text-transparent">{{ title }}</h3>
+                        <p class="text-xs text-[hsl(var(--muted-foreground))]">{{ subtitle }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    {% if action_buttons %}
+                        {% for button in action_buttons %}
+                        <a href="{{ button.url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium {% if button.class %}{{ button.class }}{% else %}bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))]{% endif %} hover:opacity-90 h-9 px-4 py-2 shadow-md transition">
+                            {% if button.icon %}
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                    <path d="{{ button.icon_path }}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            {% endif %}
+                            <span>{{ button.text }}</span>
+                        </a>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-4" id="rosterForm">
+            {% csrf_token %}
+            
+            {% include 'common/toast.html'%}
+
+            <!-- Form Errors Summary -->
+            {% include 'common/form-details-error.html'%}
+
+            <!-- Form Fields - Mobile optimized -->
+            <div class="space-y-4">
+                <!-- Roster Information -->
+                <div class="p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))] shadow-sm">
+                    <h3 class="text-base font-semibold mb-3 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[hsl(var(--primary))]" viewBox="0 0 24 24" fill="none">
+                            <path d="M8 2V5M16 2V5M3.5 9.09H20.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Roster Information
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% include 'common/form-loop.html'%}
+
+                    </div>
+                </div>
+
+                <!-- Employee Assignments - Mobile optimized table -->
+                <div class="p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))] shadow-sm">
+                    <h3 class="text-base font-semibold mb-3 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[hsl(var(--primary))]" viewBox="0 0 24 24" fill="none">
+                            <path d="M16 4H18C18.5304 4 19.0391 4.21071 19.4142 4.58579C19.7893 4.96086 20 5.46957 20 6V20C20 20.5304 19.7893 21.0391 19.4142 21.4142C19.0391 21.7893 18.5304 22 18 22H6C5.46957 22 4.96086 21.7893 4.58579 21.4142C4.21071 21.0391 4 20.5304 4 20V6C4 5.46957 4.21071 4.96086 4.58579 4.58579C4.96086 4.21071 5.46957 4 6 4H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Employee Assignments
+                    </h3>
+
+                    <!-- IMPORTANT: Include management form only once -->
+                    {{ formset.management_form }}
+
+                    <!-- Mobile display view -->
+                    <div class="md:hidden space-y-3" id="mobileFormsetContainer">
+                        {% for form in formset.forms %}
+                        <div class="mobile-formset-row p-3 border border-[hsl(var(--border))] rounded-lg relative" data-index="{{ forloop.counter0 }}">
+                            <button type="button" class="mobile-context-btn absolute top-2 right-2 w-6 h-6 rounded-full bg-[hsl(var(--muted))] flex items-center justify-center">
+                                <svg class="w-4 h-4 text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 5V5.01M12 12V12.01M12 19V19.01M12 6C11.4477 6 11 5.55228 11 5C11 4.44772 11.4477 4 12 4C12.5523 4 13 4.44772 13 5C13 5.55228 12.5523 6 12 6ZM12 13C11.4477 13 11 12.5523 11 12C11 11.4477 11.4477 11 12 11C12.5523 11 13 11.4477 13 12C13 12.5523 12.5523 13 12 13ZM12 20C11.4477 20 11 19.5523 11 19C11 18.4477 11.4477 18 12 18C12.5523 18 13 18.4477 13 19C13 19.5523 12.5523 20 12 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            
+                            <div class="space-y-2">
+                                <!-- Hidden fields -->
+                                {% if form.id %}
+                                <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
+                                {% endif %}
+                                
+                                <!-- Employee -->
+                                <div>
+                                    <label class="text-xs font-medium mb-1 block">Employee</label>
+                                    <select name="{{ form.employee.html_name }}" 
+                                        class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--background))]" 
+                                        id="{{ form.employee.id_for_label }}">
+                                        <option value="">Select Employee</option>
+                                        {% for choice in form.employee.field.queryset %}
+                                        <option value="{{ choice.pk }}" 
+                                            {% if form.employee.value == choice.pk or form.employee.value == choice.pk|stringformat:"s" %}selected{% endif %}>
+                                            {{ choice.get_full_name }} ({{ choice.employee_id }})
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if form.employee.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in form.employee.errors %}
+                                        <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Shift -->
+                                <div>
+                                    <label class="text-xs font-medium mb-1 block">Shift</label>
+                                    <select name="{{ form.shift.html_name }}" 
+                                        class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--background))]" 
+                                        id="{{ form.shift.id_for_label }}">
+                                        <option value="">Select Shift</option>
+                                        {% for choice in form.shift.field.queryset %}
+                                        <option value="{{ choice.pk }}" 
+                                            {% if form.shift.value == choice.pk or form.shift.value == choice.pk|stringformat:"s" %}selected{% endif %}>
+                                            {{ choice }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if form.shift.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in form.shift.errors %}
+                                        <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Delete Button -->
+                                <div class="flex justify-end mt-2">
+                                    <button type="button" class="delete-row mobile-delete-row inline-flex items-center px-2 py-1 text-xs font-medium text-red-600 hover:text-red-700">
+                                        <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                            <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        Delete
+                                    </button>
+                                    {% if form.DELETE %}
+                                    <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" class="delete-checkbox hidden">
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Mobile context menu -->
+                    <div id="mobileContextMenu" class="hidden fixed z-[100] w-40 sm:w-48 bg-[hsl(var(--background))] rounded-md shadow-lg border border-[hsl(var(--border))]">
+                        <div class="py-1">
+                            <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors" id="mobileAddRowAboveBtn">
+                                Add Employee Above
+                            </button>
+                            <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors" id="mobileAddRowBelowBtn">
+                                Add Employee Below
+                            </button>
+                            <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--destructive))] hover:bg-[hsl(var(--accent))] transition-colors" id="mobileDeleteRowBtn">
+                                Remove Employee
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Desktop display view -->
+                    <div class="hidden md:block">
+                        <!-- Formset Table with Horizontal and Vertical Scrolling -->
+                        <div class="overflow-x-auto overflow-y-auto max-h-[250px] sm:max-h-[350px] md:max-h-[400px] rounded-lg border border-[hsl(var(--border))] shadow-inner">
+                            <div class="min-w-full md:min-w-[600px]">
+                                <table class="w-full border-collapse">
+                                    <colgroup>
+                                        <col class="w-[50%]">  <!-- Employee -->
+                                        <col class="w-[40%]">  <!-- Shift -->
+                                        <col class="w-[10%]">  <!-- Actions -->
+                                    </colgroup>
+                                    <thead class="sticky top-0 bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] z-10">
+                                        <tr>
+                                            <th scope="col" class="py-3 px-2 text-center text-xs font-bold uppercase tracking-wider text-[hsl(var(--primary-foreground))] border border-[hsl(var(--border))] shadow-sm">Employee</th>
+                                            <th scope="col" class="py-3 px-2 text-center text-xs font-bold uppercase tracking-wider text-[hsl(var(--primary-foreground))] border border-[hsl(var(--border))] shadow-sm">Shift</th>
+                                            <th scope="col" class="py-3 px-2 text-center text-xs font-bold uppercase tracking-wider text-[hsl(var(--primary-foreground))] border border-[hsl(var(--border))] shadow-sm">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="formsetBody" class="formset-container divide-y divide-[hsl(var(--border))]">
+                                        {% for form in formset.forms %}
+                                        <tr class="formset-row group hover:bg-gradient-to-r hover:from-[hsl(var(--accent))] hover:to-[hsl(var(--accent))/50] transition-all duration-200 {% if form.errors %}has-errors bg-red-50{% endif %}" data-index="{{ forloop.counter0 }}">
+                                            <!-- Hidden fields -->
+                                            {% if form.id %}
+                                            <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
+                                            {% endif %}
+                                            
+                                            <td class="border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:bg-[hsl(var(--accent))] transition-colors duration-150">
+                                                <select name="{{ form.employee.html_name }}" 
+                                                    class="w-full h-8 px-2 py-0 text-xs font-medium border-0 bg-transparent text-[hsl(var(--foreground))] placeholder-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--background))] rounded-sm transition-all duration-200" 
+                                                    id="{{ form.employee.id_for_label }}">
+                                                    <option value="">Select Employee</option>
+                                                    {% for choice in form.employee.field.queryset %}
+                                                    <option value="{{ choice.pk }}" 
+                                                        {% if form.employee.value == choice.pk or form.employee.value == choice.pk|stringformat:"s" %}selected{% endif %}>
+                                                        {{ choice.get_full_name }} ({{ choice.employee_id }})
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                                {% if form.employee.errors %}
+                                                <div class="text-red-500 text-xs mt-1 font-medium">
+                                                    {% for error in form.employee.errors %}
+                                                    <p>{{ error }}</p>
+                                                    {% endfor %}
+                                                </div>
+                                                {% endif %}
+                                            </td>
+                                            <td class="border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:bg-[hsl(var(--accent))] transition-colors duration-150">
+                                                <select name="{{ form.shift.html_name }}" 
+                                                    class="w-full h-8 px-2 py-0 text-xs font-medium border-0 bg-transparent text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--background))] rounded-sm transition-all duration-200" 
+                                                    id="{{ form.shift.id_for_label }}">
+                                                    <option value="">Select Shift</option>
+                                                    {% for choice in form.shift.field.queryset %}
+                                                    <option value="{{ choice.pk }}" 
+                                                        {% if form.shift.value == choice.pk or form.shift.value == choice.pk|stringformat:"s" %}selected{% endif %}>
+                                                        {{ choice }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                                {% if form.shift.errors %}
+                                                <div class="text-red-500 text-xs mt-1 font-medium">
+                                                    {% for error in form.shift.errors %}
+                                                    <p>{{ error }}</p>
+                                                    {% endfor %}
+                                                </div>
+                                                {% endif %}
+                                            </td>
+                                            <td class="border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:bg-[hsl(var(--accent))] transition-colors duration-150 relative">
+                                                <div class="flex items-center justify-center h-8">
+                                                    <button type="button" class="delete-row desktop-delete-row opacity-0 group-hover:opacity-100 transition-all duration-200 inline-flex items-center justify-center rounded-lg w-7 h-7 bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 hover:scale-110 shadow-lg hover:shadow-xl transform">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                {% if form.DELETE %}
+                                                <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" class="delete-checkbox hidden">
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% if form.non_field_errors %}
+                                        <tr class="error-row bg-gradient-to-r from-red-50 to-red-100">
+                                            <td colspan="3" class="py-2 px-3 text-xs text-red-700 border border-red-200 font-medium">
+                                                <div class="flex items-center">
+                                                    <svg class="w-4 h-4 mr-2 text-red-500" viewBox="0 0 24 24" fill="none">
+                                                        <path d="M12 9V13M12 17H12.01M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                    {% for error in form.non_field_errors %}
+                                                    <span>{{ error }}</span>{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Enhanced Context Menu -->
+                        <div id="contextMenu" class="hidden fixed z-[100] w-48 bg-[hsl(var(--background))] rounded-lg shadow-2xl border border-[hsl(var(--border))] backdrop-blur-sm">
+                            <div class="py-2">
+                                <button type="button" class="w-full text-left px-4 py-3 text-sm font-medium text-[hsl(var(--foreground))] hover:bg-gradient-to-r hover:from-[hsl(var(--accent))] hover:to-[hsl(var(--accent))/50] transition-all duration-200 flex items-center gap-3" id="addRowAboveBtn">
+                                    <svg class="w-4 h-4 text-[hsl(var(--primary))]" viewBox="0 0 24 24" fill="none">
+                                        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                    Add Employee Above
+                                </button>
+                                <button type="button" class="w-full text-left px-4 py-3 text-sm font-medium text-[hsl(var(--foreground))] hover:bg-gradient-to-r hover:from-[hsl(var(--accent))] hover:to-[hsl(var(--accent))/50] transition-all duration-200 flex items-center gap-3" id="addRowBelowBtn">
+                                    <svg class="w-4 h-4 text-[hsl(var(--primary))]" viewBox="0 0 24 24" fill="none">
+                                        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                    Add Employee Below
+                                </button>
+                                <div class="border-t border-[hsl(var(--border))] my-1"></div>
+                                <button type="button" class="w-full text-left px-4 py-3 text-sm font-medium text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 transition-all duration-200 flex items-center gap-3" id="deleteRowBtn">
+                                    <svg class="w-4 h-4 text-red-500" viewBox="0 0 24 24" fill="none">
+                                        <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Remove Employee
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Employee Button -->
+                    <button type="button" id="addRowBtn" class="w-full mt-3 px-3 py-2 rounded-lg text-xs font-medium bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Add Employee
+                    </button>
+                </div>
+            </div>
+
+            <!-- Form Footer -->
+            <div class="border-t pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div class="text-xs text-[hsl(var(--muted-foreground))]">
+                    <span class="flex items-center">
+                        <svg class="w-4 h-4 mr-1 text-green-500" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Your data is secure and encrypted
+                    </span>
+                </div>
+                <div class="flex gap-3 w-full sm:w-auto">
+                    {% if cancel_url %}
+                    <a href="{{ cancel_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                        {% if is_detail_view %}Back{% else %}Cancel{% endif %}
+                    </a>
+                    {% endif %}
+                    
+                    {% if is_detail_view %}
+                        {% if update_url %}
+                        <a href="{{ update_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Edit
+                        </a>
+                        {% endif %}
+                        {% if delete_url %}
+                        <a href="{{ delete_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 h-9 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 4 20.5304 4 20V6C4 5.46957 4.21071 4.96086 4.58579 4.58579C4.96086 4.21071 5.46957 4 6 4H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Delete
+                        </a>
+                        {% endif %}
+                    {% else %}
+                    <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                        <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                            <path d="M19 21L5 21C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16L21 8V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M17 21V13H7V21M7 3V8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Save Roster
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- JavaScript for formset functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let formsetIndex = parseInt(document.querySelector('#id_roster_assignments-TOTAL_FORMS').value);
+    let contextMenuTarget = null;
+    let mobileContextMenuTarget = null;
+
+    // Function to update form indices
+    function updateFormIndices() {
+        const rows = document.querySelectorAll('.formset-row, .mobile-formset-row');
+        rows.forEach((row, index) => {
+            row.setAttribute('data-index', index);
+            const inputs = row.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                if (input.name) {
+                    input.name = input.name.replace(/roster_assignments-\d+/, `roster_assignments-${index}`);
+                    input.id = input.id.replace(/id_roster_assignments-\d+/, `id_roster_assignments-${index}`);
+                }
+            });
+        });
+        document.querySelector('#id_roster_assignments-TOTAL_FORMS').value = rows.length;
+    }
+
+    // Function to create new row
+    function createNewRow(insertAfterIndex = -1) {
+        const newRowHtml = `
+            <tr class="formset-row group hover:bg-gradient-to-r hover:from-[hsl(var(--accent))] hover:to-[hsl(var(--accent))/50] transition-all duration-200" data-index="${formsetIndex}">
+                <input type="hidden" name="roster_assignments-${formsetIndex}-id" value="" id="id_roster_assignments-${formsetIndex}-id">
+                <td class="border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:bg-[hsl(var(--accent))] transition-colors duration-150">
+                    <select name="roster_assignments-${formsetIndex}-employee" 
+                        class="w-full h-8 px-2 py-0 text-xs font-medium border-0 bg-transparent text-[hsl(var(--foreground))] placeholder-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--background))] rounded-sm transition-all duration-200" 
+                        id="id_roster_assignments-${formsetIndex}-employee">
+                        <option value="">Select Employee</option>
+                        ${getEmployeeOptions()}
+                    </select>
+                </td>
+                <td class="border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:bg-[hsl(var(--accent))] transition-colors duration-150">
+                    <select name="roster_assignments-${formsetIndex}-shift" 
+                        class="w-full h-8 px-2 py-0 text-xs font-medium border-0 bg-transparent text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--background))] rounded-sm transition-all duration-200" 
+                        id="id_roster_assignments-${formsetIndex}-shift">
+                        <option value="">Select Shift</option>
+                        ${getShiftOptions()}
+                    </select>
+                </td>
+                <td class="border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:bg-[hsl(var(--accent))] transition-colors duration-150 relative">
+                    <div class="flex items-center justify-center h-8">
+                        <button type="button" class="delete-row desktop-delete-row opacity-0 group-hover:opacity-100 transition-all duration-200 inline-flex items-center justify-center rounded-lg w-7 h-7 bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 hover:scale-110 shadow-lg hover:shadow-xl transform">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <input type="checkbox" name="roster_assignments-${formsetIndex}-DELETE" id="id_roster_assignments-${formsetIndex}-DELETE" class="delete-checkbox hidden">
+                </td>
+            </tr>
+        `;
+
+        const newMobileRowHtml = `
+            <div class="mobile-formset-row p-3 border border-[hsl(var(--border))] rounded-lg relative" data-index="${formsetIndex}">
+                <button type="button" class="mobile-context-btn absolute top-2 right-2 w-6 h-6 rounded-full bg-[hsl(var(--muted))] flex items-center justify-center">
+                    <svg class="w-4 h-4 text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 5V5.01M12 12V12.01M12 19V19.01M12 6C11.4477 6 11 5.55228 11 5C11 4.44772 11.4477 4 12 4C12.5523 4 13 4.44772 13 5C13 5.55228 12.5523 6 12 6ZM12 13C11.4477 13 11 12.5523 11 12C11 11.4477 11.4477 11 12 11C12.5523 11 13 11.4477 13 12C13 12.5523 12.5523 13 12 13ZM12 20C11.4477 20 11 19.5523 11 19C11 18.4477 11.4477 18 12 18C12.5523 18 13 18.4477 13 19C13 19.5523 12.5523 20 12 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                
+                <div class="space-y-2">
+                    <input type="hidden" name="roster_assignments-${formsetIndex}-id" value="" id="id_roster_assignments-${formsetIndex}-id">
+                    
+                    <div>
+                        <label class="text-xs font-medium mb-1 block">Employee</label>
+                        <select name="roster_assignments-${formsetIndex}-employee" 
+                            class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--background))]" 
+                            id="id_roster_assignments-${formsetIndex}-employee">
+                            <option value="">Select Employee</option>
+                            ${getEmployeeOptions()}
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="text-xs font-medium mb-1 block">Shift</label>
+                        <select name="roster_assignments-${formsetIndex}-shift" 
+                            class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--background))]" 
+                            id="id_roster_assignments-${formsetIndex}-shift">
+                            <option value="">Select Shift</option>
+                            ${getShiftOptions()}
+                        </select>
+                    </div>
+                    
+                    <div class="flex justify-end mt-2">
+                        <button type="button" class="delete-row mobile-delete-row inline-flex items-center px-2 py-1 text-xs font-medium text-red-600 hover:text-red-700">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Delete
+                        </button>
+                        <input type="checkbox" name="roster_assignments-${formsetIndex}-DELETE" id="id_roster_assignments-${formsetIndex}-DELETE" class="delete-checkbox hidden">
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Add to desktop table
+        const tbody = document.querySelector('#formsetBody');
+        if (insertAfterIndex === -1) {
+            tbody.insertAdjacentHTML('beforeend', newRowHtml);
+        } else {
+            const rows = tbody.querySelectorAll('.formset-row');
+            if (rows[insertAfterIndex]) {
+                rows[insertAfterIndex].insertAdjacentHTML('afterend', newRowHtml);
+            } else {
+                tbody.insertAdjacentHTML('beforeend', newRowHtml);
+            }
+        }
+
+        // Add to mobile container
+        const mobileContainer = document.querySelector('#mobileFormsetContainer');
+        if (insertAfterIndex === -1) {
+            mobileContainer.insertAdjacentHTML('beforeend', newMobileRowHtml);
+        } else {
+            const mobileRows = mobileContainer.querySelectorAll('.mobile-formset-row');
+            if (mobileRows[insertAfterIndex]) {
+                mobileRows[insertAfterIndex].insertAdjacentHTML('afterend', newMobileRowHtml);
+            } else {
+                mobileContainer.insertAdjacentHTML('beforeend', newMobileRowHtml);
+            }
+        }
+
+        formsetIndex++;
+        updateFormIndices();
+    }
+
+    // Function to get employee options
+    function getEmployeeOptions() {
+        const existingSelect = document.querySelector('select[name*="employee"]');
+        if (existingSelect) {
+            return Array.from(existingSelect.options)
+                .slice(1) // Skip the first "Select Employee" option
+                .map(option => `<option value="${option.value}">${option.text}</option>`)
+                .join('');
+        }
+        return '';
+    }
+
+    // Function to get shift options
+    function getShiftOptions() {
+        const existingSelect = document.querySelector('select[name*="shift"]');
+        if (existingSelect) {
+            return Array.from(existingSelect.options)
+                .slice(1) // Skip the first "Select Shift" option
+                .map(option => `<option value="${option.value}">${option.text}</option>`)
+                .join('');
+        }
+        return '';
+    }
+
+    // Add row button
+    document.getElementById('addRowBtn').addEventListener('click', function() {
+        createNewRow();
+    });
+
+    // Delete row functionality
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.delete-row')) {
+            const row = e.target.closest('.formset-row, .mobile-formset-row');
+            const deleteCheckbox = row.querySelector('.delete-checkbox');
+            
+            if (deleteCheckbox) {
+                deleteCheckbox.checked = true;
+                row.style.display = 'none';
+            } else {
+                row.remove();
+                updateFormIndices();
+            }
+        }
+    });
+
+    // Context menu functionality for desktop
+    document.addEventListener('contextmenu', function(e) {
+        const row = e.target.closest('.formset-row');
+        if (row) {
+            e.preventDefault();
+            contextMenuTarget = row;
+            const contextMenu = document.getElementById('contextMenu');
+            contextMenu.style.left = e.pageX + 'px';
+            contextMenu.style.top = e.pageY + 'px';
+            contextMenu.classList.remove('hidden');
+        }
+    });
+
+    // Context menu functionality for mobile
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.mobile-context-btn')) {
+            e.preventDefault();
+            mobileContextMenuTarget = e.target.closest('.mobile-formset-row');
+            const mobileContextMenu = document.getElementById('mobileContextMenu');
+            const rect = e.target.getBoundingClientRect();
+            mobileContextMenu.style.left = (rect.left - 150) + 'px';
+            mobileContextMenu.style.top = (rect.bottom + 5) + 'px';
+            mobileContextMenu.classList.remove('hidden');
+        }
+    });
+
+    // Context menu actions
+    document.getElementById('addRowAboveBtn').addEventListener('click', function() {
+        if (contextMenuTarget) {
+            const index = parseInt(contextMenuTarget.getAttribute('data-index'));
+            createNewRow(index - 1);
+            document.getElementById('contextMenu').classList.add('hidden');
+        }
+    });
+
+    document.getElementById('addRowBelowBtn').addEventListener('click', function() {
+        if (contextMenuTarget) {
+            const index = parseInt(contextMenuTarget.getAttribute('data-index'));
+            createNewRow(index);
+            document.getElementById('contextMenu').classList.add('hidden');
+        }
+    });
+
+    document.getElementById('deleteRowBtn').addEventListener('click', function() {
+        if (contextMenuTarget) {
+            const deleteCheckbox = contextMenuTarget.querySelector('.delete-checkbox');
+            if (deleteCheckbox) {
+                deleteCheckbox.checked = true;
+                contextMenuTarget.style.display = 'none';
+            } else {
+                contextMenuTarget.remove();
+                updateFormIndices();
+            }
+            document.getElementById('contextMenu').classList.add('hidden');
+        }
+    });
+
+    // Mobile context menu actions
+    document.getElementById('mobileAddRowAboveBtn').addEventListener('click', function() {
+        if (mobileContextMenuTarget) {
+            const index = parseInt(mobileContextMenuTarget.getAttribute('data-index'));
+            createNewRow(index - 1);
+            document.getElementById('mobileContextMenu').classList.add('hidden');
+        }
+    });
+
+    document.getElementById('mobileAddRowBelowBtn').addEventListener('click', function() {
+        if (mobileContextMenuTarget) {
+            const index = parseInt(mobileContextMenuTarget.getAttribute('data-index'));
+            createNewRow(index);
+            document.getElementById('mobileContextMenu').classList.add('hidden');
+        }
+    });
+
+    document.getElementById('mobileDeleteRowBtn').addEventListener('click', function() {
+        if (mobileContextMenuTarget) {
+            const deleteCheckbox = mobileContextMenuTarget.querySelector('.delete-checkbox');
+            if (deleteCheckbox) {
+                deleteCheckbox.checked = true;
+                mobileContextMenuTarget.style.display = 'none';
+            } else {
+                mobileContextMenuTarget.remove();
+                updateFormIndices();
+            }
+            document.getElementById('mobileContextMenu').classList.add('hidden');
+        }
+    });
+
+    // Hide context menus when clicking elsewhere
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#contextMenu') && !e.target.closest('.formset-row')) {
+            document.getElementById('contextMenu').classList.add('hidden');
+        }
+        if (!e.target.closest('#mobileContextMenu') && !e.target.closest('.mobile-context-btn')) {
+            document.getElementById('mobileContextMenu').classList.add('hidden');
+        }
+    });
+});
+</script>
+
+<style>
+.premium-icon {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%);
+    box-shadow: 0 4px 15px hsl(var(--primary)/0.3);
+}
+
+.formset-container {
+    background: hsl(var(--background));
+}
+
+.formset-row:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px hsl(var(--primary)/0.1);
+}
+
+.delete-row {
+    transition: all 0.2s ease;
+}
+
+.delete-row:hover {
+    transform: scale(1.1);
+}
+
+#contextMenu, #mobileContextMenu {
+    backdrop-filter: blur(8px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+    .mobile-formset-row {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        transition: all 0.2s ease;
+    }
+    
+    .mobile-formset-row:hover {
+        box-shadow: 0 2px 8px hsl(var(--primary)/0.1);
+        transform: translateY(-1px);
+    }
+}
+</style>
+{% endblock %}

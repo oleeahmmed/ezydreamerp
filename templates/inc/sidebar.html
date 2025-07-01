@@ -1,0 +1,240 @@
+{% load static %}
+
+<aside id="sidebar" class="premium-input relative border-r border-[hsl(var(--border))] bg-[hsl(var(--background))] transition-all duration-300 ease-in-out overflow-hidden flex flex-col h-full" style="width: var(--sidebar-width);">
+    <!-- Premium decorative vertical line with enhanced gradient and glow effect -->
+    <div class="absolute left-0 top-0 bottom-0 w-[4px] bg-gradient-to-b from-[hsl(var(--primary))] via-[hsl(var(--primary)/0.7)] to-[hsl(var(--primary)/0.2)] opacity-80 shadow-[0_0_20px_rgba(var(--primary),0.6)]"></div>
+    
+    <!-- Secondary decorative line for depth effect -->
+    <div class="absolute left-[5px] top-0 bottom-0 w-[1px] bg-gradient-to-b from-[hsl(var(--primary)/0.3)] via-[hsl(var(--primary)/0.1)] to-transparent opacity-50"></div>
+    
+    <!-- Top section with logo and navigation - flex-grow-0 to not expand -->
+    <div class="flex-shrink-0">
+        <!-- Logo -->
+        <!-- <div class="p-4 border-b border-[hsl(var(--border))]">
+            <div class="flex items-center gap-3">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="sidebar-text">
+                    <h1 class="text-lg font-semibold">{% block site_title %}Dashboard{% endblock %}</h1>
+                    <p class="text-xs text-[hsl(var(--muted-foreground))]">{% block site_subtitle %}Admin Portal{% endblock %}</p>
+                </div>
+            </div>
+        </div> -->
+
+
+    <!-- Logo and branding -->
+    <div class="p-6 flex items-center justify-center border-b border-[hsl(var(--border))]  shadow-inner">
+        <div class="flex flex-col items-center space-y-3">
+            <!-- Premium Styled Logo -->
+            <img src="{% static 'images/logo/logo.jpeg' %}" alt="Yash Global Logo"
+                 class="h-16 w-auto rounded-xl shadow-lg border border-[#cfa44d] bg-[#0d1a1a] p-2">
+    
+            <!-- Text Branding -->
+            <div class="text-center">
+                <!-- <h1 class="text-2xl font-bold text-[#cfa44d] leading-tight tracking-widest">ERP</h1> -->
+                <!-- <p class="text-sm font-semibold text-[#cfa44d]/80 tracking-widest">GLOBAL </p> -->
+            </div>
+        </div>
+    </div>
+    
+    
+
+
+
+    </div>
+
+    <div class="flex-grow overflow-y-auto">
+    <!-- Navigation -->
+    <nav class="p-4 space-y-4">
+        <!-- Main Menu -->
+        <div class="space-y-1">
+            {% block sidebar_menu %}
+            <!-- Dashboard -->
+            {% if show_dashboard_link %}
+            <a href="{% url 'permission:dashboard'%}" class="relative w-full flex items-center px-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if request.resolver_match.url_name == 'dashboard' %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                <!-- Active indicator line with animation -->
+                <div class="absolute left-[-4px] top-0 bottom-0 w-[3px] bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.7)] rounded-r-full {% if request.resolver_match.url_name == 'dashboard' %}opacity-100{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-all duration-300 shadow-[0_0_8px_rgba(var(--primary),0.5)]"></div>
+                
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-md group-hover:shadow-[0_0_12px_rgba(var(--primary),0.4)] transition-all duration-300 group-hover:scale-105">
+                    <!-- Updated Dashboard icon -->
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <span class="sidebar-text  font-medium group-hover:translate-x-0.5 transition-transform">Dashboard</span>
+            </a>
+            {% endif %}
+
+{% include 'permission-menu.html' %}
+
+{% include 'business-partner-menu.html' %}
+{% include 'global_settings_menu.html' %}
+{% include 'production-menu.html' %}
+{% include 'inventory-menu.html' %}
+{% include 'sales-menu.html' %}
+{% include 'purchase-menu.html' %}
+{% include 'finance-menu.html' %}
+{% include 'hrm-menu.html' %}
+{% include 'payroll-menu.html' %}
+{% include 'banking-menu.html' %}
+
+
+<div class="mt-6 pt-6 border-t border-[hsl(var(--border))]">
+                    <h3 class="px-3 mb-2 text-xs font-medium text-[hsl(var(--muted-foreground))]">QUICK ACTIONS</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="flex flex-col items-center justify-center p-4 rounded-lg border border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--primary))] transition-all duration-300 group premium-card">
+                            <div class="flex items-center justify-center w-8 h-8 mb-2 rounded-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] transform group-hover:scale-110 transition-transform">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </div>
+                            <span class="text-xs font-medium sidebar-text">New Order</span>
+                        </button>
+                        <button class="flex flex-col items-center justify-center p-4 rounded-lg border border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--primary))] transition-all duration-300 group premium-card">
+                            <div class="flex items-center justify-center w-8 h-8 mb-2 rounded-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] transform group-hover:scale-110 transition-transform">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </div>
+                            <span class="text-xs font-medium sidebar-text">Add User</span>
+                        </button>
+                    </div>
+                </div>
+
+                 {% endblock %}
+        </div>
+    </nav>
+</div>
+    <!-- Profile Card -->
+    <div class="flex-shrink-0 mt-auto">
+        <!-- Profile Card -->
+        <div class="p-4 border-t border-[hsl(var(--border))]">
+            <!-- Premium gradient divider above profile card -->
+            <div class="absolute left-0 right-0 h-[2px] -top-[1px] bg-gradient-to-r from-[hsl(var(--primary)/0.2)] via-[hsl(var(--primary))] to-[hsl(var(--primary)/0.2)] opacity-70 shadow-[0_0_8px_rgba(var(--primary),0.4)]"></div>
+            
+            <div class="flex items-center gap-4 relative">
+                <!-- Profile picture with glow effect -->
+                <div class="relative group">
+                    {% if request.user.profile.profile_picture %}
+                        <div class="absolute inset-0 rounded-full bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.5)] opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-300"></div>
+                        <img src="{{ request.user.profile.profile_picture.url }}" 
+                             alt="Profile Picture"
+                             class="relative w-12 h-12 rounded-full object-cover border-2 border-[hsl(var(--border))] group-hover:border-[hsl(var(--primary))] transition-all duration-300 z-10">
+                    {% else %}
+                        <div class="absolute inset-0 rounded-full bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.5)] opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-300"></div>
+                        <div class="relative w-12 h-12 rounded-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] flex items-center justify-center text-xl font-semibold shadow-[0_0_15px_rgba(var(--primary),0.3)] group-hover:shadow-[0_0_20px_rgba(var(--primary),0.5)] transition-all duration-300 z-10">
+                            {{ request.user.username|make_list|first|upper }}
+                        </div>
+                    {% endif %}
+                    <!-- Status indicator with pulse animation -->
+                    <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-[hsl(var(--background))] shadow-md z-20">
+                        <span class="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-75"></span>
+                    </div>
+                </div>
+                
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-semibold truncate text-[hsl(var(--foreground))]">
+                            {{ request.user.profile.full_name }}
+                        </h2>
+                        <div class="flex items-center gap-2">
+                            <!-- Edit profile button with hover effect -->
+                            <a href="{% url 'permission:view_profile' %}" 
+                               class="rounded-full p-1.5 hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--primary))] transition-all duration-200 relative group/edit"
+                               title="Edit Profile">
+                                <span class="absolute inset-0 rounded-full bg-[hsl(var(--primary)/0.1)] opacity-0 group-hover/edit:opacity-100 transition-opacity"></span>
+                                <svg class="w-4 h-4 relative z-10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M19.4 15C19.1277 15.6171 19.2583 16.3378 19.73 16.82L19.79 16.88C20.1656 17.2551 20.3766 17.7642 20.3766 18.295C20.3766 18.8258 20.1656 19.3349 19.79 19.71C19.4149 20.0856 18.9058 20.2966 18.375 20.2966C17.8442 20.2966 17.3351 20.0856 16.96 19.71L16.9 19.65C16.4178 19.1783 15.6971 19.0477 15.08 19.32C14.4755 19.5791 14.0826 20.1724 14.08 20.83V21C14.08 22.1046 13.1846 23 12.08 23C10.9754 23 10.08 22.1046 10.08 21V20.91C10.0642 20.2327 9.63587 19.6339 9 19.4C8.38291 19.1277 7.66219 19.2583 7.18 19.73L7.12 19.79C6.74486 20.1656 6.23577 20.3766 5.705 20.3766C5.17423 20.3766 4.66514 20.1656 4.29 19.79C3.91445 19.4149 3.70343 18.9058 3.70343 18.375C3.70343 17.8442 3.91445 17.3351 4.29 16.96L4.35 16.9C4.82167 16.4178 4.95235 15.6971 4.68 15.08C4.42093 14.4755 3.82764 14.0826 3.17 14.08H3C1.89543 14.08 1 13.1846 1 12.08C1 10.9754 1.89543 10.08 3 10.08H3.09C3.76733 10.0642 4.36613 9.63587 4.6 9C4.87235 8.38291 4.74167 7.66219 4.27 7.18L4.21 7.12C3.83445 6.74486 3.62343 6.23577 3.62343 5.705C3.62343 5.17423 3.83445 4.66514 4.21 4.29C4.58514 3.91445 5.09423 3.70343 5.625 3.70343C6.15577 3.70343 6.66486 3.91445 7.04 4.29L7.1 4.35C7.58219 4.82167 8.30291 4.95235 8.92 4.68H9C9.60447 4.42093 9.99738 3.82764 10 3.17V3C10 1.89543 10.8954 1 12 1C13.1046 1 14 1.89543 14 3V3.09C14 3.82764 14.3929 4.42093 15 4.6C15.6171 4.87235 16.3378 4.74167 16.82 4.27L16.88 4.21C17.2551 3.83445 17.7642 3.62343 18.295 3.62343C18.8258 3.62343 19.3349 3.83445 19.71 4.21C20.0856 4.58514 20.2966 5.09423 20.2966 5.625C20.2966 6.15577 20.0856 6.66486 19.71 7.04L19.65 7.1C19.1783 7.58219 19.0477 8.30291 19.32 8.92V9C19.5791 9.60447 20.1724 9.99738 20.83 10H21C22.1046 10 23 10.8954 23 12C23 13.1046 22.1046 14 21 14H20.91C20.2327 14.0026 19.6339 14.3955 19.4 15Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </a>
+                            
+                            <!-- Logout button with hover effect -->
+                            <form method="post" action="{% url 'permission:logout' %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" 
+                                        class="rounded-full p-1.5 hover:bg-[hsl(var(--accent))] text-red-500 hover:text-red-600 transition-all duration-200 relative group/logout"
+                                        title="Logout">
+                                    <span class="absolute inset-0 rounded-full bg-red-500/10 opacity-0 group-hover/logout:opacity-100 transition-opacity"></span>
+                                    <svg class="w-4 h-4 relative z-10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16 17L21 12M21 12L16 7M21 12H9M9 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V16.2C3 17.8802 3 18.7202 3.32698 19.362C3.6146 19.9265 4.07354 20.3854 4.63803 20.673C5.27976 21 6.11984 21 7.8 21H9" 
+                                              stroke="currentColor" 
+                                              stroke-width="2" 
+                                              stroke-linecap="round" 
+                                              stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- User details with hover effects -->
+                    <div class="mt-1 flex flex-col text-xs text-[hsl(var(--muted-foreground))]">
+                        {% if request.user.profile.position %}
+                            <span class="truncate hover:text-[hsl(var(--foreground))] transition-colors duration-200">
+                                <span class="inline-block w-3 h-3 rounded-full bg-[hsl(var(--primary)/0.2)] mr-1"></span>
+                                {{ request.user.profile.position }}
+                            </span>
+                        {% endif %}
+                        {% if request.user.profile.department %}
+                            <span class="truncate hover:text-[hsl(var(--foreground))] transition-colors duration-200">
+                                <span class="inline-block w-3 h-3 rounded-full bg-[hsl(var(--primary)/0.2)] mr-1"></span>
+                                {{ request.user.profile.department }}
+                            </span>
+                        {% endif %}
+                        <span class="truncate hover:text-[hsl(var(--foreground))] transition-colors duration-200">
+                            <span class="inline-block w-3 h-3 rounded-full bg-[hsl(var(--primary)/0.2)] mr-1"></span>
+                            {{ request.user.email }}
+                        </span>
+                    </div>
+                    
+                    <!-- Premium status badge -->
+                    <div class="mt-2 flex items-center">
+                        <span class="px-2 py-0.5 text-[10px] font-medium rounded-full bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.8)] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                            Active
+                        </span>
+                        <!-- <span class="ml-2 text-[10px] text-[hsl(var(--muted-foreground))]">Last login: Today, 10:45 AM</span> -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick links -->
+            <div class="mt-3 flex items-center justify-between pt-2 border-t border-[hsl(var(--border)/0.5)]">
+                <a href="#" class="text-xs text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors">
+                    <span class="flex items-center">
+                        <svg class="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Account
+                    </span>
+                </a>
+                <a href="#" class="text-xs text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors">
+                    <span class="flex items-center">
+                        <svg class="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Settings
+                    </span>
+                </a>
+                <a href="#" class="text-xs text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors">
+                    <span class="flex items-center">
+                        <svg class="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M11 3.05493C6.50005 3.55238 3 7.36745 3 12C3 16.9706 7.02944 21 12 21C16.6326 21 20.4476 17.5 20.9451 13H11V3.05493Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 3L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Activity
+                    </span>
+                </a>
+            </div>
+        </div>
+    </div>
+</aside>

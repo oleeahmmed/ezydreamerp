@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice #{{ arinvoice.id }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+        
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        
+        @media print {
+            body {
+                width: 210mm;
+                height: 297mm;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+            .page {
+                width: 210mm;
+                min-height: 297mm;
+                padding: 15mm;
+                margin: 0;
+                box-shadow: none;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+        
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15mm;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="no-print p-4 bg-white shadow-md mb-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold">Invoice #{{ arinvoice.id }}</h1>
+        <div>
+            <button onclick="window.print()" class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">Print Invoice</button>
+            <a href="{% url 'Sales:arinvoice_detail' arinvoice.id %}" class="ml-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Back to Details</a>
+        </div>
+    </div>
+
+    <div class="page bg-white">
+        <!-- Header Section -->
+        <div class="flex justify-between items-start mb-12">
+            <div>
+                <img src="https://via.placeholder.com/180x60/000000/ffffff?text=COMPANY" alt="Company Logo" class="h-12 mb-4">
+                <p class="text-xs text-gray-500">123 Business Street, Suite 100</p>
+                <p class="text-xs text-gray-500">City, State, ZIP</p>
+                <p class="text-xs text-gray-500">Phone: (123) 456-7890</p>
+                <p class="text-xs text-gray-500">Email: billing@yourcompany.com</p>
+            </div>
+            <div class="text-right">
+                <h2 class="text-4xl font-bold mb-6">INVOICE</h2>
+                <div class="text-sm">
+                    <div class="grid grid-cols-2 gap-x-4 text-right">
+                        <p class="text-gray-500 font-medium">Invoice Number:</p>
+                        <p class="font-semibold">{{ arinvoice.id }}</p>
+                        
+                        <p class="text-gray-500 font-medium">Date Issued:</p>
+                        <p class="font-semibold">{{ arinvoice.document_date|date:"M d, Y" }}</p>
+                        
+                        <p class="text-gray-500 font-medium">Due Date:</p>
+                        <p class="font-semibold">{{ arinvoice.due_date|date:"M d, Y" }}</p>
+                        
+                        <p class="text-gray-500 font-medium">Status:</p>
+                        <p class="font-semibold">{{ arinvoice.status }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Client & Shipping Info -->
+        <div class="grid grid-cols-2 gap-12 mb-10">
+            <div>
+                <h3 class="font-bold text-gray-800 uppercase mb-3 text-xs border-b-2 border-black pb-1 inline-block">BILL TO</h3>
+                <p class="font-bold text-gray-800 text-sm">{{ arinvoice.customer.name }}</p>
+                {% if arinvoice.contact_person %}
+                <p class="text-gray-600">Attn: {{ arinvoice.contact_person.name }}</p>
+                {% endif %}
+                {% if arinvoice.billing_address %}
+                <p class="text-gray-600">{{ arinvoice.billing_address.street }}</p>
+                <p class="text-gray-600">{{ arinvoice.billing_address.city }}, {{ arinvoice.billing_address.state }} {{ arinvoice.billing_address.zip_code }}</p>
+                <p class="text-gray-600">{{ arinvoice.billing_address.country }}</p>
+                {% endif %}
+                <p class="text-gray-600">Phone: {{ arinvoice.customer.phone }}</p>
+                <p class="text-gray-600">Email: {{ arinvoice.customer.email }}</p>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-800 uppercase mb-3 text-xs border-b-2 border-black pb-1 inline-block">SHIP TO</h3>
+                <p class="font-bold text-gray-800 text-sm">{{ arinvoice.customer.name }}</p>
+                {% if arinvoice.delivery and arinvoice.delivery.shipping_address %}
+                <p class="text-gray-600">{{ arinvoice.delivery.shipping_address.street }}</p>
+                <p class="text-gray-600">{{ arinvoice.delivery.shipping_address.city }}, {{ arinvoice.delivery.shipping_address.state }} {{ arinvoice.delivery.shipping_address.zip_code }}</p>
+                <p class="text-gray-600">{{ arinvoice.delivery.shipping_address.country }}</p>
+                {% elif arinvoice.sales_order and arinvoice.sales_order.shipping_address %}
+                <p class="text-gray-600">{{ arinvoice.sales_order.shipping_address.street }}</p>
+                <p class="text-gray-600">{{ arinvoice.sales_order.shipping_address.city }}, {{ arinvoice.sales_order.shipping_address.state }} {{ arinvoice.sales_order.shipping_address.zip_code }}</p>
+                <p class="text-gray-600">{{ arinvoice.sales_order.shipping_address.country }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Reference Info -->
+        <div class="grid grid-cols-4 gap-4 mb-10 text-xs">
+            <div class="border border-gray-200 p-3">
+                <p class="text-gray-500 font-medium mb-1">Order Number</p>
+                <p class="font-semibold">{% if arinvoice.sales_order %}{{ arinvoice.sales_order.id }}{% else %}N/A{% endif %}</p>
+            </div>
+            <div class="border border-gray-200 p-3">
+                <p class="text-gray-500 font-medium mb-1">Delivery Number</p>
+                <p class="font-semibold">{% if arinvoice.delivery %}{{ arinvoice.delivery.id }}{% else %}N/A{% endif %}</p>
+            </div>
+            <div class="border border-gray-200 p-3">
+                <p class="text-gray-500 font-medium mb-1">Payment Terms</p>
+                <p class="font-semibold">{% if arinvoice.payment_terms %}{{ arinvoice.payment_terms.name }}{% else %}Net 30{% endif %}</p>
+            </div>
+            <div class="border border-gray-200 p-3">
+                <p class="text-gray-500 font-medium mb-1">Sales Employee</p>
+                <p class="font-semibold">{% if arinvoice.sales_employee %}{{ arinvoice.sales_employee.name }}{% else %}N/A{% endif %}</p>
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <div class="mb-10">
+            <table class="w-full text-xs">
+                <thead>
+                    <tr class="bg-black text-white uppercase">
+                        <th class="py-3 px-4 text-left font-semibold">Item #</th>
+                        <th class="py-3 px-4 text-left font-semibold">Description</th>
+                        <th class="py-3 px-4 text-center font-semibold">Qty</th>
+                        <th class="py-3 px-4 text-center font-semibold">UOM</th>
+                        <th class="py-3 px-4 text-right font-semibold">Unit Price</th>
+                        <th class="py-3 px-4 text-right font-semibold">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for line in arinvoice.lines.all %}
+                    {% if line.is_active %}
+                    <tr class="border-b border-gray-200">
+                        <td class="py-3 px-4">{{ line.item_code }}</td>
+                        <td class="py-3 px-4">{{ line.item_name }}</td>
+                        <td class="py-3 px-4 text-center">{{ line.quantity }}</td>
+                        <td class="py-3 px-4 text-center">{{ line.uom }}</td>
+                        <td class="py-3 px-4 text-right">{{ line.unit_price|floatformat:2 }}</td>
+                        <td class="py-3 px-4 text-right font-semibold">{{ line.total_amount|floatformat:2 }}</td>
+                    </tr>
+                    {% endif %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="py-4 text-center text-gray-500">No items found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Totals & Notes -->
+        <div class="grid grid-cols-2 gap-12">
+            <div>
+                <h3 class="font-bold text-gray-800 uppercase mb-3 text-xs border-b-2 border-black pb-1 inline-block">NOTES</h3>
+                <div class="text-gray-600">
+                    {% if arinvoice.remarks %}
+                    <p>{{ arinvoice.remarks }}</p>
+                    {% else %}
+                    <p>Thank you for your business. Please make payment by the due date.</p>
+                    {% endif %}
+                </div>
+                
+                <h3 class="font-bold text-gray-800 uppercase mb-3 text-xs border-b-2 border-black pb-1 inline-block mt-6">PAYMENT DETAILS</h3>
+                <div class="text-gray-600">
+                    <p><span class="font-semibold">Bank:</span> First National Bank</p>
+                    <p><span class="font-semibold">Account Name:</span> Your Company Name</p>
+                    <p><span class="font-semibold">Account #:</span> 1234567890</p>
+                    <p><span class="font-semibold">Routing #:</span> 987654321</p>
+                </div>
+            </div>
+            <div>
+                <div class="ml-auto w-full max-w-xs">
+                    <div class="flex justify-between py-2 text-gray-600">
+                        <span class="font-medium">Subtotal:</span>
+                        <span>{{ arinvoice.total_amount|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between py-2 text-gray-600">
+                        <span class="font-medium">Tax (0%):</span>
+                        <span>0.00</span>
+                    </div>
+                    <div class="flex justify-between py-3 font-bold text-gray-800 border-y-2 border-black my-2">
+                        <span>Total:</span>
+                        <span>{{ arinvoice.total_amount|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between py-2 text-gray-600">
+                        <span class="font-medium">Amount Paid:</span>
+                        <span>{{ arinvoice.paid_amount|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between py-3 font-bold text-gray-800 bg-gray-100 px-3 mt-2">
+                        <span>Balance Due:</span>
+                        <span>{{ arinvoice.due_amount|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-12 pt-6 border-t border-gray-200 text-center text-xs text-gray-500">
+            <p class="font-semibold text-gray-700">Thank you for your business</p>
+            <p class="mt-1">Your Company Name | 123 Business Street, Suite 100, City, State, ZIP | (123) 456-7890 | www.yourcompany.com</p>
+        </div>
+        
+        <!-- Terms & Conditions -->
+        <div class="mt-4 text-[8px] text-gray-400">
+            <p>TERMS & CONDITIONS: Payment is due within 30 days of invoice date. Late payments are subject to a 1.5% monthly fee. All products remain the property of Your Company Name until payment is received in full.</p>
+        </div>
+    </div>
+</body>
+</html>

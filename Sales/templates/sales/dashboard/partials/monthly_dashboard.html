@@ -1,0 +1,398 @@
+<!-- Tab navigation -->
+<div class="tab-container">
+    <div class="tab-list">
+        <div class="tab-item active" data-tab="tab-summary">Summary</div>
+        <div class="tab-item" data-tab="tab-sales">Monthly Sales</div>
+        <div class="tab-item" data-tab="tab-deliveries">Monthly Deliveries</div>
+        <div class="tab-item" data-tab="tab-returns">Monthly Returns</div>
+        <div class="tab-item" data-tab="tab-invoices">Monthly Invoices</div>
+        <div class="tab-item" data-tab="tab-performance">Performance</div>
+    </div>
+</div>
+
+<!-- Tab content -->
+<div id="tab-summary" class="tab-content active">
+    <!-- Metrics Cards -->
+    <div class="metrics-grid">
+        <!-- Monthly Sales -->
+        <div class="metric-card">
+            <div class="metric-label">MONTHLY SALES</div>
+            <div class="metric-value">{{ monthly_sales.total|floatformat:2 }}</div>
+            <div class="metric-subvalue">{{ monthly_sales.count }} orders</div>
+
+        </div>
+
+        <!-- Monthly Deliveries -->
+        <div class="metric-card">
+            <div class="metric-label">MONTHLY DELIVERIES</div>
+            <div class="metric-value">{{ monthly_deliveries.count }}</div>
+            <div class="metric-subvalue">{{ monthly_deliveries.total|floatformat:2 }}</div>
+
+        </div>
+
+        <!-- Monthly Invoices -->
+        <div class="metric-card">
+            <div class="metric-label">MONTHLY INVOICES</div>
+            <div class="metric-value">{{ monthly_invoices.count }}</div>
+            <div class="metric-subvalue">{{ monthly_invoices.total|floatformat:2 }}</div>
+
+        </div>
+
+        <!-- Monthly Returns -->
+        <div class="metric-card">
+            <div class="metric-label">MONTHLY RETURNS</div>
+            <div class="metric-value">{{ monthly_returns.count }}</div>
+            <div class="metric-subvalue">{{ monthly_returns.total|floatformat:2 }}</div>
+
+        </div>
+
+        <!-- Monthly Quotations -->
+        <div class="metric-card">
+            <div class="metric-label">MONTHLY QUOTATIONS</div>
+            <div class="metric-value">{{ monthly_quotations.count }}</div>
+            <div class="metric-subvalue">{{ monthly_quotations.total|floatformat:2 }}</div>
+
+        </div>
+
+        <!-- Monthly Orders -->
+        <div class="metric-card">
+            <div class="metric-label">MONTHLY ORDERS</div>
+            <div class="metric-value">{{ monthly_orders.count }}</div>
+            <div class="metric-subvalue">{{ monthly_orders.total|floatformat:2 }}</div>
+
+        </div>
+    </div>
+
+    <!-- Top Products and Top Customers -->
+    <div class="table-grid">
+        <!-- Top Products -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3 class="table-title">Top Products (Monthly)</h3>
+                <p class="table-subtitle">Best selling products by revenue</p>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>PRODUCT</th>
+                            <th class="text-right">QUANTITY</th>
+                            <th class="text-right">SALES</th>
+                            <th class="text-right">AVG. PRICE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in top_products_monthly %}
+                        <tr>
+                            <td class="font-medium">{{ product.item_name }}</td>
+                            <td class="text-right">{{ product.total_quantity|floatformat:2 }}</td>
+                            <td class="text-right">{{ product.total_sales|floatformat:2 }}</td>
+                            <td class="text-right">{{ product.avg_price|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="empty-state">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Top Customers -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3 class="table-title">Top Customers (Monthly)</h3>
+                <p class="table-subtitle">Customers with highest purchase value</p>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>CUSTOMER</th>
+                            <th class="text-right">INVOICES</th>
+                            <th class="text-right">ORDERS</th>
+                            <th class="text-right">TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for customer in top_customers_monthly %}
+                        <tr>
+                            <td class="font-medium">{{ customer.customer_name }}</td>
+                            <td class="text-right">{{ customer.invoice_count }}</td>
+                            <td class="text-right">{{ customer.order_count }}</td>
+                            <td class="text-right">{{ customer.total_sales|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="empty-state">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sales Tab -->
+<div id="tab-sales" class="tab-content">
+    <div class="table-card">
+        <div class="table-header">
+            <h3 class="table-title">Monthly Sales Orders</h3>
+            <p class="table-subtitle">Top orders this month</p>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ORDER #</th>
+                        <th>DATE</th>
+                        <th>CUSTOMER</th>
+                        <th>SALES EMPLOYEE</th>
+                        <th class="text-right">AMOUNT</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in top_monthly_orders %}
+                    <tr>
+                        <td class="font-medium">{{ order.id }}</td>
+                        <td>{{ order.document_date|date:"Y-m-d" }}</td>
+                        <td>{{ order.customer.name }}</td>
+                        <td>{{ order.sales_employee.name|default:"Not Assigned" }}</td>
+                        <td class="text-right">{{ order.total_amount|floatformat:2 }}</td>
+                        <td>
+                            <span class="badge {% if order.status == 'Delivered' %}badge-success
+                                {% elif order.status == 'Partially Delivered' %}badge-warning
+                                {% elif order.status == 'Cancelled' %}badge-danger
+                                {% else %}badge-info{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-state">No orders this month</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Deliveries Tab -->
+<div id="tab-deliveries" class="tab-content">
+    <div class="table-card">
+        <div class="table-header">
+            <h3 class="table-title">Monthly Deliveries</h3>
+            <p class="table-subtitle">Top deliveries this month</p>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>DELIVERY #</th>
+                        <th>DATE</th>
+                        <th>CUSTOMER</th>
+                        <th>DELIVERY EMPLOYEE</th>
+                        <th class="text-right">AMOUNT</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for delivery in monthly_deliveries_list %}
+                    <tr>
+                        <td class="font-medium">{{ delivery.id }}</td>
+                        <td>{{ delivery.document_date|date:"Y-m-d" }}</td>
+                        <td>{{ delivery.customer.name }}</td>
+                        <td>{{ delivery.deliveryemployee|default:"Not Assigned" }}</td>
+                        <td class="text-right">{{ delivery.total_amount|floatformat:2 }}</td>
+                        <td>
+                            <span class="badge {% if delivery.status == 'Delivered' %}badge-success
+                                {% elif delivery.status == 'Partially Delivered' %}badge-warning
+                                {% elif delivery.status == 'Cancelled' %}badge-danger
+                                {% else %}badge-info{% endif %}">
+                                {{ delivery.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-state">No deliveries this month</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Returns Tab -->
+<div id="tab-returns" class="tab-content">
+    <div class="table-card">
+        <div class="table-header">
+            <h3 class="table-title">Monthly Returns</h3>
+            <p class="table-subtitle">Top returns this month</p>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>RETURN #</th>
+                        <th>DATE</th>
+                        <th>CUSTOMER</th>
+                        <th>SALES EMPLOYEE</th>
+                        <th class="text-right">AMOUNT</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for return in monthly_returns_list %}
+                    <tr>
+                        <td class="font-medium">{{ return.id }}</td>
+                        <td>{{ return.document_date|date:"Y-m-d" }}</td>
+                        <td>{{ return.customer.name }}</td>
+                        <td>{{ return.sales_employee.name|default:"Not Assigned" }}</td>
+                        <td class="text-right">{{ return.total_amount|floatformat:2 }}</td>
+                        <td>
+                            <span class="badge {% if return.status == 'Returned' %}badge-success
+                                {% elif return.status == 'Partially Returned' %}badge-warning
+                                {% elif return.status == 'Cancelled' %}badge-danger
+                                {% else %}badge-info{% endif %}">
+                                {{ return.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-state">No returns this month</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Invoices Tab -->
+<div id="tab-invoices" class="tab-content">
+    <div class="table-card">
+        <div class="table-header">
+            <h3 class="table-title">Monthly Invoices</h3>
+            <p class="table-subtitle">Top invoices this month</p>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>INVOICE #</th>
+                        <th>DATE</th>
+                        <th>CUSTOMER</th>
+                        <th>SALES EMPLOYEE</th>
+                        <th class="text-right">AMOUNT</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in monthly_invoices_list %}
+                    <tr>
+                        <td class="font-medium">{{ invoice.id }}</td>
+                        <td>{{ invoice.document_date|date:"Y-m-d" }}</td>
+                        <td>{{ invoice.customer.name }}</td>
+                        <td>{{ invoice.sales_employee.name|default:"Not Assigned" }}</td>
+                        <td class="text-right">{{ invoice.total_amount|floatformat:2 }}</td>
+                        <td>
+                            <span class="badge {% if invoice.status == 'Paid' %}badge-success
+                                {% elif invoice.status == 'Partially Paid' %}badge-warning
+                                {% elif invoice.status == 'Cancelled' %}badge-danger
+                                {% elif invoice.status == 'Overdue' %}badge-danger
+                                {% else %}badge-info{% endif %}">
+                                {{ invoice.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-state">No invoices this month</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Tab -->
+<div id="tab-performance" class="tab-content">
+    <div class="table-grid">
+        <!-- Sales Employee Orders -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3 class="table-title">Sales Employee Performance (Monthly)</h3>
+                <p class="table-subtitle">All orders by sales employee</p>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>EMPLOYEE</th>
+                            <th class="text-right">ORDERS</th>
+                            <th class="text-right">AMOUNT</th>
+                            <th class="text-right">AVG. ORDER</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in sales_employee_orders_monthly %}
+                        <tr>
+                            <td class="font-medium">{{ employee.employee_name }}</td>
+                            <td class="text-right">{{ employee.order_count }}</td>
+                            <td class="text-right">{{ employee.total_amount|floatformat:2 }}</td>
+                            <td class="text-right">{{ employee.avg_order|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="empty-state">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Delivery Employee Deliveries -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3 class="table-title">Delivery Employee Performance (Monthly)</h3>
+                <p class="table-subtitle">Deliveries by delivery employee</p>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>EMPLOYEE</th>
+                            <th class="text-right">DELIVERIES</th>
+                            <th class="text-right">AMOUNT</th>
+                            <th class="text-right">AVG. DELIVERY</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in delivery_employee_deliveries_monthly %}
+                        <tr>
+                            <td class="font-medium">{{ employee.delivery_employee_name }}</td>
+                            <td class="text-right">{{ employee.delivery_count }}</td>
+                            <td class="text-right">{{ employee.total_amount|floatformat:2 }}</td>
+                            <td class="text-right">{{ employee.avg_delivery|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="empty-state">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

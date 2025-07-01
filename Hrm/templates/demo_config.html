@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block page_title %}Sample Data Setup{% endblock page_title %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl">
+    <div class="rounded-xl border-2 bg-[hsl(var(--background))] shadow-lg p-8 mb-6 premium-card relative transition-all duration-300 hover:border-[hsl(var(--primary)/1)] hover:shadow-xl">
+        <div class="absolute inset-0 rounded-xl border-2 border-transparent"></div>
+
+        <!-- Decorative Elements -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[hsl(var(--primary))] to-transparent opacity-10 rounded-bl-full"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-[hsl(var(--primary))] to-transparent opacity-10 rounded-tr-full"></div>
+
+        <!-- Header -->
+        <div class="mb-8 border-b border-[hsl(var(--border))] pb-6 relative">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-icon">
+                        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19 7H5C3.89543 7 3 7.89543 3 9V15C3 16.1046 3.89543 17 5 17H19C20.1046 17 21 16.1046 21 15V9C21 7.89543 20.1046 7 19 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8 7V4C8 3.44772 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.44772 16 4V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-foreground))] bg-clip-text text-transparent">Sample Data Setup</h3>
+                        <p class="text-sm text-[hsl(var(--muted-foreground))]">Import or delete HRM and Payroll sample data</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form id="demoConfigForm" method="post" action="{% url 'hrm:hrm_demo_config' %}" class="space-y-6 relative">
+            {% csrf_token %}
+            {% include "common/toast.html" %}
+
+            <!-- Form Fields -->
+            <div class="grid grid-cols-1 gap-6">
+                <!-- Action Selection -->
+                <div>
+                    <div class="relative">
+                        <select id="demo_action" name="action" 
+                            class="peer w-full px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] appearance-none"
+                            required>
+                            <option value="" disabled selected>Select Action</option>
+                            <option value="import_hrm">Import HRM Data</option>
+                            <option value="import_payroll">Import Payroll Data</option>
+                            <option value="delete_hrm">Delete HRM Data</option>
+                            <option value="delete_payroll">Delete Payroll Data</option>
+                        </select>
+                        <label for="demo_action" 
+                            class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                            Action<span class="text-red-500">*</span>
+                        </label>
+                        <svg class="absolute right-3 top-3.5 w-5 h-5 pointer-events-none text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Footer -->
+            <div class="border-t-2 border-[hsl(var(--border))] pt-8 flex flex-col sm:flex-row justify-between items-center gap-6 relative">
+                <div class="text-sm text-[hsl(var(--muted-foreground))]">
+                    <span class="flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-green-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Your data is secure and encrypted with premium protection
+                    </span>
+                </div>
+                <div class="flex gap-4">
+                    <button type="submit" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-11 px-6 py-2 shadow-md premium-button">
+                        Submit
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg p-8 shadow-2xl max-w-md w-full text-center transform transition-all duration-500">
+                <!-- Spinner -->
+                <div class="relative w-16 h-16 mx-auto mb-4">
+                    <div class="absolute inset-0 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
+                    <div class="absolute inset-2 border-4 border-t-transparent border-purple-500 rounded-full animate-spin-reverse"></div>
+                </div>
+                <!-- Model Name -->
+                <h3 id="loadingModelName" class="text-lg font-semibold text-gray-800 mb-4">Processing...</h3>
+                <!-- Progress Bar -->
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-purple-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('demoConfigForm');
+    const actionSelect = document.getElementById('demo_action');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const loadingModelName = document.getElementById('loadingModelName');
+    const progressBar = document.getElementById('progressBar');
+
+    // Form submission with AJAX
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const actionValue = actionSelect.value;
+        
+        if (!actionValue) {
+            showToast('Please select an action', 'error');
+            return;
+        }
+
+        // Show loading overlay
+        loadingOverlay.classList.remove('hidden');
+        loadingModelName.textContent = 'Initializing...';
+        progressBar.style.width = '0%';
+
+        try {
+            const formData = new FormData(form);
+            const response = await fetch("{% url 'hrm:hrm_demo_config' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const models = data.models || [];
+            const isImport = actionValue.includes('import');
+            const prefix = isImport ? 'Importing' : 'Deleting';
+
+            // Simulate processing each model
+            for (let i = 0; i < models.length; i++) {
+                loadingModelName.textContent = `${prefix} ${models[i]}...`;
+                const progress = ((i + 1) / models.length) * 100;
+                progressBar.style.width = `${progress}%`;
+                await new Promise(resolve => setTimeout(resolve, 300)); // Simulate processing time
+            }
+
+            // Hide loading overlay
+            loadingOverlay.classList.add('hidden');
+            showToast(data.message, data.status === 'error' ? 'error' : 'success');
+            if (data.status === 'success') {
+                form.reset();
+            }
+        } catch (error) {
+            loadingOverlay.classList.add('hidden');
+            showToast('An error occurred: ' + error.message, 'error');
+            console.error('Fetch error:', error);
+        }
+    });
+
+    // Toast notification function
+    function showToast(content, type = 'info') {
+        let toastContainer = document.querySelector('.toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container fixed bottom-20 right-4 z-50 flex flex-col gap-2';
+            document.body.appendChild(toastContainer);
+        }
+        
+        const toast = document.createElement('div');
+        toast.className = `p-4 rounded-xl shadow-lg transition-all duration-300 transform translate-x-full ${
+            type === 'error' ? 'bg-red-600 text-white' : 'bg-green-600 text-white'
+        }`;
+        
+        toast.textContent = content;
+        toastContainer.appendChild(toast);
+        
+        setTimeout(() => toast.classList.remove('translate-x-full'), 1);
+        setTimeout(() => {
+            toast.classList.add('translate-x-full');
+            setTimeout(() => {
+                toast.remove();
+                if (toastContainer.children.length === 0) toastContainer.remove();
+            }, 300);
+        }, 4000);
+    }
+});
+</script>
+
+<style>
+@keyframes spin-reverse {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(-360deg); }
+}
+.animate-spin-reverse { animation: spin-reverse 1.5s linear infinite; }
+</style>
+{% endblock extra_js %}

@@ -1,0 +1,118 @@
+{% extends "common/base-list-modern.html" %}
+{% load static %}
+
+{% block list_title %}Notification Management{% endblock %}
+{% block list_subtitle %}Manage your notification settings{% endblock %}
+
+{% block list_icon %}
+<svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+{% endblock %}
+
+{% block table_headers %}
+<th scope="col" class="px-6 py-3">Title</th>
+<th scope="col" class="px-6 py-3">Recipient</th>
+<th scope="col" class="px-6 py-3">Type</th>
+<th scope="col" class="px-6 py-3">Status</th>
+<th scope="col" class="px-6 py-3">Created At</th>
+<th scope="col" class="px-6 py-3 text-right">Actions</th>
+{% endblock %}
+
+{% block table_body %}
+{% for object in objects %}
+<tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]">
+    <td class="px-6 py-4 font-medium">{{ object.title }}</td>
+    <td class="px-6 py-4">
+        {% if object.all_users %}
+            All Users
+        {% else %}
+            {{ object.recipient.username|default:"Not specified" }}
+        {% endif %}
+    </td>
+    <td class="px-6 py-4">
+        {% if object.notification_type == 'info' %}
+            <span class="px-2 py-1 rounded-full bg-blue-100 text-blue-800">Information</span>
+        {% elif object.notification_type == 'warning' %}
+            <span class="px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">Warning</span>
+        {% elif object.notification_type == 'success' %}
+            <span class="px-2 py-1 rounded-full bg-green-100 text-green-800">Success</span>
+        {% elif object.notification_type == 'error' %}
+            <span class="px-2 py-1 rounded-full bg-red-100 text-red-800">Error</span>
+        {% endif %}
+    </td>
+    <td class="px-6 py-4">
+        {% if object.is_read %}
+            <span class="px-2 py-1 rounded-full bg-gray-100 text-gray-800">Read</span>
+        {% else %}
+            <span class="px-2 py-1 rounded-full bg-purple-100 text-purple-800">Unread</span>
+        {% endif %}
+    </td>
+    <td class="px-6 py-4">{{ object.created_at|date:"M d, Y H:i" }}</td>
+    <td class="px-6 py-4 text-right">
+        <div class="flex justify-end gap-2">
+            <a href="{{ list_url }}{{ object.pk }}/" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 12C2 12 5.63636 5 12 5C18.3636 5 22 12 22 12C22 12 18.3636 19 12 19C5.63636 19 2 12 2 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+            {% if not object.is_read %}
+            <a href="{% url 'global_settings:mark_notification_read' object.pk %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-green-100 hover:text-green-700 h-9 px-3 py-2">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 12L11 14L15 10M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+            {% endif %}
+            <a href="{{ list_url }}{{ object.pk }}/update/" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+            <a href="{{ list_url }}{{ object.pk }}/delete/" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-red-100 hover:text-red-700 h-9 px-3 py-2">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+        </div>
+    </td>
+</tr>
+{% empty %}
+<tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+    <td colspan="6" class="px-6 py-4 text-center text-[hsl(var(--muted-foreground))]">
+        No notifications found. <a href="{{ create_url }}" class="text-[hsl(var(--primary))] hover:underline">Add one now</a>.
+    </td>
+</tr>
+{% endfor %}
+{% endblock %}
+
+{% block filters %}
+<div class="flex flex-wrap gap-4 mb-4">
+    <div>
+        <label for="notification_type" class="block text-sm font-medium text-[hsl(var(--foreground))]">Notification Type</label>
+        <select id="notification_type" name="notification_type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-[hsl(var(--border))] rounded-md focus:outline-none focus:ring-[hsl(var(--primary))] focus:border-[hsl(var(--primary))] sm:text-sm">
+            <option value="">All Types</option>
+            <option value="info" {% if request.GET.notification_type == 'info' %}selected{% endif %}>Information</option>
+            <option value="warning" {% if request.GET.notification_type == 'warning' %}selected{% endif %}>Warning</option>
+            <option value="success" {% if request.GET.notification_type == 'success' %}selected{% endif %}>Success</option>
+            <option value="error" {% if request.GET.notification_type == 'error' %}selected{% endif %}>Error</option>
+        </select>
+    </div>
+    <div>
+        <label for="is_read" class="block text-sm font-medium text-[hsl(var(--foreground))]">Status</label>
+        <select id="is_read" name="is_read" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-[hsl(var(--border))] rounded-md focus:outline-none focus:ring-[hsl(var(--primary))] focus:border-[hsl(var(--primary))] sm:text-sm">
+            <option value="">All Status</option>
+            <option value="true" {% if request.GET.is_read == 'true' %}selected{% endif %}>Read</option>
+            <option value="false" {% if request.GET.is_read == 'false' %}selected{% endif %}>Unread</option>
+        </select>
+    </div>
+    <div class="flex items-end">
+        <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary-foreground))] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[hsl(var(--primary))]">
+            Filter
+        </button>
+    </div>
+</div>
+{% endblock %}

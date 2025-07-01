@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="mx-auto">
+    <div class="rounded-xl border-2 bg-[hsl(var(--background))] shadow-lg p-8 mb-6 premium-card relative transition-all duration-300 hover:border-[hsl(var(--primary)/1)] hover:shadow-xl">
+        <div class="absolute inset-0 rounded-xl border-2 border-transparent"></div>
+
+        <!-- Decorative Elements -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[hsl(var(--primary))] to-transparent opacity-10 rounded-bl-full"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-[hsl(var(--primary))] to-transparent opacity-10 rounded-tr-full"></div>
+
+        <!-- Form Header -->
+        <div class="mb-8 border-b border-[hsl(var(--border))]  pb-6  relative ">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-icon">
+                        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M19.4 15C19.1277 15.8031 19.2583 16.6846 19.75 17.4L19.81 17.49C20.2025 17.8827 20.4111 18.4353 20.3965 19.0054C20.3819 19.5755 20.1452 20.1163 19.73 20.49C19.3148 20.8637 18.7741 21.1004 18.204 21.115C17.6339 21.1296 17.0813 20.921 16.6886 20.5285L16.6 20.47C15.8846 19.9783 15.0031 19.8477 14.2 20.12C13.4101 20.3865 12.7935 21.0031 12.527 21.793L12.5 21.913C12.3724 22.4723 12.0467 22.9654 11.5833 23.3006C11.1199 23.6358 10.5499 23.7947 9.97002 23.7479C9.39016 23.7011 8.8526 23.4519 8.44804 23.0473C8.04348 22.6428 7.79429 22.1052 7.75002 21.5254L7.75002 21.4C7.71821 20.5868 7.32511 19.8372 6.68002 19.34C5.99033 18.8016 5.09577 18.6117 4.25002 18.82C3.68325 18.9861 3.07685 18.9106 2.55811 18.6082C2.03938 18.3057 1.64908 17.8015 1.46002 17.21C1.27478 16.6266 1.30843 15.9926 1.55524 15.4332C1.80205 14.8738 2.24558 14.4303 2.80502 14.1835L2.92502 14.13C3.71416 13.7613 4.29325 13.0844 4.52502 12.27C4.79728 11.4669 4.66672 10.5854 4.17502 9.87L4.11502 9.78C3.72258 9.38734 3.51397 8.83467 3.52858 8.26458C3.54319 7.69449 3.77988 7.15372 4.19502 6.78C4.61017 6.40627 5.15094 6.16959 5.72102 6.15498C6.29111 6.14037 6.84378 6.34897 7.23644 6.74142L7.32502 6.8C8.04044 7.29168 8.92189 7.42224 9.72502 7.15C10.515 6.88347 11.1316 6.26687 11.398 5.47697L11.425 5.357C11.5526 4.79774 11.8783 4.30461 12.3417 3.96941C12.8051 3.6342 13.3751 3.47527 13.955 3.52208C14.5349 3.56889 15.0724 3.81809 15.477 4.22264C15.8815 4.6272 16.1307 5.16476 16.175 5.74462V5.87C16.2068 6.68323 16.5999 7.43277 17.245 7.93C17.9347 8.46843 18.8293 8.65829 19.675 8.45C20.2418 8.28391 20.8482 8.35941 21.3669 8.66185C21.8857 8.96428 22.276 9.46853 22.465 10.06C22.6502 10.6434 22.6166 11.2774 22.3698 11.8368C22.123 12.3962 21.6794 12.8397 21.12 13.0865L20.999 13.14C20.2099 13.5087 19.6308 14.1856 19.399 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-foreground))] bg-clip-text text-transparent">{{ title|default:"Form" }}</h3>
+                        <p class="text-sm text-[hsl(var(--muted-foreground))]">{{ subtitle|default:"Please fill out the form below" }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-center px-4 py-2 text-xs font-bold rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-badge">
+                    PREMIUM PLUS
+                </div>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-6 relative " {% if is_detail_view %}onsubmit="return false;"{% endif %}>
+            {% csrf_token %}
+            {% include "common/toast.html" %}
+            {% include 'common/form-details-error.html'%}
+
+            <!-- Form Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% include 'common/form-loop.html'%}
+            </div>
+
+            <!-- Form Footer -->
+            <div class="border-t-2 border-[hsl(var(--border))] pt-8 flex flex-col sm:flex-row justify-between items-center gap-6 relative ">
+                <div class="text-sm text-[hsl(var(--muted-foreground))]">
+                    <span class="flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-green-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Your data is secure and encrypted with premium protection
+                    </span>
+                </div>
+                <div class="flex gap-4">
+                    {% if cancel_url %}
+                    <a href="{{ cancel_url }}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-11 px-6 py-2 shadow-md">
+                        {% if is_detail_view %}Back{% else %}Cancel{% endif %}
+                    </a>
+                    {% endif %}
+                    
+                    {% if is_detail_view %}
+                        {% if update_url %}
+                        <a href="{{ update_url }}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-11 px-6 py-2 shadow-md">
+                            Edit
+                        </a>
+                        {% endif %}
+                        {% if delete_url %}
+                        <a href="{{ delete_url }}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-red-100 text-red-700 hover:bg-red-200 h-11 px-6 py-2 shadow-md">
+                            Delete
+                        </a>
+                        {% endif %}
+                    {% else %}
+                        <button type="reset" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-11 px-6 py-2 shadow-md">
+                            Reset
+                        </button>
+                        <button type="submit" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-11 px-6 py-2 shadow-md premium-button">
+                            Submit
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add any custom JavaScript here
+</script>
+{% endblock %}

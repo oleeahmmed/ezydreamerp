@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sales Dashboard{% endblock %}
+{% block page_title %}Sales Dashboard{% endblock %}
+
+{% block custom_css %}
+<style>
+    .dashboard-card {
+        transition: all 0.3s ease;
+        border: 1px solid hsl(var(--border));
+        background: linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted)/0.3));
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        border-color: hsl(var(--primary)/0.2);
+    }
+    
+    .card-icon {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)/0.7));
+        color: hsl(var(--primary-foreground));
+        transition: all 0.3s ease;
+    }
+    
+    .dashboard-card:hover .card-icon {
+        transform: scale(1.1);
+    }
+    
+    .view-link {
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .view-link.active {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)/0.8));
+        color: hsl(var(--primary-foreground));
+        font-weight: 500;
+    }
+    
+    .view-link:not(.active) {
+        background: hsl(var(--muted));
+        color: hsl(var(--muted-foreground));
+    }
+    
+    .view-link:not(.active):hover {
+        background: hsl(var(--accent));
+        color: hsl(var(--accent-foreground));
+    }
+    
+    .view-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: hsl(var(--primary-foreground));
+    }
+    
+    .premium-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .premium-table th {
+        background: hsl(var(--muted));
+        color: hsl(var(--primary));
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid hsl(var(--border));
+    }
+    
+    .premium-table td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid hsl(var(--border)/0.5);
+        transition: background 0.2s ease;
+    }
+    
+    .premium-table tbody tr:hover td {
+        background: hsl(var(--accent)/0.3);
+    }
+    
+    .premium-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.025em;
+    }
+    
+    .badge-success {
+        background: rgba(16, 185, 129, 0.1);
+        color: rgb(16, 185, 129);
+    }
+    
+    .badge-warning {
+        background: rgba(245, 158, 11, 0.1);
+        color: rgb(245, 158, 11);
+    }
+    
+    .badge-danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: rgb(239, 68, 68);
+    }
+    
+    .badge-info {
+        background: rgba(59, 130, 246, 0.1);
+        color: rgb(59, 130, 246);
+    }
+    
+    .dashboard-section {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .auto-refresh-indicator {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.75rem;
+        color: hsl(var(--muted-foreground));
+    }
+    
+    .pulse {
+        height: 8px;
+        width: 8px;
+        border-radius: 50%;
+        background-color: rgb(16, 185, 129);
+        display: inline-block;
+        margin-right: 0.5rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        }
+        
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+        }
+        
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        }
+    }
+    
+    /* For smooth transitions */
+    .htmx-swapping {
+        opacity: 0;
+        transition: opacity 0.3s ease-out;
+    }
+    
+    .htmx-settling {
+        opacity: 1;
+        transition: opacity 0.3s ease-in;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <!-- Dashboard Header -->
+    <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-[hsl(var(--foreground))]">Sales Dashboard</h1>
+            <p class="text-[hsl(var(--muted-foreground))] mt-1">Track your sales performance and metrics</p>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <div class="auto-refresh-indicator">
+                <span class="pulse"></span>
+                Auto-refreshing
+            </div>
+            
+            <div class="flex space-x-2">
+                <a href="{% url 'Sales:dashboard_daily' %}" 
+                   class="view-link px-4 py-2 text-sm rounded-md {% if period == 'daily' %}active{% endif %}"
+                   hx-get="{% url 'Sales:dashboard_daily' %}"
+                   hx-target="#dashboard-content"
+                   hx-swap="innerHTML transition:true"
+                   hx-push-url="true">
+                    Daily
+                </a>
+                <a href="{% url 'Sales:dashboard_monthly' %}" 
+                   class="view-link px-4 py-2 text-sm rounded-md {% if period == 'monthly' %}active{% endif %}"
+                   hx-get="{% url 'Sales:dashboard_monthly' %}"
+                   hx-target="#dashboard-content"
+                   hx-swap="innerHTML transition:true"
+                   hx-push-url="true">
+                    Monthly
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div id="dashboard-content">
+        {% if period == 'monthly' %}
+            {% include "sales/dashboard/partials/monthly_dashboard.html" %}
+        {% else %}
+            {% include "sales/dashboard/partials/daily_dashboard.html" %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_js %}
+<script>
+    // Initialize any charts or interactive elements
+    document.addEventListener('htmx:afterSwap', function(event) {
+        if (event.detail.target.id === 'dashboard-content') {
+            // Update active state for view links
+            document.querySelectorAll('.view-link').forEach(function(link) {
+                if (link.getAttribute('href') === window.location.pathname) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+            
+            // Initialize any charts or components after HTMX swap
+            initializeCharts();
+        }
+    });
+    
+    function initializeCharts() {
+        // Initialize any Chart.js charts here if needed
+        const chartElements = document.querySelectorAll('.dashboard-chart');
+        if (chartElements.length > 0) {
+            // Initialize charts
+        }
+    }
+    
+    // Initialize on first load
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeCharts();
+        
+        // Set up auto-refresh for data only (not the whole view)
+        setInterval(function() {
+            const url = window.location.pathname.includes('monthly') 
+                ? "{% url 'Sales:dashboard_monthly' %}" 
+                : "{% url 'Sales:dashboard_daily' %}";
+                
+            htmx.ajax('GET', url, {
+                target: '#dashboard-data',
+                swap: 'innerHTML',
+                headers: {
+                    'HX-Trigger': 'every 5s'
+                }
+            });
+        }, 5000);
+    });
+</script>
+{% endblock %}

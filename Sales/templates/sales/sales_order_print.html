@@ -1,0 +1,419 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice #{{ sales_order.id }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --accent: #f97316;
+            --accent-light: #ffedd5;
+            --accent-dark: #ea580c;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            font-size: 16px; /* Increased base font size to 16px */
+            line-height: 1.3; /* Slightly increased line height */
+            color: #334155;
+            background-color: #f8fafc;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* A4 page size */
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        
+        .page {
+            position: relative;
+            width: 210mm;
+            height: 297mm; /* Fixed height instead of min-height */
+            padding: 6mm; /* Reduced padding */
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden; /* Prevent content overflow */
+        }
+        
+        /* Print styles */
+        @media print {
+            html, body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 0;
+                background-color: white;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+            
+            .page {
+                width: 210mm;
+                height: 297mm;
+                padding: 6mm;
+                margin: 0;
+                box-shadow: none;
+                page-break-after: avoid;
+                page-break-before: avoid;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+        }
+        
+        /* Accent color utilities */
+        .accent-bg {
+            background-color: var(--accent);
+        }
+        
+        .accent-light-bg {
+            background-color: var(--accent-light);
+        }
+        
+        .accent-text {
+            color: var(--accent);
+        }
+        
+        .accent-border {
+            border-color: var(--accent);
+        }
+        
+        /* Table styles */
+        .invoice-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .invoice-table th {
+            font-weight: 600;
+            text-align: left;
+            padding: 5px 8px; /* Increased padding */
+            background-color: #f1f5f9;
+            border-bottom: 2px solid var(--accent);
+            font-size: 13px; /* Increased font size */
+        }
+        
+        .invoice-table td {
+            padding: 5px 8px; /* Increased padding */
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 12px; /* Increased font size */
+        }
+        
+        .invoice-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        
+        /* Decorative elements */
+        .corner-accent {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40mm; /* Reduced size */
+            height: 40mm; /* Reduced size */
+            background: radial-gradient(circle at top right, var(--accent-light) 0%, transparent 70%);
+            opacity: 0.6;
+            z-index: 0;
+        }
+        
+        .side-accent {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5mm;
+            height: 100%;
+            background-color: var(--accent);
+            z-index: 0;
+        }
+        
+        /* QR Code styles */
+        .scan-to-pay {
+            display: inline-block;
+            background-color: #f97316;
+            color: white;
+            font-weight: bold;
+            padding: 4px 8px; /* Increased padding */
+            border-radius: 4px;
+            margin-bottom: 5px; /* Increased margin */
+            font-size: 13px; /* Increased font size */
+            text-transform: uppercase;
+        }
+        
+        /* Company header styles */
+        .company-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .company-logo {
+            width: 60px;
+            height: 60px;
+            margin-right: 12px;
+            background-color: #004d40; /* Dark green background for logo */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .company-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Increased font sizes for specific elements */
+        .company-info p {
+            font-size: 14px;
+        }
+        
+        .text-sm {
+            font-size: 14px !important;
+        }
+        
+        .text-xs, .text-[9px], .text-[10px] {
+            font-size: 12px !important;
+        }
+        
+        .text-[7px] {
+            font-size: 11px !important;
+        }
+        
+        .text-[8px] {
+            font-size: 12px !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print fixed top-0 left-0 right-0 bg-white shadow-sm p-3 flex justify-between items-center z-50">
+        <h1 class="text-lg font-bold text-gray-500">Invoice #{{ sales_order.id }}</h1>
+        <div class="flex gap-2">
+            <button onclick="window.print()" class="bg-orange-500 text-white px-3 py-1.5 rounded text-sm hover:bg-orange-600 transition flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                Print
+            </button>
+            <a href="{% url 'Sales:arinvoice_detail' sales_order.id %}" class="bg-gray-500 text-white px-3 py-1.5 rounded text-sm hover:bg-gray-600 transition flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back
+            </a>
+        </div>
+    </div>
+
+    <div class="page my-8">
+
+        <div class="relative z-10">
+            <div class="border-b border-red-500 pb-2 mb-4">
+                <div class="flex justify-between items-center">
+                    <div class="w-1/6">
+                        <img src="{% static 'images/logo/report-logo-left.png' %}" alt="YASH GLOBAL Logo" class="h-20 w-20">
+                    </div>
+                    
+                    <div class="w-4/6 text-center">
+                        <h1 class="text-2xl font-bold">YASH GLOBAL SDN. BHD. (1307386-M)</h1>
+                        <p class="text-base">AI-283A lot 2684-B Jalan Industry-7,Kg Baru</p>
+                        <p class="text-base">Sg. Buloh 47000 Sg. Buloh,Selangor.</p>
+                        <p class="text-base">Tel: 03-61401104, 01-63749245</p>
+                        <p class="text-base">Email: yashglobal2020@gmail.com</p>
+                    </div>
+                    
+                    <div class="w-1/6 flex justify-end">
+                        <img src="{% static 'images/logo/report-logo-right.png' %}" alt="YASH GLOBAL Logo" class="h-20 w-20">
+                    </div>
+                </div>
+                
+                <div class="flex justify-end mt-2 items-center">
+                    <p class="text-xl font-semibold">Order No: #{{ sales_order.id }}</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-4"> 
+                <div class="relative">
+                    <div class="absolute top-0 left-0 w-1 h-full accent-bg rounded-l"></div>
+                    <div class="border border-gray-200 rounded-r p-2 pl-3"> 
+                        <h3 class="font-bold accent-text uppercase mb-1 text-sm inline-block border-b-2 accent-border pb-0.5">Bill To</h3> 
+                        
+                        <p class="font-semibold text-gray-800 text-sm">{{ sales_order.customer.name }}</p> 
+                        <p class="text-gray-600 text-xs">{{ sales_order.customer.code }}</p> 
+                        {% if sales_order.contact_person %}
+                        <p class="text-gray-600 text-xs">Attn: {{ sales_order.contact_person.name }}</p>
+                        {% if sales_order.contact_person.position %}
+                        <p class="text-gray-600 text-xs">{{ sales_order.contact_person.position }}</p>
+                        {% endif %}
+                        {% endif %}
+                        {% if sales_order.billing_address %}
+                        <p class="text-gray-600 text-xs">{{ sales_order.billing_address.street }}</p>
+                        <p class="text-gray-600 text-xs">{{ sales_order.billing_address.city }}, {{ sales_order.billing_address.state }} {{ sales_order.billing_address.zip_code }}</p>
+                        <p class="text-gray-600 text-xs">{{ sales_order.billing_address.country }}</p>
+                        {% endif %}
+                        <p class="text-gray-600 text-xs">Phone: {{ sales_order.customer.phone }}</p>
+                        <p class="text-gray-600 text-xs">Email: {{ sales_order.customer.email }}</p>
+                        {% if sales_order.customer.federal_tax_id %}
+                        <p class="text-gray-600 text-xs">Tax ID: {{ sales_order.customer.federal_tax_id }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="relative">
+                    <div class="absolute top-0 left-0 w-1 h-full accent-bg rounded-l"></div>
+                    <div class="border border-gray-200 rounded-r p-2 pl-3"> 
+                        <h3 class="font-bold accent-text uppercase mb-1 text-sm inline-block border-b-2 accent-border pb-0.5">Contact Information</h3>
+                        <div class="bg-gray-50 p-2 rounded text-xs text-gray-600 border border-gray-200"> 
+                            <div class="grid grid-cols-2 gap-y-1">
+                                
+                                <div class="font-semibold">Sales Man:</div>
+                                <div>{% if sales_order.sales_employee %}{{ sales_order.sales_employee.name }}{% else %}N/A{% endif %}</div>
+                                
+                                <div class="font-semibold">Mobile:</div>
+                                <div>{% if sales_order.sales_employee %}{{ sales_order.sales_employee.phone }}{% else %}N/A{% endif %}</div>
+                                
+                                <div class="font-semibold">Delivery Man:</div>
+                                <div>{% if sales_order.delivery and sales_order.delivery.deliveryemployee %}{{ sales_order.delivery.deliveryemployee }}{% else %}N/A{% endif %}</div>
+                                
+                                <div class="font-semibold">Driver Name :</div>
+                                <div>{% if sales_order.delivery and sales_order.delivery.driver_name %}{{ sales_order.delivery.driver_name }}{% else %}N/A{% endif %}</div>
+                                <div class="font-semibold">Delivery Method :</div>
+                                <div>{% if sales_order.delivery and sales_order.delivery.delivery_method %}{{ sales_order.delivery.delivery_method }}{% else %}N/A{% endif %}</div>
+                                
+                                <div class="font-semibold">Vehicle Number:</div>
+                                <div>{% if sales_order.delivery and sales_order.delivery.vehicle_number %}{{ sales_order.delivery.vehicle_number }}{% else %}N/A{% endif %}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-4"> 
+                <h3 class="font-bold accent-text uppercase mb-1 text-sm inline-block border-b-2 accent-border pb-0.5">Invoice Items</h3> 
+                <table class="invoice-table text-xs"> 
+                    <thead>
+                        <tr>
+                            <th style="width: 10%">Item #</th>
+                            <th style="width: 40%">Description</th>
+                            <th style="width: 10%" class="text-center">Qty</th>
+                            <th style="width: 10%" class="text-center">UOM</th>
+                            <th style="width: 15%" class="text-right">Unit Price</th>
+                            <th style="width: 15%" class="text-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for line in sales_order.lines.all %}
+                        <tr>
+                            <td>{{ line.item_code }}</td>
+                            <td>{{ line.item_name }}</td>
+                            <td class="text-center">{{ line.quantity }}</td>
+                            <td class="text-center">{{ line.uom }}</td>
+                            <td class="text-right">{{ line.unit_price|floatformat:2 }}</td>
+                            <td class="text-right font-semibold">{{ line.total_amount|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="py-2 text-center text-gray-500">No items found</td> 
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="grid grid-cols-5 gap-4"> 
+                <div class="col-span-3">
+                    <div class="grid grid-cols-2 gap-4 mb-3"> 
+                        <div>
+                            <h3 class="font-bold accent-text uppercase mb-1 text-sm inline-block border-b-2 accent-border pb-0.5">Payment Details</h3> 
+                            <div class="bg-gray-50 p-2 rounded text-xs text-gray-600 border border-gray-200"> 
+                                <div class="grid grid-cols-2 gap-y-1">
+                                    <div class="font-semibold">Bank (1):</div>
+                                    <div>SS PANORAMA RESOURCES SDN BHD</div>
+                                    
+                                    <div class="font-semibold">Bank Name:</div>
+                                    <div>Maybank</div>
+                                    
+                                    <div class="font-semibold">Account #:</div>
+                                    <div>562272606752</div>
+                        
+                                    <div class="font-semibold">Bank (2):</div>
+                                    <div>YASH GLOBAL SDN. BHD.</div>
+                                    
+                                    <div class="font-semibold">Bank Name:</div>
+                                    <div>CIMB Bank</div>
+                                    
+                                    <div class="font-semibold">Account #:</div>
+                                    <div>8605395756</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="text-center">
+                                <div class="bg-gray-50 p-2 rounded text-xs text-gray-600 border border-gray-200"> 
+                                    <div class="scan-to-pay">SCAN TO PAY</div>
+                                    <img src="{% static 'images/qrcode.png' %}" alt="Payment QR Code" class="w-2/3 mx-auto">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Totals -->
+                <div class="col-span-2">
+                    <div class="accent-light-bg p-3 rounded-lg border border-orange-200"> 
+                        <div class="flex justify-between text-xs py-1 text-gray-600"> 
+                            <span class="font-semibold">Subtotal:</span>
+                            <span>{{ sales_order.total_amount|floatformat:2 }}</span>
+                        </div>
+                        <div class="flex justify-between text-xs py-1 text-gray-600"> 
+                            <span class="font-semibold">Discount:</span>
+                            <span>{{ sales_order.discount_amount|floatformat:2 }}</span>
+                        </div>
+                        <div class="flex justify-between text-xs py-1 text-gray-600"> 
+                            <span class="font-semibold">Tax:</span>
+                            <span>{{ sales_order.tax_amount|floatformat:2 }}</span>
+                        </div>
+                        <div class="flex justify-between py-1.5 border-t border-orange-200 mt-1 pt-1 font-bold text-sm text-gray-800">
+                            <span class="font-semibold">Payable Amount:</span>
+                            <span>{{ sales_order.payable_amount|floatformat:2 }}</span>
+                        </div>
+                        <div class="flex justify-between text-xs py-1 text-gray-600"> 
+                            <span class="font-semibold">Amount Paid:</span>
+                            <span>{{ sales_order.paid_amount|floatformat:2 }}</span>
+                        </div>
+                        <div class="flex justify-between py-1.5 border-t border-orange-200 mt-1 pt-1 font-bold text-sm accent-text"> 
+                            <span>Balance Due:</span>
+                            <span>RM {{ sales_order.due_amount|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="w-full mt-20">
+                <div class="grid grid-cols-2 gap-6 mt-10">
+                    <div class="text-center">
+                        <div class="border-t-2 border-gray-600 w-3/4 mx-auto my-4"></div>
+                        <p class="font-semibold text-base">Authorised By</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="border-t-2 border-gray-600 w-3/4 mx-auto my-4"></div>
+                        <p class="font-semibold text-base">Received By</p> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

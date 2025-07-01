@@ -1,0 +1,256 @@
+{% extends "common/base-list-modern.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block list_icon %}
+<svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4 4H20V20H4V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M8 2V6M16 2V6M3 10H21M12 14H12.01M8 18H8.01M16 18H16.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+{% endblock %}
+
+{% block list_title %}{% trans "Attendance Logs" %}{% endblock %}
+{% block list_subtitle %}{% trans "Manage and review attendance records from ZKTeco devices" %}{% endblock %}
+
+{% block list_actions %}
+<div class="flex flex-wrap items-center gap-2">
+{% if can_create %}
+<a href="{% url 'hrm:zk_attendance_log_create' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-10 px-4 py-2 shadow-md premium-button" aria-label="Add new attendance log">
+    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    {% trans "Add New" %}
+</a>
+{% endif %}
+
+
+
+
+
+
+
+    <a href="{% url 'hrm:zk_device_sync' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--accent-sync)/0.8)] to-[hsl(var(--accent-sync)/1.2)] text-[hsl(var(--accent-sync-foreground))] hover:opacity-90 h-10 px-4 py-2 shadow-md premium-button" aria-label="Sync data">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16.023 9.348H21.015V4.356" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16.023 9.348C15.4537 8.79776 14.7874 8.35788 14.0602 8.047C13.333 7.73612 12.557 7.55945 11.7695 7.5245C10.982 7.48955 10.1955 7.59702 9.44866 7.84165C8.70183 8.08628 8.00752 8.46328 7.404 8.952C6.80048 9.44072 6.2973 10.0336 5.91876 10.6987C5.54023 11.3637 5.2929 12.0903 5.18854 12.8417C5.08418 13.5931 5.12473 14.3562 5.30763 15.0941C5.49053 15.832 5.81233 16.5331 6.255 17.16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7.977 14.652H2.985V19.644" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7.977 14.652C8.54634 15.2022 9.21264 15.6421 9.93983 15.953C10.667 16.2639 11.443 16.4405 12.2305 16.4755C13.018 16.5104 13.8045 16.403 14.5513 16.1583C15.2982 15.9137 15.9925 15.5367 16.596 15.048C17.1995 14.5593 17.7027 13.9664 18.0812 13.3013C18.4598 12.6363 18.7071 11.9097 18.8115 11.1583C18.9158 10.4069 18.8753 9.64383 18.6924 8.90595C18.5095 8.16806 18.1877 7.46695 17.745 6.84" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Sync Data" %}
+    </a>
+
+    {% if can_export %}
+    <a href="{% url 'hrm:zk_attendance_log_export' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--secondary)/0.8)] to-[hsl(var(--secondary)/1.2)] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-10 px-4 py-2 shadow-md premium-button" aria-label="Export to CSV">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Export CSV" %}
+    </a>
+    {% endif %}
+
+    {% if can_bulk_delete %}
+    <button id="bulk-delete-button" type="submit" form="bulk-delete-form" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--accent-delete)/0.8)] to-[hsl(var(--accent-delete)/1.2)] text-[hsl(var(--accent-delete-foreground))] hover:opacity-90 h-10 px-4 py-2 shadow-md premium-button" aria-label="Bulk delete logs" disabled>
+        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Bulk Delete" %}
+    </button>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block search_filter %}
+<div class="mb-6">
+    <form method="get" class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+        <div class="relative flex-grow">
+            <input type="text" name="search" placeholder="{% trans 'Search by User ID or Device...' %}" value="{{ request.GET.search|default:'' }}" class="w-full px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+            <button type="submit" class="absolute right-2 top-2 text-[hsl(var(--muted-foreground))]">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+        <div class="filters-container overflow-x-auto hide-scrollbar -mx-4 px-4 pb-2">
+            <div class="flex flex-nowrap gap-3 min-w-max">
+                <select name="device" class="px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                    <option value="">{% trans "All Devices" %}</option>
+                    {% for device in devices %}
+                    <option value="{{ device.id }}" {% if request.GET.device == device.id|stringformat:"s" %}selected{% endif %}>
+                        {{ device.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="user_id" placeholder="{% trans 'User ID' %}" value="{{ request.GET.user_id|default:'' }}" class="px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                <input type="date" name="start_date" value="{{ request.GET.start_date|default:'' }}" class="px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                <input type="date" name="end_date" value="{{ request.GET.end_date|default:'' }}" class="px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-10 px-4 py-2 whitespace-nowrap">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 4H21M3 12H21M3 20H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    {% trans "Filter" %}
+                </button>
+                <a href="{% url 'hrm:zk_attendance_log_list' %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-10 px-4 py-2 whitespace-nowrap">
+                    {% trans "Clear Filters" %}
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block table_headers %}
+<tr class="text-xs uppercase bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]">
+    <th scope="col" class="px-3 sm:px-6 py-3">
+        <input type="checkbox" id="select-all" class="rounded border-[hsl(var(--border))] text-[hsl(var(--primary))] shadow-sm focus:border-[hsl(var(--primary))] focus:ring focus:ring-[hsl(var(--primary))] focus:ring-opacity-50">
+    </th>
+    <th scope="col" class="px-3 sm:px-6 py-3">{% trans "User ID" %}</th>
+    <th scope="col" class="px-3 sm:px-6 py-3">{% trans "Device" %}</th>
+    <th scope="col" class="px-3 sm:px-6 py-3">{% trans "Timestamp" %}</th>
+    <th scope="col" class="px-3 sm:px-6 py-3">{% trans "Punch Type" %}</th>
+    <th scope="col" class="px-3 sm:px-6 py-3">{% trans "Verification" %}</th>
+    <th scope="col" class="px-3 sm:px-6 py-3 text-right">{% trans "Actions" %}</th>
+</tr>
+{% endblock %}
+
+{% block table_body %}
+<form id="bulk-delete-form" action="{% url 'hrm:zk_attendance_log_bulk_delete' %}" method="post">
+    {% csrf_token %}
+    {% for log in logs %}
+    <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]">
+        <td class="px-3 sm:px-6 py-4">
+            <input type="checkbox" name="ids" value="{{ log.pk }}" class="log-checkbox rounded border-[hsl(var(--border))] text-[hsl(var(--primary))] shadow-sm focus:border-[hsl(var(--primary))] focus:ring focus:ring-[hsl(var(--primary))] focus:ring-opacity-50">
+        </td>
+        <td class="px-3 sm:px-6 py-4 font-medium text-[hsl(var(--foreground))]">{{ log.user_id }}</td>
+        <td class="px-3 sm:px-6 py-4">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                {{ log.device.name }}
+            </span>
+        </td>
+        <td class="px-3 sm:px-6 py-4">
+            <div class="text-sm text-[hsl(var(--foreground))]">{{ log.timestamp|date:"Y-m-d" }}</div>
+            <div class="text-xs text-[hsl(var(--muted-foreground))]">{{ log.timestamp|date:"H:i:s" }}</div>
+        </td>
+        <td class="px-3 sm:px-6 py-4">
+            {% if log.punch_type %}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if log.punch_type == 'Check In' or log.punch_type == '0' %}bg-green-100 text-green-800{% elif log.punch_type == 'Check Out' or log.punch_type == '1' %}bg-red-100 text-red-800{% elif log.punch_type == 'Break Out' or log.punch_type == '2' %}bg-yellow-100 text-yellow-800{% elif log.punch_type == 'Break In' or log.punch_type == '3' %}bg-blue-100 text-blue-800{% elif log.punch_type == 'Overtime In' or log.punch_type == '4' %}bg-purple-100 text-purple-800{% elif log.punch_type == 'Overtime Out' or log.punch_type == '5' %}bg-indigo-100 text-indigo-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                {{ log.get_punch_type_display }}
+            </span>
+            {% else %}
+            <span class="text-[hsl(var(--muted-foreground))]">{% trans "N/A" %}</span>
+            {% endif %}
+        </td>
+        <td class="px-3 sm:px-6 py-4 text-[hsl(var(--foreground))]">{{ log.verify_type|default:"N/A" }}</td>
+        <td class="px-3 sm:px-6 py-4 text-right">
+            <div class="flex justify-end gap-1 sm:gap-2">
+                {% if can_view %}
+                <a href="{% url 'hrm:zk_attendance_log_detail' log.pk %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 w-9">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M2 12S5.636 5 12 5s10 7 10 7-3.636 7-10 7S2 12 2 12Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="12" r="3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="sr-only">{% trans "View" %}</span>
+                </a>
+                {% endif %}
+
+                {% if can_update %}
+                <a href="{% url 'hrm:zk_attendance_log_update' log.pk %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 w-9">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2 2 0 012.5 2.5l-9 9-4 1 1-4 9-9Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="sr-only">{% trans "Edit" %}</span>
+                </a>
+                {% endif %}
+
+                {% if can_delete %}
+                <a href="{% url 'hrm:zk_attendance_log_delete' log.pk %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-red-100 hover:text-red-700 h-9 w-9">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m1 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="sr-only">{% trans "Delete" %}</span>
+                </a>
+                {% endif %}
+            </div>
+        </td>
+    </tr>
+    {% empty %}
+    <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+        <td colspan="7" class="px-3 sm:px-6 py-4 text-center text-[hsl(var(--muted-foreground))]">
+            {% trans "No attendance logs found. Try syncing data." %}
+            <a href="{% url 'hrm:zk_device_sync' %}" class="text-[hsl(var(--primary))] hover:underline">{% trans "Sync now" %}</a>.
+        </td>
+    </tr>
+    {% endfor %}
+</form>
+{% endblock %}
+
+{% block empty_colspan %}7{% endblock %}
+
+{% block extra_css %}
+<style>
+.table-container {
+    max-height: 500px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--primary)) hsl(var(--muted));
+}
+.table-container::-webkit-scrollbar {
+    width: 8px;
+}
+.table-container::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 4px;
+}
+.table-container::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary));
+    border-radius: 4px;
+}
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary)/0.8);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('select-all');
+    const logCheckboxes = document.querySelectorAll('.log-checkbox');
+    const bulkDeleteButton = document.getElementById('bulk-delete-button');
+
+    // Checkbox handling for bulk delete
+    function updateBulkDeleteButton() {
+        const checkedCount = Array.from(logCheckboxes).filter(cb => cb.checked).length;
+        bulkDeleteButton.disabled = checkedCount === 0;
+        bulkDeleteButton.setAttribute('aria-label', checkedCount > 0 ? `Bulk delete ${checkedCount} logs` : 'Bulk delete logs');
+    }
+
+    if (selectAllCheckbox && bulkDeleteButton) {
+        selectAllCheckbox.addEventListener('change', function() {
+            logCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+            updateBulkDeleteButton();
+        });
+
+        logCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateBulkDeleteButton);
+        });
+
+        updateBulkDeleteButton();
+    }
+
+    // Individual delete confirmation
+    const deleteLinks = document.querySelectorAll('a[href*="zk_attendance_log_delete"]');
+    deleteLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            if (!confirm('{% trans "Are you sure you want to delete this log?" %}')) {
+                e.preventDefault();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

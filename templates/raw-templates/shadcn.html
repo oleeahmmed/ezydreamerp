@@ -1,0 +1,2691 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhanced ShadCN UI Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        container: {
+          center: true,
+          padding: "2rem",
+          screens: {
+            "2xl": "1400px",
+          },
+        },
+        extend: {
+          colors: {
+            border: "hsl(var(--border))",
+            input: "hsl(var(--input))",
+            ring: "hsl(var(--ring))",
+            background: "hsl(var(--background))",
+            foreground: "hsl(var(--foreground))",
+            primary: {
+              DEFAULT: "hsl(var(--primary))",
+              foreground: "hsl(var(--primary-foreground))",
+            },
+            secondary: {
+              DEFAULT: "hsl(var(--secondary))",
+              foreground: "hsl(var(--secondary-foreground))",
+            },
+            destructive: {
+              DEFAULT: "hsl(var(--destructive))",
+              foreground: "hsl(var(--destructive-foreground))",
+            },
+            muted: {
+              DEFAULT: "hsl(var(--muted))",
+              foreground: "hsl(var(--muted-foreground))",
+            },
+            accent: {
+              DEFAULT: "hsl(var(--accent))",
+              foreground: "hsl(var(--accent-foreground))",
+            },
+            popover: {
+              DEFAULT: "hsl(var(--popover))",
+              foreground: "hsl(var(--popover-foreground))",
+            },
+            card: {
+              DEFAULT: "hsl(var(--card))",
+              foreground: "hsl(var(--card-foreground))",
+            },
+          },
+          borderRadius: {
+            lg: "0.75rem", /* Increased rounding for datepicker popover and toasts */
+            md: "0.375rem", /* Standard medium rounding for day cells */
+            sm: "calc(var(--radius) - 4px)",
+          },
+          keyframes: {
+            "accordion-down": {
+              from: { height: 0 },
+              to: { height: "var(--radix-accordion-content-height)" },
+            },
+            "accordion-up": {
+              from: { height: "var(--radix-accordion-content-height)" },
+              to: { height: 0 },
+            },
+            "collapsible-down": {
+              from: { height: 0 },
+              to: { height: 'var(--radix-collapsible-content-height)' },
+            },
+            "collapsible-up": {
+              from: { height: 'var(--radix-collapsible-content-height)' },
+              to: { height: 0 },
+            },
+            // Custom keyframes for animations
+            "overlay-show": {
+              from: { opacity: 0 },
+              to: { opacity: 1 },
+            },
+            "content-show": {
+              from: { opacity: 0, transform: "translate(-50%, -48%) scale(0.96)" },
+              to: { opacity: 1, transform: "translate(-50%, -50%) scale(1)" },
+            },
+            "enter": {
+              from: { opacity: 0, transform: "translateY(10px)" },
+              to: { opacity: 1, transform: "translateY(0)" },
+            },
+            "toast-slide-in": {
+              from: { transform: "translateX(100%)", opacity: 0 },
+              to: { transform: "translateX(0)", opacity: 1 },
+            },
+            "toast-slide-out": {
+              from: { transform: "translateX(0)", opacity: 1 },
+              to: { transform: "translateX(100%)", opacity: 0 },
+            },
+                                    fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        slideIn: {
+                            '0%': { opacity: '0', transform: 'translateX(-10px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' }
+                        },
+                        ripple: {
+                            '0%': { transform: 'scale(0)', opacity: '1' },
+                            '100%': { transform: 'scale(4)', opacity: '0' }
+                        }
+          },
+          animation: {
+            "accordion-down": "accordion-down 0.2s ease-out",
+            "accordion-up": "accordion-up 0.2s ease-out",
+            "collapsible-down": "collapsible-down 0.2s ease-out",
+            "collapsible-up": "collapsible-up 0.2s ease-out",
+            "overlay-show": "overlay-show 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards",
+            "content-show": "content-show 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards",
+            "enter": "enter 150ms ease-out forwards",
+            "toast-slide-in": "toast-slide-in 0.3s ease-out forwards",
+            "toast-slide-out": "toast-slide-out 0.3s ease-in forwards",
+                                    "fade-in": "fadeIn 0.2s ease-in-out",
+                        "slide-in": "slideIn 0.3s ease-out",
+                        "ripple": "ripple 0.6s linear",
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    /* Light theme (default - adjusted for more neutral/black feel) */
+  :root {
+    --background: 0 0% 100%; /* White */
+    --foreground: 0 0% 9%;    /* Near black */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
+    --primary: 240 5.9% 10%;  /* Dark gray/black primary */
+    --primary-foreground: 0 0% 98%; /* Off-white for text on primary */
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.5rem;
+  }
+ 
+  .dark {
+    --background: 240 10% 3.9%; /* Very dark gray/near black */
+    --foreground: 0 0% 98%;    /* Off-white */
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 0 0% 98%;      /* Off-white primary for dark mode */
+    --primary-foreground: 240 10% 3.9%; /* Very dark gray/near black for text on primary */
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 0 0% 98%;
+  }
+
+  /* Red theme */
+  .red {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 84.2% 60.2%; /* Red */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 84.2% 60.2%;
+  }
+
+  /* Dark Red theme */
+  .dark.red {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 72.2% 50.6%; /* Darker Red */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 72.2% 50.6%;
+  }
+
+  /* Orange theme */
+  .orange {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 25 95.7% 53.1%; /* Orange */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 25 95.7% 53.1%;
+  }
+
+  /* Dark Orange theme */
+  .dark.orange {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 20.5 90.2% 48.2%; /* Darker Orange */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 20.5 90.2% 48.2%;
+  }
+
+  /* Green theme */
+  .green {
+    --background: 140 40% 98%;
+    --foreground: 142 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 142 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 142 84% 4.9%;
+    --primary: 142 83.2% 43.3%;
+    --primary-foreground: 140 40% 98%;
+    --secondary: 140 40% 96.1%;
+    --secondary-foreground: 142 47.4% 11.2%;
+    --muted: 140 40% 96.1%;
+    --muted-foreground: 145 16.3% 46.9%;
+    --accent: 140 40% 96.1%;
+    --accent-foreground: 142 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 140 40% 98%;
+    --border: 144.3 31.8% 91.4%;
+    --input: 144.3 31.8% 91.4%;
+    --ring: 142 83.2% 43.3%;
+  }
+
+  /* Dark Green theme */
+  .dark.green {
+    --background: 142 84% 4.9%;
+    --foreground: 140 40% 98%;
+    --card: 142 84% 4.9%;
+    --card-foreground: 140 40% 98%;
+    --popover: 142 84% 4.9%;
+    --popover-foreground: 140 40% 98%;
+    --primary: 147.2 71.2% 49.8%;
+    --primary-foreground: 142 47.4% 11.2%;
+    --secondary: 147.2 32.6% 17.5%;
+    --secondary-foreground: 140 40% 98%;
+    --muted: 147.2 32.6% 17.5%;
+    --muted-foreground: 145 20.2% 65.1%;
+    --accent: 147.2 32.6% 17.5%;
+    --accent-foreground: 140 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 140 40% 98%;
+    --border: 147.2 32.6% 17.5%;
+    --input: 147.2 32.6% 17.5%;
+    --ring: 144.3 76.3% 38%;
+  }
+
+    /* Blue theme */
+    .blue {
+      --background: 210 40% 98%;
+      --foreground: 222.2 84% 4.9%;
+      --card: 0 0% 100%;
+      --card-foreground: 222.2 84% 4.9%;
+      --popover: 0 0% 100%;
+      --popover-foreground: 222.2 84% 4.9%;
+      --primary: 221.2 83.2% 53.3%;
+      --primary-foreground: 210 40% 98%;
+      --secondary: 210 40% 96.1%;
+      --secondary-foreground: 222.2 47.4% 11.2%;
+      --muted: 210 40% 96.1%;
+      --muted-foreground: 215.4 16.3% 46.9%;
+      --accent: 210 40% 96.1%;
+      --accent-foreground: 222.2 47.4% 11.2%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 210 40% 98%;
+      --border: 214.3 31.8% 91.4%;
+      --input: 214.3 31.8% 91.4%;
+      --ring: 221.2 83.2% 53.3%;
+    }
+
+    /* Dark Blue theme */
+    .dark.blue {
+      --background: 222.2 84% 4.9%;
+      --foreground: 210 40% 98%;
+      --card: 222.2 84% 4.9%;
+      --card-foreground: 210 40% 98%;
+      --popover: 222.2 84% 4.9%;
+      --popover-foreground: 210 40% 98%;
+      --primary: 217.2 91.2% 59.8%;
+      --primary-foreground: 222.2 47.4% 11.2%;
+      --secondary: 217.2 32.6% 17.5%;
+      --secondary-foreground: 210 40% 98%;
+      --muted: 217.2 32.6% 17.5%;
+      --muted-foreground: 215 20.2% 65.1%;
+      --accent: 217.2 32.6% 17.5%;
+      --accent-foreground: 210 40% 98%;
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 210 40% 98%;
+      --border: 217.2 32.6% 17.5%;
+      --input: 217.2 32.6% 17.5%;
+      --ring: 224.3 76.3% 48%;
+    }
+
+    /* Yellow theme */
+    .yellow {
+      --background: 0 0% 100%;
+      --foreground: 0 0% 3.9%;
+      --card: 0 0% 100%;
+      --card-foreground: 0 0% 3.9%;
+      --popover: 0 0% 100%;
+      --popover-foreground: 0 0% 3.9%;
+      --primary: 48 96% 53.1%; /* Yellow */
+      --primary-foreground: 0 0% 98%;
+      --secondary: 0 0% 96.1%;
+      --secondary-foreground: 0 0% 9%;
+      --muted: 0 0% 96.1%;
+      --muted-foreground: 0 0% 45.1%;
+      --accent: 0 0% 96.1%;
+      --accent-foreground: 0 0% 9%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 0 0% 98%;
+      --border: 0 0% 89.8%;
+      --input: 0 0% 89.8%;
+      --ring: 48 96% 53.1%;
+    }
+
+    /* Dark Yellow theme */
+    .dark.yellow {
+      --background: 0 0% 3.9%;
+      --foreground: 0 0% 98%;
+      --card: 0 0% 3.9%;
+      --card-foreground: 0 0% 98%;
+      --popover: 0 0% 3.9%;
+      --popover-foreground: 0 0% 98%;
+      --primary: 42.6 90.2% 48.2%; /* Darker Yellow */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 42.6 90.2% 48.2%;
+  }
+
+    /* Violet theme */
+    .violet {
+      --background: 0 0% 100%;
+      --foreground: 0 0% 3.9%;
+      --card: 0 0% 100%;
+      --card-foreground: 0 0% 3.9%;
+      --popover: 0 0% 100%;
+      --popover-foreground: 0 0% 3.9%;
+      --primary: 262.1 83.2% 53.3%; /* Violet */
+      --primary-foreground: 0 0% 98%;
+      --secondary: 0 0% 96.1%;
+      --secondary-foreground: 0 0% 9%;
+      --muted: 0 0% 96.1%;
+      --muted-foreground: 0 0% 45.1%;
+      --accent: 0 0% 96.1%;
+      --accent-foreground: 0 0% 9%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 0 0% 98%;
+      --border: 0 0% 89.8%;
+      --input: 0 0% 89.8%;
+      --ring: 262.1 83.2% 53.3%;
+    }
+
+    /* Dark Violet theme */
+    .dark.violet {
+      --background: 0 0% 3.9%;
+      --foreground: 0 0% 98%;
+      --card: 0 0% 3.9%;
+      --card-foreground: 0 0% 98%;
+      --popover: 0 0% 3.9%;
+      --popover-foreground: 0 0% 98%;
+      --primary: 258.2 91.2% 59.8%; /* Darker Violet */
+      --primary-foreground: 0 0% 98%;
+      --secondary: 0 0% 14.9%;
+      --secondary-foreground: 0 0% 98%;
+      --muted: 0 0% 14.9%;
+      --muted-foreground: 0 0% 63.9%;
+      --accent: 0 0% 14.9%;
+      --accent-foreground: 0 0% 98%;
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 0 0% 98%;
+      --border: 0 0% 14.9%;
+      --input: 0 0% 14.9%;
+      --ring: 258.2 91.2% 59.8%;
+    }
+
+    /* Purple theme */
+    .purple {
+      --background: 280 40% 98%;
+      --foreground: 272 84% 4.9%;
+      --card: 0 0% 100%;
+      --card-foreground: 272 84% 4.9%;
+      --popover: 0 0% 100%;
+      --popover-foreground: 272 84% 4.9%;
+      --primary: 272 83.2% 53.3%;
+      --primary-foreground: 280 40% 98%;
+      --secondary: 280 40% 96.1%;
+      --secondary-foreground: 272 47.4% 11.2%;
+      --muted: 280 40% 96.1%;
+      --muted-foreground: 275 16.3% 46.9%;
+      --accent: 280 40% 96.1%;
+      --accent-foreground: 272 47.4% 11.2%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 280 40% 98%;
+      --border: 284.3 31.8% 91.4%;
+      --input: 284.3 31.8% 91.4%;
+      --ring: 272 83.2% 53.3%;
+    }
+
+    /* Dark Purple theme */
+    .dark.purple {
+      --background: 272 84% 4.9%;
+      --foreground: 280 40% 98%;
+      --card: 272 84% 4.9%;
+      --card-foreground: 280 40% 98%;
+      --popover: 272 84% 4.9%;
+      --popover-foreground: 280 40% 98%;
+      --primary: 267.2 91.2% 59.8%;
+      --primary-foreground: 272 47.4% 11.2%;
+      --secondary: 267.2 32.6% 17.5%;
+      --secondary-foreground: 280 40% 98%;
+      --muted: 267.2 32.6% 17.5%;
+      --muted-foreground: 275 20.2% 65.1%;
+      --accent: 267.2 32.6% 17.5%;
+      --accent-foreground: 280 40% 98%;
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 280 40% 98%;
+      --border: 267.2 32.6% 17.5%;
+      --input: 267.2 32.6% 17.5%;
+      --ring: 274.3 76.3% 48%;
+    }
+    
+    * {
+      border-color: hsl(var(--border));
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: hsl(var(--background));
+      color: hsl(var(--foreground));
+    }
+
+    /* Transitions */
+    .transition-colors {
+      transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 150ms;
+    }
+
+    .transition-transform {
+      transition-property: transform;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 150ms;
+    }
+
+    .transition-opacity {
+      transition-property: opacity;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 150ms;
+    }
+
+    .transition-all {
+      transition-property: all;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 150ms;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: hsl(var(--muted));
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: hsl(var(--muted-foreground));
+    }
+
+    /* Animations */
+    @keyframes enter {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-in {
+      animation: enter 0.2s ease-out;
+    }
+
+    /* Menu animations */
+    .menu-open {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 150ms ease, transform 150ms ease;
+    }
+
+    .menu-closed {
+      visibility: hidden;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 150ms ease, transform 150ms ease, visibility 150ms;
+    }
+    
+    /* Tooltip */
+    .tooltip:before {
+      content: attr(data-tip);
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100%);
+      padding: 6px 10px;
+      border-radius: var(--radius);
+      background: hsl(var(--popover));
+      color: hsl(var(--popover-foreground));
+      text-align: center;
+      font-size: 12px;
+      font-weight: 500;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 150ms ease;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .tooltip:hover:before {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Sidebar collapse animation */
+    .sidebar-expanded {
+      width: 16rem; /* 256px */
+      transition: width 0.3s ease-in-out;
+    }
+
+    .sidebar-collapsed {
+      width: 4rem; /* 64px */
+      transition: width 0.3s ease-in-out;
+    }
+
+    .main-expanded {
+      padding-left: 16rem; /* 256px */
+      transition: padding-left 0.3s ease-in-out;
+    }
+
+    .main-collapsed {
+      padding-left: 4rem; /* 64px */
+      transition: padding-left 0.3s ease-in-out;
+    }
+
+    @media (max-width: 767px) {
+      .main-expanded, .main-collapsed {
+        padding-left: 0;
+      }
+    }
+
+    /* Dropdown animation */
+    .dropdown-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-in-out;
+    }
+
+    .dropdown-expanded {
+      max-height: 500px;
+    }
+
+    /* Ensure theme toggle buttons are visible regardless of theme */
+    .theme-icon {
+      color: hsl(var(--foreground));
+    }
+
+
+    /* Form styling */
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      line-height: 1.5;
+      margin-bottom: 0.5rem;
+      color: hsl(var(--foreground));
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      display: flex;
+      height: 2.5rem;
+      width: 100%;
+      border-radius: var(--radius);
+      border: 1px solid hsl(var(--input));
+      background-color: transparent;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: hsl(var(--foreground));
+      transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 150ms;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px hsl(var(--ring) / 0.3);
+      border-color: hsl(var(--ring));
+    }
+
+    .form-textarea {
+      min-height: 6rem;
+      resize: vertical;
+    }
+
+    .form-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.5rem center;
+      background-repeat: no-repeat;
+      background-size: 1.5em 1.5em;
+      padding-right: 2.5rem;
+    }
+
+    .form-checkbox,
+    .form-radio {
+      appearance: none;
+      width: 1rem;
+      height: 1rem;
+      border: 1px solid hsl(var(--input));
+      background-color: hsl(var(--background));
+      transition-property: color, background-color, border-color;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 150ms;
+    }
+
+    .form-checkbox {
+      border-radius: 0.25rem;
+    }
+
+    .form-radio {
+      border-radius: 9999px;
+    }
+
+    .form-checkbox:checked,
+    .form-radio:checked {
+      border-color: hsl(var(--primary));
+      background-color: hsl(var(--primary));
+    }
+
+    .form-checkbox:checked {
+      background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+    }
+
+    .form-radio:checked {
+      background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='4'/%3e%3c/svg%3e");
+    }
+
+    .form-switch {
+      appearance: none;
+      position: relative;
+      width: 2.5rem;
+      height: 1.25rem;
+      border-radius: 9999px;
+      background-color: hsl(var(--input));
+      transition: background-color 0.2s ease;
+    }
+
+    .form-switch:checked {
+      background-color: hsl(var(--primary));
+    }
+
+    .form-switch:before {
+      content: "";
+      position: absolute;
+      left: 0.125rem;
+      top: 0.125rem;
+      width: 1rem;
+      height: 1rem;
+      border-radius: 9999px;
+      background-color: hsl(var(--background));
+      transition: transform 0.2s ease;
+    }
+
+    .form-switch:checked:before {
+      transform: translateX(1.25rem);
+    }
+
+    .form-file {
+      display: none;
+    }
+
+    .form-file-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius);
+      border: 1px solid hsl(var(--input));
+      background-color: hsl(var(--background));
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      line-height: 1.5;
+      color: hsl(var(--foreground));
+      transition-property: color, background-color, border-color;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 150ms;
+      cursor: pointer;
+    }
+
+    .form-file-button:hover {
+      background-color: hsl(var(--accent));
+      color: hsl(var(--accent-foreground));
+    }
+
+    .form-file-text {
+      margin-left: 0.5rem;
+      font-size: 0.875rem;
+      color: hsl(var(--muted-foreground));
+    }
+
+    /* Toast specific styles */
+    .toast {
+      background-color: hsl(var(--background));
+      color: hsl(var(--foreground));
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      max-width: 350px;
+      position: relative;
+      overflow: hidden; /* For slide in/out */
+    }
+
+    .toast.toast-success {
+      border-color: hsl(142 83.2% 43.3%); /* Green */
+      background-color: hsl(142 83.2% 43.3% / 0.1); /* Light green background */
+    }
+
+    .toast.toast-destructive {
+      border-color: hsl(0 84.2% 60.2%); /* Red */
+      background-color: hsl(0 84.2% 60.2% / 0.1); /* Light red background */
+    }
+
+    .toast-close-button {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: none;
+      border: none;
+      color: hsl(var(--muted-foreground));
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 0.25rem;
+      transition: background-color 0.15s ease;
+    }
+
+    .toast-close-button:hover {
+      background-color: hsl(var(--accent));
+    }
+
+    .toast-title {
+      font-weight: 600;
+      font-size: 0.9375rem; /* ~15px */
+    }
+
+    .toast-description {
+      font-size: 0.875rem; /* ~14px */
+      color: hsl(var(--muted-foreground));
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased">
+  <div class="relative flex min-h-screen flex-col">
+    <button id="mobile-nav-toggle" aria-label="Menu" class="fixed right-4 top-4 z-50 rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu">
+        <line x1="4" x2="20" y1="12" y2="12"></line>
+        <line x1="4" x2="20" y1="6" y2="6"></line>
+        <line x1="4" x2="20" y1="18" y2="18"></line>
+      </svg>
+    </button>
+
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-20 sidebar-expanded flex-col border-r bg-background transition-all duration-300 ease-in-out md:flex">
+      <div class="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+        <a href="#" class="flex items-center gap-2 font-semibold">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6">
+            <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"></path>
+            <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"></path>
+            <path d="M12 3v6"></path>
+          </svg>
+          <span class="sidebar-text">Shadcn UI</span>
+        </a>
+        <button id="sidebar-collapse-toggle" class="ml-auto rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground tooltip" data-tip="Collapse sidebar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="collapse-icon">
+            <path d="m15 18-6-6 6-6"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-auto py-2">
+        <nav class="grid items-start px-2 text-sm font-medium lg:px-4">
+          <a href="#" class="group flex items-center gap-3 rounded-md bg-accent px-3 py-2 text-accent-foreground transition-all hover:text-accent-foreground">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <span class="sidebar-text">Dashboard</span>
+          </a>
+          
+          <a href="#" class="group flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span class="sidebar-text">Users</span>
+          </a>
+          
+          <div class="sidebar-dropdown">
+            <button class="group flex w-full items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground sidebar-dropdown-toggle">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+                <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+                <line x1="3" x2="21" y1="9" y2="9"></line>
+                <line x1="9" x2="9" y1="21" y2="9"></line>
+              </svg>
+              <span class="sidebar-text">Projects</span>
+              <svg class="ml-auto h-4 w-4 dropdown-icon transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div class="dropdown-content ml-6 space-y-1">
+              <a href="#" class="flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+                <span class="sidebar-text">All Projects</span>
+              </a>
+              <a href="#" class="flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+                <span class="sidebar-text">Recent</span>
+              </a>
+              <a href="#" class="flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+                <span class="sidebar-text">Archived</span>
+              </a>
+            </div>
+          </div>
+          
+          <div class="sidebar-dropdown">
+            <button class="group flex w-full items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground sidebar-dropdown-toggle">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+              </svg>
+              <span class="sidebar-text">Tasks</span>
+              <svg class="ml-auto h-4 w-4 dropdown-icon transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div class="dropdown-content ml-6 space-y-1">
+              <a href="#" class="flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+                <span class="sidebar-text">All Tasks</span>
+              </a>
+              <a href="#" class="flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+                <span class="sidebar-text">To Do</span>
+              </a>
+              <a href="#" class="flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+                <span class="sidebar-text">In Progress</span>
+              </a>
+              <a href="#" class="flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+                <span class="sidebar-text">Completed</span>
+              </a>
+            </div>
+          </div>
+          
+          <a href="#" class="group flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+              <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+              <line x1="2" x2="22" y1="10" y2="10"></line>
+            </svg>
+            <span class="sidebar-text">Payments</span>
+          </a>
+          
+          <a href="#" class="group flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+            </svg>
+            <span class="sidebar-text">Reports</span>
+          </a>
+          
+          <div class="sidebar-dropdown">
+            <button class="group flex w-full items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground sidebar-dropdown-toggle">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+              <span class="sidebar-text">Features</span>
+              <svg class="ml-auto h-4 w-4 dropdown-icon transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div class="dropdown-content ml-6 space-y-1">
+              <a href="#" class="flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+                <span class="sidebar-text">Prompt library</span>
+              </a>
+              <a href="#" class="flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+                <span class="sidebar-text">Unified Interface</span>
+              </a>
+              <a href="#" class="flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+                <span class="sidebar-text">Realtime web search</span>
+              </a>
+              <a href="#" class="flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+                <span class="sidebar-text">Image generation</span>
+              </a>
+              <a href="#" class="flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+                <span class="sidebar-text">History</span>
+              </a>
+              <a href="#" class="flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+                <span class="sidebar-text">Multilingual</span>
+              </a>
+            </div>
+          </div>
+
+          <a href="#" class="group flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <span class="sidebar-text">Settings</span>
+          </a>
+        </nav>
+
+        
+      </div>
+      
+      <div class="mt-auto border-t px-6 py-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="relative h-8 w-8 overflow-hidden rounded-full">
+              <img src="https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=32" alt="User avatar" class="h-full w-full object-cover">
+            </div>
+            <div class="sidebar-text-container">
+              <p class="text-sm font-medium truncate">John Doe</p>
+              <p class="text-xs text-muted-foreground truncate">john@example.com</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="main-content" class="flex flex-1 flex-col main-expanded">
+      <header class="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 md:px-6 lg:h-[60px]">
+        <div class="flex flex-1 items-center gap-4 md:gap-6">
+          <button id="mobile-sidebar-toggle" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9 md:hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+              <line x1="4" x2="20" y1="12" y2="12"></line>
+              <line x1="4" x2="20" y1="6" y2="6"></line>
+              <line x1="4" x2="20" y1="18" y2="18"></line>
+            </svg>
+          </button>
+          
+
+        </div>
+                <div class="px-4 py-3 sidebar-search">
+          <div class="relative">
+            <input type="text" placeholder="Search the docs..." class="w-full pl-8 pr-4 py-2 text-sm rounded-md border border-input bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1">
+            <button id="theme-toggle" class="rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground tooltip" data-tip="Toggle theme">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon dark:hidden">
+                <circle cx="12" cy="12" r="4"></circle>
+                <path d="M12 2v2"></path>
+                <path d="M12 20v2"></path>
+                <path d="m4.93 4.93 1.41 1.41"></path>
+                <path d="m17.66 17.66 1.41 1.41"></path>
+                <path d="M2 12h2"></path>
+                <path d="M20 12h2"></path>
+                <path d="m6.34 17.66-1.41 1.41"></path>
+                <path d="m19.07 4.93-1.41 1.41"></path>
+              </svg>
+              
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon hidden dark:block">
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+              </svg>
+            </button>
+            
+            <div class="relative">
+              <button id="theme-selector-trigger" class="rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground tooltip" data-tip="Change theme">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon">
+                  <path d="M12 2v8"></path>
+                  <path d="m4.93 10.93 1.41 1.41"></path>
+                  <path d="M2 18h8"></path>
+                  <path d="M12 22v-8"></path>
+                  <path d="m19.07 13.07-1.41-1.41"></path>
+                  <path d="M22 6h-8"></path>
+                </svg>
+              </button>
+              
+              <div id="theme-selector-content" class="menu-closed absolute right-0 top-full z-50 mt-1 min-w-[140px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md">
+                <div class="px-2 py-1.5 text-xs font-medium">Color Theme</div>
+                <button data-theme="default" class="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                  Default
+                </button>
+                <button data-theme="red" class="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                  Red
+                </button>
+                <button data-theme="orange" class="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                  Orange
+                </button>
+                <button data-theme="green" class="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                  Green
+                </button>
+                <button data-theme="blue" class="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                  Blue
+                </button>
+                <button data-theme="yellow" class="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                  Yellow
+                </button>
+                <button data-theme="violet" class="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                  Violet
+                </button>
+                <button data-theme="purple" class="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                  Purple
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="relative">
+            <button id="notifications-trigger" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9 relative">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+              </svg>
+              <span class="absolute right-1.5 top-1.5 flex h-2 w-2 rounded-full bg-destructive"></span>
+            </button>
+            
+            <div id="notifications-content" class="menu-closed absolute right-0 z-50 mt-1 min-w-[320px] rounded-md border bg-popover p-4 text-popover-foreground shadow-md">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="font-medium">Notifications</h3>
+                <button class="text-xs text-muted-foreground hover:text-foreground">Mark all as read</button>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-start gap-4 rounded-lg p-2 hover:bg-accent animate-in">
+                  <div class="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-primary">
+                      <path d="M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"></path>
+                      <path d="M12 8v1"></path>
+                      <path d="M12 15v1"></path>
+                      <path d="M16 12h-1"></path>
+                      <path d="M9 12H8"></path>
+                      <path d="M15.5 8.5l-.7.7"></path>
+                      <path d="M9.2 14.8l-.7.7"></path>
+                      <path d="M15.5 15.5l-.7-.7"></path>
+                      <path d="M9.2 9.2l-.7-.7"></path>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                      <p class="text-sm font-medium">New feature</p>
+                      <span class="rounded-full bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-primary dark:bg-blue-900">New</span>
+                    </div>
+                    <p class="text-xs text-muted-foreground">We've added a new feature to your dashboard.</p>
+                    <p class="mt-1 text-xs text-muted-foreground">10m ago</p>
+                  </div>
+                </div>
+                
+                <div class="flex items-start gap-4 rounded-lg p-2 hover:bg-accent animate-in" style="animation-delay: 0.1s;">
+                  <div class="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-primary">
+                      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-medium">New document shared</p>
+                    <p class="text-xs text-muted-foreground">Sarah shared a document with you.</p>
+                    <p class="mt-1 text-xs text-muted-foreground">2h ago</p>
+                  </div>
+                </div>
+                
+                <div class="flex items-start gap-4 rounded-lg p-2 hover:bg-accent animate-in" style="animation-delay: 0.2s;">
+                  <div class="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-primary">
+                      <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-medium">Security alert</p>
+                    <p class="text-xs text-muted-foreground">Your account was logged in from a new device.</p>
+                    <p class="mt-1 text-xs text-muted-foreground">1d ago</p>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 border-t pt-2">
+                <a href="#" class="block text-center text-xs text-muted-foreground hover:text-foreground">View all notifications</a>
+              </div>
+            </div>
+          </div>
+          
+          <div class="relative">
+            <button id="user-menu-trigger" class="flex items-center gap-2 rounded-md p-1 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
+              <div class="relative h-8 w-8 overflow-hidden rounded-full">
+                <img src="https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=32" alt="User avatar" class="h-full w-full object-cover">
+              </div>
+              <span class="hidden text-sm md:block">John Doe</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 transition-transform duration-200 hidden md:block">
+                <path d="m6 9 6 6 6-6"></path>
+              </svg>
+            </button>
+            
+            <div id="user-menu-content" class="menu-closed absolute right-0 z-50 mt-1 min-w-[240px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md animate-in">
+              <div class="px-2 py-1.5 text-sm font-medium">My Account</div>
+              <a href="#" class="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <circle cx="12" cy="10" r="3"></circle>
+                  <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"></path>
+                </svg>
+                Profile
+              </a>
+              <a href="#" class="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4">
+                  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Settings
+              </a>
+              <a href="#" class="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" x2="12" y1="3" y2="15"></line>
+                </svg>
+                Dashboard
+              </a>
+              <div class="h-px my-1 bg-muted"></div>
+              <a href="#" class="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" x2="9" y1="12" y2="12"></line>
+                </svg>
+                Log out
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <main class="flex-1 p-4 md:p-6 space-y-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 class="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <p class="text-muted-foreground">Welcome back! Here's an overview of your data.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4">
+                <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+                <line x1="8" x2="21" y1="12" y2="12"></line>
+                <line x1="8" x2="21" y1="16" y2="16"></line>
+                <line x1="8" x2="21" y1="8" y2="8"></line>
+                <line x1="3" x2="3.01" y1="16" y2="16"></line>
+                <line x1="3" x2="3.01" y1="12" y2="12"></line>
+                <line x1="3" x2="3.01" y1="8" y2="8"></line>
+              </svg>
+              View All
+            </button>
+            <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4">
+                <path d="M5 12h14"></path>
+                <path d="M12 5v14"></path>
+              </svg>
+              Add New
+            </button>
+          </div>
+        </div>
+        
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+     <div class="rounded-lg border text-card-foreground shadow-sm transition-all hover:shadow-md" style="background: linear-gradient(to bottom right, hsl(var(--card)), hsl(var(--primary) / 0.05));">
+    <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+      <h3 class="text-sm font-medium">Current State</h3>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-muted-foreground">
+        <circle cx="12" cy="12" r="10"></circle>
+        <circle cx="12" cy="12" r="4"></circle>
+        <line x1="12" x2="12" y1="2" y2="4"></line>
+        <line x1="12" x2="12" y1="20" y2="22"></line>
+        <line x1="2" x2="4" y1="12" y2="12"></line>
+        <line x1="20" x2="22" y1="12" y2="12"></line>
+      </svg>
+    </div>
+    <div class="p-6 pt-0">
+      <div class="text-2xl font-bold">Operational</div>
+      <p class="text-xs text-muted-foreground">All systems nominal</p>
+      <p class="text-xs text-muted-foreground mt-1">Last updated 5 minutes ago</p>
+    </div>
+  </div>
+
+  <div class="relative rounded-lg p-[1px] overflow-hidden shadow-sm transition-all hover:shadow-md" style="background: linear-gradient(to bottom right, hsl(var(--primary) / 0.3), hsl(var(--accent) / 0.3));">
+    <div class="rounded-[calc(var(--radius)-1px)] h-full w-full" style="background: linear-gradient(to top left, hsl(var(--card)), hsl(var(--primary) / 0.03));">
+      <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+        <h3 class="text-sm font-medium">New Customers</h3>
+        <div class="inline-flex items-center rounded-md border border-input bg-background px-2.5 py-0.5 text-xs font-semibold text-destructive">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-1">
+            <path d="m19 12-6 6-6-6"></path>
+            <path d="M12 6v12"></path>
+          </svg>
+          -20%
+        </div>
+      </div>
+      <div class="p-6 pt-0">
+        <div class="text-2xl font-bold">1,234</div>
+        <p class="text-xs text-muted-foreground">Down 20% this period</p>
+        <p class="text-xs text-muted-foreground mt-1">Acquisition needs attention</p>
+      </div>
+    </div>
+  </div>
+
+   <div class="relative rounded-lg p-[1px] overflow-hidden shadow-sm transition-all hover:shadow-md" style="background: linear-gradient(to bottom right, hsl(var(--primary) / 0.7), hsl(var(--accent) / 0.7));">
+    <div class="bg-card rounded-[calc(var(--radius)-1px)] h-full w-full">
+      <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+        <h3 class="text-sm font-medium">Total Revenue</h3>
+        <div class="inline-flex items-center rounded-md border border-input bg-background px-2.5 py-0.5 text-xs font-semibold text-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-1">
+            <path d="m5 12 6-6 6 6"></path>
+            <path d="M12 18V6"></path>
+          </svg>
+          +12.5%
+        </div>
+      </div>
+      <div class="p-6 pt-0">
+        <div class="text-2xl font-bold">$1,250.00</div>
+        <p class="text-xs text-muted-foreground">Trending up this month</p>
+        <p class="text-xs text-muted-foreground mt-1">Visitors for the last 6 months</p>
+      </div>
+    </div>
+  </div>
+
+    <div class="relative rounded-lg p-[1px] overflow-hidden shadow-sm transition-all hover:shadow-md" style="background: linear-gradient(to bottom right, hsl(var(--primary) / 0.3), hsl(var(--accent) / 0.3));">
+    <div class="rounded-[calc(var(--radius)-1px)] h-full w-full" style="background: linear-gradient(to top left, hsl(var(--card)), hsl(var(--primary) / 0.03));">
+      <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+        <h3 class="text-sm font-medium">New Customers</h3>
+        <div class="inline-flex items-center rounded-md border border-input bg-background px-2.5 py-0.5 text-xs font-semibold text-destructive">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-1">
+            <path d="m19 12-6 6-6-6"></path>
+            <path d="M12 6v12"></path>
+          </svg>
+          -20%
+        </div>
+      </div>
+      <div class="p-6 pt-0">
+        <div class="text-2xl font-bold">1,234</div>
+        <p class="text-xs text-muted-foreground">Down 20% this period</p>
+        <p class="text-xs text-muted-foreground mt-1">Acquisition needs attention</p>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+        
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+
+
+          
+          <div class="rounded-lg border bg-card text-card-foreground shadow-sm col-span-4 transition-all hover:shadow-md">
+            <div class="flex flex-col space-y-1.5 p-6">
+              <h3 class="text-lg font-semibold leading-none tracking-tight">Overview</h3>
+              <p class="text-sm text-muted-foreground">Monthly revenue and user growth</p>
+            </div>
+            <div class="p-6 pt-0">
+              <div class="h-[200px] w-full flex items-end justify-between gap-2">
+                <div class="bg-primary/10 hover:bg-primary/20 transition-colors h-[30%] w-full rounded-t-sm"></div>
+                <div class="bg-primary/10 hover:bg-primary/20 transition-colors h-[55%] w-full rounded-t-sm"></div>
+                <div class="bg-primary/10 hover:bg-primary/20 transition-colors h-[25%] w-full rounded-t-sm"></div>
+                <div class="bg-primary/10 hover:bg-primary/20 transition-colors h-[45%] w-full rounded-t-sm"></div>
+                <div class="bg-primary/10 hover:bg-primary/20 transition-colors h-[70%] w-full rounded-t-sm"></div>
+                <div class="bg-primary/10 hover:bg-primary/20 transition-colors h-[90%] w-full rounded-t-sm"></div>
+                <div class="bg-primary/10 hover:bg-primary/20 transition-colors h-[75%] w-full rounded-t-sm"></div>
+                <div class="bg-primary/10 hover:bg-primary/20 transition-colors h-[45%] w-full rounded-t-sm"></div>
+                <div class="bg-primary/10 hover:bg-primary/20 transition-colors h-[50%] w-full rounded-t-sm"></div>
+                <div class="bg-primary/10 hover:bg-primary/20 transition-colors h-[60%] w-full rounded-t-sm"></div>
+                <div class="bg-primary/10 hover:bg-primary/20 transition-colors h-[40%] w-full rounded-t-sm"></div>
+                <div class="bg-primary hover:bg-primary/90 transition-colors h-[80%] w-full rounded-t-sm"></div>
+              </div>
+              <div class="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+                <div>Jan</div>
+                <div>Feb</div>
+                <div>Mar</div>
+                <div>Apr</div>
+                <div>May</div>
+                <div>Jun</div>
+                <div>Jul</div>
+                <div>Aug</div>
+                <div>Sep</div>
+                <div>Oct</div>
+                <div>Nov</div>
+                <div>Dec</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="rounded-lg border bg-card text-card-foreground shadow-sm col-span-3 transition-all hover:shadow-md">
+            <div class="flex flex-col space-y-1.5 p-6">
+              <h3 class="text-lg font-semibold leading-none tracking-tight">Recent Sales</h3>
+              <p class="text-sm text-muted-foreground">You made 265 sales this month</p>
+            </div>
+            <div class="p-0">
+              <div class="space-y-4 px-6">
+                <div class="flex items-center">
+                  <div class="relative h-9 w-9 overflow-hidden rounded-full">
+                    <img src="https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=32" alt="Avatar" class="h-full w-full object-cover">
+                  </div>
+                  <div class="ml-4 space-y-1">
+                    <p class="text-sm font-medium leading-none">Olivia Martin</p>
+                    <p class="text-sm text-muted-foreground">olivia.martin@email.com</p>
+                  </div>
+                  <div class="ml-auto font-medium">+$1,999.00</div>
+                </div>
+                <div class="flex items-center">
+                  <div class="relative h-9 w-9 overflow-hidden rounded-full">
+                    <img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=32" alt="Avatar" class="h-full w-full object-cover">
+                  </div>
+                  <div class="ml-4 space-y-1">
+                    <p class="text-sm font-medium leading-none">Jackson Lee</p>
+                    <p class="text-sm text-muted-foreground">jackson.lee@email.com</p>
+                  </div>
+                  <div class="ml-auto font-medium">+$39.00</div>
+                </div>
+                <div class="flex items-center">
+                  <div class="relative h-9 w-9 overflow-hidden rounded-full">
+                    <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=32" alt="Avatar" class="h-full w-full object-cover">
+                  </div>
+                  <div class="ml-4 space-y-1">
+                    <p class="text-sm font-medium leading-none">Isabella Nguyen</p>
+                    <p class="text-sm text-muted-foreground">isabella.nguyen@email.com</p>
+                  </div>
+                  <div class="ml-auto font-medium">+$299.00</div>
+                </div>
+                <div class="flex items-center">
+                  <div class="relative h-9 w-9 overflow-hidden rounded-full">
+                    <img src="https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=32" alt="Avatar" class="h-full w-full object-cover">
+                  </div>
+                  <div class="ml-4 space-y-1">
+                    <p class="text-sm font-medium leading-none">William Kim</p>
+                    <p class="text-sm text-muted-foreground">will@email.com</p>
+                  </div>
+                  <div class="ml-auto font-medium">+$99.00</div>
+                </div>
+                <div class="flex items-center">
+                  <div class="relative h-9 w-9 overflow-hidden rounded-full">
+                    <img src="https://images.pexels.com/photos/1308885/pexels-photo-1308885.jpeg?auto=compress&cs=tinysrgb&w=32" alt="Avatar" class="h-full w-full object-cover">
+                  </div>
+                  <div class="ml-4 space-y-1">
+                    <p class="text-sm font-medium leading-none">Sofia Davis</p>
+                    <p class="text-sm text-muted-foreground">sofia.davis@email.com</p>
+                  </div>
+                  <div class="ml-auto font-medium">+$39.00</div>
+                </div>
+              </div>
+              <div class="p-6">
+                <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 w-full">
+                  View all
+                </button>
+              </div>
+            </div>
+          </div>
+     
+        </div>
+          <div class="relative rounded-lg p-[1px] overflow-hidden shadow-sm" style="background: linear-gradient(to bottom right, hsl(var(--primary) / 0.7), hsl(var(--accent) / 0.7));">
+  <div class="bg-card rounded-[calc(var(--radius)-1px)] h-full w-full">
+    <div class="flex flex-col space-y-1.5 p-6 border-b" >
+      <h3 class="text-2xl font-semibold leading-none tracking-tight">Form Components</h3>
+      <p class="text-sm text-muted-foreground">A collection of all form components in one place</p>
+    </div>
+    <div class="p-6">
+      <div class="grid gap-6 md:grid-cols-2">
+        <div class="space-y-6">
+          <div class="space-y-2">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" id="name" class="form-input" placeholder="Enter your name">
+          </div>
+
+          <div class="space-y-2">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" class="form-input" placeholder="Enter your email">
+          </div>
+
+          <div class="space-y-2">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" class="form-input" placeholder="Enter your password">
+            <p class="text-xs text-muted-foreground">Password must be at least 8 characters long</p>
+          </div>
+
+          <div class="space-y-2">
+            <label for="message" class="form-label">Message</label>
+            <textarea id="message" class="form-textarea" placeholder="Type your message here"></textarea>
+          </div>
+
+          <div class="space-y-2">
+            <label for="country" class="form-label">Country</label>
+            <select id="country" class="form-select">
+              <option value="" disabled="" selected="">Select a country</option>
+              <option value="us">United States</option>
+              <option value="ca">Canada</option>
+              <option value="uk">United Kingdom</option>
+              <option value="au">Australia</option>
+              <option value="de">Germany</option>
+              <option value="fr">France</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div class="space-y-2">
+            <label class="form-label">Interests</label>
+            <div class="space-y-2">
+              <div class="flex items-center gap-2">
+                <input type="checkbox" id="tech" class="form-checkbox">
+                <label for="tech" class="text-sm">Technology</label>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="checkbox" id="design" class="form-checkbox">
+                <label for="design" class="text-sm">Design</label>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="checkbox" id="business" class="form-checkbox">
+                <label for="business" class="text-sm">Business</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="form-label">Gender</label>
+            <div class="space-y-2">
+              <div class="flex items-center gap-2">
+                <input type="radio" id="male" name="gender" class="form-radio">
+                <label for="male" class="text-sm">Male</label>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="radio" id="female" name="gender" class="form-radio">
+                <label for="female" class="text-sm">Female</label>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="radio" id="other" name="gender" class="form-radio">
+                <label for="other" class="text-sm">Other</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="form-label">Profile Picture</label>
+            <div class="flex items-center gap-2">
+              <label for="file-upload" class="form-file-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" x2="12" y1="3" y2="15"></line>
+                </svg>
+                Upload
+              </label>
+              <input type="file" id="file-upload" class="form-file">
+              <span class="form-file-text" id="file-name">No file chosen</span>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="form-label">Notifications</label>
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="notifications" class="form-switch">
+              <label for="notifications" class="text-sm">Enable email notifications</label>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label for="price-range" class="form-label">Price Range: <span id="price-value">$50</span></label>
+            <input type="range" id="price-range" min="0" max="100" value="50" class="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer">
+          </div>
+
+          <div class="pt-4">
+            <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full">
+              Submit Form
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+        <div class="w-full">
+  <div class="flex items-center justify-between py-4">
+    <div class="flex items-center space-x-2">
+      <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+        </svg>
+        Filter
+      </button>
+<div class="relative inline-flex p-[1px] rounded-md overflow-hidden shadow-md transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-[1.01]"
+     style="background: linear-gradient(to bottom right, hsl(var(--primary) / 0.4), hsl(var(--accent) / 0.4));">
+<div class="relative inline-flex p-[1px] rounded-md overflow-hidden shadow-md transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-[1.01]"
+     style="background: linear-gradient(to bottom right, hsl(var(--primary) / 0.4), hsl(var(--accent) / 0.4));">
+  <button class="inline-flex items-center justify-center whitespace-nowrap rounded-[calc(theme('borderRadius.md')-1px)] text-sm font-medium
+                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50
+                 text-primary-foreground h-9 px-4 py-2 w-full
+                 transition-all duration-300 ease-in-out hover:brightness-105 active:scale-[0.98]"
+          style="background: linear-gradient(to top left, hsl(var(--primary)), hsl(var(--primary) / 0.9));">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4">
+      <path d="M5 12h14"></path>
+      <path d="M12 5v14"></path>
+    </svg>
+    Add New
+  </button>
+</div>
+
+</div>
+
+    </div>
+    <input type="text" placeholder="Search..." class="px-4 py-2 border border-input rounded-md text-sm font-medium text-foreground bg-background focus:outline-none focus:ring-2 focus:ring-primary h-9" />
+  </div>
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+      <thead class="bg-gray-50 dark:bg-gray-800">
+        <tr>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <input type="checkbox" class="rounded border-input text-primary focus:ring-primary" />
+          </th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            Name
+          </th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            Email
+          </th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            Status
+          </th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <input type="checkbox" class="rounded border-input text-primary focus:ring-primary" />
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+            Olivia Martin
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+            olivia.martin@email.com
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-medium rounded-full bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100">
+              Active
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-2">
+            <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-2 py-1">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+              Edit
+            </button>
+            <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-2 py-1">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h18M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m-3 4v10a2 2 0 002 2h10a2 2 0 002-2V10m-5 0v6m-4-6v6"></path>
+              </svg>
+              Delete
+            </button>
+          </td>
+        </tr>
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <input type="checkbox" class="rounded border-input text-primary focus:ring-primary" />
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+            Jackson Lee
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+            jackson.lee@email.com
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-medium rounded-full bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100">
+              Pending
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-2">
+            <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-2 py-1">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+              Edit
+            </button>
+            <button class="inline-flex items-center justify-normal whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-2 py-1">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h18M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m-3 4v10a2 2 0 002 2h10a2 2 0 002-2V10m-5 0v6m-4-6v6"></path>
+              </svg>
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="flex items-center justify-between py-4">
+    <div class="flex-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
+      Showing
+      <span class="font-medium mx-1">1 to 10</span>
+      of
+      <span class="font-medium mx-1">50</span>
+      results
+    </div>
+    <div class="flex space-x-2">
+      <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        Previous
+      </button>
+      <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+        Next
+      </button>
+    </div>
+  </div>
+</div>
+
+    <!-- Tabs Container -->
+    <div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg">
+        <!-- Tab Navigation -->
+        <div class="flex bg-gray-100 dark:bg-gray-900 p-1 rounded-t-xl" role="tablist">
+            <button 
+                class="tab-trigger flex-1 inline-flex items-center justify-center px-6 py-3 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm border border-gray-200 dark:border-gray-600"
+                role="tab"
+                data-tab="overview"
+                aria-selected="true"
+            >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                Overview
+            </button>
+            <button 
+                class="tab-trigger flex-1 inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-gray-600 dark:text-gray-400 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+                role="tab"
+                data-tab="features"
+                aria-selected="false"
+            >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                </svg>
+                Features
+            </button>
+            <button 
+                class="tab-trigger flex-1 inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-gray-600 dark:text-gray-400 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+                role="tab"
+                data-tab="analytics"
+                aria-selected="false"
+            >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                Analytics
+            </button>
+            <button 
+                class="tab-trigger flex-1 inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-gray-600 dark:text-gray-400 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+                role="tab"
+                data-tab="settings"
+                aria-selected="false"
+            >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Settings
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="p-8">
+            <!-- Overview Tab -->
+            <div class="tab-content block animate-fade-in" id="overview" role="tabpanel">
+                <div class="text-center space-y-6">
+                    <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto">
+                        <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold text-gray-900 dark:text-white mb-2">Welcome to TabsUI</h3>
+                        <p class="text-gray-600 dark:text-gray-400">A modern, accessible, and beautiful tabs component for your web applications.</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mt-8">
+                        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
+                            <div class="flex items-center mb-3">
+                                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4z"/>
+                                </svg>
+                                <h4 class="font-medium text-gray-900 dark:text-white">Quick Start</h4>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Get up and running in minutes with our simple HTML structure and minimal JavaScript.</p>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
+                            <div class="flex items-center mb-3">
+                                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4z"/>
+                                </svg>
+                                <h4 class="font-medium text-gray-900 dark:text-white">Customizable</h4>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Easily customize colors, animations, and layouts to match your brand.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Tab -->
+            <div class="tab-content hidden" id="features" role="tabpanel">
+                <div class="space-y-6">
+                    <div class="text-center mb-8">
+                        <h3 class="text-2xl font-semibold text-gray-900 dark:text-white mb-2">Powerful Features</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Everything you need for a modern tabs interface</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-white dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                            </div>
+                            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Accessible</h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Full keyboard navigation and screen reader support following ARIA best practices.</p>
+                        </div>
+                        
+                        <div class="bg-white dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                            <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Responsive</h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Works perfectly on all devices with touch-friendly interactions and adaptive layouts.</p>
+                        </div>
+                        
+                        <div class="bg-white dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                            <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                            </div>
+                            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Performant</h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Lightweight with smooth animations and minimal JavaScript footprint.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div class="tab-content hidden" id="analytics" role="tabpanel">
+                <div class="space-y-6">
+                    <div class="text-center mb-8">
+                        <h3 class="text-2xl font-semibold text-gray-900 dark:text-white mb-2">Usage Analytics</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Track how users interact with your tabs</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Total Views</p>
+                                    <p class="text-2xl font-bold text-gray-900 dark:text-white">12,543</p>
+                                </div>
+                                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex items-center mt-2">
+                                <svg class="w-3 h-3 text-green-600 dark:text-green-400 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17l9.2-9.2M17 17V7H7"/>
+                                </svg>
+                                <span class="text-xs text-green-600 dark:text-green-400">+12%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Active Users</p>
+                                    <p class="text-2xl font-bold text-gray-900 dark:text-white">3,456</p>
+                                </div>
+                                <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex items-center mt-2">
+                                <svg class="w-3 h-3 text-green-600 dark:text-green-400 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17l9.2-9.2M17 17V7H7"/>
+                                </svg>
+                                <span class="text-xs text-green-600 dark:text-green-400">+8%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div class="tab-content hidden" id="settings" role="tabpanel">
+                <div class="space-y-6">
+                    <div class="text-center mb-8">
+                        <h3 class="text-2xl font-semibold text-gray-900 dark:text-white mb-2">Configuration</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Customize your tabs experience</p>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
+                        <h4 class="font-medium text-gray-900 dark:text-white mb-4">Appearance</h4>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">Dark Mode</p>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400">Switch between light and dark themes</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">Animations</p>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400">Enable smooth transitions</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+ <section id="modals" class="space-y-4 p-6">
+    <div class="border-b pb-2">
+      <h2 class="text-2xl font-semibold">Modals & Dialogs</h2>
+      <p class="text-muted-foreground">Interactive modal dialogs for confirmations and forms.</p>
+    </div>
+    
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div class="rounded-lg border bg-card p-6 shadow-sm">
+        <h3 class="font-semibold mb-2">Basic Modal</h3>
+        <p class="text-sm text-muted-foreground mb-4">A simple modal dialog with custom content.</p>
+        <button id="open-basic-modal" class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+          Open Modal
+        </button>
+      </div>
+      
+      <div class="rounded-lg border bg-card p-6 shadow-sm">
+        <h3 class="font-semibold mb-2">Confirmation Dialog</h3>
+        <p class="text-sm text-muted-foreground mb-4">A confirmation dialog with destructive actions.</p>
+        <button id="open-confirm-modal" class="inline-flex items-center justify-center rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+          Delete Item
+        </button>
+      </div>
+      
+      <div class="rounded-lg border bg-card p-6 shadow-sm">
+        <h3 class="font-semibold mb-2">Form Modal</h3>
+        <p class="text-sm text-muted-foreground mb-4">A modal containing a form for data input.</p>
+        <button id="open-form-modal" class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+          Add User
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Content -->
+    <div id="basic-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+      <div class="bg-card p-6 rounded-lg shadow-lg max-w-md w-full">
+        <h3 class="text-lg font-semibold">Basic Modal</h3>
+        <p class="text-sm text-muted-foreground">This is a simple modal with custom content.</p>
+        <button id="close-basic-modal" class="mt-4 inline-flex items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Close</button>
+      </div>
+    </div>
+
+    <div id="confirm-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+      <div class="bg-card p-6 rounded-lg shadow-lg max-w-md w-full">
+        <h3 class="text-lg font-semibold">Are you sure?</h3>
+        <p class="text-sm text-muted-foreground">This action cannot be undone.</p>
+        <div class="flex justify-end gap-2 mt-4">
+          <button id="close-confirm-modal" class="inline-flex items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Cancel</button>
+          <button class="inline-flex items-center justify-center rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="form-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+      <div class="bg-card p-6 rounded-lg shadow-lg max-w-md w-full">
+        <h3 class="text-lg font-semibold">Add User</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="text-sm font-medium">Name</label>
+            <input class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
+          </div>
+          <div>
+            <label class="text-sm font-medium">Email</label>
+            <input class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
+          </div>
+          <div class="flex justify-end gap-2 mt-4">
+            <button id="close-form-modal" class="inline-flex items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Cancel</button>
+            <button class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+    <section id="alerts" class="space-y-4 p-6">
+    <div class="border-b pb-2">
+      <h2 class="text-2xl font-semibold">Alerts</h2>
+      <p class="text-muted-foreground">Alert components for displaying important messages.</p>
+    </div>
+    
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div class="rounded-lg border bg-card p-6 shadow-sm">
+        <div class="flex items-center rounded-md border border-border bg-background p-4">
+          <svg class="h-5 w-5 text-primary mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+          </svg>
+          <div>
+            <h3 class="text-sm font-medium">Heads up!</h3>
+            <p class="text-sm text-muted-foreground">You can add components and dependencies to your app using the cli.</p>
+          </div>
+        </div>
+      </div>
+      <div class="rounded-lg border bg-card p-6 shadow-sm">
+        <div class="flex items-center rounded-md border border-destructive bg-destructive/10 p-4">
+          <svg class="h-5 w-5 text-destructive mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+          </svg>
+          <div>
+            <h3 class="text-sm font-medium">Error</h3>
+            <p class="text-sm text-muted-foreground">Your session has expired. Please log in again.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+   <section id="toasts" class="space-y-4 p-6">
+    <div class="border-b pb-2">
+      <h2 class="text-2xl font-semibold">Toasts</h2>
+      <p class="text-muted-foreground">Toast notifications for success and error messages.</p>
+    </div>
+    
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div class="rounded-lg border bg-card p-6 shadow-sm">
+        <button id="show-success-toast" class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">Show Success Toast</button>
+      </div>
+      <div class="rounded-lg border bg-card p-6 shadow-sm">
+        <button id="show-error-toast" class="inline-flex items-center justify-center rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">Show Error Toast</button>
+      </div>
+    </div>
+    <div id="toast-container" class="fixed bottom-4 right-4 space-y-2"></div>
+  </section>
+
+  <!-- Accordion -->
+   <section id="accordion" class="space-y-4 p-6">
+    <div class="border-b pb-2">
+      <h2 class="text-2xl font-semibold">Accordion</h2>
+      <p class="text-muted-foreground">Collapsible content panels for organizing information.</p>
+    </div>
+    
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div class="rounded-lg border bg-card p-6 shadow-sm">
+        <div class="border border-border rounded-md">
+          <button id="accordion-1" class="flex items-center justify-between w-full p-4 text-sm font-medium hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <span>Is it accessible?</span>
+            <svg class="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div id="accordion-content-1" class="hidden p-4 text-sm text-muted-foreground">
+            Yes. It adheres to the WAI-ARIA design pattern and uses semantic HTML.
+          </div>
+        </div>
+      </div>
+      <div class="rounded-lg border bg-card p-6 shadow-sm">
+        <div class="border border-border rounded-md">
+          <button id="accordion-2" class="flex items-center justify-between w-full p-4 text-sm font-medium hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <span>Is it styled?</span>
+            <svg class="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div id="accordion-content-2" class="hidden p-4 text-sm text-muted-foreground">
+            Yes. It comes with default styles that match the other components' aesthetic.
+          </div>
+        </div>
+      </div>
+      <div class="rounded-lg border bg-card p-6 shadow-sm">
+        <div class="border border-border rounded-md">
+          <button id="accordion-3" class="flex items-center justify-between w-full p-4 text-sm font-medium hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <span>Is it animated?</span>
+            <svg class="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div id="accordion-content-3" class="hidden p-4 text-sm text-muted-foreground">
+            Yes. It's animated by default, but you can disable it if you prefer.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+   <section id="input-icons" class="space-y-4 p-6">
+    <div class="border-b pb-2">
+      <h2 class="text-2xl font-semibold">Input with Icons</h2>
+      <p class="text-muted-foreground">Enhanced input fields with integrated icons.</p>
+    </div>
+    
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div class="rounded-lg border bg-card p-6 shadow-sm">
+        <div class="relative flex items-center">
+          <svg class="absolute left-3 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input class="flex h-10 w-full rounded-md border border-input bg-background px-10 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" placeholder="Search"></input>
+        </div>
+      </div>
+      <div class="rounded-lg border bg-card p-6 shadow-sm">
+        <div class="relative flex items-center">
+          <svg class="absolute left-3 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+          </svg>
+          <input class="flex h-10 w-full rounded-md border border-input bg-background px-10 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" placeholder="Email"></input>
+        </div>
+      </div>
+      <div class="rounded-lg border bg-card p-6 shadow-sm">
+        <div class="relative flex items-center">
+          <svg class="absolute left-3 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+          </svg>
+          <input class="flex h-10 w-full rounded-md border border-input bg-background px-10 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" placeholder="Phone"></input>
+        </div>
+      </div>
+      <div class="rounded-lg border bg-card p-6 shadow-sm">
+        <div class="relative flex items-center">
+          <svg class="absolute left-3 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.1-.9-2-2-2s-2 .9-2 2c0 .74.4 1.38 1 1.72V15a1 1 0 002 0v-2.28c.6-.34 1-.98 1-1.72zm0 7a7 7 0 100-14 7 7 0 000 14z"></path>
+          </svg>
+          <input class="flex h-10 w-full rounded-md border border-input bg-background px-10 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" placeholder="Password" type="password"></input>
+          <svg class="absolute right-3 h-4 w-4 text-muted-foreground cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="rounded-lg border bg-card p-6 shadow-sm">
+        <div class="relative flex items-center">
+          <svg class="absolute left-3 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+          </svg>
+          <input class="flex h-10 w-full rounded-md border border-input bg-background px-10 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" placeholder="Website"></input>
+        </div>
+      </div>
+      <div class="rounded-lg border bg-card p-6 shadow-sm">
+        <div class="relative flex items-center">
+          <svg class="absolute left-3 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          <input class="flex h-10 w-full rounded-md border border-input bg-background px-10 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" placeholder="Location"></input>
+        </div>
+      </div>
+    </div>
+  </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // DOM elements
+    const mobileNavToggle = document.getElementById('mobile-nav-toggle');
+    const mobileSidebarToggle = document.getElementById('mobile-sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+    const themeToggle = document.getElementById('theme-toggle');
+    const notificationsToggle = document.getElementById('notifications-trigger');
+    const notificationsDropdown = document.getElementById('notifications-content');
+    const userMenuToggle = document.getElementById('user-menu-trigger');
+    const userMenuDropdown = document.getElementById('user-menu-content');
+    const themeSelectorToggle = document.getElementById('theme-selector-trigger');
+    const themeSelectorDropdown = document.getElementById('theme-selector-content');
+    const sidebarCollapseToggle = document.getElementById('sidebar-collapse-toggle');
+    const collapseIcon = document.getElementById('collapse-icon');
+    const dropdownToggles = document.querySelectorAll('.sidebar-dropdown-toggle');
+    
+    // Sidebar Collapse State
+    let sidebarCollapsed = false;
+    
+    // Function to set initial theme based on user preference or system preference
+    function setInitialTheme() {
+      // Check if user has a saved preference
+      const userTheme = localStorage.getItem('theme-name') || 'default';
+      const userDarkMode = localStorage.getItem('theme-mode');
+      
+      // Remove all theme classes before applying
+      document.documentElement.classList.remove('blue', 'purple', 'green', 'red', 'orange', 'yellow', 'violet');
+      
+      // Apply saved theme
+      if (userTheme !== 'default') {
+        document.documentElement.classList.add(userTheme);
+      }
+      
+      // Apply dark/light mode
+      if (userDarkMode === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else if (userDarkMode === 'light') {
+        document.documentElement.classList.remove('dark');
+      } else {
+        // Use system preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          document.documentElement.classList.add('dark');
+        }
+      }
+    }
+    
+    // Toggle theme function
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme-mode', isDark ? 'dark' : 'light');
+    }
+    
+    // Set theme color
+    function setThemeColor(theme) {
+      // Remove existing theme classes
+      document.documentElement.classList.remove('blue', 'purple', 'green', 'red', 'orange', 'yellow', 'violet');
+      
+      // Add the selected theme class if not default
+      if (theme !== 'default') {
+        document.documentElement.classList.add(theme);
+      }
+      
+      // Save theme preference
+      localStorage.setItem('theme-name', theme);
+      
+      // Close the dropdown
+      if (themeSelectorDropdown) { // Added null check
+        themeSelectorDropdown.classList.remove('menu-open');
+        themeSelectorDropdown.classList.add('menu-closed');
+      }
+    }
+    
+    // Toggle mobile sidebar
+    function toggleMobileSidebar() {
+      if (sidebar) { // Added null check
+        sidebar.classList.toggle('hidden');
+        sidebar.classList.toggle('md:flex');
+      }
+    }
+    
+    // Toggle sidebar collapse
+    function toggleSidebarCollapse() {
+      sidebarCollapsed = !sidebarCollapsed;
+      
+      if (sidebar && mainContent) { // Added null checks
+        if (sidebarCollapsed) {
+          sidebar.classList.remove('sidebar-expanded');
+          sidebar.classList.add('sidebar-collapsed');
+          mainContent.classList.remove('main-expanded');
+          mainContent.classList.add('main-collapsed');
+          if (collapseIcon) {
+            collapseIcon.style.transform = 'rotate(180deg)';
+          }
+          
+          // Hide text elements and adjust padding for icons
+          document.querySelectorAll('.sidebar-text').forEach(el => {
+            el.style.display = 'none';
+          });
+          
+          document.querySelectorAll('.sidebar-text-container').forEach(el => {
+            el.style.display = 'none';
+          });
+
+          // Adjust padding for sidebar links to center icons
+          document.querySelectorAll('.sidebar-expanded .group').forEach(el => {
+            el.classList.add('justify-center', 'px-0');
+            el.classList.remove('gap-3', 'px-3');
+          });
+
+          // Hide dropdown icons when collapsed
+          document.querySelectorAll('.sidebar-dropdown .dropdown-icon').forEach(icon => {
+            icon.style.display = 'none';
+          });
+          
+          // Reset all dropdowns
+          document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+            dropdown.classList.remove('dropdown-expanded');
+          });
+          
+          document.querySelectorAll('.dropdown-icon').forEach(icon => {
+            icon.style.transform = 'rotate(0deg)';
+          });
+        } else {
+          sidebar.classList.remove('sidebar-collapsed');
+          sidebar.classList.add('sidebar-expanded');
+          mainContent.classList.remove('main-collapsed');
+          mainContent.classList.add('main-expanded');
+          if (collapseIcon) {
+            collapseIcon.style.transform = 'rotate(0deg)';
+          }
+          
+          // Show text elements
+          document.querySelectorAll('.sidebar-text').forEach(el => {
+            el.style.display = 'block';
+          });
+          
+          document.querySelectorAll('.sidebar-text-container').forEach(el => {
+            el.style.display = 'block';
+          });
+
+          // Reset padding for sidebar links
+          document.querySelectorAll('.sidebar-expanded .group').forEach(el => {
+            el.classList.remove('justify-center', 'px-0');
+            el.classList.add('gap-3', 'px-3');
+          });
+
+          // Show dropdown icons when expanded
+          document.querySelectorAll('.sidebar-dropdown .dropdown-icon').forEach(icon => {
+            icon.style.display = 'block';
+          });
+        }
+      }
+    }
+    
+    // Toggle dropdown function
+    function toggleDropdown(trigger, dropdown) {
+      if (!dropdown) return; // Added null check
+      const isOpen = dropdown.classList.contains('menu-open');
+      
+      // Close all dropdowns first
+      document.querySelectorAll('.menu-open').forEach(menu => {
+        if (menu !== dropdown) {
+          menu.classList.remove('menu-open');
+          menu.classList.add('menu-closed');
+        }
+      });
+      
+      // Toggle the clicked dropdown
+      if (!isOpen) {
+        dropdown.classList.remove('menu-closed');
+        dropdown.classList.add('menu-open');
+      } else {
+        dropdown.classList.remove('menu-open');
+        dropdown.classList.add('menu-closed');
+      }
+    }
+    
+    // Toggle sidebar dropdown
+    function toggleSidebarDropdown(e) {
+      if (sidebarCollapsed) return; // Don't toggle if sidebar is collapsed
+      
+      const button = e.currentTarget;
+      const dropdown = button.nextElementSibling;
+      const icon = button.querySelector('.dropdown-icon');
+      
+      if (!dropdown || !icon) return; // Added null checks
+      
+      // Check if this dropdown is already expanded
+      const isExpanded = dropdown.classList.contains('dropdown-expanded');
+      
+      // Close all other dropdowns
+      document.querySelectorAll('.dropdown-content').forEach(content => {
+        if (content !== dropdown) {
+          content.classList.remove('dropdown-expanded');
+        }
+      });
+      
+      document.querySelectorAll('.sidebar-dropdown-toggle .dropdown-icon').forEach(dropIcon => {
+        if (dropIcon !== icon) {
+          dropIcon.style.transform = 'rotate(0deg)';
+        }
+      });
+      
+      // Toggle this dropdown
+      if (isExpanded) {
+        dropdown.classList.remove('dropdown-expanded');
+        icon.style.transform = 'rotate(0deg)';
+      } else {
+        dropdown.classList.add('dropdown-expanded');
+        icon.style.transform = 'rotate(180deg)';
+      }
+    }
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      // Header dropdowns
+      if (notificationsDropdown && !e.target.closest('#notifications-trigger') && !e.target.closest('#notifications-content')) {
+        if (notificationsDropdown.classList.contains('menu-open')) {
+          notificationsDropdown.classList.remove('menu-open');
+          notificationsDropdown.classList.add('menu-closed');
+        }
+      }
+      
+      if (userMenuDropdown && !e.target.closest('#user-menu-trigger') && !e.target.closest('#user-menu-content')) {
+        if (userMenuDropdown.classList.contains('menu-open')) {
+          userMenuDropdown.classList.remove('menu-open');
+          userMenuDropdown.classList.add('menu-closed');
+        }
+      }
+      
+      if (themeSelectorDropdown && !e.target.closest('#theme-selector-trigger') && !e.target.closest('#theme-selector-content')) {
+        if (themeSelectorDropdown.classList.contains('menu-open')) {
+          themeSelectorDropdown.classList.remove('menu-open');
+          themeSelectorDropdown.classList.add('menu-closed');
+        }
+      }
+    });
+    
+    // Event listeners
+    if (mobileNavToggle) {
+      mobileNavToggle.addEventListener('click', toggleMobileSidebar);
+    } else {
+      console.error("Element with ID 'mobile-nav-toggle' not found.");
+    }
+
+    if (mobileSidebarToggle) {
+      mobileSidebarToggle.addEventListener('click', toggleMobileSidebar);
+    } else {
+      console.error("Element with ID 'mobile-sidebar-toggle' not found.");
+    }
+
+    if (themeToggle) {
+      themeToggle.addEventListener('click', toggleTheme);
+    } else {
+      console.error("Element with ID 'theme-toggle' not found.");
+    }
+
+    if (sidebarCollapseToggle) {
+      sidebarCollapseToggle.addEventListener('click', toggleSidebarCollapse);
+    } else {
+      console.error("Element with ID 'sidebar-collapse-toggle' not found.");
+    }
+
+    if (notificationsToggle && notificationsDropdown) {
+      notificationsToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDropdown(notificationsToggle, notificationsDropdown);
+      });
+    } else {
+      console.error("Notifications toggle or dropdown not found.");
+    }
+
+    if (userMenuToggle && userMenuDropdown) {
+      userMenuToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDropdown(userMenuToggle, userMenuDropdown);
+      });
+    } else {
+      console.error("User menu toggle or dropdown not found.");
+    }
+
+    if (themeSelectorToggle && themeSelectorDropdown) {
+      themeSelectorToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDropdown(themeSelectorToggle, themeSelectorDropdown);
+      });
+    } else {
+      console.error("Theme selector toggle or dropdown not found.");
+    }
+    
+    // Theme selector buttons
+    document.querySelectorAll('[data-theme]').forEach(button => {
+      button.addEventListener('click', () => {
+        setThemeColor(button.dataset.theme);
+      });
+    });
+    
+    // Sidebar dropdown toggles
+    dropdownToggles.forEach(toggle => {
+      toggle.addEventListener('click', toggleSidebarDropdown);
+    });
+    
+    // Responsive sidebar
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 768) {
+        if (sidebar) { // Added null check
+          sidebar.classList.remove('hidden');
+          sidebar.classList.add('md:flex');
+        }
+      } else {
+        if (sidebar) { // Added null check
+          sidebar.classList.add('hidden');
+          
+          // Reset sidebar to expanded state on mobile
+          if (sidebarCollapsed) {
+            toggleSidebarCollapse();
+          }
+        }
+      }
+    });
+    
+    // Initialize
+    setInitialTheme();
+
+    // password show hide
+    document.querySelectorAll('input[type="password"] + svg.cursor-pointer').forEach(icon => {
+  icon.addEventListener('click', () => {
+    const input = icon.previousElementSibling;
+    input.type = input.type === 'password' ? 'text' : 'password';
+  });
+});
+  </script>
+<script>
+document.getElementById('open-basic-modal').addEventListener('click', () => {
+  document.getElementById('basic-modal').classList.remove('hidden');
+});
+document.getElementById('close-basic-modal').addEventListener('click', () => {
+  document.getElementById('basic-modal').classList.add('hidden');
+});
+
+document.getElementById('open-confirm-modal').addEventListener('click', () => {
+  document.getElementById('confirm-modal').classList.remove('hidden');
+});
+document.getElementById('close-confirm-modal').addEventListener('click', () => {
+  document.getElementById('confirm-modal').classList.add('hidden');
+});
+
+document.getElementById('open-form-modal').addEventListener('click', () => {
+  document.getElementById('form-modal').classList.remove('hidden');
+});
+document.getElementById('close-form-modal').addEventListener('click', () => {
+  document.getElementById('form-modal').classList.add('hidden');
+});
+</script>
+
+
+<!-- Toast -->
+<script>
+  function showToast(type, message) {
+  const toast = document.createElement('div');
+  toast.className = `rounded-md p-4 text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} shadow-lg max-w-xs`;
+  toast.textContent = message;
+  document.getElementById('toast-container').appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+document.getElementById('show-success-toast').addEventListener('click', () => {
+  showToast('success', 'Action completed successfully!');
+});
+document.getElementById('show-error-toast').addEventListener('click', () => {
+  showToast('error', 'An error occurred. Please try again.');
+});
+</script>
+
+<!-- Accordion -->
+ <script>
+
+  function toggleAccordion(id) {
+  const content = document.getElementById(`accordion-content-${id}`);
+  const icon = document.getElementById(`accordion-${id}`).querySelector('svg');
+  content.classList.toggle('hidden');
+  icon.classList.toggle('rotate-180');
+}
+
+document.getElementById('accordion-1').addEventListener('click', () => toggleAccordion(1));
+document.getElementById('accordion-2').addEventListener('click', () => toggleAccordion(2));
+document.getElementById('accordion-3').addEventListener('click', () => toggleAccordion(3));
+ </script>
+    <script>
+ // Tab functionality
+        const tabTriggers = document.querySelectorAll('.tab-trigger');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        function switchTab(targetTab) {
+            // Remove active classes from all triggers
+            tabTriggers.forEach(trigger => {
+                trigger.classList.remove('bg-white', 'dark:bg-gray-800', 'text-gray-900', 'dark:text-white', 'shadow-sm', 'border', 'border-gray-200', 'dark:border-gray-600');
+                trigger.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-50', 'dark:hover:bg-gray-700');
+                trigger.setAttribute('aria-selected', 'false');
+            });
+            
+            // Hide all tab contents
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('block', 'animate-fade-in');
+            });
+            
+            // Activate target trigger and content
+            const targetTrigger = document.querySelector(`[data-tab="${targetTab}"]`);
+            const targetContent = document.getElementById(targetTab);
+            
+            if (targetTrigger && targetContent) {
+                targetTrigger.classList.add('bg-white', 'dark:bg-gray-800', 'text-gray-900', 'dark:text-white', 'shadow-sm', 'border', 'border-gray-200', 'dark:border-gray-600');
+                targetTrigger.classList.remove('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-50', 'dark:hover:bg-gray-700');
+                targetTrigger.setAttribute('aria-selected', 'true');
+                
+                targetContent.classList.remove('hidden');
+                targetContent.classList.add('block', 'animate-fade-in');
+            }
+        }
+        
+        // Add click event listeners to tab triggers
+        tabTriggers.forEach(trigger => {
+            trigger.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetTab = trigger.getAttribute('data-tab');
+                switchTab(targetTab);
+            });
+            
+            // Keyboard navigation
+            trigger.addEventListener('keydown', (e) => {
+                const currentIndex = Array.from(tabTriggers).indexOf(trigger);
+                let newIndex;
+                
+                switch(e.key) {
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        newIndex = currentIndex > 0 ? currentIndex - 1 : tabTriggers.length - 1;
+                        tabTriggers[newIndex].focus();
+                        switchTab(tabTriggers[newIndex].getAttribute('data-tab'));
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        newIndex = currentIndex < tabTriggers.length - 1 ? currentIndex + 1 : 0;
+                        tabTriggers[newIndex].focus();
+                        switchTab(tabTriggers[newIndex].getAttribute('data-tab'));
+                        break;
+                    case 'Home':
+                        e.preventDefault();
+                        tabTriggers[0].focus();
+                        switchTab(tabTriggers[0].getAttribute('data-tab'));
+                        break;
+                    case 'End':
+                        e.preventDefault();
+                        tabTriggers[tabTriggers.length - 1].focus();
+                        switchTab(tabTriggers[tabTriggers.length - 1].getAttribute('data-tab'));
+                        break;
+                }
+            });
+        });
+        
+        // Add ripple effect to buttons
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'BUTTON') {
+                const button = e.target;
+                const ripple = document.createElement('span');
+                const rect = button.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('absolute', 'rounded-full', 'bg-white/60', 'pointer-events-none', 'animate-ripple');
+                
+                button.style.position = 'relative';
+                button.style.overflow = 'hidden';
+                button.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            }
+        });
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+
+    </script>
+</body>
+</html>

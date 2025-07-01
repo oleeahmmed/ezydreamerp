@@ -1,0 +1,1013 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "My Dashboard" %}{% endblock %}
+{% block page_title %}{% trans "My Dashboard" %}{% endblock %}
+
+{% block custom_css %}
+<style>
+    .dashboard-card {
+        background-color: hsl(var(--background));
+        border-radius: 0.75rem;
+        border: 1px solid hsl(var(--border));
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .dashboard-card:hover {
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        transform: translateY(-2px);
+    }
+    
+    .dashboard-card-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid hsl(var(--border));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(to right, hsl(var(--background)), hsl(var(--muted)/0.3), hsl(var(--background)));
+    }
+    
+    .dashboard-card-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: hsl(var(--foreground));
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .dashboard-card-title svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        color: hsl(var(--primary));
+    }
+    
+    .dashboard-card-body {
+        padding: 1.5rem;
+    }
+    
+    .dashboard-card-footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid hsl(var(--border));
+        background-color: hsl(var(--muted)/0.2);
+    }
+    
+    .profile-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem;
+        background: linear-gradient(to right, hsl(var(--primary)/0.1), hsl(var(--primary)/0.05), hsl(var(--primary)/0.1));
+        border-radius: 0.75rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='currentColor' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        opacity: 0.5;
+        z-index: 0;
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid hsl(var(--background));
+        box-shadow: 0 0 0 4px hsl(var(--primary)/0.3);
+        z-index: 1;
+        background-color: hsl(var(--muted));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: hsl(var(--primary));
+    }
+    
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .profile-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-top: 1rem;
+        color: hsl(var(--foreground));
+        z-index: 1;
+    }
+    
+    .profile-designation {
+        font-size: 1rem;
+        color: hsl(var(--muted-foreground));
+        margin-top: 0.25rem;
+        z-index: 1;
+    }
+    
+    .profile-id {
+        display: inline-flex;
+        align-items: center;
+        background-color: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+        z-index: 1;
+    }
+    
+    .profile-status {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        z-index: 1;
+    }
+    
+    .status-active {
+        background-color: rgba(16, 185, 129, 0.2);
+        color: rgb(6, 95, 70);
+    }
+    
+    .status-inactive {
+        background-color: rgba(239, 68, 68, 0.2);
+        color: rgb(153, 27, 27);
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .info-label {
+        font-size: 0.75rem;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 0.25rem;
+    }
+    
+    .info-value {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: hsl(var(--foreground));
+    }
+    
+    .stat-card {
+        background-color: hsl(var(--background));
+        border-radius: 0.5rem;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid hsl(var(--border));
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: hsl(var(--foreground));
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+        color: hsl(var(--muted-foreground));
+        margin-top: 0.25rem;
+        text-align: center;
+    }
+    
+    .leave-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.375rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .leave-pending {
+        background-color: rgba(245, 158, 11, 0.2);
+        color: rgb(146, 64, 14);
+    }
+    
+    .leave-approved {
+        background-color: rgba(16, 185, 129, 0.2);
+        color: rgb(6, 95, 70);
+    }
+    
+    .leave-rejected {
+        background-color: rgba(239, 68, 68, 0.2);
+        color: rgb(153, 27, 27);
+    }
+    
+    .leave-cancelled {
+        background-color: rgba(107, 114, 128, 0.2);
+        color: rgb(55, 65, 81);
+    }
+    
+    .attendance-calendar {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .calendar-day {
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.375rem;
+        font-size: 0.75rem;
+        position: relative;
+        border: 1px solid hsl(var(--border));
+    }
+    
+    .calendar-day-number {
+        font-weight: 600;
+    }
+    
+    .calendar-day-status {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-top: 0.25rem;
+    }
+    
+    .status-present {
+        background-color: rgb(16, 185, 129);
+    }
+    
+    .status-absent {
+        background-color: rgb(239, 68, 68);
+    }
+    
+    .status-late {
+        background-color: rgb(245, 158, 11);
+    }
+    
+    .status-leave {
+        background-color: rgb(99, 102, 241);
+    }
+    
+    .status-holiday {
+        background-color: rgb(107, 114, 128);
+    }
+    
+    .status-weekend {
+        background-color: rgb(107, 114, 128);
+    }
+    
+    .status-half-day {
+        background-color: rgb(217, 119, 6);
+    }
+    
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background-color: hsl(var(--muted));
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        border-radius: 4px;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .dashboard-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .dashboard-table th {
+        background-color: hsl(var(--muted)/0.3);
+        color: hsl(var(--muted-foreground));
+        font-weight: 500;
+        text-align: left;
+        padding: 0.75rem 1rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .dashboard-table td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid hsl(var(--border));
+        font-size: 0.875rem;
+    }
+    
+    .dashboard-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .dashboard-table tr:hover td {
+        background-color: hsl(var(--accent)/0.3);
+    }
+    
+    .dashboard-table th:first-child {
+        border-top-left-radius: 0.5rem;
+    }
+    
+    .dashboard-table th:last-child {
+        border-top-right-radius: 0.5rem;
+    }
+    
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.375rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .badge-primary {
+        background-color: hsl(var(--primary)/0.2);
+        color: hsl(var(--primary));
+    }
+    
+    .badge-secondary {
+        background-color: hsl(var(--secondary)/0.2);
+        color: hsl(var(--secondary));
+    }
+    
+    .badge-success {
+        background-color: rgba(16, 185, 129, 0.2);
+        color: rgb(6, 95, 70);
+    }
+    
+    .badge-warning {
+        background-color: rgba(245, 158, 11, 0.2);
+        color: rgb(146, 64, 14);
+    }
+    
+    .badge-danger {
+        background-color: rgba(239, 68, 68, 0.2);
+        color: rgb(153, 27, 27);
+    }
+    
+    .badge-info {
+        background-color: rgba(99, 102, 241, 0.2);
+        color: rgb(67, 56, 202);
+    }
+    
+    .badge-light {
+        background-color: rgba(107, 114, 128, 0.2);
+        color: rgb(55, 65, 81);
+    }
+    
+    .action-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        transition: all 0.2s ease;
+        color: hsl(var(--muted-foreground));
+    }
+    
+    .action-button:hover {
+        background-color: hsl(var(--accent));
+        color: hsl(var(--accent-foreground));
+    }
+    
+    .action-button svg {
+        width: 1rem;
+        height: 1rem;
+    }
+    
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+    }
+    
+    .quick-action-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        background-color: hsl(var(--background));
+        border: 1px solid hsl(var(--border));
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    
+    .quick-action-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        background-color: hsl(var(--accent));
+    }
+    
+    .quick-action-icon {
+        width: 2rem;
+        height: 2rem;
+        color: hsl(var(--primary));
+        margin-bottom: 0.5rem;
+    }
+    
+    .quick-action-label {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: hsl(var(--foreground));
+    }
+    
+    @media (max-width: 768px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .quick-actions {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        {% if employee.is_active %}
+        <div class="profile-status status-active">{% trans "Active" %}</div>
+        {% else %}
+        <div class="profile-status status-inactive">{% trans "Inactive" %}</div>
+        {% endif %}
+        
+        {% if employee.profile_picture %}
+        <div class="profile-avatar">
+            <img src="{{ employee.profile_picture.url }}" alt="{{ employee.get_full_name }}">
+        </div>
+        {% else %}
+        <div class="profile-avatar">
+            {{ employee.first_name|slice:":1" }}{{ employee.last_name|slice:":1" }}
+        </div>
+        {% endif %}
+        
+        <h1 class="profile-name">{{ employee.get_full_name }}</h1>
+        <p class="profile-designation">{{ employee.designation.name }}</p>
+        <div class="profile-id">{{ employee.employee_id }}</div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="dashboard-card mb-6">
+        <div class="dashboard-card-header">
+            <h2 class="dashboard-card-title">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14.5 4H18C18.5304 4 19.0391 4.21071 19.4142 4.58579C19.7893 4.96086 20 5.46957 20 6V18C20 18.5304 19.7893 19.0391 19.4142 19.4142C19.0391 19.7893 18.5304 20 18 20H6C5.46957 20 4.96086 19.7893 4.58579 19.4142C4.21071 19.0391 4 18.5304 4 18V6C4 5.46957 4.21071 4.96086 4.58579 4.58579C4.96086 4.21071 5.46957 4 6 4H9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15 2L12 5L9 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 5V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                {% trans "Quick Actions" %}
+            </h2>
+        </div>
+        <div class="dashboard-card-body">
+            <div class="quick-actions">
+                <a href="{% url 'hrm:leave_application_create' %}" class="quick-action-button">
+                    <svg class="quick-action-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 10H3M16 2V6M8 2V6M7.8 22H16.2C17.8802 22 18.7202 22 19.362 21.673C19.9265 21.3854 20.3854 20.9265 20.673 20.362C21 19.7202 21 18.8802 21 17.2V8.8C21 7.11984 21 6.27976 20.673 5.63803C20.3854 5.07354 19.9265 4.6146 19.362 4.32698C18.7202 4 17.8802 4 16.2 4H7.8C6.11984 4 5.27976 4 4.63803 4.32698C4.07354 4.6146 3.6146 5.07354 3.32698 5.63803C3 6.27976 3 7.11984 3 8.8V17.2C3 18.8802 3 19.7202 3.32698 20.362C3.6146 20.9265 4.07354 21.3854 4.63803 21.673C5.27976 22 6.11984 22 7.8 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="quick-action-label">{% trans "Apply Leave" %}</span>
+                </a>
+                
+                <a href="{% url 'hrm:short_leave_application_create' %}" class="quick-action-button">
+                    <svg class="quick-action-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 8V12L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="quick-action-label">{% trans "Short Leave" %}</span>
+                </a>
+                
+                <a href="{% url 'hrm:overtime_record_create' %}" class="quick-action-button">
+                    <svg class="quick-action-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 6V12L16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="quick-action-label">{% trans "Overtime" %}</span>
+                </a>
+                
+                <a href="{% url 'hrm:attendance_page' %}" class="quick-action-button">
+                    <svg class="quick-action-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 11L12 14L22 4M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="quick-action-label">{% trans "Mark Attendance" %}</span>
+                </a>
+                
+                <a href="{% url 'hrm:employee_advance_create' %}" class="quick-action-button">
+                    <svg class="quick-action-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 1V23M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="quick-action-label">{% trans "Request Advance" %}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Dashboard Content -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Left Column -->
+        <div class="md:col-span-2 space-y-6">
+            <!-- Personal Information -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h2 class="dashboard-card-title">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% trans "Personal Information" %}
+                    </h2>
+                    <a href="{% url 'hrm:employee_detail' employee.pk %}" class="text-sm text-[hsl(var(--primary))] hover:underline">{% trans "View Full Profile" %}</a>
+                </div>
+                <div class="dashboard-card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">{% trans "Full Name" %}</span>
+                            <span class="info-value">{{ employee.get_full_name }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <span class="info-label">{% trans "Employee ID" %}</span>
+                            <span class="info-value">{{ employee.employee_id }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <span class="info-label">{% trans "Email" %}</span>
+                            <span class="info-value">{{ employee.email }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <span class="info-label">{% trans "Phone" %}</span>
+                            <span class="info-value">{{ employee.phone }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <span class="info-label">{% trans "Department" %}</span>
+                            <span class="info-value">{{ employee.department.name }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <span class="info-label">{% trans "Designation" %}</span>
+                            <span class="info-value">{{ employee.designation.name }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <span class="info-label">{% trans "Joining Date" %}</span>
+                            <span class="info-value">{{ employee.joining_date|date:"M d, Y" }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <span class="info-label">{% trans "Service Duration" %}</span>
+                            <span class="info-value">{{ employee.service_duration }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Attendance Stats -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h2 class="dashboard-card-title">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 11L12 14L22 4M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% trans "Attendance Statistics" %} - {{ current_month_name }} {{ current_year }}
+                    </h2>
+                    <a href="{% url 'hrm:attendance_list' %}" class="text-sm text-[hsl(var(--primary))] hover:underline">{% trans "View All" %}</a>
+                </div>
+                <div class="dashboard-card-body">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                        <div class="stat-card">
+                            <div class="stat-value">{{ attendance_stats.present }}</div>
+                            <div class="stat-label">{% trans "Present" %}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-value">{{ attendance_stats.absent }}</div>
+                            <div class="stat-label">{% trans "Absent" %}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-value">{{ attendance_stats.late }}</div>
+                            <div class="stat-label">{% trans "Late" %}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-value">{{ attendance_stats.leave }}</div>
+                            <div class="stat-label">{% trans "Leave" %}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-value">{{ attendance_stats.total_working_days }}</div>
+                            <div class="stat-label">{% trans "Working Days" %}</div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-sm font-medium mb-3">{% trans "Recent Attendance" %}</h3>
+                    <div class="table-container">
+                        <table class="dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Date" %}</th>
+                                    <th>{% trans "Status" %}</th>
+                                    <th>{% trans "Check In" %}</th>
+                                    <th>{% trans "Check Out" %}</th>
+                                    <th>{% trans "Working Hours" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attendance in current_month_attendance|slice:":5" %}
+                                <tr>
+                                    <td>{{ attendance.date|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if attendance.status == 'PRE' %}
+                                        <span class="badge badge-success">{% trans "Present" %}</span>
+                                        {% elif attendance.status == 'ABS' %}
+                                        <span class="badge badge-danger">{% trans "Absent" %}</span>
+                                        {% elif attendance.status == 'LAT' %}
+                                        <span class="badge badge-warning">{% trans "Late" %}</span>
+                                        {% elif attendance.status == 'LEA' %}
+                                        <span class="badge badge-info">{% trans "Leave" %}</span>
+                                        {% elif attendance.status == 'HOL' %}
+                                        <span class="badge badge-light">{% trans "Holiday" %}</span>
+                                        {% elif attendance.status == 'WEE' %}
+                                        <span class="badge badge-light">{% trans "Weekend" %}</span>
+                                        {% elif attendance.status == 'HAL' %}
+                                        <span class="badge badge-warning">{% trans "Half Day" %}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ attendance.check_in|time:"h:i A"|default:"-" }}</td>
+                                    <td>{{ attendance.check_out|time:"h:i A"|default:"-" }}</td>
+                                    <td>{{ attendance.working_hours|floatformat:2 }} {% trans "hrs" %}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-[hsl(var(--muted-foreground))]">{% trans "No attendance records found for this month." %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Leave Applications -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h2 class="dashboard-card-title">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 10H3M16 2V6M8 2V6M7.8 22H16.2C17.8802 22 18.7202 22 19.362 21.673C19.9265 21.3854 20.3854 20.9265 20.673 20.362C21 19.7202 21 18.8802 21 17.2V8.8C21 7.11984 21 6.27976 20.673 5.63803C20.3854 5.07354 19.9265 4.6146 19.362 4.32698C18.7202 4 17.8802 4 16.2 4H7.8C6.11984 4 5.27976 4 4.63803 4.32698C4.07354 4.6146 3.6146 5.07354 3.32698 5.63803C3 6.27976 3 7.11984 3 8.8V17.2C3 18.8802 3 19.7202 3.32698 20.362C3.6146 20.9265 4.07354 21.3854 4.63803 21.673C5.27976 22 6.11984 22 7.8 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% trans "Leave Applications" %}
+                    </h2>
+                    <a href="{% url 'hrm:leave_application_list' %}" class="text-sm text-[hsl(var(--primary))] hover:underline">{% trans "View All" %}</a>
+                </div>
+                <div class="dashboard-card-body">
+                    <div class="table-container">
+                        <table class="dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Leave Type" %}</th>
+                                    <th>{% trans "From" %}</th>
+                                    <th>{% trans "To" %}</th>
+                                    <th>{% trans "Days" %}</th>
+                                    <th>{% trans "Status" %}</th>
+                                    <th>{% trans "Actions" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for leave in recent_leave_applications %}
+                                <tr>
+                                    <td>{{ leave.leave_type.name }}</td>
+                                    <td>{{ leave.start_date|date:"M d, Y" }}</td>
+                                    <td>{{ leave.end_date|date:"M d, Y" }}</td>
+                                    <td>{{ leave.days }}</td>
+                                    <td>
+                                        {% if leave.status == 'PEN' %}
+                                        <span class="leave-status leave-pending">{% trans "Pending" %}</span>
+                                        {% elif leave.status == 'APP' %}
+                                        <span class="leave-status leave-approved">{% trans "Approved" %}</span>
+                                        {% elif leave.status == 'REJ' %}
+                                        <span class="leave-status leave-rejected">{% trans "Rejected" %}</span>
+                                        {% elif leave.status == 'CAN' %}
+                                        <span class="leave-status leave-cancelled">{% trans "Cancelled" %}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="flex space-x-1">
+                                            <a href="{% url 'hrm:leave_application_detail' leave.pk %}" class="action-button" title="{% trans 'View Details' %}">
+                                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M2 12C2 12 5.63636 5 12 5C18.3636 5 22 12 22 12C22 12 18.3636 19 12 19C5.63636 19 2 12 2 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </a>
+                                            {% if leave.status == 'PEN' %}
+                                            <a href="{% url 'hrm:leave_application_update' leave.pk %}" class="action-button" title="{% trans 'Edit' %}">
+                                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-[hsl(var(--muted-foreground))]">{% trans "No leave applications found." %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Salary Information -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h2 class="dashboard-card-title">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 1V23M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% trans "Salary Information" %}
+                    </h2>
+                </div>
+                <div class="dashboard-card-body">
+                    <div class="info-grid mb-6">
+                        <div class="info-item">
+                            <span class="info-label">{% trans "Basic Salary" %}</span>
+                            <span class="info-value">{{ employee.basic_salary|floatformat:2 }}</span>
+                        </div>
+                        
+                        {% if employee.salary_structure %}
+                        <div class="info-item">
+                            <span class="info-label">{% trans "Gross Salary" %}</span>
+                            <span class="info-value">{{ employee.salary_structure.gross_salary|floatformat:2 }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <h3 class="text-sm font-medium mb-3">{% trans "Recent Salary Payments" %}</h3>
+                    <div class="table-container">
+                        <table class="dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Month" %}</th>
+                                    <th>{% trans "Basic" %}</th>
+                                    <th>{% trans "Gross" %}</th>
+                                    <th>{% trans "Deductions" %}</th>
+                                    <th>{% trans "Net" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for salary in recent_salaries %}
+                                <tr>
+                                    <td>{{ salary.salary_month.year }}-{{ salary.salary_month.month }}</td>
+                                    <td>{{ salary.basic_salary|floatformat:2 }}</td>
+                                    <td>{{ salary.gross_salary|floatformat:2 }}</td>
+                                    <td>{{ salary.total_deductions|floatformat:2 }}</td>
+                                    <td>{{ salary.net_salary|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-[hsl(var(--muted-foreground))]">{% trans "No salary records found." %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="space-y-6">
+            <!-- Leave Balance -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h2 class="dashboard-card-title">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 7V3M16 7V3M7 11H17M5 21H19C20.1046 21 21 20.1046 21 19V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V19C3 20.1046 3.89543 21 5 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% trans "Leave Balance" %} - {{ current_year }}
+                    </h2>
+                </div>
+                <div class="dashboard-card-body">
+{% for balance in leave_balances %}
+<div class="mb-4 last:mb-0">
+    <div class="flex justify-between items-center mb-1">
+        <span class="text-sm font-medium">{{ balance.name }}</span>
+        <span class="text-sm font-semibold">{{ balance.available_days }} / {{ balance.total_days }}</span>
+    </div>
+    <div class="progress-bar">
+        <div class="progress-fill bg-[hsl(var(--primary))]" style="width: {{ balance.percentage }}%"></div>
+    </div>
+    <div class="flex justify-between text-xs text-[hsl(var(--muted-foreground))] mt-1">
+        <span>{% trans "Used" %}: {{ balance.used_days }}</span>
+        <span>{% trans "Pending" %}: {{ balance.pending_days }}</span>
+    </div>
+</div>
+{% empty %}
+<div class="text-center py-4 text-[hsl(var(--muted-foreground))]">
+    {% trans "No leave balances found for this year." %}
+</div>
+{% endfor %}
+
+                </div>
+                <div class="dashboard-card-footer">
+                    <a href="{% url 'hrm:leave_application_create' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-9 px-4 py-2 w-full">
+                        {% trans "Apply for Leave" %}
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Overtime Records -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h2 class="dashboard-card-title">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 6V12L16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% trans "Overtime Records" %}
+                    </h2>
+                </div>
+                <div class="dashboard-card-body">
+                    <div class="table-container">
+                        <table class="dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Date" %}</th>
+                                    <th>{% trans "Hours" %}</th>
+                                    <th>{% trans "Status" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for overtime in recent_overtime %}
+                                <tr>
+                                    <td>{{ overtime.date|date:"M d, Y" }}</td>
+                                    <td>{{ overtime.hours }}</td>
+                                    <td>
+                                        {% if overtime.status == 'PEN' %}
+                                        <span class="badge badge-warning">{% trans "Pending" %}</span>
+                                        {% elif overtime.status == 'APP' %}
+                                        <span class="badge badge-success">{% trans "Approved" %}</span>
+                                        {% elif overtime.status == 'REJ' %}
+                                        <span class="badge badge-danger">{% trans "Rejected" %}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-4 text-[hsl(var(--muted-foreground))]">{% trans "No overtime records found." %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="dashboard-card-footer">
+                    <a href="{% url 'hrm:overtime_record_create' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-9 px-4 py-2 w-full">
+                        {% trans "Apply for Overtime" %}
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Active Advances -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h2 class="dashboard-card-title">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 16.1C2 19.6 4.5 21 6.5 21C9 21 10 19.75 10 19.75C10 19.75 11 21 13.5 21C15.5 21 18 19.6 18 16.1C18 12.6 12 2 12 2C12 2 2 12.6 2 16.1Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% trans "Active Advances" %}
+                    </h2>
+                </div>
+                <div class="dashboard-card-body">
+                    {% for advance in active_advances %}
+                    <div class="mb-4 last:mb-0 p-3 border border-[hsl(var(--border))] rounded-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-medium">{{ advance.advance_setup.name }}</span>
+                            <span class="badge badge-primary">{{ advance.get_status_display }}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-sm mb-2">
+                            <div>
+                                <span class="text-[hsl(var(--muted-foreground))]">{% trans "Amount" %}:</span>
+                                <span class="font-medium">{{ advance.amount|floatformat:2 }}</span>
+                            </div>
+                            <div>
+                                <span class="text-[hsl(var(--muted-foreground))]">{% trans "Total" %}:</span>
+                                <span class="font-medium">{{ advance.total_amount|floatformat:2 }}</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                                <span class="text-[hsl(var(--muted-foreground))]">{% trans "Installments" %}:</span>
+                                <span class="font-medium">{{ advance.installments }}</span>
+                            </div>
+                            <div>
+                                <span class="text-[hsl(var(--muted-foreground))]">{% trans "Per Installment" %}:</span>
+                                <span class="font-medium">{{ advance.installment_amount|floatformat:2 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4 text-[hsl(var(--muted-foreground))]">
+                        {% trans "No active advances found." %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="dashboard-card-footer">
+                    <a href="{% url 'hrm:employee_advance_create' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-9 px-4 py-2 w-full">
+                        {% trans "Request Advance" %}
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Recent Letters -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h2 class="dashboard-card-title">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 8L10.7 13.3C11.5111 13.8889 12.4889 13.8889 13.3 13.3L21 8M5 19H19C20.1046 19 21 18.1046 21 17V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V17C3 18.1046 3.89543 19 5 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% trans "Recent Letters" %}
+                    </h2>
+                </div>
+                <div class="dashboard-card-body">
+                    <div class="space-y-3">
+                        {% for letter in recent_letters %}
+                        <div class="p-3 border border-[hsl(var(--border))] rounded-lg">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-medium">{{ letter.template.get_letter_type_display }}</span>
+                                <span class="text-xs text-[hsl(var(--muted-foreground))]">{{ letter.issue_date|date:"M d, Y" }}</span>
+                            </div>
+                            <div class="text-sm text-[hsl(var(--muted-foreground))] mb-2">
+                                {% trans "Ref" %}: {{ letter.reference_number }}
+                            </div>
+                            <a href="#" class="text-xs text-[hsl(var(--primary))] hover:underline">{% trans "View Letter" %}</a>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-4 text-[hsl(var(--muted-foreground))]">
+                            {% trans "No letters found." %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add hover effects for dashboard cards
+        const dashboardCards = document.querySelectorAll('.dashboard-card');
+        dashboardCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.classList.add('shadow-md');
+            });
+            card.addEventListener('mouseleave', function() {
+                this.classList.remove('shadow-md');
+            });
+        });
+    });
+</script>
+{% endblock %}

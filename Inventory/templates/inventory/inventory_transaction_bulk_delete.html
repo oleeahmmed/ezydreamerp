@@ -1,0 +1,61 @@
+{% extends "common/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div class="flex items-center mb-6">
+            <svg class="w-8 h-8 text-red-500 mr-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 9V11M12 15H12.01M5.07183 19H18.9282C20.4678 19 21.4301 17.3333 20.6603 16L13.7321 4C12.9623 2.66667 11.0378 2.66667 10.268 4L3.33978 16C2.56998 17.3333 3.53223 19 5.07183 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ title }}</h1>
+        </div>
+        
+        <div class="mb-6">
+            <p class="text-gray-700 dark:text-gray-300 mb-4">{{ subtitle }}</p>
+            <p class="text-red-600 dark:text-red-400 font-medium">Warning: This action cannot be undone. The following transactions will be permanently deleted:</p>
+        </div>
+        
+        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6 max-h-96 overflow-y-auto">
+            <table class="min-w-full">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Document #</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Item Code</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Warehouse</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr class="{% cycle 'bg-white dark:bg-gray-800' 'bg-gray-50 dark:bg-gray-700' %}">
+                        <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-200">{{ transaction.document_type }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-200">{{ transaction.document_number }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-200">{{ transaction.transaction_date|date:"Y-m-d H:i" }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-200">{{ transaction.item_code }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-200">{{ transaction.warehouse.name }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            {% for id in selected_ids %}
+            <input type="hidden" name="ids" value="{{ id }}">
+            {% endfor %}
+            
+            <div class="flex justify-end space-x-4">
+                <a href="{% url 'Inventory:inventory_transaction_list' %}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors">
+                    Confirm Delete
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

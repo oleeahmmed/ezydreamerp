@@ -1,0 +1,1028 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="mx-auto">
+    <div class="rounded-xl border-2 bg-[hsl(var(--background))] shadow-lg p-4 sm:p-8 mb-6 premium-card relative">
+        <!-- Decorative Elements -->
+        <div class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-[hsl(var(--primary))] to-transparent opacity-10 rounded-bl-full"></div>
+        <div class="absolute bottom-0 left-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-tr from-[hsl(var(--primary))] to-transparent opacity-10 rounded-tr-full"></div>
+        
+        <!-- Header -->
+        <div class="mb-6 sm:mb-8 border-b border-[hsl(var(--border))] pb-4 sm:pb-6 relative z-10">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <div class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-icon">
+                        {% block list_icon %}
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 6H20M9 12H20M9 18H20M5 6V6.01M5 12V12.01M5 18V18.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% endblock %}
+                    </div>
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-foreground))] bg-clip-text text-transparent">{% block list_title %}{{ title }}{% endblock %}</h3>
+                        <p class="text-xs sm:text-sm text-[hsl(var(--muted-foreground))]">{% block list_subtitle %}{{ subtitle }}{% endblock %}</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
+                    {% block list_actions %}
+                    {% if can_create %}
+                    <a href="{{ create_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-10 px-4 py-2 shadow-md premium-button">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Add New
+                    </a>
+                    {% endif %}
+                    
+                    {% if can_export %}
+                    <div class="relative">
+                        <button id="exportDropdownBtn" type="button" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:bg-[hsl(var(--secondary-hover))] h-10 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Export
+                        </button>
+                        <div id="exportDropdown" class="hidden absolute right-0 mt-2 w-48 bg-[hsl(var(--popover))] text-[hsl(var(--popover-foreground))] shadow-lg rounded-md border border-[hsl(var(--border))] z-10">
+                            <a href="{{ export_url }}?format=csv" class="block px-4 py-2 text-sm hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition-colors">
+                                Export as CSV
+                            </a>
+                            <a href="{{ export_url }}?format=excel" class="block px-4 py-2 text-sm hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition-colors">
+                                Export as Excel
+                            </a>
+                            <a href="{{ export_url }}?format=pdf" class="block px-4 py-2 text-sm hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition-colors">
+                                Export as PDF
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if can_bulk_delete %}
+                    <button id="bulkActionBtn" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:bg-red-100 hover:text-red-700 h-10 px-4 py-2 shadow-md">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Bulk Actions
+                    </button>
+                    {% endif %}
+                    
+                    <div id="columnToggleBtn" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:bg-[hsl(var(--secondary-hover))] h-10 px-4 py-2 shadow-md cursor-pointer">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Columns
+                    </div>
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+
+        {% include "common/toast.html" %}
+
+        <!-- Bulk Actions Dropdown -->
+        <div id="bulkActionsDropdown" class="hidden mb-4 p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--background))] shadow-md">
+            <form id="bulkActionForm" method="post" action="{{ bulk_action_url }}">
+                {% csrf_token %}
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <select id="bulkAction" name="action" class="flex-grow px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                        <option value="">Select Action</option>
+                        <option value="delete">Delete Selected</option>
+                        <option value="export">Export Selected</option>
+                        <option value="status_active">Set Status: Active</option>
+                        <option value="status_inactive">Set Status: Inactive</option>
+                    </select>
+                    <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-10 px-4 py-2">
+                        Apply
+                    </button>
+                    <button type="button" id="cancelBulkAction" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-10 px-4 py-2">
+                        Cancel
+                    </button>
+                </div>
+                <div id="selectedCount" class="mt-2 text-sm text-[hsl(var(--muted-foreground))]">
+                    0 items selected
+                </div>
+            </form>
+        </div>
+
+        <!-- Column Toggle Dropdown -->
+        <div id="columnToggleDropdown" class="hidden mb-4 p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--background))] shadow-md">
+            <div class="text-sm font-medium mb-2">Toggle Columns</div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2" id="columnToggleOptions">
+                <!-- Column options will be dynamically inserted here -->
+            </div>
+            <div class="flex justify-end mt-3">
+                <button type="button" id="resetColumns" class="text-sm text-[hsl(var(--primary))] hover:underline">
+                    Reset to Default
+                </button>
+            </div>
+        </div>
+
+        <!-- Search and Filter -->
+        {% block search_filter %}
+        <div class="mb-6">
+            <form method="get" class="flex flex-col gap-3">
+                <div class="relative flex-grow">
+                    <input type="text" name="search" placeholder="Search..." value="{{ request.GET.search|default:'' }}" class="w-full px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                    <button type="submit" class="absolute right-2 top-2 text-[hsl(var(--muted-foreground))]">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="button" id="advancedFilterToggle" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-10 px-4 py-2 whitespace-nowrap">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 4H21M3 12H21M3 20H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Advanced Filters
+                    </button>
+                    
+                    <div class="filters-container overflow-x-auto hide-scrollbar -mx-4 px-4 pb-2">
+                        <div class="flex flex-nowrap gap-3 min-w-max">
+                            {% block additional_filters %}{% endblock %}
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-10 px-4 py-2">
+                        Apply Filters
+                    </button>
+                    
+                    <a href="{{ request.path }}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-10 px-4 py-2">
+                        Clear Filters
+                    </a>
+                </div>
+                
+                <!-- Advanced Filters Panel -->
+                <div id="advancedFilters" class="hidden mt-3 p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--background))] shadow-md">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        {% block advanced_filters %}
+                        <!-- Advanced filter fields will be placed here -->
+                        {% endblock %}
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% endblock %}
+
+        <!-- Pagination Size Controls -->
+        <div class="mb-4 flex justify-between items-center">
+            <div class="text-sm text-[hsl(var(--muted-foreground))]">
+                {% if paginator.count %}
+                Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ paginator.count }} entries
+                {% endif %}
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-sm text-[hsl(var(--muted-foreground))]">Show:</span>
+                <div class="flex gap-2">
+                    <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'search' and key != 'per_page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}per_page=10" 
+                       class="inline-flex items-center justify-center rounded-md text-xs font-medium h-8 px-3 py-1 {% if request.GET.per_page == '10' or not request.GET.per_page %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]{% else %}border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]{% endif %}">
+                        10
+                    </a>
+                    <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'search' and key != 'per_page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}per_page=50" 
+                       class="inline-flex items-center justify-center rounded-md text-xs font-medium h-8 px-3 py-1 {% if request.GET.per_page == '50' %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]{% else %}border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]{% endif %}">
+                        50
+                    </a>
+                    <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'search' and key != 'per_page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}per_page=100" 
+                       class="inline-flex items-center justify-center rounded-md text-xs font-medium h-8 px-3 py-1 {% if request.GET.per_page == '100' %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]{% else %}border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]{% endif %}">
+                        100
+                    </a>
+                    <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'search' and key != 'per_page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}per_page=all" 
+                       class="inline-flex items-center justify-center rounded-md text-xs font-medium h-8 px-3 py-1 {% if request.GET.per_page == 'all' %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]{% else %}border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]{% endif %}">
+                        All
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="relative overflow-x-auto rounded-lg border border-[hsl(var(--border))] -mx-2 sm:mx-0">
+            <div class="min-w-full overflow-hidden overflow-x-auto">
+                <table id="dataTable" class="w-full text-sm text-left">
+                    <thead class="text-xs uppercase bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]">
+                        <tr>
+                            <th scope="col" class="px-3 sm:px-6 py-3 w-10">
+                                <input type="checkbox" id="selectAll" class="form-checkbox h-4 w-4 text-[hsl(var(--primary))] rounded border-[hsl(var(--border))] focus:ring-[hsl(var(--primary))]">
+                            </th>
+                            {% block table_headers %}
+                            <th scope="col" class="px-3 sm:px-6 py-3 sortable" data-sort="name">
+                                <div class="flex items-center gap-1">
+                                    Name
+                                    <svg class="w-4 h-4 sort-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </th>
+                            <th scope="col" class="px-3 sm:px-6 py-3 sortable" data-sort="description">
+                                <div class="flex items-center gap-1">
+                                    Description
+                                    <svg class="w-4 h-4 sort-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </th>
+                            <th scope="col" class="px-3 sm:px-6 py-3 text-right">Actions</th>
+                            {% endblock %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% block table_body %}
+                        {% for object in objects %}
+                        <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]">
+                            <td class="px-3 sm:px-6 py-4">
+                                <input type="checkbox" name="selected_items" value="{{ object.pk }}" class="item-checkbox form-checkbox h-4 w-4 text-[hsl(var(--primary))] rounded border-[hsl(var(--border))] focus:ring-[hsl(var(--primary))]">
+                            </td>
+                            <td class="px-3 sm:px-6 py-4 font-medium">
+                                {% if object.name %}
+                                    {{ object.name }}
+                                {% else %}
+                                    {{ object }}
+                                {% endif %}
+                            </td>
+                            <td class="px-3 sm:px-6 py-4">{% block object_description %}{{ object }}{% endblock %}</td>
+                            <td class="px-3 sm:px-6 py-4 text-right">
+                                <div class="relative inline-block">
+                                    <button type="button" class="action-menu-btn inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 5V5.01M12 12V12.01M12 19V19.01M12 6C11.4477 6 11 5.55228 11 5C11 4.44772 11.4477 4 12 4C12.5523 4 13 4.44772 13 5C13 5.55228 12.5523 6 12 6ZM12 13C11.4477 13 11 12.5523 11 12C11 11.4477 11.4477 11 12 11C12.5523 11 13 11.4477 13 12C13 12.5523 12.5523 13 12 13ZM12 20C11.4477 20 11 19.5523 11 19C11 18.4477 11.4477 18 12 18C12.5523 18 13 18.4477 13 19C13 19.5523 12.5523 20 12 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </button>
+                                    <div class="action-menu hidden absolute right-0 mt-2 w-48 bg-[hsl(var(--popover))] text-[hsl(var(--popover-foreground))] shadow-lg rounded-md border border-[hsl(var(--border))] z-10">
+                                        {% if can_view %}
+                                        <a href="{{ list_url }}{{ object.pk }}/" class="flex items-center px-4 py-2 text-sm hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition-colors">
+                                            <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M2 12C2 12 5.63636 5 12 5C18.3636 5 22 12 22 12C22 12 18.3636 19 12 19C5.63636 19 2 12 2 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            View
+                                        </a>
+                                        {% endif %}
+                                        
+                                        {% if can_update %}
+                                        <a href="{{ list_url }}{{ object.pk }}/update/" class="flex items-center px-4 py-2 text-sm hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition-colors">
+                                            <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            Edit
+                                        </a>
+                                        {% endif %}
+                                        
+                                        {% if can_delete %}
+                                        <a href="{{ list_url }}{{ object.pk }}/delete/" class="flex items-center px-4 py-2 text-sm hover:bg-red-100 hover:text-red-700 transition-colors">
+                                            <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            Delete
+                                        </a>
+                                        {% endif %}
+                                        
+                                        {% if can_print %}
+                                        <a href="{{ list_url }}{{ object.pk }}/print/" target="_blank" class="flex items-center px-4 py-2 text-sm hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition-colors">
+                                            <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6 9V2H18V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M6 18H4C3.46957 18 2.96086 17.7893 2.58579 17.4142C2.21071 17.0391 2 16.5304 2 16V11C2 10.4696 2.21071 9.96086 2.58579 9.58579C2.96086 9.21071 3.46957 9 4 9H20C20.5304 9 21.0391 9.21071 21.4142 9.58579C21.7893 9.96086 22 10.4696 22 11V16C22 16.5304 21.7893 17.0391 21.4142 17.4142C21.0391 17.7893 20.5304 18 20 18H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M18 14H6V22H18V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            Print
+                                        </a>
+                                        {% endif %}
+                                        
+                                        <a href="{{ list_url }}{{ object.pk }}/duplicate/" class="flex items-center px-4 py-2 text-sm hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition-colors">
+                                            <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M20 9H11C9.89543 9 9 9.89543 9 11V20C9 21.1046 9.89543 22 11 22H20C21.1046 22 22 21.1046 22 20V11C22 9.89543 21.1046 9 20 9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M5 15H4C3.46957 15 2.96086 14.7893 2.58579 14.4142C2.21071 14.0391 2 13.5304 2 13V4C2 3.46957 2.21071 2.96086 2.58579 2.58579C2.96086 2.21071 3.46957 2 4 2H13C13.5304 2 14.0391 2.21071 14.4142 2.58579C14.7893 2.96086 15 3.46957 15 4V5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            Duplicate
+                                        </a>
+                                        
+                                        <button type="button" class="change-status-btn flex items-center w-full text-left px-4 py-2 text-sm hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition-colors" data-id="{{ object.pk }}">
+                                            <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            Change Status
+                                        </button>
+                                        
+                                        <a href="{{ export_url }}?id={{ object.pk }}" class="flex items-center px-4 py-2 text-sm hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition-colors">
+                                            <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            Export
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+                            <td colspan="{% block empty_colspan %}4{% endblock %}" class="px-3 sm:px-6 py-4 text-center text-[hsl(var(--muted-foreground))]">
+                                <div class="flex flex-col items-center py-6">
+                                    <svg class="w-12 h-12 text-[hsl(var(--muted-foreground))] mb-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5M12 12H15M12 16H15M9 12H9.01M9 16H9.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <p class="text-lg font-medium mb-2">No {{ model_name|lower }}s found</p>
+                                    <p class="text-sm text-[hsl(var(--muted-foreground))] mb-4">Get started by creating a new entry</p>
+                                    {% if can_create %}
+                                    <a href="{{ create_url }}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-10 px-4 py-2 shadow-md">
+                                        <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        Add {{ model_name }}
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% endblock %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% block pagination %}
+        {% if is_paginated %}
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-6">
+            <div class="text-sm text-[hsl(var(--muted-foreground))]">
+                Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ paginator.count }} entries
+            </div>
+            <div class="pagination-container overflow-x-auto hide-scrollbar -mx-4 px-4 pb-2">
+                <div class="flex flex-nowrap gap-2 min-w-max">
+                    {% if page_obj.has_previous %}
+                    <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'search' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                        First
+                    </a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'search' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                        Previous
+                    </a>
+                    {% endif %}
+                    
+                    {% for num in paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <span class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-3 py-2 bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]">
+                            {{ num }}
+                        </span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'search' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                            {{ num }}
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'search' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                        Next
+                    </a>
+                    <a href="?page={{ paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'search' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                        Last
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endblock %}
+    </div>
+</div>
+
+<!-- Status Change Modal -->
+<div id="statusChangeModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50"></div>
+    <div class="relative bg-[hsl(var(--background))] rounded-lg shadow-lg p-6 w-full max-w-md mx-4">
+        <h3 class="text-lg font-medium mb-4">Change Status</h3>
+        <form id="statusChangeForm" method="post">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="new_status" class="block text-sm font-medium mb-1">New Status</label>
+                <select id="new_status" name="new_status" class="w-full px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]">
+                    <option value="draft">Draft</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="status_notes" class="block text-sm font-medium mb-1">Notes</label>
+                <textarea id="status_notes" name="status_notes" rows="3" class="w-full px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))]"></textarea>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" id="cancelStatusChange" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-10 px-4 py-2">
+                    Cancel
+                </button>
+                <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-10 px-4 py-2">
+                    Change Status
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle advanced filters
+    const advancedFilterToggle = document.getElementById('advancedFilterToggle');
+    const advancedFilters = document.getElementById('advancedFilters');
+    
+    if (advancedFilterToggle && advancedFilters) {
+        advancedFilterToggle.addEventListener('click', function() {
+            advancedFilters.classList.toggle('hidden');
+        });
+    }
+    
+    // Toggle bulk actions dropdown
+    const bulkActionBtn = document.getElementById('bulkActionBtn');
+    const bulkActionsDropdown = document.getElementById('bulkActionsDropdown');
+    const cancelBulkAction = document.getElementById('cancelBulkAction');
+    
+    if (bulkActionBtn && bulkActionsDropdown && cancelBulkAction) {
+        bulkActionBtn.addEventListener('click', function() {
+            bulkActionsDropdown.classList.toggle('hidden');
+        });
+        
+        cancelBulkAction.addEventListener('click', function() {
+            bulkActionsDropdown.classList.add('hidden');
+        });
+    }
+    
+    // Toggle export dropdown
+    const exportDropdownBtn = document.getElementById('exportDropdownBtn');
+    const exportDropdown = document.getElementById('exportDropdown');
+    
+    if (exportDropdownBtn && exportDropdown) {
+        exportDropdownBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            exportDropdown.classList.toggle('hidden');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (exportDropdownBtn && !exportDropdownBtn.contains(e.target) && 
+                exportDropdown && !exportDropdown.contains(e.target)) {
+                exportDropdown.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Toggle column visibility dropdown
+    const columnToggleBtn = document.getElementById('columnToggleBtn');
+    const columnToggleDropdown = document.getElementById('columnToggleDropdown');
+    const columnToggleOptions = document.getElementById('columnToggleOptions');
+    const resetColumns = document.getElementById('resetColumns');
+    
+    if (columnToggleBtn && columnToggleDropdown && columnToggleOptions && resetColumns) {
+        // Get all table headers except the checkbox column
+        const tableHeaders = Array.from(document.querySelectorAll('#dataTable thead th')).slice(1);
+        
+        // Populate column toggle options
+        tableHeaders.forEach((header, index) => {
+            if (header.textContent.trim() !== 'Actions') {
+                const columnName = header.textContent.trim();
+                const columnIndex = index + 1; // +1 because we skipped the checkbox column
+                
+                const checkbox = document.createElement('div');
+                checkbox.className = 'flex items-center';
+                checkbox.innerHTML = `
+                    <input type="checkbox" id="toggle-col-${columnIndex}" class="column-toggle form-checkbox h-4 w-4 text-[hsl(var(--primary))] rounded border-[hsl(var(--border))] focus:ring-[hsl(var(--primary))]" data-column="${columnIndex}" checked>
+                    <label for="toggle-col-${columnIndex}" class="ml-2 text-sm">${columnName}</label>
+                `;
+                
+                columnToggleOptions.appendChild(checkbox);
+            }
+        });
+        
+        // Toggle column visibility dropdown
+        columnToggleBtn.addEventListener('click', function() {
+            columnToggleDropdown.classList.toggle('hidden');
+        });
+        
+        // Handle column visibility toggle
+        document.querySelectorAll('.column-toggle').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const columnIndex = this.getAttribute('data-column');
+                const isChecked = this.checked;
+                
+                // Toggle visibility of cells in the specified column
+                document.querySelectorAll(`#dataTable tr > *:nth-child(${parseInt(columnIndex) + 1})`).forEach(cell => {
+                    cell.style.display = isChecked ? '' : 'none';
+                });
+                
+                // Save column visibility state to localStorage
+                saveColumnVisibility();
+            });
+        });
+        
+        // Reset columns to default visibility
+        resetColumns.addEventListener('click', function() {
+            document.querySelectorAll('.column-toggle').forEach(checkbox => {
+                checkbox.checked = true;
+                const columnIndex = checkbox.getAttribute('data-column');
+                
+                // Show all cells in the column
+                document.querySelectorAll(`#dataTable tr > *:nth-child(${parseInt(columnIndex) + 1})`).forEach(cell => {
+                    cell.style.display = '';
+                });
+            });
+            
+            // Save column visibility state to localStorage
+            saveColumnVisibility();
+        });
+        
+        // Function to save column visibility state to localStorage
+        function saveColumnVisibility() {
+            const visibilityState = {};
+            
+            document.querySelectorAll('.column-toggle').forEach(checkbox => {
+                const columnIndex = checkbox.getAttribute('data-column');
+                visibilityState[columnIndex] = checkbox.checked;
+            });
+            
+            localStorage.setItem('columnVisibility_' + window.location.pathname, JSON.stringify(visibilityState));
+        }
+        
+        // Function to load column visibility state from localStorage
+        function loadColumnVisibility() {
+            const savedState = localStorage.getItem('columnVisibility_' + window.location.pathname);
+            
+            if (savedState) {
+                const visibilityState = JSON.parse(savedState);
+                
+                document.querySelectorAll('.column-toggle').forEach(checkbox => {
+                    const columnIndex = checkbox.getAttribute('data-column');
+                    
+                    if (visibilityState.hasOwnProperty(columnIndex)) {
+                        checkbox.checked = visibilityState[columnIndex];
+                        
+                        // Apply visibility to cells
+                        document.querySelectorAll(`#dataTable tr > *:nth-child(${parseInt(columnIndex) + 1})`).forEach(cell => {
+                            cell.style.display = visibilityState[columnIndex] ? '' : 'none';
+                        });
+                    }
+                });
+            }
+        }
+        
+        // Load saved column visibility state
+        loadColumnVisibility();
+    }
+    
+    // Handle select all checkbox
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+    const selectedCountElement = document.getElementById('selectedCount');
+    
+    if (selectAllCheckbox && itemCheckboxes.length > 0 && selectedCountElement) {
+        selectAllCheckbox.addEventListener('change', function() {
+            const isChecked = this.checked;
+            
+            itemCheckboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+            
+            updateSelectedCount();
+        });
+        
+        itemCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateSelectedCount();
+                
+                // Update select all checkbox state
+                const allChecked = Array.from(itemCheckboxes).every(cb => cb.checked);
+                const someChecked = Array.from(itemCheckboxes).some(cb => cb.checked);
+                
+                selectAllCheckbox.checked = allChecked;
+                selectAllCheckbox.indeterminate = someChecked && !allChecked;
+            });
+        });
+        
+        function updateSelectedCount() {
+            const checkedCount = document.querySelectorAll('.item-checkbox:checked').length;
+            selectedCountElement.textContent = `${checkedCount} item${checkedCount !== 1 ? 's' : ''} selected`;
+            
+            // Show/hide bulk actions dropdown based on selection
+            if (bulkActionsDropdown) {
+                if (checkedCount > 0 && bulkActionsDropdown.classList.contains('hidden')) {
+                    bulkActionsDropdown.classList.remove('hidden');
+                } else if (checkedCount === 0 && !bulkActionsDropdown.classList.contains('hidden')) {
+                    bulkActionsDropdown.classList.add('hidden');
+                }
+            }
+        }
+    }
+    
+    // Table sorting
+    const sortableHeaders = document.querySelectorAll('.sortable');
+    
+    if (sortableHeaders.length > 0) {
+        sortableHeaders.forEach(header => {
+            header.addEventListener('click', function() {
+                const sortField = this.getAttribute('data-sort');
+                let sortDirection = this.getAttribute('data-sort-direction') || 'asc';
+                
+                // Toggle sort direction
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                
+                // Update sort direction attribute
+                this.setAttribute('data-sort-direction', sortDirection);
+                
+                // Update sort icons
+                document.querySelectorAll('.sortable').forEach(h => {
+                    if (h !== this) {
+                        h.removeAttribute('data-sort-direction');
+                        h.querySelector('.sort-icon').style.transform = '';
+                    }
+                });
+                
+                // Update current sort icon
+                const sortIcon = this.querySelector('.sort-icon');
+                sortIcon.style.transform = sortDirection === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)';
+                
+                // Sort the table
+                sortTable(sortField, sortDirection);
+            });
+        });
+        
+        function sortTable(field, direction) {
+            const table = document.getElementById('dataTable');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Skip empty state row
+            if (rows.length === 1 && rows[0].querySelector('td[colspan]')) {
+                return;
+            }
+            
+            // Get column index for the field
+            const headerRow = table.querySelector('thead tr');
+            const headers = Array.from(headerRow.querySelectorAll('th'));
+            let columnIndex = -1;
+            
+            headers.forEach((header, index) => {
+                if (header.getAttribute('data-sort') === field) {
+                    columnIndex = index;
+                }
+            });
+            
+            if (columnIndex === -1) return;
+            
+            // Sort rows
+            rows.sort((a, b) => {
+                const aValue = a.querySelectorAll('td')[columnIndex].textContent.trim();
+                const bValue = b.querySelectorAll('td')[columnIndex].textContent.trim();
+                
+                // Check if values are numbers
+                const aNum = parseFloat(aValue);
+                const bNum = parseFloat(bValue);
+                
+                if (!isNaN(aNum) && !isNaN(bNum)) {
+                    return direction === 'asc' ? aNum - bNum : bNum - aNum;
+                }
+                
+                // Sort as strings
+                return direction === 'asc' 
+                    ? aValue.localeCompare(bValue) 
+                    : bValue.localeCompare(aValue);
+            });
+            
+            // Reorder rows in the table
+            rows.forEach(row => {
+                tbody.appendChild(row);
+            });
+        }
+    }
+    
+    // Toggle action menu dropdown
+    const actionMenuBtns = document.querySelectorAll('.action-menu-btn');
+    
+    if (actionMenuBtns.length > 0) {
+        actionMenuBtns.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                const menu = this.nextElementSibling;
+                
+                // Close all other menus
+                document.querySelectorAll('.action-menu').forEach(m => {
+                    if (m !== menu) {
+                        m.classList.add('hidden');
+                    }
+                });
+                
+                // Toggle current menu
+                menu.classList.toggle('hidden');
+            });
+        });
+        
+        // Close menus when clicking outside
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.action-menu').forEach(menu => {
+                menu.classList.add('hidden');
+            });
+        });
+    }
+    
+    // Status change functionality
+    const statusChangeModal = document.getElementById('statusChangeModal');
+    const statusChangeForm = document.getElementById('statusChangeForm');
+    const cancelStatusChange = document.getElementById('cancelStatusChange');
+    const changeStatusBtns = document.querySelectorAll('.change-status-btn');
+    
+    if (statusChangeModal && statusChangeForm && cancelStatusChange && changeStatusBtns.length > 0) {
+        // Show modal when clicking change status button
+        changeStatusBtns.forEach(button => {
+            button.addEventListener('click', function() {
+                const objectId = this.getAttribute('data-id');
+                
+                // Set form action URL
+                statusChangeForm.action = `${window.location.pathname}${objectId}/change-status/`;
+                
+                // Show modal
+                statusChangeModal.classList.remove('hidden');
+            });
+        });
+        
+        // Hide modal when clicking cancel button
+        cancelStatusChange.addEventListener('click', function() {
+            statusChangeModal.classList.add('hidden');
+        });
+        
+        // Hide modal when clicking outside
+        statusChangeModal.addEventListener('click', function(e) {
+            if (e.target === statusChangeModal) {
+                statusChangeModal.classList.add('hidden');
+            }
+        });
+        
+        // Handle form submission
+        statusChangeForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    showToast(data.message || 'Status changed successfully', 'success');
+                    
+                    // Hide modal
+                    statusChangeModal.classList.add('hidden');
+                    
+                    // Reload page after a short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    // Show error message
+                    showToast(data.message || 'Error changing status', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred. Please try again.', 'error');
+            });
+        });
+    }
+    
+    // Handle bulk action form submission
+    const bulkActionForm = document.getElementById('bulkActionForm');
+    
+    if (bulkActionForm) {
+        bulkActionForm.addEventListener('submit', function(e) {
+            const selectedAction = document.getElementById('bulkAction').value;
+            const selectedItems = document.querySelectorAll('.item-checkbox:checked');
+            
+            if (!selectedAction) {
+                e.preventDefault();
+                showToast('Please select an action to perform.', 'error');
+                return;
+            }
+            
+            if (selectedItems.length === 0) {
+                e.preventDefault();
+                showToast('Please select at least one item.', 'error');
+                return;
+            }
+            
+            // For delete action, ask for confirmation
+            if (selectedAction === 'delete' && !confirm('Are you sure you want to delete the selected items? This action cannot be undone.')) {
+                e.preventDefault();
+                return;
+            }
+            
+            // Add selected items to form
+            selectedItems.forEach(item => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'selected_ids';
+                input.value = item.value;
+                bulkActionForm.appendChild(input);
+            });
+        });
+    }
+    
+    // Handle horizontal scrolling for filters and pagination
+    const filtersContainer = document.querySelector('.filters-container');
+    if (filtersContainer) {
+        // Add scroll indicators if needed
+        handleScrollIndicators(filtersContainer);
+    }
+    
+    const paginationContainer = document.querySelector('.pagination-container');
+    if (paginationContainer) {
+        // Add scroll indicators if needed
+        handleScrollIndicators(paginationContainer);
+    }
+    
+    function handleScrollIndicators(container) {
+        // Check if scrolling is needed
+        if (container.scrollWidth > container.clientWidth) {
+            // Add scroll indicators
+            const leftIndicator = document.createElement('div');
+            leftIndicator.className = 'absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[hsl(var(--background))] to-transparent z-10 pointer-events-none opacity-0 transition-opacity';
+            
+            const rightIndicator = document.createElement('div');
+            rightIndicator.className = 'absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[hsl(var(--background))] to-transparent z-10 pointer-events-none transition-opacity';
+            
+            container.parentNode.style.position = 'relative';
+            container.parentNode.appendChild(leftIndicator);
+            container.parentNode.appendChild(rightIndicator);
+            
+            // Update indicators on scroll
+            container.addEventListener('scroll', function() {
+                leftIndicator.style.opacity = this.scrollLeft > 0 ? '1' : '0';
+                rightIndicator.style.opacity = this.scrollLeft < (this.scrollWidth - this.clientWidth) ? '1' : '0';
+            });
+            
+            // Initial update
+            container.dispatchEvent(new Event('scroll'));
+        }
+    }
+    
+    // Toast notification function
+    function showToast(message, type = 'info') {
+        // Check if we have a toast container
+        let toastContainer = document.querySelector('.toast-container');
+        
+        // Create toast container if it doesn't exist
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container fixed bottom-4 right-4 z-50 flex flex-col gap-2';
+            document.body.appendChild(toastContainer);
+        }
+        
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `p-3 rounded shadow-md transition-all duration-300 transform translate-x-full ${
+            type === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' : 'bg-green-100 border-l-4 border-green-500 text-green-700'
+        }`;
+        
+        // Add toast content
+        toast.innerHTML = `
+            <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${
+                        type === 'error' ? 'M6 18L18 6M6 6l12 12' : 'M5 13l4 4L19 7'
+                    }"></path>
+                </svg>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        // Add toast to container
+        toastContainer.appendChild(toast);
+        
+        // Animate toast in
+        setTimeout(() => {
+            toast.classList.remove('translate-x-full');
+        }, 10);
+        
+        // Remove toast after 3 seconds
+        setTimeout(() => {
+            toast.classList.add('translate-x-full');
+            setTimeout(() => {
+                toast.remove();
+                
+                // Remove container if empty
+                if (toastContainer.children.length === 0) {
+                    toastContainer.remove();
+                }
+            }, 300);
+        }, 3000);
+    }
+});
+</script>
+<style>
+    /* Hide scrollbar but keep functionality */
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    
+    /* Sortable headers */
+    .sortable {
+        cursor: pointer;
+        user-select: none;
+    }
+    
+    .sortable .sort-icon {
+        opacity: 0.5;
+        transition: transform 0.2s ease;
+    }
+    
+    .sortable:hover .sort-icon {
+        opacity: 1;
+    }
+    
+    .sortable[data-sort-direction] .sort-icon {
+        opacity: 1;
+    }
+    
+    /* Checkbox styling */
+    .form-checkbox {
+        appearance: none;
+        padding: 0;
+        color-adjust: exact;
+        display: inline-block;
+        vertical-align: middle;
+        background-origin: border-box;
+        user-select: none;
+        flex-shrink: 0;
+        height: 1rem;
+        width: 1rem;
+        background-color: hsl(var(--background));
+        border: 1px solid hsl(var(--border));
+        border-radius: 0.25rem;
+    }
+    
+    .form-checkbox:checked {
+        background-color: hsl(var(--primary));
+        border-color: hsl(var(--primary));
+        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+    }
+    
+    .form-checkbox:indeterminate {
+        background-color: hsl(var(--primary));
+        border-color: hsl(var(--primary));
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3e%3cpath stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8h8'/%3e%3c/svg%3e");
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    #bulkActionsDropdown:not(.hidden),
+    #columnToggleDropdown:not(.hidden),
+    #advancedFilters:not(.hidden),
+    .action-menu:not(.hidden),
+    #exportDropdown:not(.hidden) {
+        animation: fadeIn 0.2s ease-out forwards;
+    }
+    
+    /* Touch-friendly improvements */
+    @media (max-width: 640px) {
+        input, select, textarea {
+            font-size: 16px !important; /* Prevents iOS zoom on focus */
+        }
+        
+        /* Larger touch targets */
+        button, 
+        [type="button"],
+        [type="reset"],
+        [type="submit"] {
+            min-height: 44px;
+        }
+    }
+</style>
+{% endblock %}

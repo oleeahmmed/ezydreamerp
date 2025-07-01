@@ -1,0 +1,597 @@
+            {% if show_hrm_menu %}
+
+
+            <div class="relative">
+                <button data-dropdown-toggle="hrmMenu" class="relative w-full flex items-center px-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:' in request.path and not 'hrm:salary' in request.path and not 'hrm:bonus' in request.path and not 'hrm:advance' in request.path and not 'hrm:promotion' in request.path and not 'hrm:increment' in request.path and not 'hrm:deduction' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                    <!-- Active indicator line with animation -->
+                    <div class="absolute left-[-4px] top-0 bottom-0 w-[3px] bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.7)] rounded-r-full {% if 'hrm:' in request.path and not 'hrm:salary' in request.path and not 'hrm:bonus' in request.path and not 'hrm:advance' in request.path and not 'hrm:promotion' in request.path and not 'hrm:increment' in request.path and not 'hrm:deduction' in request.path %}opacity-100{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-all duration-300 shadow-[0_0_8px_rgba(var(--primary),0.5)]"></div>
+                    
+                    <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-md group-hover:shadow-[0_0_12px_rgba(var(--primary),0.4)] transition-all duration-300 group-hover:scale-105">
+                        <!-- HRM Module icon -->
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <span class="sidebar-text font-medium group-hover:translate-x-0.5 transition-transform">HRM</span>
+                    <svg class="w-4 h-4 ml-auto transition-transform duration-200" id="hrmArrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                
+                <!-- HRM Submenu -->
+                <div id="hrmMenu" class="{% if 'hrm:' in request.path and not 'hrm:salary' in request.path and not 'hrm:bonus' in request.path and not 'hrm:advance' in request.path and not 'hrm:promotion' in request.path and not 'hrm:increment' in request.path and not 'hrm:deduction' in request.path %}block animate-fade-in{% else %}hidden{% endif %} mt-2 space-y-1 ml-11 relative">
+                    <!-- Premium submenu vertical line indicator with gradient and glow -->
+                    <div class="absolute left-[-14px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-[hsl(var(--primary))] via-[hsl(var(--primary)/0.6)] to-[hsl(var(--primary)/0.2)] rounded-full shadow-[0_0_8px_rgba(var(--primary),0.3)]"></div>
+                                        <!-- ZKTeco Submenu (to be placed inside HRM menu's submenu div) -->
+<div class="mt-2 space-y-1 relative">
+    <!-- Premium submenu vertical line indicator with gradient and glow -->
+    <div class="absolute left-[-14px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-[hsl(var(--primary))] via-[hsl(var(--primary)/0.6)] to-[hsl(var(--primary)/0.2)] rounded-full shadow-[0_0_8px_rgba(var(--primary),0.3)]"></div>
+    <span class="px-4 py-2 text-xs font-bold rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-badge">ZKTeco Management</span>
+
+    <!-- ZK Devices -->
+    <a href="{% url 'hrm:zk_device_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:zk_device_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:zk_device_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:zk_device_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 4H5C3.89543 4 3 4.89543 3 6V18C3 19.1046 3.89543 20 5 20H19C20.1046 20 21 19.1046 21 18V6C21 4.89543 20.1046 4 19 4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M9 8H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M12 12V16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="flex flex-col">
+                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Device Management	</span>
+                <span class="text-xs {% if 'hrm:zk_device_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage Devices</span>
+            </div>
+        </div>
+    </a>
+    <!-- ZK Device Test Connection -->
+    <a href="{% url 'hrm:zk_device_test_connection' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:zk_device_test_connection' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:zk_device_test_connection' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:zk_device_test_connection' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M16 8L10 14L7 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="flex flex-col">
+                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Connection Test</span>
+                <span class="text-xs {% if 'hrm:zk_device_test_connection' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Verify Device Connectivity</span>
+            </div>
+        </div>
+    </a>
+    <a href="{% url 'hrm:zk_user_list_device' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:zk_device_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:zk_device_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:zk_device_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 4H5C3.89543 4 3 4.89543 3 6V18C3 19.1046 3.89543 20 5 20H19C20.1046 20 21 19.1046 21 18V6C21 4.89543 20.1046 4 19 4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M9 8H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M12 12V16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="flex flex-col">
+                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform"> Devices User </span>
+                <span class="text-xs {% if 'hrm:zk_device_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Direct Device Access</span>
+            </div>
+        </div>
+    </a>
+
+    <!-- ZK User Sync -->
+    <a href="{% url 'hrm:zk_user_sync' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:zk_user_sync' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:zk_user_sync' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:zk_user_sync' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 3L20 7L16 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M20 7H8C5.79086 7 4 8.79086 4 11V13C4 15.2091 5.79086 17 8 17H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M8 21L4 17L8 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M4 17H16C18.2091 17 20 15.2091 20 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="flex flex-col">
+                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Sync Users to Database</span>
+                <span class="text-xs {% if 'hrm:zk_user_sync' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Synchronize User Data</span>
+            </div>
+        </div>
+    </a>
+
+    <!-- ZK Device Sync -->
+    <a href="{% url 'hrm:zk_device_sync' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:zk_device_sync' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:zk_device_sync' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:zk_device_sync' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 3L20 7L16 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M20 7H8C5.79086 7 4 8.79086 4 11V13C4 15.2091 5.79086 17 8 17H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M8 21L4 17L8 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M4 17H16C18.2091 17 20 15.2091 20 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="flex flex-col">
+                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Sync Device Attendance Data</span>
+                <span class="text-xs {% if 'hrm:zk_device_sync' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Synchronize Device Data</span>
+            </div>
+        </div>
+    </a>
+
+
+
+    <!-- ZK Attendance Logs -->
+    <a href="{% url 'hrm:zk_attendance_log_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:zk_attendance_log_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:zk_attendance_log_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:zk_attendance_log_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 7V3M16 7V3M3 11H21M5 21H19C20.1046 21 21 20.1046 21 19V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V19C3 20.1046 3.89543 21 5 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M12 15H12.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="flex flex-col">
+                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform"> Attendance Records Log </span>
+                <span class="text-xs {% if 'hrm:zk_attendance_log_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">View Logs</span>
+            </div>
+        </div>
+    </a>
+
+    <a href="{% url 'hrm:report-list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:zk_device_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:zk_device_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:zk_device_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 4H5C3.89543 4 3 4.89543 3 6V18C3 19.1046 3.89543 20 5 20H19C20.1046 20 21 19.1046 21 18V6C21 4.89543 20.1046 4 19 4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M9 8H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M12 12V16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="flex flex-col">
+                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform"> Report</span>
+                <span class="text-xs {% if 'hrm:zk_device_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Direct Device Access</span>
+            </div>
+        </div>
+    </a>
+
+
+        <!-- ZK Users -->
+    <!-- <a href="{% url 'hrm:zk_user_simple_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:zk_user_simple_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:zk_user_simple_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:zk_user_simple_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 12C14.2091 12 16 10.2091 16 8C16 5.79086 14.2091 4 12 4C9.79086 4 8 5.79086 8 8C8 10.2091 9.79086 12 12 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M5 20C5 17.2386 7.23858 15 10 15H14C16.7614 15 19 17.2386 19 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="flex flex-col">
+                <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform"> Device User Management</span>
+                <span class="text-xs {% if 'hrm:zk_user_simple_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage users directly on devices</span>
+            </div>
+        </div>
+    </a> -->
+</div>
+                    <!-- Employee Management -->
+                    <div class="space-y-1">
+                        <span class="px-4 py-2 text-xs font-bold rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-badge">Employee Management</span>
+                        
+                        <!-- Employees -->
+                        <a href="{% url 'hrm:employee_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:employee_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:employee_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:employee_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M6 21V19C6 17.9391 6.42143 16.9217 7.17157 16.1716C7.92172 15.4214 8.93913 15 10 15H14C15.0609 15 16.0783 15.4214 16.8284 16.1716C17.5786 16.9217 18 17.9391 18 19V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Employees</span>
+                            </div>
+                        </a>
+            
+                        <!-- Employee Separation -->
+                        <a href="{% url 'hrm:employee_separation_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:employee_separation_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:employee_separation_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:employee_separation_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M6 21V19C6 17.9391 6.42143 16.9217 7.17157 16.1716C7.92172 15.4214 8.93913 15 10 15H14C15.0609 15 16.0783 15.4214 16.8284 16.1716C17.5786 16.9217 18 17.9391 18 19V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M18 6L6 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Employee Separation</span>
+                            </div>
+                        </a>
+            
+                        <!-- Departments -->
+                        <a href="{% url 'hrm:department_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:department_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:department_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:department_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M19 21V5C19 3.89543 18.1046 3 17 3H7C5.89543 3 5 3.89543 5 5V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3 21H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M9 7H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M9 11H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M9 15H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Departments</span>
+                            </div>
+                        </a>
+            
+                        <!-- Designations -->
+                        <a href="{% url 'hrm:designation_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:designation_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:designation_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:designation_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9 11H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 15V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3 12C3 4.5885 4.5885 3 12 3C19.4115 3 21 4.5885 21 12C21 19.4115 19.4115 21 12 21C4.5885 21 3 19.4115 3 12Z" stroke="currentColor" stroke-width="1.5"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Designations</span>
+                            </div>
+                        </a>
+                    </div>
+            
+                    <!-- Attendance Management -->
+                    <div class="space-y-1 mt-4">
+                        <span class="px-3 py-1 text-xs font-bold rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-badge">Attendance Management</span>
+                        
+                        <!-- Attendance -->
+                        <a href="{% url 'hrm:attendance_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:attendance_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:attendance_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:attendance_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        <path d="M7 3.34004C8.5 2.5 10.2 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 10.2 2.5 8.5 3.34004 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Attendance</span>
+                            </div>
+                        </a>
+            
+                        <!-- Attendance Month -->
+                        <!-- <a href="{% url 'hrm:attendance_month_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:attendance_month_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:attendance_month_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:attendance_month_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3.5 9.09H20.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Attendance Month</span>
+                            </div>
+                        </a> -->
+            
+                        <!-- Attendance Log -->
+                        <!-- <a href="{% url 'hrm:attendance_log_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:attendance_log_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:attendance_log_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:attendance_log_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3 9H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Attendance Log</span>
+                            </div>
+                        </a> -->
+            
+                        <!-- Overtime Record -->
+                        <a href="{% url 'hrm:overtime_record_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:overtime_record_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:overtime_record_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:overtime_record_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        <path d="M21 13V9C21 4 19 2 14 2H10C5 2 3 4 3 9V15C3 20 5 22 10 22H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 16L22 22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M22 16L16 22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Overtime Record</span>
+                            </div>
+                        </a>
+                    </div>
+
+
+
+<!-- Attendance Management -->
+<!-- <div class="space-y-1 mt-4">
+    <span class="px-4 py-2 text-xs font-bold rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-badge">Mobile Attendance</span>
+    <a href="{% url 'hrm:location_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:location_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:location_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:location_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 22C16 18 20 14.4183 20 10C20 5.58172 16.4183 2 12 2C7.58172 2 4 5.58172 4 10C4 14.4183 8 18 12 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span class="text-sm">Locations</span>
+        </div>
+    </a>
+    
+    <a href="{% url 'hrm:user_location_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:user_location_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:user_location_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:user_location_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 22C16 18 20 14.4183 20 10C20 9.46957 19.9489 8.94817 19.8509 8.44H4.14909C4.05114 8.94817 4 9.46957 4 10C4 14.4183 8 18 12 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span class="text-sm">User Locations</span>
+        </div>
+    </a>
+    <a href="{% url 'hrm:location_attendance_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:location_attendance_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:location_attendance_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:location_attendance_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span class="text-sm">Attendance Records</span>
+        </div>
+    </a>
+    
+    <a href="{% url 'hrm:location_attendance_create' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:location_attendance_create' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:location_attendance_create' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:location_attendance_create' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 12H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 9V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span class="text-sm">Record Attendance</span>
+        </div>
+    </a>
+    
+    <a href="{% url 'hrm:attendance_page' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:attendance_page' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:attendance_page' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:attendance_page' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 22C16 18 20 14.4183 20 10C20 5.58172 16.4183 2 12 2C7.58172 2 4 5.58172 4 10C4 14.4183 8 18 12 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span class="text-sm">Mark Attendance</span>
+        </div>
+    </a>
+    
+    <a href="{% url 'hrm:location_attendance_export' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:location_attendance_export' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:location_attendance_export' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:location_attendance_export' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 15V3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span class="text-sm">Export Attendance</span>
+        </div>
+    </a>
+</div>
+
+{% if user.is_superuser %}
+<div class="space-y-1 mt-4">
+    <span class="px-4 py-2 text-xs font-bold rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-badge">Debug Tools</span>
+    
+    <a href="{% url 'hrm:debug_locations' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:debug_locations' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:debug_locations' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:debug_locations' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 16V16.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 13C11.9816 12.6037 12.1419 12.2159 12.4322 11.9322C12.7226 11.6485 13.1087 11.4978 13.5 11.5C13.8978 11.5 14.2794 11.658 14.5607 11.9393C14.842 12.2206 15 12.6022 15 13C15 13.3978 14.842 13.7794 14.5607 14.0607C14.2794 14.342 13.8978 14.5 13.5 14.5H12V13Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span class="text-sm">Debug Locations</span>
+        </div>
+    </a>
+    
+    <a href="{% url 'hrm:get_locations' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:get_locations' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:get_locations' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+        <div class="flex items-center">
+            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:get_locations' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span class="text-sm">API: Get Locations</span>
+        </div>
+    </a>
+</div>
+{% endif %} -->
+                    <!-- Shift Management -->
+                    <div class="space-y-1 mt-4">
+                        <span class="px-4 py-2 text-xs font-bold rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-badge">Shift Management</span>
+                        
+                        <!-- Shifts -->
+                        <a href="{% url 'hrm:shift_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:shift_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:shift_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:shift_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 8V12L14.5 14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M5.5 19.5C7 20.5 9 21 12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 13 3.5 15 4.5 16.5L3 21L7.5 19.5C7.5 19.5 5.5 19.5 5.5 19.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Shifts</span>
+                            </div>
+                        </a>
+        
+                        <!-- Roster -->
+                        <a href="{% url 'hrm:roster_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:roster_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:roster_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:roster_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3.5 9.09H20.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M15.6947 13.7H15.7037" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M15.6947 16.7H15.7037" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M11.9955 13.7H12.0045" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M11.9955 16.7H12.0045" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M8.29431 13.7H8.30329" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M8.29431 16.7H8.30329" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Roster</span>
+                            </div>
+                        </a>
+        
+                        <!-- Roster Assignment -->
+                        <a href="{% url 'hrm:roster_day_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:roster_assignment_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:roster_assignment_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:roster_assignment_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3.5 9.09H20.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M19.21 15.77L15.6701 19.31C15.5301 19.45 15.4 19.71 15.37 19.9L15.18 21.25C15.11 21.74 15.45 22.0801 15.94 22.0101L17.29 21.82C17.48 21.79 17.75 21.66 17.88 21.52L21.4201 17.9801C22.0301 17.3701 22.3201 16.6601 21.4201 15.7601C20.5301 14.8701 19.82 15.16 19.21 15.77Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M18.7 16.28C19 17.36 19.84 18.2 20.92 18.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5V12" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Roster Day</span>
+                            </div>
+                        </a>
+        
+                        <!-- Workplace -->
+                        <a href="{% url 'hrm:workplace_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:workplace_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:workplace_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:workplace_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M2 22H22" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M17 2H7C4 2 3 3.79 3 6V22H21V6C21 3.79 20 2 17 2Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M7 16.5H10" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M14 16.5H17" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M7 12H10" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M14 12H17" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M7 7.5H10" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M14 7.5H17" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Workplace</span>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <!-- Leave Management -->
+                    <div class="space-y-1 mt-4">
+                        <span class="px-4 py-2 text-xs font-bold rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-badge">Leave Management</span>
+                        
+                        <!-- Leave Types -->
+                        <a href="{% url 'hrm:leave_type_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:leave_type_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:leave_type_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:leave_type_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3.5 9.09H20.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M11.9955 13.7H12.0045" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M8.29431 13.7H8.30329" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M8.29431 16.7H8.30329" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Leave Types</span>
+                            </div>
+                        </a>
+            
+                        <!-- Leave Applications -->
+                        <a href="{% url 'hrm:leave_application_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:leave_application_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:leave_application_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:leave_application_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3.5 9.09H20.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M18 23C21 23 22 21 22 19V17C22 15 21 13 18 13C15 13 14 15 14 17V19C14 21 15 23 18 23Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Leave Applications</span>
+                            </div>
+                        </a>
+                        <a href="{% url 'hrm:leave_balance_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:leave_application_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:leave_application_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:leave_balance_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3.5 9.09H20.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M18 23C21 23 22 21 22 19V17C22 15 21 13 18 13C15 13 14 15 14 17V19C14 21 15 23 18 23Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Leave Balance</span>
+                            </div>
+                        </a>            
+                        <!-- Short Leave Applications -->
+                        <a href="{% url 'hrm:short_leave_application_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:short_leave_application_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:short_leave_application_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:short_leave_application_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3.5 9.09H20.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M13 13H17" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M13 17H17" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Short Leave Applications</span>
+                            </div>
+                        </a>
+            
+                        <!-- Holidays -->
+                        <a href="{% url 'hrm:holiday_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'hrm:holiday_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'hrm:holiday_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'hrm:holiday_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3.5 9.09H20.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M11.995 13.7H12.005" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M8.294 13.7H8.304" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M8.294 16.7H8.304" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm">Holidays</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}

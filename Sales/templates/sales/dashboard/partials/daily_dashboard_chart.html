@@ -1,0 +1,1067 @@
+<!-- Tab navigation -->
+<div class="tab-container">
+    <div class="tab-list">
+        <div class="tab-item active" data-tab="tab-summary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            Summary
+        </div>
+        <div class="tab-item" data-tab="tab-sales">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                <line x1="12" y1="20" x2="12" y2="10"></line>
+                <line x1="18" y1="20" x2="18" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="16"></line>
+            </svg>
+            Sales Charts
+        </div>
+        <div class="tab-item" data-tab="tab-products">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            Product Analysis
+        </div>
+        <div class="tab-item" data-tab="tab-customers">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Customer Analysis
+        </div>
+        <div class="tab-item" data-tab="tab-performance">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+            </svg>
+            Performance
+        </div>
+    </div>
+</div>
+
+<!-- Tab content -->
+<div id="tab-summary" class="tab-content active">
+    <!-- Metrics Cards -->
+    <div class="metrics-grid">
+        <!-- Today's Sales -->
+        <div class="metric-card">
+            <div class="metric-label">TODAY'S SALES</div>
+            <div class="metric-value">{{ today_sales.total|floatformat:2 }}</div>
+            <div class="metric-subvalue">{{ today_sales.count }} orders</div>
+            <div class="metric-change positive">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12 7a1 1 0 01-1 1H9v1h2a1 1 0 110 2H9v1h2a1 1 0 110 2H9v1a1 1 0 11-2 0v-1H5a1 1 0 110-2h2v-1H5a1 1 0 110-2h2V8H5a1 1 0 010-2h2V5a1 1 0 112 0v1h2a1 1 0 011 1z" clip-rule="evenodd" />
+                </svg>
+                <span>3.2%</span>
+                <span class="metric-change-text">from yesterday</span>
+            </div>
+        </div>
+
+        <!-- Today's Deliveries -->
+        <div class="metric-card">
+            <div class="metric-label">TODAY'S DELIVERIES</div>
+            <div class="metric-value">{{ today_deliveries.count }}</div>
+            <div class="metric-subvalue">{{ today_deliveries.total|floatformat:2 }}</div>
+            <div class="metric-change positive">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12 7a1 1 0 01-1 1H9v1h2a1 1 0 110 2H9v1h2a1 1 0 110 2H9v1a1 1 0 11-2 0v-1H5a1 1 0 110-2h2v-1H5a1 1 0 110-2h2V8H5a1 1 0 010-2h2V5a1 1 0 112 0v1h2a1 1 0 011 1z" clip-rule="evenodd" />
+                </svg>
+                <span>2.5%</span>
+                <span class="metric-change-text">from yesterday</span>
+            </div>
+        </div>
+
+        <!-- Today's Invoices -->
+        <div class="metric-card">
+            <div class="metric-label">TODAY'S INVOICES</div>
+            <div class="metric-value">{{ today_invoices.count }}</div>
+            <div class="metric-subvalue">{{ today_invoices.total|floatformat:2 }}</div>
+            <div class="metric-change positive">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12 7a1 1 0 01-1 1H9v1h2a1 1 0 110 2H9v1h2a1 1 0 110 2H9v1a1 1 0 11-2 0v-1H5a1 1 0 110-2h2v-1H5a1 1 0 110-2h2V8H5a1 1 0 010-2h2V5a1 1 0 112 0v1h2a1 1 0 011 1z" clip-rule="evenodd" />
+                </svg>
+                <span>1.8%</span>
+                <span class="metric-change-text">from yesterday</span>
+            </div>
+        </div>
+
+        <!-- Today's Returns -->
+        <div class="metric-card">
+            <div class="metric-label">TODAY'S RETURNS</div>
+            <div class="metric-value">{{ today_returns.count }}</div>
+            <div class="metric-subvalue">{{ today_returns.total|floatformat:2 }}</div>
+            <div class="metric-change negative">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span>0.5%</span>
+                <span class="metric-change-text">from yesterday</span>
+            </div>
+        </div>
+
+        <!-- Today's Quotations -->
+        <div class="metric-card">
+            <div class="metric-label">TODAY'S QUOTATIONS</div>
+            <div class="metric-value">{{ today_quotations.count }}</div>
+            <div class="metric-subvalue">{{ today_quotations.total|floatformat:2 }}</div>
+            <div class="metric-change positive">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12 7a1 1 0 01-1 1H9v1h2a1 1 0 110 2H9v1h2a1 1 0 110 2H9v1a1 1 0 11-2 0v-1H5a1 1 0 110-2h2v-1H5a1 1 0 110-2h2V8H5a1 1 0 010-2h2V5a1 1 0 112 0v1h2a1 1 0 011 1z" clip-rule="evenodd" />
+                </svg>
+                <span>4.2%</span>
+                <span class="metric-change-text">from yesterday</span>
+            </div>
+        </div>
+
+        <!-- New Orders -->
+        <div class="metric-card">
+            <div class="metric-label">NEW ORDERS TODAY</div>
+            <div class="metric-value">{{ new_orders.count }}</div>
+            <div class="metric-subvalue">{{ new_orders.total|floatformat:2 }}</div>
+            <div class="metric-change positive">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12 7a1 1 0 01-1 1H9v1h2a1 1 0 110 2H9v1h2a1 1 0 110 2H9v1a1 1 0 11-2 0v-1H5a1 1 0 110-2h2v-1H5a1 1 0 110-2h2V8H5a1 1 0 010-2h2V5a1 1 0 112 0v1h2a1 1 0 011 1z" clip-rule="evenodd" />
+                </svg>
+                <span>2.7%</span>
+                <span class="metric-change-text">from yesterday</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Sales Chart -->
+    <div class="chart-card chart-full">
+        <div class="chart-header">
+            <div class="chart-title-wrapper">
+                <h3 class="chart-title">Daily Sales (Last 7 Days)</h3>
+                <p class="chart-subtitle">Track your daily sales performance</p>
+            </div>
+            <div class="chart-actions">
+                <button class="chart-action-btn tooltip" onclick="toggleChartType('dailySalesChart', 'line')">
+                    <span class="tooltip-text">Line Chart</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                    </svg>
+                </button>
+                <button class="chart-action-btn tooltip" onclick="toggleChartType('dailySalesChart', 'bar')">
+                    <span class="tooltip-text">Bar Chart</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                </button>
+                <a href="{% url 'Sales:dashboard_daily' %}" class="chart-action-btn tooltip">
+                    <span class="tooltip-text">Standard View</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="dailySalesChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Products and Top Customers Charts -->
+    <div class="chart-grid">
+        <!-- Top Products Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title-wrapper">
+                    <h3 class="chart-title">Top Products (Today)</h3>
+                    <p class="chart-subtitle">Best selling products by revenue</p>
+                </div>
+                <div class="chart-actions">
+                    <button class="chart-action-btn tooltip" onclick="toggleChartType('topProductsChart', 'bar')">
+                        <span class="tooltip-text">Bar Chart</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                    </button>
+                    <button class="chart-action-btn tooltip" onclick="toggleChartType('topProductsChart', 'doughnut')">
+                        <span class="tooltip-text">Doughnut Chart</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <circle cx="12" cy="12" r="4"></circle>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="topProductsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Customers Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title-wrapper">
+                    <h3 class="chart-title">Top Customers (Today)</h3>
+                    <p class="chart-subtitle">Customers with highest purchase value</p>
+                </div>
+                <div class="chart-actions">
+                    <button class="chart-action-btn tooltip" onclick="toggleChartType('topCustomersChart', 'bar')">
+                        <span class="tooltip-text">Bar Chart</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                    </button>
+                    <button class="chart-action-btn tooltip" onclick="toggleChartType('topCustomersChart', 'doughnut')">
+                        <span class="tooltip-text">Doughnut Chart</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <circle cx="12" cy="12" r="4"></circle>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="topCustomersChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sales Charts Tab -->
+<div id="tab-sales" class="tab-content">
+    <!-- Sales vs Returns Chart -->
+    <div class="chart-card chart-full">
+        <div class="chart-header">
+            <div class="chart-title-wrapper">
+                <h3 class="chart-title">Sales vs Returns (Last 7 Days)</h3>
+                <p class="chart-subtitle">Compare sales and returns over time</p>
+            </div>
+            <div class="chart-actions">
+                <button class="chart-action-btn tooltip" onclick="toggleChartType('salesVsReturnsChart', 'line')">
+                    <span class="tooltip-text">Line Chart</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                    </svg>
+                </button>
+                <button class="chart-action-btn tooltip" onclick="toggleChartType('salesVsReturnsChart', 'bar')">
+                    <span class="tooltip-text">Bar Chart</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="salesVsReturnsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Daily Orders Table -->
+    <div class="table-card">
+        <div class="table-header">
+            <div class="table-title-wrapper">
+                <h3 class="table-title">Today's Sales Orders</h3>
+                <p class="table-subtitle">All orders placed today</p>
+            </div>
+            <div class="table-actions">
+                <a href="{% url 'Sales:dashboard_daily' %}" class="table-action-btn tooltip">
+                    <span class="tooltip-text">Standard View</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ORDER #</th>
+                        <th>CUSTOMER</th>
+                        <th>SALES EMPLOYEE</th>
+                        <th class="text-right">AMOUNT</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in todays_orders %}
+                    <tr>
+                        <td class="font-medium">{{ order.id }}</td>
+                        <td>{{ order.customer.name }}</td>
+                        <td>{{ order.sales_employee.name|default:"Not Assigned" }}</td>
+                        <td class="text-right">{{ order.total_amount|floatformat:2 }}</td>
+                        <td>
+                            <span class="badge {% if order.status == 'Delivered' %}badge-success
+                                {% elif order.status == 'Partially Delivered' %}badge-warning
+                                {% elif order.status == 'Cancelled' %}badge-danger
+                                {% else %}badge-info{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty-state">No orders today</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Product Analysis Tab -->
+<div id="tab-products" class="tab-content">
+    <!-- Top Products Chart -->
+    <div class="chart-card chart-full">
+        <div class="chart-header">
+            <div class="chart-title-wrapper">
+                <h3 class="chart-title">Top Products Analysis</h3>
+                <p class="chart-subtitle">Sales amount vs quantity sold</p>
+            </div>
+            <div class="chart-actions">
+                <button class="chart-action-btn tooltip" onclick="toggleChartType('productAnalysisChart', 'bar')">
+                    <span class="tooltip-text">Bar Chart</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                </button>
+                <button class="chart-action-btn tooltip" onclick="toggleChartType('productAnalysisChart', 'radar')">
+                    <span class="tooltip-text">Radar Chart</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 19.56 6.5 19.56 17.5 12 22 4.44 17.5 4.44 6.5"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="productAnalysisChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Products Table -->
+    <div class="table-card">
+        <div class="table-header">
+            <div class="table-title-wrapper">
+                <h3 class="table-title">Top Products (Today)</h3>
+                <p class="table-subtitle">Best selling products by revenue</p>
+            </div>
+            <div class="table-actions">
+                <a href="{% url 'Sales:dashboard_daily' %}" class="table-action-btn tooltip">
+                    <span class="tooltip-text">Standard View</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>PRODUCT</th>
+                        <th class="text-right">QUANTITY</th>
+                        <th class="text-right">SALES</th>
+                        <th class="text-right">AVG. PRICE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in top_products_daily %}
+                    <tr>
+                        <td class="font-medium">{{ product.item_name }}</td>
+                        <td class="text-right">{{ product.total_quantity|floatformat:2 }}</td>
+                        <td class="text-right">{{ product.total_sales|floatformat:2 }}</td>
+                        <td class="text-right">{{ product.avg_price|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="empty-state">No data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Analysis Tab -->
+<div id="tab-customers" class="tab-content">
+    <!-- Top Customers Chart -->
+    <div class="chart-card chart-full">
+        <div class="chart-header">
+            <div class="chart-title-wrapper">
+                <h3 class="chart-title">Top Customers Analysis</h3>
+                <p class="chart-subtitle">Sales amount vs order count</p>
+            </div>
+            <div class="chart-actions">
+                <button class="chart-action-btn tooltip" onclick="toggleChartType('customerAnalysisChart', 'bar')">
+                    <span class="tooltip-text">Bar Chart</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                </button>
+                <button class="chart-action-btn tooltip" onclick="toggleChartType('customerAnalysisChart', 'polarArea')">
+                    <span class="tooltip-text">Polar Area</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        <path d="M2 12h20"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="customerAnalysisChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Customers Table -->
+    <div class="table-card">
+        <div class="table-header">
+            <div class="table-title-wrapper">
+                <h3 class="table-title">Top Customers (Today)</h3>
+                <p class="table-subtitle">Customers with highest purchase value</p>
+            </div>
+            <div class="table-actions">
+                <a href="{% url 'Sales:dashboard_daily' %}" class="table-action-btn tooltip">
+                    <span class="tooltip-text">Standard View</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>CUSTOMER</th>
+                        <th class="text-right">INVOICES</th>
+                        <th class="text-right">ORDERS</th>
+                        <th class="text-right">TOTAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in top_customers_daily %}
+                    <tr>
+                        <td class="font-medium">{{ customer.customer_name }}</td>
+                        <td class="text-right">{{ customer.invoice_count }}</td>
+                        <td class="text-right">{{ customer.order_count }}</td>
+                        <td class="text-right">{{ customer.total_sales|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="empty-state">No data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Tab -->
+<div id="tab-performance" class="tab-content">
+    <!-- Employee Performance Chart -->
+    <div class="chart-card chart-full">
+        <div class="chart-header">
+            <div class="chart-title-wrapper">
+                <h3 class="chart-title">Sales Employee Performance (Today)</h3>
+                <p class="chart-subtitle">Sales amount vs order count by employee</p>
+            </div>
+            <div class="chart-actions">
+                <button class="chart-action-btn tooltip" onclick="toggleChartType('employeePerformanceChart', 'bar')">
+                    <span class="tooltip-text">Bar Chart</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                </button>
+                <button class="chart-action-btn tooltip" onclick="toggleChartType('employeePerformanceChart', 'horizontalBar')">
+                    <span class="tooltip-text">Horizontal Bar</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="6" x2="15" y2="6"></line>
+                        <line x1="3" y1="12" x2="9" y2="12"></line>
+                        <line x1="3" y1="18" x2="12" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="employeePerformanceChart"></canvas>
+        </div>
+    </div>
+
+    <div class="table-grid">
+        <!-- Sales Employee Orders -->
+        <div class="table-card">
+            <div class="table-header">
+                <div class="table-title-wrapper">
+                    <h3 class="table-title">Sales Employee Performance (Today)</h3>
+                    <p class="table-subtitle">All orders by sales employee</p>
+                </div>
+                <div class="table-actions">
+                    <a href="{% url 'Sales:dashboard_daily' %}" class="table-action-btn tooltip">
+                        <span class="tooltip-text">Standard View</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="3" y1="9" x2="21" y2="9"></line>
+                            <line x1="9" y1="21" x2="9" y2="9"></line>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>EMPLOYEE</th>
+                            <th class="text-right">ORDERS</th>
+                            <th class="text-right">AMOUNT</th>
+                            <th class="text-right">AVG. ORDER</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in sales_employee_orders %}
+                        <tr>
+                            <td class="font-medium">{{ employee.employee_name }}</td>
+                            <td class="text-right">{{ employee.order_count }}</td>
+                            <td class="text-right">{{ employee.total_amount|floatformat:2 }}</td>
+                            <td class="text-right">{{ employee.avg_order|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="empty-state">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Delivery Employee Deliveries -->
+        <div class="table-card">
+            <div class="table-header">
+                <div class="table-title-wrapper">
+                    <h3 class="table-title">Delivery Employee Performance (Today)</h3>
+                    <p class="table-subtitle">Deliveries by delivery employee</p>
+                </div>
+                <div class="table-actions">
+                    <a href="{% url 'Sales:dashboard_daily' %}" class="table-action-btn tooltip">
+                        <span class="tooltip-text">Standard View</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="3" y1="9" x2="21" y2="9"></line>
+                            <line x1="9" y1="21" x2="9" y2="9"></line>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>EMPLOYEE</th>
+                            <th class="text-right">DELIVERIES</th>
+                            <th class="text-right">AMOUNT</th>
+                            <th class="text-right">AVG. DELIVERY</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in delivery_employee_deliveries %}
+                        <tr>
+                            <td class="font-medium">{{ employee.delivery_employee_name }}</td>
+                            <td class="text-right">{{ employee.delivery_count }}</td>
+                            <td class="text-right">{{ employee.total_amount|floatformat:2 }}</td>
+                            <td class="text-right">{{ employee.avg_delivery|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="empty-state">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Chart.js configuration
+        Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+        Chart.defaults.font.size = 12;
+        Chart.defaults.color = '#64748b';
+        
+        // Store chart instances for toggling chart types
+        const chartInstances = {};
+        
+        // Daily Sales Chart
+        const dailySalesCtx = document.getElementById('dailySalesChart').getContext('2d');
+        const dailySalesData = {{ daily_sales_chart_data|safe }};
+        chartInstances.dailySalesChart = new Chart(dailySalesCtx, {
+            type: 'line',
+            data: {
+                labels: dailySalesData.labels,
+                datasets: dailySalesData.datasets.map(dataset => ({
+                    ...dataset,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(54, 162, 235, 1)',
+                    tension: 0.4
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                        text: 'Daily Sales (Last 7 Days)'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        padding: 10,
+                        cornerRadius: 4
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                animations: {
+                    tension: {
+                        duration: 1000,
+                        easing: 'linear'
+                    }
+                }
+            }
+        });
+        
+        // Top Products Chart
+        const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
+        const topProductsData = {{ top_products_chart_data|safe }};
+        chartInstances.topProductsChart = new Chart(topProductsCtx, {
+            type: 'bar',
+            data: {
+                labels: topProductsData.labels,
+                datasets: topProductsData.datasets.map((dataset, index) => ({
+                    ...dataset,
+                    backgroundColor: index === 0 ? 'rgba(255, 99, 132, 0.2)' : 'rgba(54, 162, 235, 0.2)',
+                    borderColor: index === 0 ? 'rgba(255, 99, 132, 1)' : 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                        text: topProductsData.title
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+        
+        // Top Customers Chart
+        const topCustomersCtx = document.getElementById('topCustomersChart').getContext('2d');
+        const topCustomersData = {{ top_customers_chart_data|safe }};
+        chartInstances.topCustomersChart = new Chart(topCustomersCtx, {
+            type: 'bar',
+            data: {
+                labels: topCustomersData.labels,
+                datasets: topCustomersData.datasets.map((dataset, index) => ({
+                    ...dataset,
+                    backgroundColor: index === 0 ? 'rgba(153, 102, 255, 0.2)' : 'rgba(255, 159, 64, 0.2)',
+                    borderColor: index === 0 ? 'rgba(153, 102, 255, 1)' : 'rgba(255, 159, 64, 1)',
+                    borderWidth: 1
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                        text: topCustomersData.title
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+        
+        // Sales vs Returns Chart
+        const salesVsReturnsCtx = document.getElementById('salesVsReturnsChart').getContext('2d');
+        const salesVsReturnsData = {{ sales_vs_returns_chart_data|safe }};
+        chartInstances.salesVsReturnsChart = new Chart(salesVsReturnsCtx, {
+            type: 'line',
+            data: {
+                labels: salesVsReturnsData.labels,
+                datasets: salesVsReturnsData.datasets.map((dataset, index) => ({
+                    ...dataset,
+                    backgroundColor: index === 0 ? 'rgba(75, 192, 192, 0.2)' : 'rgba(255, 99, 132, 0.2)',
+                    borderColor: index === 0 ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)',
+                    pointBackgroundColor: index === 0 ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: index === 0 ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)',
+                    tension: 0.4
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                        text: salesVsReturnsData.title
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                }
+            }
+        });
+        
+        // Product Analysis Chart
+        const productAnalysisCtx = document.getElementById('productAnalysisChart').getContext('2d');
+        const productAnalysisData = {{ top_products_chart_data|safe }};
+        chartInstances.productAnalysisChart = new Chart(productAnalysisCtx, {
+            type: 'bar',
+            data: {
+                labels: productAnalysisData.labels,
+                datasets: productAnalysisData.datasets.map((dataset, index) => ({
+                    ...dataset,
+                    backgroundColor: index === 0 ? 'rgba(255, 99, 132, 0.2)' : 'rgba(54, 162, 235, 0.2)',
+                    borderColor: index === 0 ? 'rgba(255, 99, 132, 1)' : 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                        text: 'Product Analysis'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Customer Analysis Chart
+        const customerAnalysisCtx = document.getElementById('customerAnalysisChart').getContext('2d');
+        const customerAnalysisData = {{ top_customers_chart_data|safe }};
+        chartInstances.customerAnalysisChart = new Chart(customerAnalysisCtx, {
+            type: 'bar',
+            data: {
+                labels: customerAnalysisData.labels,
+                datasets: customerAnalysisData.datasets.map((dataset, index) => ({
+                    ...dataset,
+                    backgroundColor: index === 0 ? 'rgba(153, 102, 255, 0.2)' : 'rgba(255, 159, 64, 0.2)',
+                    borderColor: index === 0 ? 'rgba(153, 102, 255, 1)' : 'rgba(255, 159, 64, 1)',
+                    borderWidth: 1
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                        text: 'Customer Analysis'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Employee Performance Chart
+        const employeePerformanceCtx = document.getElementById('employeePerformanceChart').getContext('2d');
+        const employeePerformanceData = {{ employee_performance_chart_data|safe }};
+        chartInstances.employeePerformanceChart = new Chart(employeePerformanceCtx, {
+            type: 'bar',
+            data: {
+                labels: employeePerformanceData.labels,
+                datasets: employeePerformanceData.datasets.map((dataset, index) => ({
+                    ...dataset,
+                    backgroundColor: index === 0 ? 'rgba(54, 162, 235, 0.2)' : 'rgba(255, 206, 86, 0.2)',
+                    borderColor: index === 0 ? 'rgba(54, 162, 235, 1)' : 'rgba(255, 206, 86, 1)',
+                    borderWidth: 1
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                        text: employeePerformanceData.title
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Function to toggle chart types
+        window.toggleChartType = function(chartId, newType) {
+            const chart = chartInstances[chartId];
+            if (!chart) return;
+            
+            // Special case for horizontal bar which is 'bar' type with indexAxis: 'y'
+            if (newType === 'horizontalBar') {
+                chart.options.indexAxis = 'y';
+                newType = 'bar';
+            } else {
+                chart.options.indexAxis = 'x';
+            }
+            
+            // Save current data
+            const data = chart.data;
+            
+            // Destroy current chart
+            chart.destroy();
+            
+            // Create new chart with new type
+            const ctx = document.getElementById(chartId).getContext('2d');
+            
+            // Adjust datasets for different chart types
+            if (newType === 'doughnut' || newType === 'pie' || newType === 'polarArea') {
+                // For pie/doughnut charts, we need a different dataset format
+                const firstDataset = data.datasets[0];
+                data.datasets = [{
+                    label: firstDataset.label,
+                    data: firstDataset.data,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }];
+            }
+            
+            // Create new chart
+            chartInstances[chartId] = new Chart(ctx, {
+                type: newType,
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: newType !== 'radar' && newType !== 'doughnut' && newType !== 'pie' && newType !== 'polarArea' ? {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    } : {},
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    },
+                    indexAxis: newType === 'horizontalBar' ? 'y' : 'x'
+                }
+            });
+        };
+    });
+</script>

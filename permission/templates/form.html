@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="rounded-lg border bg-[hsl(var(--background))] shadow-sm p-6 mb-6 premium-card hover:shadow-lg hover:translate-y-[-2px] hover:border-[hsl(var(--primary))] transition-all duration-300">
+    <div class="mb-6 border-b border-[hsl(var(--border))] pb-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold">Update Profile</h3>
+                    <p class="text-xs text-[hsl(var(--muted-foreground))]">Modify your account settings and personal information</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-6">
+                <div class="bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] rounded-lg p-4 border border-[hsl(var(--border))]">
+                    <h4 class="text-sm font-medium mb-4 flex items-center">
+                        <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Personal Information
+                    </h4>
+
+                    <!-- Profile Picture -->
+                    <div class="relative mb-6">
+                        <input type="file" id="profile_picture" name="profile_picture" 
+                            class="peer w-full px-3 py-3 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))]">
+                        <label for="profile_picture" 
+                            class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))]">
+                            Profile Picture
+                        </label>
+                    </div>
+
+                    <!-- Full Name -->
+                    <div class="relative mb-6">
+                        <input type="text" name="first_name" value="{{ form.first_name.value }}" placeholder="First Name"
+                            class="peer w-full px-3 py-3 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent">
+                        <label for="first_name" 
+                            class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))]">
+                            First Name
+                        </label>
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="relative mb-6">
+                        <input type="text" name="last_name" value="{{ form.last_name.value }}" placeholder="Last Name"
+                            class="peer w-full px-3 py-3 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent">
+                        <label for="last_name" 
+                            class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))]">
+                            Last Name
+                        </label>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="relative mb-6">
+                        <input type="email" name="email" value="{{ form.email.value }}" placeholder="Email"
+                            class="peer w-full px-3 py-3 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent">
+                        <label for="email" 
+                            class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))]">
+                            Email
+                        </label>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="relative mb-6">
+                        <input type="tel" name="phone_number" value="{{ form.phone_number.value }}" placeholder="Phone Number"
+                            class="peer w-full px-3 py-3 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent">
+                        <label for="phone_number" 
+                            class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))]">
+                            Phone Number
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-[hsl(var(--border))] pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="text-sm text-[hsl(var(--muted-foreground))]">
+                <span class="flex items-center">
+                    <svg class="w-4 h-4 mr-1 text-green-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Your data is secure and encrypted
+                </span>
+            </div>
+            <button type="submit" class="bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-10 px-4 py-2 rounded-md">
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

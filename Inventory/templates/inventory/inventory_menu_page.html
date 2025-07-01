@@ -1,0 +1,617 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    App Modules
+{% endblock %}
+
+{% block page_title %}
+    App Modules
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .gradient-header {
+        background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.7) 100%);
+    }
+    .filter-button.active, .toggle-button.active {
+        background-color: hsl(var(--primary));
+        color: white;
+        border-color: hsl(var(--primary));
+    }
+    .module-tile {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        border: 1px solid transparent;
+        border-image: linear-gradient(135deg, hsl(var(--primary)/0.3), transparent) 1;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+    }
+    .module-tile:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+    }
+    .module-tile.hidden {
+        display: none;
+    }
+    .save-button.saved .heart-icon {
+        fill: hsl(var(--primary));
+        stroke: hsl(var(--primary));
+    }
+    .icon-container:hover svg {
+        transform: scale(1.1) rotate(5deg);
+    }
+    .gradient-icon {
+        fill: url(#gradient);
+    }
+    @media (max-width: 768px) {
+        .grid-cols-4 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+    @media (max-width: 480px) {
+        .grid-cols-4 {
+            grid-template-columns: 1fr;
+        }
+        .module-tile {
+            padding: 0.75rem;
+        }
+        .search-input {
+            font-size: 0.85rem;
+        }
+    }
+</style>
+
+
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-[hsl(var(--background))] flex flex-col">
+    <!-- Header -->
+    <header class="gradient-header text-white py-6 px-4 shadow-lg">
+        <div class="container mx-auto text-center">
+            <h1 class="text-3xl font-bold">Inventory Modules</h1>
+            <p class="text-sm opacity-85 mt-1">Manage your inventory efficiently</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6 flex-grow">
+        <!-- Search and Filters -->
+        <div class="mb-6">
+            <div class="relative mb-4">
+                <svg class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input h-11 w-full pl-10 pr-4 bg-white/90 border border-[hsl(var(--border))] rounded-full focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] shadow-sm text-[hsl(var(--foreground))] placeholder-[hsl(var(--muted-foreground))] text-sm" 
+                    placeholder="Search modules..."
+                >
+            </div>
+
+            <!-- Quick Filters and Toggle Buttons -->
+            <div class="flex flex-wrap gap-2 items-center justify-center">
+                <span class="text-xs text-[hsl(var(--muted-foreground))] font-medium mr-2">Filters:</span>
+                <button class="filter-button px-3 py-1 text-xs flex items-center bg-white/90 border border-[hsl(var(--border))] rounded-full hover:bg-[hsl(var(--primary)/0.1)] active" data-filter="">
+                    <svg class="h-4 w-4 mr-1 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    All
+                </button>
+                {% if can_view_unitofmeasure %}
+                <button class="filter-button px-3 py-1 text-xs flex items-center bg-white/90 border border-[hsl(var(--border))] rounded-full hover:bg-[hsl(var(--primary)/0.1)]" data-filter="Unit of Measure">
+                    <svg class="h-4 w-4 mr-1 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4m-4 0H8m4 0V3m0 9v9" />
+                    </svg>
+                    Unit of Measure
+                </button>
+                {% endif %}
+                {% if can_view_itemgroup %}
+                <button class="filter-button px-3 py-1 text-xs flex items-center bg-white/90 border border-[hsl(var(--border))] rounded-full hover:bg-[hsl(var(--primary)/0.1)]" data-filter="Item Groups">
+                    <svg class="h-4 w-4 mr-1 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    Item Groups
+                </button>
+                {% endif %}
+                {% if can_view_warehouse %}
+                <button class="filter-button px-3 py-1 text-xs flex items-center bg-white/90 border border-[hsl(var(--border))] rounded-full hover:bg-[hsl(var(--primary)/0.1)]" data-filter="Warehouses">
+                    <svg class="h-4 w-4 mr-1 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    Warehouses
+                </button>
+                {% endif %}
+                {% if can_view_item %}
+                <button class="filter-button px-3 py-1 text-xs flex items-center bg-white/90 border border-[hsl(var(--border))] rounded-full hover:bg-[hsl(var(--primary)/0.1)]" data-filter="Items">
+                    <svg class="h-4 w-4 mr-1 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2z" />
+                    </svg>
+                    Items
+                </button>
+                {% endif %}
+                {% if can_view_itemwarehouseinfo %}
+                <button class="filter-button px-3 py-1 text-xs flex items-center bg-white/90 border border-[hsl(var(--border))] rounded-full hover:bg-[hsl(var(--primary)/0.1)]" data-filter="Item Warehouse Info">
+                    <svg class="h-4 w-4 mr-1 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Item Warehouse Info
+                </button>
+                {% endif %}
+                {% if can_view_inventorytransaction %}
+                <button class="filter-button px-3 py-1 text-xs flex items-center bg-white/90 border border-[hsl(var(--border))] rounded-full hover:bg-[hsl(var(--primary)/0.1)]" data-filter="Transactions">
+                    <svg class="h-4 w-4 mr-1 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                    Transactions
+                </button>
+                {% endif %}
+                {% if can_view_goodsreceipt %}
+                <button class="filter-button px-3 py-1 text-xs flex items-center bg-white/90 border border-[hsl(var(--border))] rounded-full hover:bg-[hsl(var(--primary)/0.1)]" data-filter="Goods Receipt">
+                    <svg class="h-4 w-4 mr-1 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    </svg>
+                    Goods Receipt
+                </button>
+                {% endif %}
+                {% if can_view_goodsissue %}
+                <button class="filter-button px-3 py-1 text-xs flex items-center bg-white/90 border border-[hsl(var(--border))] rounded-full hover:bg-[hsl(var(--primary)/0.1)]" data-filter="Goods Issue">
+                    <svg class="h-4 w-4 mr-1 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                    Goods Issue
+                </button>
+                {% endif %}
+                {% if can_view_inventorytransfer %}
+                <button class="filter-button px-3 py-1 text-xs flex items-center bg-white/90 border border-[hsl(var(--border))] rounded-full hover:bg-[hsl(var(--primary)/0.1)]" data-filter="Inventory Transfer">
+                    <svg class="h-4 w-4 mr-1 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0l-4 4m4-4l-4-4M11 17H3m0 0l4-4m-4 4l4 4" />
+                    </svg>
+                    Inventory Transfer
+                </button>
+                {% endif %}
+                <button class="filter-button px-3 py-1 text-xs flex items-center bg-white/90 border border-[hsl(var(--border))] rounded-full hover:bg-[hsl(var(--primary)/0.1)]" data-filter="Inventory Reports">
+                    <svg class="h-4 w-4 mr-1 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Inventory Reports
+                </button>
+                <div class="flex flex-wrap gap-2 items-center justify-center mb-4">
+                    <span class="text-xs text-[hsl(var(--muted-foreground))] font-medium mx-2">View:</span>
+                    <button id="allButton" class="toggle-button px-3 py-1 text-xs flex items-center bg-white/90 border border-[hsl(var(--border))] rounded-full hover:bg-[hsl(var(--primary)/0.1)]">
+                        <svg class="h-4 w-4 mr-1 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        All
+                    </button>
+                    <button id="favoritesButton" class="toggle-button px-3 py-1 text-xs flex items-center bg-white/90 border border-[hsl(var(--border))] rounded-full hover:bg-[hsl(var(--primary)/0.1)]">
+                        <svg class="h-4 w-4 mr-1 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        Favorites
+                    </button>
+                    <button id="clearFavorites" class="toggle-button px-3 py-1 text-xs flex items-center bg-white/90 border border-[hsl(var(--border))] rounded-full hover:bg-[hsl(var(--primary)/0.1)]">
+                        <svg class="h-4 w-4 mr-1 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11l2-2m0 0l2 2m-2-2v8m-2-8v8m4-8v8m-6 4h12a2 2 0 002-2V9a2 2 0 00-2-2h-1l-3-3h-5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Clear Favorites
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SVG Gradient Definition -->
+        <svg width="0" height="0" class="absolute">
+            <defs>
+                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:hsl(var(--primary)/0.7);stop-opacity:1" />
+                </linearGradient>
+            </defs>
+        </svg>
+
+        <!-- Module Tiles -->
+        <div class="grid grid-cols-4 gap-6">
+            {% if show_inventory_menu %}
+            <div class="module-tile fade-in rounded-lg border border-gray-200 p-4 flex flex-col items-center justify-center relative bg-white shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300" data-id="configuration" data-heading="Configuration Module" data-filter="Configuration">
+                <a href="{% url 'Inventory:demo_config' %}" class="flex flex-col items-center flex-grow text-center">
+                    <div class="icon-container h-16 w-16 rounded-full bg-[hsl(var(--primary)/0.1)] flex items-center justify-center mb-3">
+                        <svg class="h-8 w-8 text-[hsl(var(--primary))] drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2v2m0 16v2m10-10h-2M2 12h2m15.071-7.071l-1.414 1.414M4.929 19.071l-1.414 1.414m0-15.142l1.414 1.414m12.728 12.728l1.414 1.414M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-bold text-[hsl(var(--foreground))] tracking-wide">Configuration</h3>
+                    <p class="text-xs font-medium text-[hsl(var(--muted-foreground))] mt-1 px-2">Configure inventory settings</p>
+                </a>
+                <button class="save-button absolute top-3 right-3 p-1.5 bg-white/80 rounded-full shadow-md hover:bg-[hsl(var(--primary)/0.2)] transition-colors">
+                    <svg class="heart-icon h-5 w-5 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 00 0-7.78z"/>
+                    </svg>
+                </button>
+            </div>
+            {% endif %}
+
+            {% if can_view_unitofmeasure %}
+            <div class="module-tile fade-in rounded-lg border border-gray-200 p-4 flex flex-col items-center justify-center relative bg-white shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300" data-id="unit_of_measure" data-heading="Unit of Measure Module" data-filter="Unit of Measure">
+                <a href="{% url 'Inventory:uom_list' %}" class="flex flex-col items-center flex-grow text-center">
+                    <div class="icon-container h-16 w-16 rounded-full bg-[hsl(var(--primary)/0.1)] flex items-center justify-center mb-3">
+                        <svg class="h-8 w-8 text-[hsl(var(--primary))] drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 6v6h4m-4 0H8m4 0V3m0 9v9"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-bold text-[hsl(var(--foreground))] tracking-wide">Unit of Measure</h3>
+                    <p class="text-xs font-medium text-[hsl(var(--muted-foreground))] mt-1 px-2">Manage units</p>
+                </a>
+                <button class="save-button absolute top-3 right-3 p-1.5 bg-white/80 rounded-full shadow-md hover:bg-[hsl(var(--primary)/0.2)] transition-colors">
+                    <svg class="heart-icon h-5 w-5 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 00 0-7.78z"/>
+                    </svg>
+                </button>
+            </div>
+            {% endif %}
+
+            {% if can_view_itemgroup %}
+            <div class="module-tile fade-in rounded-lg border border-gray-200 p-4 flex flex-col items-center justify-center relative bg-white shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300" data-id="item_groups" data-heading="Item Groups Module" data-filter="Item Groups">
+                <a href="{% url 'Inventory:item_group_list' %}" class="flex flex-col items-center flex-grow text-center">
+                    <div class="icon-container h-16 w-16 rounded-full bg-[hsl(var(--primary)/0.1)] flex items-center justify-center mb-3">
+                        <svg class="h-8 w-8 text-[hsl(var(--primary))] drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-bold text-[hsl(var(--foreground))] tracking-wide">Item Groups</h3>
+                    <p class="text-xs font-medium text-[hsl(var(--muted-foreground))] mt-1 px-2">Manage categories</p>
+                </a>
+                <button class="save-button absolute top-3 right-3 p-1.5 bg-white/80 rounded-full shadow-md hover:bg-[hsl(var(--primary)/0.2)] transition-colors">
+                    <svg class="heart-icon h-5 w-5 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 00 0-7.78z"/>
+                    </svg>
+                </button>
+            </div>
+            {% endif %}
+
+            {% if can_view_warehouse %}
+            <div class="module-tile fade-in rounded-lg border border-gray-200 p-4 flex flex-col items-center justify-center relative bg-white shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300" data-id="warehouses" data-heading="Warehouses Module" data-filter="Warehouses">
+                <a href="{% url 'Inventory:warehouse_list' %}" class="flex flex-col items-center flex-grow text-center">
+                    <div class="icon-container h-16 w-16 rounded-full bg-[hsl(var(--primary)/0.1)] flex items-center justify-center mb-3">
+                        <svg class="h-8 w-8 text-[hsl(var(--primary))] drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-bold text-[hsl(var(--foreground))] tracking-wide">Warehouses</h3>
+                    <p class="text-xs font-medium text-[hsl(var(--muted-foreground))] mt-1 px-2">Manage warehouses</p>
+                </a>
+                <button class="save-button absolute top-3 right-3 p-1.5 bg-white/80 rounded-full shadow-md hover:bg-[hsl(var(--primary)/0.2)] transition-colors">
+                    <svg class="heart-icon h-5 w-5 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 00 0-7.78z"/>
+                    </svg>
+                </button>
+            </div>
+            {% endif %}
+
+            {% if can_view_item %}
+            <div class="module-tile fade-in rounded-lg border border-gray-200 p-4 flex flex-col items-center justify-center relative bg-white shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300" data-id="items" data-heading="Items Module" data-filter="Items">
+                <a href="{% url 'Inventory:item_list' %}" class="flex flex-col items-center flex-grow text-center">
+                    <div class="icon-container h-16 w-16 rounded-full bg-[hsl(var(--primary)/0.1)] flex items-center justify-center mb-3">
+                        <svg class="h-8 w-8 text-[hsl(var(--primary))] drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-bold text-[hsl(var(--foreground))] tracking-wide">Items</h3>
+                    <p class="text-xs font-medium text-[hsl(var(--muted-foreground))] mt-1 px-2">Manage items</p>
+                </a>
+                <button class="save-button absolute top-3 right-3 p-1.5 bg-white/80 rounded-full shadow-md hover:bg-[hsl(var(--primary)/0.2)] transition-colors">
+                    <svg class="heart-icon h-5 w-5 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 00 0-7.78z"/>
+                    </svg>
+                </button>
+            </div>
+            {% endif %}
+
+            <div class="module-tile fade-in rounded-lg border border-gray-200 p-4 flex flex-col items-center justify-center relative bg-white shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300" data-id="transactions" data-heading="Transactions Module" data-filter="Transactions">
+                <a href="{% url 'Inventory:inventory_transaction_list' %}" class="flex flex-col items-center flex-grow text-center">
+                    <div class="icon-container h-16 w-16 rounded-full bg-[hsl(var(--primary)/0.1)] flex items-center justify-center mb-3">
+                        <svg class="h-8 w-8 text-[hsl(var(--primary))] drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-bold text-[hsl(var(--foreground))] tracking-wide">Transactions</h3>
+                    <p class="text-xs font-medium text-[hsl(var(--muted-foreground))] mt-1 px-2">Handle inventory transactions</p>
+                </a>
+                <button class="save-button absolute top-3 right-3 p-1.5 bg-white/80 rounded-full shadow-md hover:bg-[hsl(var(--primary)/0.2)] transition-colors">
+                    <svg class="heart-icon h-5 w-5 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 00 0-7.78z"/>
+                    </svg>
+                </button>
+            </div>
+
+            {% if can_view_itemwarehouseinfo %}
+            <div class="module-tile fade-in rounded-lg border border-gray-200 p-4 flex flex-col items-center justify-center relative bg-white shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300" data-id="item_warehouse_info" data-heading="Item Warehouse Info Module" data-filter="Item Warehouse Info">
+                <a href="{% url 'Inventory:item_warehouse_info_list' %}" class="flex flex-col items-center flex-grow text-center">
+                    <div class="icon-container h-16 w-16 rounded-full bg-[hsl(var(--primary)/0.1)] flex items-center justify-center mb-3">
+                        <svg class="h-8 w-8 text-[hsl(var(--primary))] drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-bold text-[hsl(var(--foreground))] tracking-wide">Item Warehouse Info</h3>
+                    <p class="text-xs font-medium text-[hsl(var(--muted-foreground))] mt-1 px-2">Stock details</p>
+                </a>
+                <button class="save-button absolute top-3 right-3 p-1.5 bg-white/80 rounded-full shadow-md hover:bg-[hsl(var(--primary)/0.2)] transition-colors">
+                    <svg class="heart-icon h-5 w-5 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 00 0-7.78z"/>
+                    </svg>
+                </button>
+            </div>
+            {% endif %}
+
+            {% if can_view_inventorytransaction %}
+            <div class="module-tile fade-in rounded-lg border border-gray-200 p-4 flex flex-col items-center justify-center relative bg-white shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300" data-id="inventory_transactions" data-heading="Transactions Module" data-filter="Transactions">
+                <a href="{% url 'Inventory:inventory_transaction_list' %}" class="flex flex-col items-center flex-grow text-center">
+                    <div class="icon-container h-16 w-16 rounded-full bg-[hsl(var(--primary)/0.1)] flex items-center justify-center mb-3">
+                        <svg class="h-8 w-8 text-[hsl(var(--primary))] drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-bold text-[hsl(var(--foreground))] tracking-wide">Transactions</h3>
+                    <p class="text-xs font-medium text-[hsl(var(--muted-foreground))] mt-1 px-2">View transactions</p>
+                </a>
+                <button class="save-button absolute top-3 right-3 p-1.5 bg-white/80 rounded-full shadow-md hover:bg-[hsl(var(--primary)/0.2)] transition-colors">
+                    <svg class="heart-icon h-5 w-5 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 00 0-7.78z"/>
+                    </svg>
+                </button>
+            </div>
+            {% endif %}
+
+            {% if can_view_goodsreceipt %}
+            <div class="module-tile fade-in rounded-lg border border-gray-200 p-4 flex flex-col items-center justify-center relative bg-white shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300" data-id="goods_receipt" data-heading="Goods Receipt Module" data-filter="Goods Receipt">
+                <a href="{% url 'Inventory:goods_receipt_list' %}" class="flex flex-col items-center flex-grow text-center">
+                    <div class="icon-container h-16 w-16 rounded-full bg-[hsl(var(--primary)/0.1)] flex items-center justify-center mb-3">
+                        <svg class="h-8 w-8 text-[hsl(var(--primary))] drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-bold text-[hsl(var(--foreground))] tracking-wide">Goods Receipt</h3>
+                    <p class="text-xs font-medium text-[hsl(var(--muted-foreground))] mt-1 px-2">Receive inventory</p>
+                </a>
+                <button class="save-button absolute top-3 right-3 p-1.5 bg-white/80 rounded-full shadow-md hover:bg-[hsl(var(--primary)/0.2)] transition-colors">
+                    <svg class="heart-icon h-5 w-5 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 00 0-7.78z"/>
+                    </svg>
+                </button>
+            </div>
+            {% endif %}
+
+            {% if can_view_goodsissue %}
+            <div class="module-tile fade-in rounded-lg border border-gray-200 p-4 flex flex-col items-center justify-center relative bg-white shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300" data-id="goods_issue" data-heading="Goods Issue Module" data-filter="Goods Issue">
+                <a href="{% url 'Inventory:goods_issue_list' %}" class="flex flex-col items-center flex-grow text-center">
+                    <div class="icon-container h-16 w-16 rounded-full bg-[hsl(var(--primary)/0.1)] flex items-center justify-center mb-3">
+                        <svg class="h-8 w-8 text-[hsl(var(--primary))] drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-bold text-[hsl(var(--foreground))] tracking-wide">Goods Issue</h3>
+                    <p class="text-xs font-medium text-[hsl(var(--muted-foreground))] mt-1 px-2">Issue inventory</p>
+                </a>
+                <button class="save-button absolute top-3 right-3 p-1.5 bg-white/80 rounded-full shadow-md hover:bg-[hsl(var(--primary)/0.2)] transition-colors">
+                    <svg class="heart-icon h-5 w-5 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 00 0-7.78z"/>
+                    </svg>
+                </button>
+            </div>
+            {% endif %}
+
+            {% if can_view_inventorytransfer %}
+            <div class="module-tile fade-in rounded-lg border border-gray-200 p-4 flex flex-col items-center justify-center relative bg-white shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300" data-id="inventory_transfer" data-heading="Inventory Transfer Module" data-filter="Inventory Transfer">
+                <a href="{% url 'Inventory:inventory_transfer_list' %}" class="flex flex-col items-center flex-grow text-center">
+                    <div class="icon-container h-16 w-16 rounded-full bg-[hsl(var(--primary)/0.1)] flex items-center justify-center mb-3">
+                        <svg class="h-8 w-8 text-[hsl(var(--primary))] drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M13 7h8m0 0l-4 4m4-4l-4-4M11 17H3m0 0l4-4m-4 4l4 4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-bold text-[hsl(var(--foreground))] tracking-wide">Inventory Transfer</h3>
+                    <p class="text-xs font-medium text-[hsl(var(--muted-foreground))] mt-1 px-2">Transfer inventory</p>
+                </a>
+                <button class="save-button absolute top-3 right-3 p-1.5 bg-white/80 rounded-full shadow-md hover:bg-[hsl(var(--primary)/0.2)] transition-colors">
+                    <svg class="heart-icon h-5 w-5 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 00 0-7.78z"/>
+                    </svg>
+                </button>
+            </div>
+            {% endif %}
+
+            <div class="module-tile fade-in rounded-lg border border-gray-200 p-4 flex flex-col items-center justify-center relative bg-white shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300" data-id="inventory_reports" data-heading="Inventory Reports Module" data-filter="Inventory Reports">
+                <a href="{% url 'Inventory:inventory_report_list' %}" class="flex flex-col items-center flex-grow text-center">
+                    <div class="icon-container h-16 w-16 rounded-full bg-[hsl(var(--primary)/0.1)] flex items-center justify-center mb-3">
+                        <svg class="h-8 w-8 text-[hsl(var(--primary))] drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-bold text-[hsl(var(--foreground))] tracking-wide">Inventory Reports</h3>
+                    <p class="text-xs font-medium text-[hsl(var(--muted-foreground))] mt-1 px-2">Generate reports</p>
+                </a>
+                <button class="save-button absolute top-3 right-3 p-1.5 bg-white/80 rounded-full shadow-md hover:bg-[hsl(var(--primary)/0.2)] transition-colors">
+                    <svg class="heart-icon h-5 w-5 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 00 0-7.78z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('searchInput');
+        const filterButtons = document.querySelectorAll('.filter-button');
+        const allButton = document.getElementById('allButton');
+        const favoritesButton = document.getElementById('favoritesButton');
+        const clearFavoritesButton = document.getElementById('clearFavorites');
+        const moduleTiles = document.querySelectorAll('.module-tile');
+        const saveButtons = document.querySelectorAll('.save-button');
+        const noResults = document.getElementById('noResults');
+
+        let savedModules = JSON.parse(localStorage.getItem('savedModules')) || [];
+        let showAll = savedModules.length === 0; // Show all if no favorites
+
+        // Initialize saved states and visibility
+        function initializeSavedStates() {
+            moduleTiles.forEach(tile => {
+                const id = tile.dataset.id;
+                const saveButton = tile.querySelector('.save-button');
+                if (savedModules.includes(id)) {
+                    saveButton.classList.add('saved');
+                } else {
+                    saveButton.classList.remove('saved');
+                }
+                tile.classList.toggle('hidden', !showAll && !savedModules.includes(id));
+            });
+            allButton.classList.toggle('active', showAll);
+            favoritesButton.classList.toggle('active', !showAll);
+            updateNoResults();
+        }
+
+        // Update no results visibility
+        function updateNoResults() {
+            let visibleCount = 0;
+            moduleTiles.forEach(tile => {
+                if (!tile.classList.contains('hidden')) visibleCount++;
+            });
+            noResults.classList.toggle('hidden', visibleCount > 0);
+        }
+
+        // Save module to localStorage
+        saveButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const tile = button.closest('.module-tile');
+                const id = tile.dataset.id;
+                const isSaved = button.classList.contains('saved');
+
+                if (isSaved) {
+                    savedModules = savedModules.filter(moduleId => moduleId !== id);
+                    button.classList.remove('saved');
+                } else {
+                    savedModules.push(id);
+                    button.classList.add('saved');
+                }
+                localStorage.setItem('savedModules', JSON.stringify(savedModules));
+
+                // Re-evaluate default view based on favorites
+                showAll = savedModules.length === 0;
+                initializeSavedStates();
+            });
+        });
+
+        // Clear Favorites
+        clearFavoritesButton.addEventListener('click', function () {
+            savedModules = [];
+            localStorage.setItem('savedModules', JSON.stringify(savedModules));
+            showAll = true;
+            initializeSavedStates();
+        });
+
+        // Search functionality
+        searchInput.addEventListener('input', function () {
+            const searchTerm = searchInput.value.toLowerCase();
+            let visibleCount = 0;
+
+            moduleTiles.forEach(tile => {
+                const heading = tile.dataset.heading.toLowerCase();
+                const filter = document.querySelector('.filter-button.active')?.dataset.filter || '';
+                const matchesSearch = heading.includes(searchTerm);
+                const matchesFilter = filter === '' || tile.dataset.filter === filter;
+                const matchesSaved = showAll || savedModules.includes(tile.dataset.id);
+                const isVisible = matchesSearch && matchesFilter && matchesSaved;
+
+                tile.classList.toggle('hidden', !isVisible);
+                if (isVisible) visibleCount++;
+            });
+
+            noResults.classList.toggle('hidden', visibleCount > 0);
+        });
+
+        // Filter functionality
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                const filter = button.dataset.filter;
+                let visibleCount = 0;
+
+                moduleTiles.forEach(tile => {
+                    const tileFilter = tile.dataset.filter;
+                    const searchTerm = searchInput.value.toLowerCase();
+                    const heading = tile.dataset.heading.toLowerCase();
+                    const matchesFilter = filter === '' || tileFilter === filter;
+                    const matchesSearch = heading.includes(searchTerm);
+                    const matchesSaved = showAll || savedModules.includes(tile.dataset.id);
+                    const isVisible = matchesFilter && matchesSearch && matchesSaved;
+
+                    tile.classList.toggle('hidden', !isVisible);
+                    if (isVisible) visibleCount++;
+                });
+
+                noResults.classList.toggle('hidden', visibleCount > 0);
+            });
+        });
+
+        // All button click
+        allButton.addEventListener('click', function () {
+            if (!showAll) {
+                showAll = true;
+                allButton.classList.add('active');
+                favoritesButton.classList.remove('active');
+                const filter = document.querySelector('.filter-button.active')?.dataset.filter || '';
+                const searchTerm = searchInput.value.toLowerCase();
+                let visibleCount = 0;
+
+                moduleTiles.forEach(tile => {
+                    const tileFilter = tile.dataset.filter;
+                    const heading = tile.dataset.heading.toLowerCase();
+                    const matchesFilter = filter === '' || tileFilter === filter;
+                    const matchesSearch = heading.includes(searchTerm);
+                    const isVisible = matchesFilter && matchesSearch;
+
+                    tile.classList.toggle('hidden', !isVisible);
+                    if (isVisible) visibleCount++;
+                });
+
+                noResults.classList.toggle('hidden', visibleCount > 0);
+            }
+        });
+
+        // Favorites button click
+        favoritesButton.addEventListener('click', function () {
+            if (showAll || savedModules.length === 0) {
+                showAll = false;
+                favoritesButton.classList.add('active');
+                allButton.classList.remove('active');
+                const filter = document.querySelector('.filter-button.active')?.dataset.filter || '';
+                const searchTerm = searchInput.value.toLowerCase();
+                let visibleCount = 0;
+
+                moduleTiles.forEach(tile => {
+                    const tileFilter = tile.dataset.filter;
+                    const heading = tile.dataset.heading.toLowerCase();
+                    const matchesFilter = filter === '' || tileFilter === filter;
+                    const matchesSearch = heading.includes(searchTerm);
+                    const matchesSaved = savedModules.includes(tile.dataset.id);
+                    const isVisible = matchesFilter && matchesSearch && matchesSaved;
+
+                    tile.classList.toggle('hidden', !isVisible);
+                    if (isVisible) visibleCount++;
+                });
+
+                noResults.classList.toggle('hidden', visibleCount > 0);
+            }
+        });
+
+        // Initialize
+        initializeSavedStates();
+        filterButtons[0].classList.add('active');
+    });
+</script>
+{% endblock %}

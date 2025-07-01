@@ -1,0 +1,880 @@
+{% extends "common/base-list-modern.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block list_icon %}
+<svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+{% endblock %}
+
+{% block list_title %}{% trans "Payslip Report" %}{% endblock %}
+{% block list_subtitle %}{% trans "Generate detailed payslips with salary breakdown, overtime, bonuses, and deductions for employees" %}{% endblock %}
+
+{% block list_actions %}
+<div class="flex gap-3">
+    <button id="generate-payslip-btn" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Generate Payslip Report" %}
+    </button>
+    
+    {% if report_generated %}
+    <button id="print-payslip-btn" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-indigo-600 to-indigo-700 text-white hover:from-indigo-700 hover:to-indigo-800 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="6,9 6,2 18,2 18,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 18H4A2 2 0 0 1 2 16V11A2 2 0 0 1 4 9H20A2 2 0 0 1 22 11V16A2 2 0 0 1 20 18H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="6" y="14" width="12" height="8" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Print Report" %}
+    </button>
+    
+    <button id="export-payslip-csv" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2H6A2 2 0 0 0 4 4V20A2 2 0 0 0 6 22H18A2 2 0 0 0 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Export CSV" %}
+    </button>
+    
+    <button id="copy-payslip-data" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 15H4A2 2 0 0 1 2 13V4A2 2 0 0 1 4 2H13A2 2 0 0 1 15 4V5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Copy to Clipboard" %}
+    </button>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block search_filter %}
+{% if report_generated %}
+<div class="flex flex-wrap justify-center gap-3 p-4 bg-white shadow-md rounded-lg border border-gray-200">
+    <input type="text" id="search-payslip" placeholder="{% trans 'Search Employee ID, Name, or Department...' %}" class="w-full sm:w-auto flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+    <select id="department-filter-payslip" class="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+        <option value="">{% trans "All Departments" %}</option>
+        {% for dept in departments %}
+        <option value="{{ dept.name }}">{{ dept.name }}</option>
+        {% endfor %}
+    </select>
+    <select id="salary-range-filter" class="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+        <option value="">{% trans "All Salary Ranges" %}</option>
+        <option value="high">{% trans "High (>100K)" %}</option>
+        <option value="medium">{% trans "Medium (50K-100K)" %}</option>
+        <option value="low">{% trans "Low (<50K)" %}</option>
+    </select>
+    <select id="overtime-filter" class="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+        <option value="">{% trans "All Employees" %}</option>
+        <option value="with-overtime">{% trans "With Overtime" %}</option>
+        <option value="no-overtime">{% trans "No Overtime" %}</option>
+    </select>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block table_body %}
+{% if report_generated %}
+
+<!-- Month Information Header -->
+<div class="bg-white rounded-lg shadow-md mb-8">
+    <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-lg">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+                <h2 class="text-2xl font-bold">{{ month_info.month_name }} {{ month_info.year }}</h2>
+                <p class="text-blue-100 mt-1">{% trans "Payslip Report" %}</p>
+            </div>
+            <div class="mt-4 md:mt-0 text-right">
+                <div class="text-sm text-blue-100">{% trans "Salary Month Status" %}</div>
+                <div class="text-lg font-semibold">
+                    {% if month_info.is_generated %}
+                        <span class="text-green-200">✓ {% trans "Generated" %}</span>
+                    {% else %}
+                        <span class="text-yellow-200">⚠ {% trans "Not Generated" %}</span>
+                    {% endif %}
+                </div>
+                {% if month_info.is_paid %}
+                    <div class="text-xs text-green-200 mt-1">💰 {% trans "Paid on" %} {{ month_info.payment_date|date:"d M Y" }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Overall Statistics -->
+    <div class="p-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600">{{ overall_statistics.total_employees }}</div>
+                <div class="text-sm text-gray-600">{% trans "Total Employees" %}</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600">{{ overall_statistics.total_gross_salary|floatformat:0 }}</div>
+                <div class="text-sm text-gray-600">{% trans "Total Gross Salary" %}</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600">{{ overall_statistics.total_net_salary|floatformat:0 }}</div>
+                <div class="text-sm text-gray-600">{% trans "Total Net Salary" %}</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-orange-600">{{ overall_statistics.employees_with_overtime }}</div>
+                <div class="text-sm text-gray-600">{% trans "With Overtime" %}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Applied Configuration Display -->
+<div class="bg-white rounded-lg shadow-md mb-8">
+    <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-4 rounded-t-lg">
+        <h3 class="text-lg font-bold">{% trans "PAYSLIP CONFIGURATION" %}</h3>
+        <p class="text-sm opacity-90">{% trans "Report options and filters applied to this payslip generation" %}</p>
+    </div>
+    
+    <div class="p-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-sm">
+            <div class="bg-blue-50 p-3 rounded-lg">
+                <div class="font-medium text-blue-800">{% trans "Employee Filter" %}</div>
+                <div class="text-blue-600">{{ form_data.employee_filter|default:"All" }}</div>
+            </div>
+            <div class="bg-green-50 p-3 rounded-lg">
+                <div class="font-medium text-green-800">{% trans "Salary Breakdown" %}</div>
+                <div class="text-green-600">{{ form_data.include_salary_breakdown|yesno:"Yes,No" }}</div>
+            </div>
+            <div class="bg-purple-50 p-3 rounded-lg">
+                <div class="font-medium text-purple-800">{% trans "Attendance Summary" %}</div>
+                <div class="text-purple-600">{{ form_data.include_attendance_summary|yesno:"Yes,No" }}</div>
+            </div>
+            <div class="bg-orange-50 p-3 rounded-lg">
+                <div class="font-medium text-orange-800">{% trans "Overtime Details" %}</div>
+                <div class="text-orange-600">{{ form_data.include_overtime_details|yesno:"Yes,No" }}</div>
+            </div>
+            <div class="bg-red-50 p-3 rounded-lg">
+                <div class="font-medium text-red-800">{% trans "Bonus Details" %}</div>
+                <div class="text-red-600">{{ form_data.include_bonus_details|yesno:"Yes,No" }}</div>
+            </div>
+            <div class="bg-gray-50 p-3 rounded-lg">
+                <div class="font-medium text-gray-800">{% trans "Year-to-Date" %}</div>
+                <div class="text-gray-600">{{ form_data.show_year_to_date|yesno:"Yes,No" }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payslip Data Table -->
+<div class="bg-white rounded-lg shadow-md">
+    <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 rounded-t-lg">
+        <h3 class="text-lg font-bold">{% trans "EMPLOYEE PAYSLIPS" %} ({{ payslip_data|length }})</h3>
+        <p class="text-sm opacity-90">{% trans "Month:" %} {{ month_info.month_name }} {{ month_info.year }} | {% trans "Generated with unified attendance processing" %}</p>
+    </div>
+    
+    <div class="w-full overflow-x-auto overflow-y-auto max-h-[70vh]">
+        <table id="payslip-table" class="w-full table-fixed border-collapse">
+            <thead class="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] sticky top-0 z-10">
+                <tr>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% trans "EMPLOYEE ID" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 150px;">
+                        {% trans "EMPLOYEE NAME" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 120px;">
+                        {% trans "DEPARTMENT" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% trans "BASIC SALARY" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% trans "GROSS SALARY" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% trans "DEDUCTIONS" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% trans "NET SALARY" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        {% trans "WORKING DAYS" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        {% trans "PRESENT DAYS" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% trans "OVERTIME" %}
+                    </th>
+                    <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 120px;">
+                        {% trans "STATUS" %}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for payslip in payslip_data %}
+                <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] transition-colors payslip-row"
+                    data-department="{{ payslip.department }}"
+                    data-net-salary="{{ payslip.net_salary }}"
+                    data-has-overtime="{% if payslip.has_overtime %}true{% else %}false{% endif %}">
+                    
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="employee_id" style="width: 100px;">
+                        <span class="font-medium">{{ payslip.employee_id }}</span>
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="employee_name" style="width: 150px;">
+                        <div class="font-medium">{{ payslip.employee_name }}</div>
+                        <div class="text-xs text-gray-500">{{ payslip.designation }}</div>
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="department" style="width: 120px;">
+                        {{ payslip.department }}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        <span class="font-bold text-blue-600">{{ payslip.basic_salary|floatformat:0 }}</span>
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        <span class="font-bold text-green-600">{{ payslip.gross_salary|floatformat:0 }}</span>
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        <span class="font-bold text-red-600">{{ payslip.total_deductions|floatformat:0 }}</span>
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        <span class="font-bold text-purple-600">{{ payslip.net_salary|floatformat:0 }}</span>
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        <span class="font-medium">{{ payslip.working_days }}</span>
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                        <span class="font-bold text-green-600">{{ payslip.present_days }}</span>
+                        {% if payslip.absent_days > 0 %}
+                            <div class="text-xs text-red-500">{{ payslip.absent_days }} absent</div>
+                        {% endif %}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                        {% if payslip.overtime_amount > 0 %}
+                            <span class="font-bold text-indigo-600">{{ payslip.overtime_amount|floatformat:0 }}</span>
+                            <div class="text-xs text-indigo-500">{{ payslip.overtime_hours }}h</div>
+                        {% else %}
+                            <span class="text-gray-400">0</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 120px;">
+                        <div class="space-y-1">
+                            {% if payslip.net_salary >= 100000 %}
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">High Earner</span>
+                            {% elif payslip.net_salary >= 50000 %}
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Medium</span>
+                            {% else %}
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Standard</span>
+                            {% endif %}
+                            
+                            {% if payslip.has_overtime %}
+                                <div class="text-xs text-indigo-600 font-bold">💼 OT</div>
+                            {% endif %}
+                            
+                            {% if payslip.has_bonus %}
+                                <div class="text-xs text-green-600 font-bold">🎁 Bonus</div>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+                    <td colspan="11" class="px-4 sm:px-8 py-4 text-center text-sm border border-[hsl(var(--border))]">
+                        <div class="flex flex-col items-center justify-center space-y-4">
+                            <div class="rounded-full bg-[hsl(var(--muted))] p-4">
+                                <svg class="h-8 w-8 text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <div class="text-center">
+                                <h3 class="text-base font-medium">{% trans "No Payslip Data Found" %}</h3>
+                                <p class="text-[hsl(var(--muted-foreground))] text-sm">{% trans "No payslips found for the selected criteria and month." %}</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+<div class="text-center py-12 bg-white rounded-lg border border-gray-200">
+    <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+    </svg>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">{% trans "Generate Payslip Report" %}</h3>
+    <p class="text-gray-500">{% trans "Click the Generate Payslip Report button to create detailed payslips with salary breakdown, overtime, bonuses, and deductions for employees." %}</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+#payslip-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+#payslip-table th,
+#payslip-table td {
+    padding: 2px;
+    text-align: center;
+    border: 1px solid hsl(var(--border));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#payslip-table thead th {
+    background-color: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.loading-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f4f6;
+    border-top: 4px solid #2563eb;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        font-size: 12px;
+    }
+    
+    .bg-gradient-to-r {
+        background: #2563eb !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact;
+    }
+    
+    th {
+        background: #f0f0f0 !important;
+        -webkit-print-color-adjust: exact;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Loading overlay
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.className = 'loading-overlay';
+    loadingOverlay.innerHTML = `
+        <div class="text-center">
+            <div class="loading-spinner"></div>
+            <div class="text-lg font-semibold text-gray-700">{% trans "Generating Payslip Report..." %}</div>
+            <div class="text-sm text-gray-500 mt-2">{% trans "Processing salary data with unified attendance rules" %}</div>
+        </div>
+    `;
+    document.body.appendChild(loadingOverlay);
+
+    // Toast notification
+    const toast = document.createElement('div');
+    toast.id = 'payslip-feedback';
+    toast.className = 'hidden fixed top-6 right-6 z-50 bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-xl';
+    toast.innerHTML = `
+        <div class="flex items-center space-x-3">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                <svg class="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div>
+                <p class="font-medium text-gray-900">{% trans "Success!" %}</p>
+                <p class="text-sm text-gray-600">{% trans "Action completed successfully!" %}</p>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+
+    // Print Payslip Report Function
+    function printPayslipReport() {
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Payslip Report - {{ month_info.month_name|default:"" }} {{ month_info.year|default:"" }}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 10px; font-size: 10px; }
+                    .header { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
+                    .header h1 { font-size: 18px; margin: 0; color: #2563eb; }
+                    .header p { margin: 2px 0; color: #666; font-size: 9px; }
+                    .config-section { margin-bottom: 15px; border: 1px solid #ddd; padding: 10px; }
+                    .config-section h3 { font-size: 12px; margin: 0 0 5px 0; color: #2563eb; }
+                    .config-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; font-size: 8px; }
+                    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+                    .stat-card { border: 1px solid #ddd; padding: 10px; text-align: center; }
+                    .stat-card h3 { font-size: 16px; margin: 5px 0; color: #2563eb; }
+                    .stat-card p { font-size: 8px; margin: 0; }
+                    table { width: 100%; border-collapse: collapse; font-size: 6px; margin-top: 10px; }
+                    th, td { border: 1px solid #000; padding: 1px; text-align: center; }
+                    thead th { 
+                        background-color: #dbeafe !important; 
+                        font-weight: bold;
+                        -webkit-print-color-adjust: exact;
+                        color-adjust: exact;
+                        font-size: 5px;
+                    }
+                    tbody td { font-size: 5px; }
+                    .high-earner { background-color: #dcfce7 !important; }
+                    .medium-earner { background-color: #dbeafe !important; }
+                    .standard-earner { background-color: #fef3c7 !important; }
+                    @page { margin: 0.3in; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>PAYSLIP REPORT</h1>
+                    <p>Generated on: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
+                    <p>Month: {{ month_info.month_name|default:"" }} {{ month_info.year|default:"" }}</p>
+                    <p>Total Employees: {{ overall_statistics.total_employees }} | Total Net Salary: {{ overall_statistics.total_net_salary|floatformat:0 }}</p>
+                </div>
+                
+                <div class="config-section">
+                    <h3>Applied Configuration</h3>
+                    <div class="config-grid">
+                        <div>Employee Filter: {{ form_data.employee_filter|default:"All" }}</div>
+                        <div>Salary Breakdown: {{ form_data.include_salary_breakdown|yesno:"Yes,No" }}</div>
+                        <div>Attendance Summary: {{ form_data.include_attendance_summary|yesno:"Yes,No" }}</div>
+                        <div>Overtime Details: {{ form_data.include_overtime_details|yesno:"Yes,No" }}</div>
+                        <div>Bonus Details: {{ form_data.include_bonus_details|yesno:"Yes,No" }}</div>
+                        <div>Year-to-Date: {{ form_data.show_year_to_date|yesno:"Yes,No" }}</div>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>{{ overall_statistics.total_employees }}</h3>
+                        <p>Total Employees</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>{{ overall_statistics.total_gross_salary|floatformat:0 }}</h3>
+                        <p>Total Gross Salary</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>{{ overall_statistics.total_net_salary|floatformat:0 }}</h3>
+                        <p>Total Net Salary</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>{{ overall_statistics.employees_with_overtime }}</h3>
+                        <p>With Overtime</p>
+                    </div>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>EMP ID</th>
+                            <th>EMPLOYEE NAME</th>
+                            <th>DEPARTMENT</th>
+                            <th>BASIC SALARY</th>
+                            <th>GROSS SALARY</th>
+                            <th>DEDUCTIONS</th>
+                            <th>NET SALARY</th>
+                            <th>WORKING DAYS</th>
+                            <th>PRESENT DAYS</th>
+                            <th>OVERTIME</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `);
+
+        // Add table rows
+        const rows = document.querySelectorAll('#payslip-table tbody tr.payslip-row');
+        rows.forEach(row => {
+            if (row.style.display !== 'none') {
+                const cells = row.querySelectorAll('td');
+                let rowHtml = '<tr>';
+                let netSalary = parseFloat(row.dataset.netSalary);
+                let className = '';
+                if (netSalary >= 100000) className = 'high-earner';
+                else if (netSalary >= 50000) className = 'medium-earner';
+                else className = 'standard-earner';
+                
+                cells.forEach((cell, index) => {
+                    if (index < 11) { // Only include main columns for print
+                        rowHtml += `<td class="${className}">${cell.textContent.trim()}</td>`;
+                    }
+                });
+                rowHtml += '</tr>';
+                printWindow.document.write(rowHtml);
+            }
+        });
+
+        printWindow.document.write(`
+                    </tbody>
+                </table>
+                <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px;">
+                    <p><strong>Report Summary:</strong> This report provides detailed payslips with salary breakdown, overtime, bonuses, and deductions.</p>
+                    <p><strong>Generated by:</strong> {{ user.get_full_name|default:user.username }} | <strong>System:</strong> HR Management System</p>
+                </div>
+            </body>
+            </html>
+        `);
+
+        printWindow.document.close();
+        printWindow.focus();
+        
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 250);
+    }
+
+    // Search functionality
+    document.getElementById('search-payslip')?.addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#payslip-table tbody tr.payslip-row');
+        rows.forEach(row => {
+            const employeeId = row.querySelector('td[data-column="employee_id"]')?.textContent.toLowerCase() || '';
+            const employeeName = row.querySelector('td[data-column="employee_name"]')?.textContent.toLowerCase() || '';
+            const department = row.querySelector('td[data-column="department"]')?.textContent.toLowerCase() || '';
+            if (employeeId.includes(searchTerm) || employeeName.includes(searchTerm) || department.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Department filter
+    document.getElementById('department-filter-payslip')?.addEventListener('change', function() {
+        const filterValue = this.value;
+        const rows = document.querySelectorAll('#payslip-table tbody tr.payslip-row');
+        rows.forEach(row => {
+            const department = row.dataset.department;
+            if (!filterValue || department === filterValue) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Salary range filter
+    document.getElementById('salary-range-filter')?.addEventListener('change', function() {
+        const filterValue = this.value;
+        const rows = document.querySelectorAll('#payslip-table tbody tr.payslip-row');
+        rows.forEach(row => {
+            const netSalary = parseFloat(row.dataset.netSalary);
+            let show = true;
+            
+            if (filterValue === 'high' && netSalary < 100000) show = false;
+            else if (filterValue === 'medium' && (netSalary < 50000 || netSalary >= 100000)) show = false;
+            else if (filterValue === 'low' && netSalary >= 50000) show = false;
+            
+            row.style.display = show ? '' : 'none';
+        });
+    });
+
+    // Overtime filter
+    document.getElementById('overtime-filter')?.addEventListener('change', function() {
+        const filterValue = this.value;
+        const rows = document.querySelectorAll('#payslip-table tbody tr.payslip-row');
+        rows.forEach(row => {
+            const hasOvertime = row.dataset.hasOvertime === 'true';
+            let show = true;
+            
+            if (filterValue === 'with-overtime' && !hasOvertime) show = false;
+            else if (filterValue === 'no-overtime' && hasOvertime) show = false;
+            
+            row.style.display = show ? '' : 'none';
+        });
+    });
+
+    // CSV Export
+    document.getElementById('export-payslip-csv')?.addEventListener('click', function() {
+        const table = document.getElementById('payslip-table');
+        const rows = table.querySelectorAll('tbody tr.payslip-row');
+        const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+        
+        let csvContent = [];
+        csvContent.push(headers.map(header => `"${header.replace(/"/g, '""')}"`).join(','));
+        
+        rows.forEach(row => {
+            if (row.style.display !== 'none') {
+                const cells = Array.from(row.querySelectorAll('td'));
+                const rowData = cells.map(cell => `"${cell.textContent.trim().replace(/"/g, '""')}"`);
+                csvContent.push(rowData.join(','));
+            }
+        });
+        
+        const csv = csvContent.join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'payslip_report_{{ month_info.month_name|default:"" }}_{{ month_info.year|default:"" }}.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+        
+        // Show success toast
+        document.getElementById('payslip-feedback').classList.remove('hidden');
+        setTimeout(() => document.getElementById('payslip-feedback').classList.add('hidden'), 3000);
+    });
+
+    // Copy to Clipboard
+    document.getElementById('copy-payslip-data')?.addEventListener('click', function() {
+        const table = document.getElementById('payslip-table');
+        const rows = table.querySelectorAll('tbody tr.payslip-row');
+        const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+        
+        let textContent = headers.join('\t') + '\n';
+        
+        rows.forEach(row => {
+            if (row.style.display !== 'none') {
+                const cells = Array.from(row.querySelectorAll('td'));
+                const rowData = cells.map(cell => cell.textContent.trim());
+                textContent += rowData.join('\t') + '\n';
+            }
+        });
+        
+        navigator.clipboard.writeText(textContent).then(() => {
+            // Show success toast
+            document.getElementById('payslip-feedback').classList.remove('hidden');
+            setTimeout(() => document.getElementById('payslip-feedback').classList.add('hidden'), 3000);
+        });
+    });
+
+    // Modal creation function
+    function createModal(id, title, content, size = 'large') {
+        const modal = document.createElement('div');
+        modal.id = id;
+        modal.className = 'hidden fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 backdrop-blur-sm';
+        modal.innerHTML = `
+            <div class="bg-white mx-auto mt-10 p-0 border border-gray-200 rounded-xl w-11/12 ${size === 'large' ? 'max-w-5xl' : 'max-w-lg'} shadow-2xl relative animate-in slide-in-from-bottom-4 duration-300">
+                <div class="bg-white px-6 pt-6 pb-0 border-b border-gray-200 rounded-t-xl relative">
+                    <h2 class="text-lg font-semibold text-gray-900">${title}</h2>
+                    <button class="absolute right-4 top-4 bg-gray-100 hover:bg-gray-200 border-0 rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200 text-gray-600 hover:text-gray-800 hover:scale-105 z-10" data-close-modal="${id}">×</button>
+                </div>
+                <div class="bg-white px-6 py-6 max-h-[70vh] overflow-y-auto rounded-b-xl">
+                    ${content}
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        return modal;
+    }
+
+    const payslipModal = createModal('payslip-modal', '{% trans "Generate Payslip Report" %}', `
+        <form id="payslip-form" method="post" class="space-y-5">
+            {% csrf_token %}
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-blue-600 mr-2" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="text-sm text-blue-800">
+                        <strong>{% trans "Payslip Generation:" %}</strong> {% trans "Generate detailed payslips with salary breakdown, overtime, bonuses, and deductions using unified attendance processing." %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Year" %}</label>
+                    <input type="number" name="year" min="2020" max="2030" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200" required>
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Month" %}</label>
+                    <select name="month" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 cursor-pointer" required>
+                        <option value="1">{% trans "January" %}</option>
+                        <option value="2">{% trans "February" %}</option>
+                        <option value="3">{% trans "March" %}</option>
+                        <option value="4">{% trans "April" %}</option>
+                        <option value="5">{% trans "May" %}</option>
+                        <option value="6">{% trans "June" %}</option>
+                        <option value="7">{% trans "July" %}</option>
+                        <option value="8">{% trans "August" %}</option>
+                        <option value="9">{% trans "September" %}</option>
+                        <option value="10">{% trans "October" %}</option>
+                        <option value="11">{% trans "November" %}</option>
+                        <option value="12">{% trans "December" %}</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Employee Filter" %}</label>
+                <select name="employee_filter" id="employee_filter_payslip" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 cursor-pointer">
+                    <option value="all">{% trans "All Active Employees" %}</option>
+                    <option value="department">{% trans "By Department" %}</option>
+                    <option value="designation">{% trans "By Designation" %}</option>
+                    <option value="specific">{% trans "Specific Employees" %}</option>
+                </select>
+            </div>
+            
+            <div id="department_filter_payslip" class="hidden">
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Departments" %}</label>
+                <select name="departments" multiple class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700" size="5">
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}">{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div id="designation_filter_payslip" class="hidden">
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Designations" %}</label>
+                <select name="designations" multiple class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700" size="5">
+                    {% for desig in designations %}
+                    <option value="{{ desig.id }}">{{ desig.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div id="employee_filter_specific_payslip" class="hidden">
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Employee IDs" %}</label>
+                <input type="text" name="employee_ids" placeholder="{% trans 'Enter employee IDs separated by commas' %}" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+            </div>
+            
+            <div class="border-t pt-4">
+                <h4 class="text-sm font-medium text-gray-900 mb-3">{% trans "Payslip Options" %}</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_salary_breakdown" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Include Salary Breakdown" %}</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_attendance_summary" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Include Attendance Summary" %}</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_overtime_details" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Include Overtime Details" %}</span>
+                        </label>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_bonus_details" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Include Bonus Details" %}</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="include_advance_deductions" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Include Advance Deductions" %}</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="show_year_to_date" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">{% trans "Show Year-to-Date Totals" %}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 pt-4">
+                <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 h-9 px-4 py-2 shadow-md transition-all duration-200">
+                    {% trans "Generate Payslip Report" %}
+                </button>
+                <button type="button" data-close-modal="payslip-modal" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 h-9 px-4 py-2 shadow-sm transition-all duration-200">
+                    {% trans "Cancel" %}
+                </button>
+            </div>
+        </form>
+    `);
+
+    // Employee filter change handler for payslip modal
+    document.addEventListener('change', function(e) {
+        if (e.target.id === 'employee_filter_payslip') {
+            const value = e.target.value;
+            const departmentFilter = document.getElementById('department_filter_payslip');
+            const designationFilter = document.getElementById('designation_filter_payslip');
+            const employeeFilterSpecific = document.getElementById('employee_filter_specific_payslip');
+            
+            departmentFilter.classList.add('hidden');
+            designationFilter.classList.add('hidden');
+            employeeFilterSpecific.classList.add('hidden');
+            
+            if (value === 'department') {
+                departmentFilter.classList.remove('hidden');
+            } else if (value === 'designation') {
+                designationFilter.classList.remove('hidden');
+            } else if (value === 'specific') {
+                employeeFilterSpecific.classList.remove('hidden');
+            }
+        }
+    });
+
+    // Modal close handlers
+    document.addEventListener('click', function(e) {
+        if (e.target.dataset.closeModal) {
+            document.getElementById(e.target.dataset.closeModal).classList.add('hidden');
+        }
+        if (e.target.classList.contains('bg-black')) {
+            e.target.classList.add('hidden');
+        }
+    });
+
+    // Event listeners
+    document.getElementById('generate-payslip-btn').addEventListener('click', function() {
+        payslipModal.classList.remove('hidden');
+        
+        // Set default year and month
+        const now = new Date();
+        const yearInput = document.querySelector('#payslip-modal input[name="year"]');
+        const monthSelect = document.querySelector('#payslip-modal select[name="month"]');
+        
+        if (!yearInput.value) {
+            yearInput.value = now.getFullYear();
+        }
+        if (!monthSelect.value) {
+            monthSelect.value = now.getMonth() + 1;
+        }
+    });
+
+    document.getElementById('print-payslip-btn')?.addEventListener('click', printPayslipReport);
+
+    // Form submission
+    document.getElementById('payslip-form').addEventListener('submit', function(e) {
+        payslipModal.classList.add('hidden');
+        loadingOverlay.classList.add('active');
+        
+        // Remove loading overlay after form submission
+        setTimeout(() => {
+            loadingOverlay.classList.remove('active');
+        }, 2000);
+    });
+});
+</script>
+{% endblock %}

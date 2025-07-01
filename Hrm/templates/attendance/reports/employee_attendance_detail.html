@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block extra_css %}
+{# Removed @media print CSS as print.js handles print styling for the selected area #}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="bg-white dark:bg-gray-900 rounded-xl border-2 border-gray-200 dark:border-gray-700 shadow-lg p-4 sm:p-8 mb-6">
+        <div class="mb-6 sm:mb-8 border-b border-gray-200 dark:border-gray-700 pb-4 sm:pb-6">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <div class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-blue-600 text-white shadow-md">
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 11H15M9 15H15M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H12.5858C12.851 3 13.1054 3.10536 13.2929 3.29289L19.7071 9.70711C19.8946 9.89464 20 10.149 20 10.4142V19C20 20.1046 19.1046 21 18 21H17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Employee Attendance Details</h1>
+                        <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Details for {{ employee.get_full_name }} ({{ employee.employee_id }})</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button id="filter-btn" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 px-6 py-3 shadow-md">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 4H21M3 12H21M3 20H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Filters
+                    </button>
+                    <button id="print-area-btn" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gray-600 text-white hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 px-6 py-3 shadow-md">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 9V2H18V9M6 18H4A2 2 0 0 1 2 16V11A2 2 0 0 1 4 9H20A2 2 0 0 1 22 11V16A2 2 0 0 1 20 18H18M6 14H18V22H6V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Print Table
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-4 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Employee Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700 dark:text-gray-300">
+                <div><strong>Employee Name:</strong> {{ employee.get_full_name }}</div>
+                <div><strong>Employee ID:</strong> {{ employee.employee_id }}</div>
+                <div><strong>Department:</strong> {{ employee.department.name|default:"N/A" }}</div>
+                <div><strong>Designation:</strong> {{ employee.designation.name|default:"N/A" }}</div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700" id="employee-attendance-table">
+            <div class="overflow-x-auto overflow-y-auto max-h-[70vh]">
+                <table class="w-full border-collapse min-w-max">
+                    <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
+                        <tr>
+                            <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">DATE</th>
+                            <!-- <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">SHIFT</th> -->
+                            <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">CHECK-IN</th>
+                            <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">CHECK-OUT</th>
+                            <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">DURATION</th>
+                            <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600">STATUS</th>
+                            <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">LATE (mins)</th>
+                            <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">EARLY OUT (mins)</th>
+                            <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">OVERTIME (hours)</th>
+                            <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">REMARKS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in attendance_records %}
+                        <tr class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600 font-medium text-gray-900 dark:text-gray-100">{{ record.date|date:"M d, Y" }}</td>
+                            <!-- <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">{{ record.roster_day.shift.name|default:"N/A" }}</td> -->
+                            <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">{{ record.check_in|date:"h:i A"|default:"--" }}</td>
+                            <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">{{ record.check_out|date:"h:i A"|default:"--" }}</td>
+                            <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">{{ record.working_duration|default:"0h 0m" }}</td>
+                            <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600">
+                                {% if record.status == 'PRE' %}
+                                    <span class="font-bold text-green-600 dark:text-green-400">Present</span>
+                                {% elif record.status == 'ABS' %}
+                                    <span class="font-bold text-red-600 dark:text-red-400">Absent</span>
+                                {% elif record.status == 'LAT' %}
+                                    <span class="font-bold text-yellow-600 dark:text-yellow-400">Late</span>
+                                {% elif record.status == 'LEA' %}
+                                    <span class="font-bold text-indigo-600 dark:text-indigo-400">Leave</span>
+                                {% elif record.status == 'HOL' %}
+                                    <span class="font-bold text-blue-600 dark:text-blue-400">Holiday</span>
+                                {% else %}
+                                    <span class="text-gray-500">{{ record.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">{{ record.late_minutes|default:"0" }}</td>
+                            <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">{{ record.early_out_minutes|default:"0" }}</td>
+                            <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">{{ record.overtime_hours|default:"0" }}h</td>
+                            <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">{{ record.remarks|default:"--" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10" class="px-4 py-8 text-center text-sm border border-gray-200 dark:border-gray-600">
+                                <div class="flex flex-col items-center justify-center space-y-4">
+                                    <div class="rounded-full bg-gray-100 dark:bg-gray-700 p-4">
+                                        <svg class="h-8 w-8 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none">
+                                            <path d="M9 11H15M9 15H15M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H12.5858C12.851 3 13.1054 3.10536 13.2929 3.29289L19.7071 9.70711C19.8946 9.89464 20 10.149 20 10.4142V19C20 20.1046 19.1046 21 18 21H17Z" stroke="currentColor" stroke-width="2"/>
+                                        </svg>
+                                    </div>
+                                    <div class="text-center">
+                                        <h3 class="text-base font-medium text-gray-900 dark:text-gray-100">No Attendance Records Found</h3>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">No detailed attendance data available for this employee within the selected period.</p>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-4 mt-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Period Summary</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700 dark:text-gray-300">
+                <div><strong>Total Present Days:</strong> {{ period_summary.present_days|default:"0" }}</div>
+                <div><strong>Total Absent Days:</strong> {{ period_summary.absent_days|default:"0" }}</div>
+                <div><strong>Total Late Days:</strong> {{ period_summary.late_days|default:"0" }}</div>
+                <div><strong>Total Working Hours:</strong> {{ period_summary.total_working_hours|default:"0h 0m" }}</div>
+                <div><strong>Total Overtime Hours:</strong> {{ period_summary.total_overtime_hours|default:"0h 0m" }}</div>
+                <div><strong>Attendance Percentage:</strong> <span class="font-bold {% if period_summary.attendance_percentage >= 90 %}text-green-600 dark:text-green-400{% elif period_summary.attendance_percentage >= 75 %}text-yellow-600 dark:text-yellow-400{% else %}text-red-600 dark:text-red-400{% endif %}">{{ period_summary.attendance_percentage|default:"0.00" }}%</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="filter-modal" class="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 backdrop-blur-sm hidden">
+    <div class="bg-white dark:bg-gray-900 mx-auto mt-5 p-6 border border-gray-200 dark:border-gray-700 rounded-xl w-11/12 max-w-4xl shadow-2xl relative">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Filter Attendance Details</h2>
+            <button type="button" class="modal-close-btn bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 border-0 rounded-lg w-8 h-8 flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <form method="get" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    {{ filter_form.date_from.label_tag }}
+                    {{ filter_form.date_from }}
+                </div>
+                <div>
+                    {{ filter_form.date_to.label_tag }}
+                    {{ filter_form.date_to }}
+                </div>
+                {# The employee filter might not be needed if this page is specific to one employee #}
+                {# <div>
+                    {{ filter_form.employee.label_tag }}
+                    {{ filter_form.employee }}
+                </div> #}
+                <div>
+                    {{ filter_form.status.label_tag }}
+                    {{ filter_form.status }}
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 h-12 px-8 py-3 shadow-lg transition-all duration-200">
+                    Apply Filters
+                </button>
+                <a href="{{ request.path }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gray-600 text-white hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 h-12 px-8 py-3 shadow-sm transition-all duration-200">
+                    Clear Filters
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{# Include Print.js library from CDN #}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/print-js/1.6.0/print.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterBtn = document.getElementById('filter-btn');
+        const filterModal = document.getElementById('filter-modal');
+        const printAreaBtn = document.getElementById('print-area-btn'); // New print button ID
+
+        // Filter modal
+        if (filterBtn && filterModal) {
+            filterBtn.addEventListener('click', function() {
+                filterModal.classList.remove('hidden');
+            });
+        }
+
+        // Close modal
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal-close-btn') || e.target.closest('.modal-close-btn')) {
+                filterModal.classList.add('hidden');
+            }
+            if (e.target === filterModal) {
+                filterModal.classList.add('hidden');
+            }
+        });
+
+        // Print functionality using Print.js
+        if (printAreaBtn) {
+            printAreaBtn.addEventListener('click', function() {
+                printJS({
+                    printable: 'employee-attendance-table', // ID of the HTML element to print
+                    type: 'html',
+                    header: '<h1>Employee Attendance Details</h1><p>For {{ employee.get_full_name }}</p>', // Optional header for the printout
+                    css: 'https://cdnjs.cloudflare.com/ajax/libs/print-js/1.6.0/print.min.css', // Optional: link to print.js CSS from CDN
+                    style: `
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 10px; }
+                        th { background-color: #f0f0f0; font-weight: bold; }
+                        .text-green-600 { color: #22c55e; } /* Tailwind green-600 */
+                        .text-red-600 { color: #ef4444; }   /* Tailwind red-600 */
+                        .text-yellow-600 { color: #eab308; } /* Tailwind yellow-600 */
+                        .text-indigo-600 { color: #4f46e5; } /* Tailwind indigo-600 */
+                        .text-blue-600 { color: #3b82f6; }   /* Tailwind blue-600 */
+                        /* Add more styles as needed for print */
+                    `
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

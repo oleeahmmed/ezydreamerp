@@ -1,0 +1,390 @@
+<!-- Tab navigation -->
+<div class="tab-container">
+    <div class="tab-list">
+        <div class="tab-item active" data-tab="tab-summary">Summary</div>
+        <div class="tab-item" data-tab="tab-sales">Today's Sales</div>
+        <div class="tab-item" data-tab="tab-deliveries">Today's Deliveries</div>
+        <div class="tab-item" data-tab="tab-returns">Today's Returns</div>
+        <div class="tab-item" data-tab="tab-invoices">Today's Invoices</div>
+        <div class="tab-item" data-tab="tab-performance">Performance</div>
+    </div>
+</div>
+
+<!-- Tab content -->
+<div id="tab-summary" class="tab-content active">
+    <!-- Metrics Cards -->
+    <div class="metrics-grid">
+        <!-- Today's Sales -->
+        <div class="metric-card">
+            <div class="metric-label">TODAY'S SALES</div>
+            <div class="metric-value">{{ today_sales.total|floatformat:2 }}</div>
+            <div class="metric-subvalue">{{ today_sales.count }} orders</div>
+
+        </div>
+
+        <!-- Today's Deliveries -->
+        <div class="metric-card">
+            <div class="metric-label">TODAY'S DELIVERIES</div>
+            <div class="metric-value">{{ today_deliveries.count }}</div>
+            <div class="metric-subvalue">{{ today_deliveries.total|floatformat:2 }}</div>
+
+        </div>
+
+        <!-- Today's Invoices -->
+        <div class="metric-card">
+            <div class="metric-label">TODAY'S INVOICES</div>
+            <div class="metric-value">{{ today_invoices.count }}</div>
+            <div class="metric-subvalue">{{ today_invoices.total|floatformat:2 }}</div>
+
+        </div>
+
+        <!-- Today's Returns -->
+        <div class="metric-card">
+            <div class="metric-label">TODAY'S RETURNS</div>
+            <div class="metric-value">{{ today_returns.count }}</div>
+            <div class="metric-subvalue">{{ today_returns.total|floatformat:2 }}</div>
+
+        </div>
+
+        <!-- Today's Quotations -->
+        <div class="metric-card">
+            <div class="metric-label">TODAY'S QUOTATIONS</div>
+            <div class="metric-value">{{ today_quotations.count }}</div>
+            <div class="metric-subvalue">{{ today_quotations.total|floatformat:2 }}</div>
+
+        </div>
+
+        <!-- New Orders -->
+        <div class="metric-card">
+            <div class="metric-label">NEW ORDERS TODAY</div>
+            <div class="metric-value">{{ new_orders.count }}</div>
+            <div class="metric-subvalue">{{ new_orders.total|floatformat:2 }}</div>
+
+        </div>
+    </div>
+
+    <!-- Top Products and Top Customers -->
+    <div class="table-grid">
+        <!-- Top Products -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3 class="table-title">Top Products (Today)</h3>
+                <p class="table-subtitle">Best selling products by revenue</p>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>PRODUCT</th>
+                            <th class="text-right">QUANTITY</th>
+                            <th class="text-right">SALES</th>
+                            <th class="text-right">AVG. PRICE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in top_products_daily %}
+                        <tr>
+                            <td class="font-medium">{{ product.item_name }}</td>
+                            <td class="text-right">{{ product.total_quantity|floatformat:2 }}</td>
+                            <td class="text-right">{{ product.total_sales|floatformat:2 }}</td>
+                            <td class="text-right">{{ product.avg_price|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="empty-state">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Top Customers -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3 class="table-title">Top Customers (Today)</h3>
+                <p class="table-subtitle">Customers with highest purchase value</p>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>CUSTOMER</th>
+                            <th class="text-right">INVOICES</th>
+                            <th class="text-right">ORDERS</th>
+                            <th class="text-right">TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for customer in top_customers_daily %}
+                        <tr>
+                            <td class="font-medium">{{ customer.customer_name }}</td>
+                            <td class="text-right">{{ customer.invoice_count }}</td>
+                            <td class="text-right">{{ customer.order_count }}</td>
+                            <td class="text-right">{{ customer.total_sales|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="empty-state">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sales Tab -->
+<div id="tab-sales" class="tab-content">
+    <div class="table-card">
+        <div class="table-header">
+            <h3 class="table-title">Today's Sales Orders</h3>
+            <p class="table-subtitle">All orders placed today</p>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ORDER #</th>
+                        <th>CUSTOMER</th>
+                        <th>SALES EMPLOYEE</th>
+                        <th class="text-right">AMOUNT</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in todays_orders %}
+                    <tr>
+                        <td class="font-medium">{{ order.id }}</td>
+                        <td>{{ order.customer.name }}</td>
+                        <td>{{ order.sales_employee.name|default:"Not Assigned" }}</td>
+                        <td class="text-right">{{ order.total_amount|floatformat:2 }}</td>
+                        <td>
+                            <span class="badge {% if order.status == 'Delivered' %}badge-success
+                                {% elif order.status == 'Partially Delivered' %}badge-warning
+                                {% elif order.status == 'Cancelled' %}badge-danger
+                                {% else %}badge-info{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty-state">No orders today</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Deliveries Tab -->
+<div id="tab-deliveries" class="tab-content">
+    <div class="table-card">
+        <div class="table-header">
+            <h3 class="table-title">Today's Deliveries</h3>
+            <p class="table-subtitle">All deliveries made today</p>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>DELIVERY #</th>
+                        <th>CUSTOMER</th>
+                        <th>DELIVERY EMPLOYEE</th>
+                        <th class="text-right">AMOUNT</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for delivery in todays_deliveries %}
+                    <tr>
+                        <td class="font-medium">{{ delivery.id }}</td>
+                        <td>{{ delivery.customer.name }}</td>
+                        <td>{{ delivery.deliveryemployee|default:"Not Assigned" }}</td>
+                        <td class="text-right">{{ delivery.total_amount|floatformat:2 }}</td>
+                        <td>
+                            <span class="badge {% if delivery.status == 'Delivered' %}badge-success
+                                {% elif delivery.status == 'Partially Delivered' %}badge-warning
+                                {% elif delivery.status == 'Cancelled' %}badge-danger
+                                {% else %}badge-info{% endif %}">
+                                {{ delivery.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty-state">No deliveries today</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Returns Tab -->
+<div id="tab-returns" class="tab-content">
+    <div class="table-card">
+        <div class="table-header">
+            <h3 class="table-title">Today's Returns</h3>
+            <p class="table-subtitle">All returns processed today</p>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>RETURN #</th>
+                        <th>CUSTOMER</th>
+                        <th>SALES EMPLOYEE</th>
+                        <th class="text-right">AMOUNT</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for return in todays_returns %}
+                    <tr>
+                        <td class="font-medium">{{ return.id }}</td>
+                        <td>{{ return.customer.name }}</td>
+                        <td>{{ return.sales_employee.name|default:"Not Assigned" }}</td>
+                        <td class="text-right">{{ return.total_amount|floatformat:2 }}</td>
+                        <td>
+                            <span class="badge {% if return.status == 'Returned' %}badge-success
+                                {% elif return.status == 'Partially Returned' %}badge-warning
+                                {% elif return.status == 'Cancelled' %}badge-danger
+                                {% else %}badge-info{% endif %}">
+                                {{ return.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty-state">No returns today</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Invoices Tab -->
+<div id="tab-invoices" class="tab-content">
+    <div class="table-card">
+        <div class="table-header">
+            <h3 class="table-title">Today's Invoices</h3>
+            <p class="table-subtitle">All invoices generated today</p>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>INVOICE #</th>
+                        <th>CUSTOMER</th>
+                        <th>SALES EMPLOYEE</th>
+                        <th class="text-right">AMOUNT</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in todays_invoices %}
+                    <tr>
+                        <td class="font-medium">{{ invoice.id }}</td>
+                        <td>{{ invoice.customer.name }}</td>
+                        <td>{{ invoice.sales_employee.name|default:"Not Assigned" }}</td>
+                        <td class="text-right">{{ invoice.total_amount|floatformat:2 }}</td>
+                        <td>
+                            <span class="badge {% if invoice.status == 'Paid' %}badge-success
+                                {% elif invoice.status == 'Partially Paid' %}badge-warning
+                                {% elif invoice.status == 'Cancelled' %}badge-danger
+                                {% elif invoice.status == 'Overdue' %}badge-danger
+                                {% else %}badge-info{% endif %}">
+                                {{ invoice.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty-state">No invoices today</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Tab -->
+<div id="tab-performance" class="tab-content">
+    <div class="table-grid">
+        <!-- Sales Employee Orders -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3 class="table-title">Sales Employee Performance (Today)</h3>
+                <p class="table-subtitle">All orders by sales employee</p>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>EMPLOYEE</th>
+                            <th class="text-right">ORDERS</th>
+                            <th class="text-right">AMOUNT</th>
+                            <th class="text-right">AVG. ORDER</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in sales_employee_orders %}
+                        <tr>
+                            <td class="font-medium">{{ employee.employee_name }}</td>
+                            <td class="text-right">{{ employee.order_count }}</td>
+                            <td class="text-right">{{ employee.total_amount|floatformat:2 }}</td>
+                            <td class="text-right">{{ employee.avg_order|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="empty-state">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Delivery Employee Deliveries -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3 class="table-title">Delivery Employee Performance (Today)</h3>
+                <p class="table-subtitle">Deliveries by delivery employee</p>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>EMPLOYEE</th>
+                            <th class="text-right">DELIVERIES</th>
+                            <th class="text-right">AMOUNT</th>
+                            <th class="text-right">AVG. DELIVERY</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in delivery_employee_deliveries %}
+                        <tr>
+                            <td class="font-medium">{{ employee.delivery_employee_name }}</td>
+                            <td class="text-right">{{ employee.delivery_count }}</td>
+                            <td class="text-right">{{ employee.total_amount|floatformat:2 }}</td>
+                            <td class="text-right">{{ employee.avg_delivery|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="empty-state">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,521 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    HRM Reports
+{% endblock %}
+
+{% block page_title %}
+    HRM Reports
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .card-container {
+            display: none;
+        }
+        .card-container.visible {
+            display: block;
+        }
+        .gradient-header {
+            background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.7) 100%);
+        }
+        /* Single Card Design - Double Border */
+        .card-design {
+            background: hsl(var(--card));
+            border: 2px solid hsl(var(--border));
+            border-radius: var(--radius);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            height: 280px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card-design::after {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border: 1px solid hsl(var(--primary) / 0.2);
+            border-radius: calc(var(--radius) - 4px);
+            transition: all 0.3s ease;
+        }
+        
+        .card-design:hover {
+            transform: translateY(-4px);
+            border-color: hsl(var(--primary) / 0.3);
+            box-shadow: 0 10px 25px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
+        }
+        
+        .card-design:hover::after {
+            border-color: hsl(var(--primary) / 0.4);
+        }
+        
+        /* Card content positioning */
+        .card-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+        }
+        
+        /* Enhanced report button */
+        .report-button {
+            background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%);
+            color: hsl(var(--primary-foreground));
+            border-radius: var(--radius);
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .report-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -2px rgb(0 0 0 / 0.15);
+            background: linear-gradient(135deg, hsl(var(--primary)/0.9) 0%, hsl(var(--primary)/0.7) 100%);
+        }
+        
+        /* Enhanced search and filters */
+        .search-input {
+            background-color: hsl(var(--background));
+            border: 1px solid hsl(var(--border));
+            color: hsl(var(--foreground));
+            border-radius: var(--radius);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(8px);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: hsl(var(--primary));
+            box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+        }
+        
+        .filter-button {
+            background-color: transparent;
+            color: hsl(var(--foreground));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .filter-button:hover {
+            background-color: hsl(var(--accent));
+            color: hsl(var(--accent-foreground));
+            border-color: hsl(var(--primary)/0.3);
+            transform: translateY(-1px);
+        }
+        
+        .filter-button.active {
+            background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)/0.8));
+            color: hsl(var(--primary-foreground));
+            border-color: hsl(var(--primary));
+        }
+        
+        /* Enhanced animations */
+        .fade-in {
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+        
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px) scale(0.95);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+        .stagger-5 { animation-delay: 0.5s; }
+        .stagger-6 { animation-delay: 0.6s; }
+        
+        /* Enhanced header */
+        .gradient-text {
+            background: linear-gradient(135deg, hsl(var(--foreground)), hsl(var(--foreground)/0.7));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Enhanced search container */
+        .search-container {
+            background: linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted)/0.3));
+            border: 1px solid hsl(var(--border));
+            border-radius: calc(var(--radius) + 4px);
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+        }
+        
+        /* Enhanced grid */
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        @media (min-width: 768px) {
+            .reports-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .reports-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (min-width: 1280px) {
+            .reports-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        /* Main container background */
+        .main-container {
+            background-image: 
+                radial-gradient(circle at 25% 25%, hsl(var(--primary)/0.03) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, hsl(var(--primary)/0.03) 0%, transparent 50%);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-[hsl(var(--background))] main-container">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <header class="gradient-header text-white py-6 px-4 shadow-lg">
+            <div class="container mx-auto text-center">
+                <h1 class="text-3xl font-bold">HRM Reports</h1>
+                <p class="text-sm opacity-85 mt-1">Comprehensive analytics and reporting tools for human resource management</p>
+            </div>
+        </header>
+
+        <!-- Enhanced Search Container -->
+        <div class="mb-12 fade-in stagger-1">
+            <div class="search-container max-w-4xl mx-auto">
+                <div class="relative mb-6">
+                    <svg class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        class="search-input h-11 w-full pl-10 pr-4 bg-white/90 border border-[hsl(var(--border))] rounded-full focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] shadow-sm text-[hsl(var(--foreground))] placeholder-[hsl(var(--muted-foreground))] text-sm" 
+                        placeholder="Search reports and analytics..."
+                    >
+                </div>
+                
+                <!-- Enhanced Filter Buttons -->
+                <div class="flex flex-wrap gap-3 justify-center">
+                    <span class="text-sm text-[hsl(var(--muted-foreground))] font-medium self-center">Quick filters:</span>
+                    <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="">
+                        <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        All Reports
+                    </button>
+                    <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="Attendance">
+                        <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Attendance
+                    </button>
+                    <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="Payroll">
+                        <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Payroll
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Cards Grid -->
+        <div class="reports-grid">
+                        <!-- Card 6: Daily Attendance Report -->
+            <div class="card-container visible fade-in stagger-6" data-heading="Daily Attendance Report" data-category="Attendance">
+                <a href="{% url 'hrm:attendance-daily' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Daily Attendance Report</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Daily attendance overview for all employees.
+                            </p>
+                            <span class="report-button mt-auto">
+                                View Report
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card 1: Detailed Attendance Report -->
+            <div class="card-container visible fade-in stagger-1" data-heading="Detailed Attendance Report" data-category="Attendance">
+                <a href="{% url 'hrm:attendance-detailed' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Employee Detailed Attendance Report</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Detailed attendance records for all employees.
+                            </p>
+                            <span class="report-button mt-auto">
+                                View Report
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+        
+
+
+
+            <!-- Card 3: Attendance Summary Report -->
+            <div class="card-container visible fade-in stagger-3" data-heading="Attendance Summary Report" data-category="Attendance">
+                <a href="{% url 'hrm:attendance-summary' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Attendance Summary Report</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Summary of attendance data across employees.
+                            </p>
+                            <span class="report-button mt-auto">
+                                View Report
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card 4: Missing Punch Report -->
+            <div class="card-container visible fade-in stagger-4" data-heading="Missing Punch Report" data-category="Attendance">
+                <a href="{% url 'hrm:attendance-missing-punch' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Missing Punch Report</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Identify missing punch records for employees.
+                            </p>
+                            <span class="report-button mt-auto">
+                                View Report
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card 5: Late Coming Report -->
+            <div class="card-container visible fade-in stagger-5" data-heading="Late Coming Report" data-category="Attendance">
+                <a href="{% url 'hrm:attendance-late-coming' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Late Coming Report</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Track employees arriving late to work.
+                            </p>
+                            <span class="report-button mt-auto">
+                                View Report
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+
+            <!-- Card 7: Early Leaving Report -->
+            <div class="card-container visible fade-in stagger-1" data-heading="Early Leaving Report" data-category="Attendance">
+                <a href="{% url 'hrm:attendance-early-leaving' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Early Leaving Report</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Track employees leaving work early.
+                            </p>
+                            <span class="report-button mt-auto">
+                                View Report
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+
+           
+
+            <!-- Card 11: Payslip Report -->
+            <div class="card-container visible fade-in stagger-5" data-heading="Payslip Report" data-category="Payroll">
+                <a href="{% url 'hrm:payroll-payslip' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Payslip Report</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Generate payslips for employees with salary details.
+                            </p>
+                            <span class="report-button mt-auto">
+                                View Report
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card 12: Payroll Summary Report -->
+            <div class="card-container visible fade-in stagger-6" data-heading="Payroll Summary Report" data-category="Payroll">
+                <a href="{% url 'hrm:payroll-summary' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Payroll Summary Report</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Summary of payroll data across employees.
+                            </p>
+                            <span class="report-button mt-auto">
+                                View Report
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Enhanced No Results State -->
+        <div id="noResults" class="text-center py-16 hidden">
+            <div class="max-w-md mx-auto p-8 rounded-2xl border-2 dashed border-[hsl(var(--border))] bg-gradient-to-br from-[hsl(var(--muted)/0.3)] to-[hsl(var(--muted)/0.1)]">
+                <div class="h-16 w-16 rounded-2xl bg-[hsl(var(--muted))] mx-auto mb-6 flex items-center justify-center">
+                    <svg class="h-8 w-8 text-[hsl(var(--muted-foreground))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="font-bold text-xl mb-3 text-[hsl(var(--foreground))]">No reports found</h3>
+                <p class="text-[hsl(var(--muted-foreground))] leading-relaxed">
+                    We couldn't find any reports matching your search. Try adjusting your search terms or browse all available reports.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Enhanced search functionality with category filtering
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        filterCards(searchTerm, '');
+    });
+
+    // Enhanced filter functionality
+    document.querySelectorAll('.filter-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const filterCategory = this.getAttribute('data-filter');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            // Remove active state from all buttons
+            document.querySelectorAll('.filter-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active state to clicked button
+            this.classList.add('active');
+            
+            filterCards(searchTerm, filterCategory);
+        });
+    });
+
+    function filterCards(searchTerm, category) {
+        const cards = document.querySelectorAll('.card-container');
+        const noResults = document.getElementById('noResults');
+        let visibleCount = 0;
+        
+        cards.forEach((card, index) => {
+            const heading = card.getAttribute('data-heading').toLowerCase();
+            const cardCategory = card.getAttribute('data-category') || '';
+            
+            const matchesSearch = heading.includes(searchTerm);
+            const matchesCategory = category === '' || cardCategory === category;
+            
+            if (matchesSearch && matchesCategory) {
+                card.classList.add('visible');
+                // Re-apply stagger animation
+                card.style.animationDelay = `${(visibleCount % 6) * 0.1}s`;
+                visibleCount++;
+            } else {
+                card.classList.remove('visible');
+            }
+        });
+        
+        // Show/hide no results with animation
+        if (visibleCount === 0) {
+            noResults.classList.remove('hidden');
+            noResults.style.animation = 'fadeInUp 0.5s ease-out';
+        } else {
+            noResults.classList.add('hidden');
+        }
+    }
+
+    // Add intersection observer for scroll animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Observe all cards for scroll animations
+    document.querySelectorAll('.card-container').forEach(card => {
+        observer.observe(card);
+    });
+
+    // Initialize with "All Reports" filter active
+    document.querySelector('.filter-button[data-filter=""]').classList.add('active');
+</script>
+{% endblock %}

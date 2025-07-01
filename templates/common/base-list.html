@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="rounded-xl border bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] shadow-lg mb-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+    <!-- Card Header -->
+    <div class="p-6 border-b border-[hsl(var(--border))] bg-gradient-to-r from-[hsl(var(--background))] to-[hsl(var(--muted))]">
+        {% block card_header %}{% endblock %}
+    </div>
+
+    <!-- List Container -->
+    <div class="p-0">
+        <!-- List Header -->
+        <div class="grid grid-cols-12 gap-4 p-4 text-sm font-medium text-[hsl(var(--muted-foreground))] border-b border-[hsl(var(--border))] bg-[hsl(var(--muted))/30]">
+            {% block list_header %}{% endblock %}
+        </div>
+
+        <!-- List Items -->
+        <div class="divide-y divide-[hsl(var(--border))]">
+            {% block list_items %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- Card Footer -->
+    <div class="p-6 border-t border-[hsl(var(--border))] bg-gradient-to-r from-[hsl(var(--background))] to-[hsl(var(--muted))]">
+        {% block card_footer %}{% endblock %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const actionDropdownTriggers = document.querySelectorAll(".dropdown-trigger");
+
+    actionDropdownTriggers.forEach(trigger => {
+        trigger.addEventListener("click", function (event) {
+            event.stopPropagation();
+
+            const dropdownMenu = this.nextElementSibling;
+
+            document.querySelectorAll(".dropdown-menu").forEach(menu => {
+                if (menu !== dropdownMenu && menu.closest(".dropdown-container")) {
+                    menu.classList.add("hidden");
+                }
+            });
+
+            dropdownMenu.classList.toggle("hidden");
+        });
+    });
+
+    document.addEventListener("click", function (event) {
+        if (!event.target.closest(".dropdown-container")) {
+            document.querySelectorAll(".dropdown-menu").forEach(menu => {
+                if (menu.closest(".dropdown-container")) {
+                    menu.classList.add("hidden");
+                }
+            });
+        }
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            document.querySelectorAll(".dropdown-menu").forEach(menu => {
+                if (menu.closest(".dropdown-container")) {
+                    menu.classList.add("hidden");
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}
+

@@ -1,0 +1,234 @@
+<div id="sheetOverlay" class="fixed inset-0 bg-black/40 z-40 opacity-0 invisible transition-opacity duration-300"></div>
+<div id="sheet" class="fixed top-0 right-0 bottom-0 w-full max-w-md bg-[hsl(var(--background))] border-l border-[hsl(var(--border))] shadow-lg z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+    <div class="flex items-center justify-between p-4 border-b border-[hsl(var(--border))]">
+        <h2 class="text-lg font-semibold">Notifications</h2>
+        <button id="closeSheetBtn" class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-[hsl(var(--accent))] transition-colors">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+    </div>
+    <div class="flex-1 p-4 overflow-y-auto">
+        <div id="notifications-container" class="space-y-4">
+            <div class="flex justify-center items-center h-32">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--primary))]"></div>
+            </div>
+        </div>
+    </div>
+    <div class="p-4 border-t border-[hsl(var(--border))]">
+        <a href="{% url 'global_settings:notification_list' %}" class="block w-full py-2 px-4 text-center rounded-md bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:bg-[hsl(var(--primary)/0.9)] transition-colors">
+            View All Notifications
+        </a>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const notificationsContainer = document.getElementById('notifications-container');
+    const openSheetBtn = document.getElementById('openSheetBtn');
+    
+    // Function to fetch notifications
+    function fetchNotifications() {
+        fetch('{% url "global_settings:get_user_notifications" %}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.notifications.length === 0) {
+                    notificationsContainer.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-32 text-[hsl(var(--muted-foreground))]">
+                            <svg class="w-12 h-12 mb-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 18.5V18.5M12 5.5V14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <p>No new notifications</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                
+                // Group by date
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                const todayNotifications = [];
+                const yesterdayNotifications = [];
+                const olderNotifications = [];
+                
+                data.notifications.forEach(notification => {
+                    const notifDate = new Date(notification.created_at);
+                    notifDate.setHours(0, 0, 0, 0);
+                    
+                    if (notifDate.getTime() === today.getTime()) {
+                        todayNotifications.push(notification);
+                    } else if (notifDate.getTime() === yesterday.getTime()) {
+                        yesterdayNotifications.push(notification);
+                    } else {
+                        olderNotifications.push(notification);
+                    }
+                });
+                
+                // Today's notifications
+                if (todayNotifications.length > 0) {
+                    html += `<h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">TODAY</h3>
+                            <div class="space-y-4">`;
+                    
+                    todayNotifications.forEach(notification => {
+                        html += getNotificationHTML(notification);
+                    });
+                    
+                    html += `</div>`;
+                }
+                
+                // Yesterday's notifications
+                if (yesterdayNotifications.length > 0) {
+                    html += `<h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))] pt-4">YESTERDAY</h3>
+                            <div class="space-y-4">`;
+                    
+                    yesterdayNotifications.forEach(notification => {
+                        html += getNotificationHTML(notification);
+                    });
+                    
+                    html += `</div>`;
+                }
+                
+                // Older notifications
+                if (olderNotifications.length > 0) {
+                    html += `<h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))] pt-4">OLDER</h3>
+                            <div class="space-y-4">`;
+                    
+                    olderNotifications.forEach(notification => {
+                        html += getNotificationHTML(notification);
+                    });
+                    
+                    html += `</div>`;
+                }
+                
+                notificationsContainer.innerHTML = html;
+                
+                // Add event listeners to mark as read buttons
+                document.querySelectorAll('.mark-read-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const notificationId = this.dataset.id;
+                        markAsRead(notificationId);
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching notifications:', error);
+                notificationsContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-32 text-[hsl(var(--muted-foreground))]">
+                        <p>Error loading notifications</p>
+                    </div>
+                `;
+            });
+    }
+    
+    // Function to generate notification HTML
+    function getNotificationHTML(notification) {
+        let iconClass, bgClass, textClass;
+        
+        switch(notification.type) {
+            case 'info':
+                iconClass = `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>`;
+                bgClass = 'bg-blue-500/20';
+                textClass = 'text-blue-500';
+                break;
+            case 'warning':
+                iconClass = `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 9V13M12 17H12.01M12 3L2 20H22L12 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>`;
+                bgClass = 'bg-yellow-500/20';
+                textClass = 'text-yellow-500';
+                break;
+            case 'success':
+                iconClass = `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 12L11 14L15 10M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>`;
+                bgClass = 'bg-green-500/20';
+                textClass = 'text-green-500';
+                break;
+            case 'error':
+                iconClass = `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>`;
+                bgClass = 'bg-red-500/20';
+                textClass = 'text-red-500';
+                break;
+        }
+        
+        return `
+        <div class="flex items-start gap-4 p-3 rounded-lg hover:bg-[hsl(var(--muted))] transition-colors">
+            <div class="w-9 h-9 rounded-full ${bgClass} flex items-center justify-center ${textClass}">
+                ${iconClass}
+            </div>
+            <div class="flex-1 space-y-1">
+                <p class="text-sm font-medium">${notification.title}</p>
+                <p class="text-xs text-[hsl(var(--muted-foreground))]">${notification.message}</p>
+                <p class="text-xs text-[hsl(var(--muted-foreground))]">${formatDate(notification.created_at)}</p>
+            </div>
+            ${!notification.is_read ? `
+            <a href="{% url 'global_settings:mark_notification_read' 0 %}".replace('0', notification.id) class="mark-read-btn px-2 py-1 text-xs rounded-full bg-[hsl(var(--primary))/0.1] text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))/0.2]" data-id="${notification.id}">
+                Mark Read
+            </a>
+            ` : ''}
+        </div>
+        `;
+    }
+    
+    // Function to format date
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 1) {
+            return 'Just now';
+        } else if (diffMins < 60) {
+            return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+        } else if (diffHours < 24) {
+            return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+        } else if (diffDays < 7) {
+            return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+        } else {
+            return date.toLocaleDateString();
+        }
+    }
+    
+    // Function to mark notification as read
+    function markAsRead(notificationId) {
+        fetch(`{% url 'global_settings:mark_notification_read' 0 %}`.replace('0', notificationId))
+            .then(response => {
+                if (response.ok) {
+                    // Refresh notifications
+                    fetchNotifications();
+                    
+                    // Update notification badge count
+                    const badge = document.querySelector('#openSheetBtn .absolute');
+                    if (badge) {
+                        const count = parseInt(badge.textContent) - 1;
+                        if (count > 0) {
+                            badge.textContent = count;
+                        } else {
+                            badge.remove();
+                        }
+                    }
+                }
+            })
+            .catch(error => console.error('Error marking notification as read:', error));
+    }
+    
+    // Fetch notifications when sheet is opened
+    openSheetBtn.addEventListener('click', function() {
+        fetchNotifications();
+    });
+});
+</script>

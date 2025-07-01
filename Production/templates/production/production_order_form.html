@@ -1,0 +1,1313 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="mx-auto max-w-8xl px-2 sm:px-4 lg:px-8 py-2 sm:py-6">
+    <div class="rounded-xl border-2 border-[hsl(var(--border))] bg-[hsl(var(--background))] shadow-xl p-4 sm:p-8 mb-6 relative">
+        <!-- Form Header -->
+        <div class="mb-8 border-b border-[hsl(var(--border))] pb-6 relative z-10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-icon">
+                        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5C15 6.10457 14.1046 7 13 7H11C9.89543 7 9 6.10457 9 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 12H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 16H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-foreground))] bg-clip-text text-transparent">{{ title }}</h3>
+                        <p class="text-xs text-[hsl(var(--muted-foreground))]">{{ subtitle }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    {% if action_buttons %}
+                        {% for button in action_buttons %}
+                        <a href="{{ button.url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium {{ button.class }} hover:opacity-90 h-9 px-4 py-2 shadow-md transition">
+                            <span>{{ button.text }}</span>
+                        </a>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-4" id="productionOrderForm">
+            {% csrf_token %}
+            
+            {% include 'common/toast.html' %}
+
+            <!-- Form Errors Summary -->
+            {% include 'common/form-details-error.html' %}
+
+            <!-- Form Fields -->
+            <div class="space-y-4">
+                <!-- Production Order Information -->
+                <div class="p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))] shadow-sm section-collapsible" data-section="order-info">
+                    <h3 class="text-base font-semibold mb-3 flex items-center gap-2 cursor-pointer" onclick="toggleSection('order-info')">
+                        <svg class="w-4 h-4 text-[hsl(var(--primary))] transition-transform duration-300 section-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5C15 6.10457 14.1046 7 13 7H11C9.89543 7 9 6.10457 9 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Production Order Information
+                        <svg class="w-4 h-4 ml-auto text-[hsl(var(--muted-foreground))] section-toggle-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </h3>
+                    <div class="section-content">
+                        <!-- Order Number and Document Date -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <!-- Order Number -->
+                            <div class="relative">
+                                <input type="text" 
+                                    id="{{ form.order_number.id_for_label }}" 
+                                    name="{{ form.order_number.name }}"
+                                    class="peer w-full px-3 py-2 rounded-md border-2 {% if form.order_number.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent" 
+                                    placeholder="Order Number"
+                                    value="{{ form.order_number.value|default:'' }}"
+                                    {% if is_detail_view %}readonly{% endif %}>
+                                <label for="{{ form.order_number.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.order_number.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                    Order Number (Auto-generated)
+                                </label>
+                                {% if form.order_number.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in form.order_number.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Document Date -->
+                            <div class="relative">
+                                <input type="date" 
+                                    id="{{ form.document_date.id_for_label }}" 
+                                    name="{{ form.document_date.name }}"
+                                    class="peer w-full px-3 py-2 rounded-md border-2 {% if form.document_date.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent" 
+                                    placeholder="Document Date"
+                                    value="{{ form.document_date.value|date:'Y-m-d'|default:'' }}"
+                                    {% if form.document_date.field.required and not is_detail_view %}required{% endif %}
+                                    {% if is_detail_view %}readonly{% endif %}>
+                                <label for="{{ form.document_date.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.document_date.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                    Document Date {% if form.document_date.field.required and not is_detail_view %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                {% if form.document_date.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in form.document_date.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Product, BOM, Warehouse, Planned Quantity, Status -->
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+                            <!-- Product -->
+                            <div class="relative">
+                                <select id="{{ form.product.id_for_label }}" 
+                                    name="{{ form.product.name }}"
+                                    class="peer w-full px-3 py-2 rounded-md border-2 {% if form.product.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] appearance-none"
+                                    {% if form.product.field.required and not is_detail_view %}required{% endif %}
+                                    {% if is_detail_view %}disabled{% endif %}>
+                                    <option value="" disabled {% if not form.product.value %}selected{% endif %}>Select Product</option>
+                                    {% for choice in form.product.field.choices %}
+                                        <option value="{{ choice.0 }}" 
+                                            class="py-3 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))]"
+                                            {% if form.product.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                            {{ choice.1 }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <label for="{{ form.product.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.product.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                    Product {% if form.product.field.required and not is_detail_view %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                {% if not is_detail_view %}
+                                <svg class="absolute right-3 top-3.5 w-5 h-5 pointer-events-none text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                {% endif %}
+                                {% if form.product.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in form.product.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- BOM -->
+                            <div class="relative">
+                                <select id="{{ form.bom.id_for_label }}" 
+                                    name="{{ form.bom.name }}"
+                                    class="peer w-full px-3 py-2 rounded-md border-2 {% if form.bom.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] appearance-none"
+                                    {% if form.bom.field.required and not is_detail_view %}required{% endif %}
+                                    {% if is_detail_view %}disabled{% endif %}>
+                                    <option value="" disabled {% if not form.bom.value %}selected{% endif %}>Select BOM</option>
+                                    {% for choice in form.bom.field.choices %}
+                                        <option value="{{ choice.0 }}" 
+                                            class="py-3 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))]"
+                                            {% if form.bom.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                            {{ choice.1 }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <label for="{{ form.bom.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.bom.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                    BOM {% if form.bom.field.required and not is_detail_view %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                {% if not is_detail_view %}
+                                <svg class="absolute right-3 top-3.5 w-5 h-5 pointer-events-none text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                {% endif %}
+                                {% if form.bom.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in form.bom.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Warehouse -->
+                            <div class="relative">
+                                <select id="{{ form.warehouse.id_for_label }}" 
+                                    name="{{ form.warehouse.name }}"
+                                    class="peer w-full px-3 py-2 rounded-md border-2 {% if form.warehouse.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] appearance-none"
+                                    {% if form.warehouse.field.required and not is_detail_view %}required{% endif %}
+                                    {% if is_detail_view %}disabled{% endif %}>
+                                    <option value="" disabled {% if not form.warehouse.value %}selected{% endif %}>Select Warehouse</option>
+                                    {% for choice in form.warehouse.field.choices %}
+                                        <option value="{{ choice.0 }}" 
+                                            class="py-3 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))]"
+                                            {% if form.warehouse.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                            {{ choice.1 }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <label for="{{ form.warehouse.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.warehouse.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                    Warehouse {% if form.warehouse.field.required and not is_detail_view %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                {% if not is_detail_view %}
+                                <svg class="absolute right-3 top-3.5 w-5 h-5 pointer-events-none text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                {% endif %}
+                                {% if form.warehouse.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in form.warehouse.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Planned Quantity -->
+                            <div class="relative">
+                                <input type="number" 
+                                    id="{{ form.planned_quantity.id_for_label }}" 
+                                    name="{{ form.planned_quantity.name }}"
+                                    class="peer w-full px-3 py-2 rounded-md border-2 {% if form.planned_quantity.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent" 
+                                    placeholder="Planned Quantity"
+                                    value="{{ form.planned_quantity.value|default:'1' }}"
+                                    min="0.000001" step="0.000001"
+                                    {% if form.planned_quantity.field.required and not is_detail_view %}required{% endif %}
+                                    {% if is_detail_view %}readonly{% endif %}>
+                                <label for="{{ form.planned_quantity.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.planned_quantity.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                    Planned Quantity {% if form.planned_quantity.field.required and not is_detail_view %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                {% if form.planned_quantity.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in form.planned_quantity.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Status -->
+                            <div class="relative">
+                                <select id="{{ form.status.id_for_label }}" 
+                                    name="{{ form.status.name }}"
+                                    class="peer w-full px-3 py-2 rounded-md border-2 {% if form.status.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] appearance-none"
+                                    {% if not is_detail_view %}required{% endif %}
+                                    {% if is_detail_view %}disabled{% endif %}>
+                                    <option value="" disabled {% if not form.status.value %}selected{% endif %}>Select Status</option>
+                                    {% for choice in form.status.field.choices %}
+                                        <option value="{{ choice.0 }}" 
+                                            class="py-3 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))]"
+                                            {% if form.status.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                            {{ choice.1 }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <label for="{{ form.status.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.status.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                    Status {% if not is_detail_view %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                {% if not is_detail_view %}
+                                <svg class="absolute right-3 top-3.5 w-5 h-5 pointer-events-none text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                {% endif %}
+                                {% if form.status.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in form.status.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Remarks Field -->
+                        <div class="relative mb-4">
+                            <textarea 
+                                id="{{ form.remarks.id_for_label }}" 
+                                name="{{ form.remarks.name }}"
+                                class="peer w-full px-3 py-2 rounded-md border-2 {% if form.remarks.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent" 
+                                placeholder="Remarks"
+                                rows="3"
+                                {% if is_detail_view %}readonly{% endif %}>{{ form.remarks.value|default:'' }}</textarea>
+                            <label for="{{ form.remarks.id_for_label }}" 
+                                class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.remarks.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                Remarks
+                            </label>
+                            {% if form.remarks.errors %}
+                                <div class="text-red-500 text-xs mt-1">
+                                    {% for error in form.remarks.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Component Information -->
+                <div class="p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))] shadow-sm section-collapsible" data-section="component-info">
+                    <h3 class="text-base font-semibold mb-3 flex items-center gap-2 cursor-pointer" onclick="toggleSection('component-info')">
+                        <svg class="w-4 h-4 text-[hsl(var(--primary))] transition-transform duration-300 section-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M16 3H8C6.89543 3 6 3.89543 6 5V19C6 20.1046 6 21 8 21H16C17.1046 21 18 20.1046 18 19V5C18 3.89543 17.1046 3 16 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 18H12.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Component Information
+                        <svg class="w-4 h-4 ml-auto text-[hsl(var(--muted-foreground))] section-toggle-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </h3>
+                    <div class="section-content">
+                        <!-- Formset Management Form -->
+                        {{ formset.management_form }}
+
+                        <!-- Mobile Display View -->
+                        <div class="md:hidden space-y-3" id="mobileFormsetContainer">
+                            {% for form in formset.forms %}
+                            <div class="mobile-formset-row p-3 border border-[hsl(var(--border))] rounded-lg relative transition-all duration-300 hover:shadow-md hover:border-[hsl(var(--primary))] draggable" data-index="{{ forloop.counter0 }}" draggable="true">
+                                <button type="button" class="mobile-context-btn absolute top-2 right-2 w-6 h-6 rounded-full bg-[hsl(var(--muted))] flex items-center justify-center hover:bg-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))] transition-colors">
+                                    <svg class="w-4 h-4 text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none">
+                                        <path d="M12 5V5.01M12 12V12.01M12 19V19.01M12 6C11.4477 6 11 5.55228 11 5C11 4.44772 11.4477 4 12 4C12.5523 4 13 4.44772 13 5C13 5.55228 12.5523 6 12 6ZM12 13C11.4477 13 11 12.5523 11 12C11 11.4477 11.4477 11 12 11C12.5523 11 13 12.4477 13 12C13 12.5523 12.5523 13 12 13ZM12 20C11.4477 20 11 19.5523 11 19C11 18.4477 11.4477 18 12 18C12.5523 18 13 18.4477 13 19C13 19.5523 12.5523 20 12 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                                <div class="space-y-2">
+                                    <!-- Hidden Fields -->
+                                    {% if form.id %}
+                                    <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}" />
+                                    {% endif %}
+                                    <!-- Item Code and Name -->
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div class="item-input-wrapper relative">
+                                            <label class="text-xs font-medium mb-1 block">Item Code</label>
+                                            <input type="text" name="{{ form.item_code.html_name }}" value="{{ form.item_code.value|default:'' }}"
+                                                class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--muted))] item-code-input transition-all duration-200 focus:ring-1 focus:ring-[hsl(var(--primary))]"
+                                                id="{{ form.item_code.id_for_label }}" />
+                                        </div>
+                                        <div>
+                                            <label class="text-xs font-medium mb-1 block">Item Name</label>
+                                            <input type="text" name="{{ form.item_name.html_name }}" value="{{ form.item_name.value|default:'' }}"
+                                                class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--background))] item-name-input transition-all duration-200 focus:ring-1 focus:ring-[hsl(var(--primary))]"
+                                                id="{{ form.item_name.id_for_label }}" />
+                                        </div>
+                                    </div>
+                                    <!-- Planned Quantity -->
+                                    <div>
+                                        <label class="text-xs font-medium mb-1 block">Planned Quantity</label>
+                                        <input type="number" name="{{ form.planned_quantity.html_name }}" value="{{ form.planned_quantity.value|default:'' }}"
+                                            min="0.000001" step="0.000001"
+                                            class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--background))] planned-quantity-input transition-all duration-200 focus:ring-1 focus:ring-[hsl(var(--primary))]"
+                                            id="{{ form.planned_quantity.id_for_label }}" />
+                                    </div>
+                                    <!-- Delete Button -->
+                                    <div class="flex justify-end mt-2">
+                                        <button type="button" class="delete-row mobile-delete-row inline-flex items-center px-2 py-1 text-xs font-medium text-red-600 hover:text-red-700 relative group" data-tooltip="Delete this component">
+                                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                                <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            Delete
+                                            <span class="tooltip-text absolute bottom-full mb-2 hidden group-hover:block text-xs text-[hsl(var(--destructive-foreground))] bg-[hsl(var(--destructive))] px-2 py-1 rounded-md shadow-md">Delete this component</span>
+                                        </button>
+                                        {% if form.DELETE %}
+                                        <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" class="delete-checkbox hidden">
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Mobile Context Menu -->
+                        <div id="mobileContextMenu" class="hidden fixed z-[100] w-40 sm:w-48 bg-[hsl(var(--background))] rounded-md shadow-lg border border-[hsl(var(--border))] overflow-hidden">
+                            <div class="py-1">
+                                <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors flex items-center gap-2 relative group" id="mobileAddRowAboveBtn" data-tooltip="Add a new row above">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Add Row Above
+                                    <span class="tooltip-text absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block text-xs text-[hsl(var(--foreground))] bg-[hsl(var(--accent))] px-2 py-1 rounded-md shadow-md">Add a new row above</span>
+                                </button>
+                                <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors flex items-center gap-2 relative group" id="mobileAddRowBelowBtn" data-tooltip="Add a new row below">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Add Row Below
+                                    <span class="tooltip-text absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block text-xs text-[hsl(var(--foreground))] bg-[hsl(var(--accent))] px-2 py-1 rounded-md shadow-md">Add a new row below</span>
+                                </button>
+                                <button type="button" class="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-[hsl(var(--destructive))] hover:bg-[hsl(var(--accent))] transition-colors flex items-center gap-2 relative group" id="mobileDeleteRowBtn" data-tooltip="Delete this row">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                        <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Delete Row
+                                    <span class="tooltip-text absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block text-xs text-[hsl(var(--destructive-foreground))] bg-[hsl(var(--destructive))] px-2 py-1 rounded-md shadow-md">Delete this row</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Desktop Display View -->
+                        <div class="hidden md:block">
+                            <div class="overflow-x-auto overflow-y-auto max-h-[400px] rounded-lg border border-[hsl(var(--border))] shadow-inner">
+                                <div class="min-w-[600px]">
+                                    <table class="w-full">
+                                        <thead class="sticky top-0 bg-[hsl(var(--secondary))] z-10 shadow-sm">
+                                            <tr>
+                                                <th scope="col" class="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Item Code</th>
+                                                <th scope="col" class="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Item Name</th>
+                                                <th scope="col" class="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Planned Quantity</th>
+                                                <th scope="col" class="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--secondary-foreground))]">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="formsetBody" class="formset-container divide-y divide-[hsl(var(--border))]">
+                                            {% for form in formset.forms %}
+                                            <tr class="formset-row group hover:bg-[hsl(var(--accent))] transition-all duration-300 draggable {% if form.errors %}has-errors{% endif %}" data-index="{{ forloop.counter0 }}" draggable="true">
+                                                <!-- Hidden Fields -->
+                                                {% if form.id %}
+                                                <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
+                                                {% endif %}
+                                                <td class="py-2 px-4">
+                                                    <div class="item-input-wrapper relative">
+                                                        <input type="text" name="{{ form.item_code.html_name }}" value="{{ form.item_code.value|default:'' }}"
+                                                            class="w-full px-3 py-1 text-sm border {% if form.item_code.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))] item-code-input transition-all duration-200"
+                                                            id="{{ form.item_code.id_for_label }}">
+                                                        {% if form.item_code.errors %}
+                                                        <div class="text-red-500 text-xs mt-1">
+                                                            {% for error in form.item_code.errors %}
+                                                            <p>{{ error }}</p>
+                                                            {% endfor %}
+                                                        </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                                <td class="py-2 px-4">
+                                                    <input type="text" name="{{ form.item_name.html_name }}" value="{{ form.item_name.value|default:'' }}"
+                                                        class="w-full px-3 py-1 text-sm border {% if form.item_name.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))] item-name-input transition-all duration-200"
+                                                        id="{{ form.item_name.id_for_label }}">
+                                                    {% if form.item_name.errors %}
+                                                    <div class="text-red-500 text-xs mt-1">
+                                                        {% for error in form.item_name.errors %}
+                                                        <p>{{ error }}</p>
+                                                        {% endfor %}
+                                                    </div>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="py-2 px-4">
+                                                    <input type="number" name="{{ form.planned_quantity.html_name }}" value="{{ form.planned_quantity.value|default:'' }}" min="0" step="0.000001"
+                                                        class="w-full px-3 py-1 text-sm border {% if form.planned_quantity.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))] planned-quantity-input transition-all duration-200"
+                                                        id="{{ form.planned_quantity.id_for_label }}">
+                                                    {% if form.planned_quantity.errors %}
+                                                    <div class="text-red-500 text-xs mt-1">
+                                                        {% for error in form.planned_quantity.errors %}
+                                                        <p>{{ error }}</p>
+                                                        {% endfor %}
+                                                    </div>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="py-2 px-4 relative">
+                                                    <button type="button" class="delete-row desktop-delete-row opacity-0 group-hover:opacity-100 transition-opacity duration-150 inline-flex items-center justify-center rounded-full w-8 h-8 bg-[hsl(var(--destructive))] text-[hsl(var(--destructive-foreground))] hover:bg-[hsl(var(--destructive))/90] shadow-md relative group" data-tooltip="Delete this component">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                        </svg>
+                                                        <span class="tooltip-text absolute bottom-full mb-2 hidden group-hover:block text-xs text-[hsl(var(--destructive-foreground))] bg-[hsl(var(--destructive))] px-2 py-1 rounded-md shadow-md">Delete this component</span>
+                                                    </button>
+                                                    {% if form.DELETE %}
+                                                    <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" class="delete-checkbox hidden">
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% if form.non_field_errors %}
+                                            <tr class="error-row bg-red-50">
+                                                <td colspan="4" class="py-1 px-2 text-xs text-red-600">
+                                                    <div class="flex items-center">
+                                                        <svg class="w-4 h-4 mr-1 text-red-500" viewBox="0 0 24 24" fill="none">
+                                                            <path d="M12 9V13M12 17H12.01M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        </svg>
+                                                        {% for error in form.non_field_errors %}
+                                                        <span>{{ error }}</span>{% if not forloop.last %}, {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Context Menu -->
+                            <div id="contextMenu" class="hidden fixed z-[100] w-48 bg-[hsl(var(--background))] rounded-md shadow-lg border border-[hsl(var(--border))] overflow-hidden">
+                                <div class="py-1">
+                                    <button type="button" class="w-full text-left px-4 py-2 text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors flex items-center gap-2 relative group" id="addRowAboveBtn" data-tooltip="Add a new row above">
+                                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        Add Row Above
+                                        <span class="tooltip-text absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block text-xs text-[hsl(var(--foreground))] bg-[hsl(var(--accent))] px-2 py-1 rounded-md shadow-md">Add a new row above</span>
+                                    </button>
+                                    <button type="button" class="w-full text-left px-4 py-2 text-sm text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors flex items-center gap-2 relative group" id="addRowBelowBtn" data-tooltip="Add a new row below">
+                                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        Add Row Below
+                                        <span class="tooltip-text absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block text-xs text-[hsl(var(--foreground))] bg-[hsl(var(--accent))] px-2 py-1 rounded-md shadow-md">Add a new row below</span>
+                                    </button>
+                                    <button type="button" class="w-full text-left px-4 py-2 text-sm text-[hsl(var(--destructive))] hover:bg-[hsl(var(--accent))] transition-colors flex items-center gap-2 relative group" id="deleteRowBtn" data-tooltip="Delete this row">
+                                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                            <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        Delete Row
+                                        <span class="tooltip-text absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block text-xs text-[hsl(var(--destructive-foreground))] bg-[hsl(var(--destructive))] px-2 py-1 rounded-md shadow-md">Delete this row</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add Row Button -->
+                        <button type="button" id="addRowBtn" class="w-full mt-3 px-4 py-2 rounded-lg text-xs font-medium bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 shadow-md flex items-center justify-center gap-2 relative group">
+                            <svg class="w-4 h-4 button-icon" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span class="button-text">Add New Component</span>
+                            <svg class="w-4 h-4 button-spinner hidden animate-spin" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" fill="currentColor" opacity="0.3"/>
+                                <path d="M12 2a10 10 0 0 1 10 10h-2a8 8 0 0 0-8-8z" fill="currentColor"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Footer -->
+            <div class="border-t pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div class="text-xs text-[hsl(var(--muted-foreground))]">
+                    <span class="flex items-center">
+                        <svg class="w-4 h-4 mr-1 text-green-500" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="currentColor"/>
+                        </svg>
+                        Your production order is secure and encrypted
+                    </span>
+                </div>
+                <div class="flex gap-3 w-full sm:w-auto">
+                    {% if cancel_url %}
+                    <a href="{{ cancel_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                        {% if is_detail_view %}Back{% else %}Cancel{% endif %}
+                    </a>
+                    {% endif %}
+                    
+                    {% if is_detail_view %}
+                        {% if update_url %}
+                        <a href="{{ update_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Edit
+                        </a>
+                        {% endif %}
+                        {% if delete_url %}
+                        <a href="{{ delete_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 h-9 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Delete
+                        </a>
+                        {% endif %}
+                    {% else %}
+                        <button type="reset" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                            Reset
+                        </button>
+                        <button type="submit" id="submitBtn" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 12L10 17L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span class="button-text">{{ submit_text|default:"Save Production Order" }}</span>
+                            <svg class="w-4 h-4 button-spinner hidden animate-spin" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" fill="currentColor" opacity="0.3"/>
+                                <path d="M12 2a10 10 0 0 1 10 10h-2a8 8 0 0 0-8-8z" fill="currentColor"/>
+                            </svg>
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let formsetIndex = {{ formset.total_form_count }};
+    let contextMenuRow = null;
+    let mobileContextMenuRow = null;
+    let draggedRow = null;
+    let draggedIndex = null;
+    let isUpdatingQuantities = false;
+    let currentBOMXQuantity = 1;
+
+    // Initialize form
+    initializeForm();
+
+    function initializeForm() {
+        setupEventListeners();
+        updateFormsetIndices();
+        updateTotalForms();
+        
+        // Set initial planned quantity if not set
+        const plannedQuantityInput = document.getElementById('{{ form.planned_quantity.id_for_label }}');
+        if (plannedQuantityInput && !plannedQuantityInput.value) {
+            plannedQuantityInput.value = '1';
+        }
+    }
+
+    function setupEventListeners() {
+        // Product change event
+        const productSelect = document.getElementById('{{ form.product.id_for_label }}');
+        if (productSelect) {
+            productSelect.addEventListener('change', handleProductChange);
+        }
+
+        // BOM change event
+        const bomSelect = document.getElementById('{{ form.bom.id_for_label }}');
+        if (bomSelect) {
+            bomSelect.addEventListener('change', handleBOMChange);
+        }
+
+        // Planned quantity change event - use both input and change events for immediate updates
+        const plannedQuantityInput = document.getElementById('{{ form.planned_quantity.id_for_label }}');
+        if (plannedQuantityInput) {
+            plannedQuantityInput.addEventListener('input', handlePlannedQuantityChange);
+            plannedQuantityInput.addEventListener('change', handlePlannedQuantityChange);
+        }
+
+        // Add row button
+        const addRowBtn = document.getElementById('addRowBtn');
+        if (addRowBtn) {
+            addRowBtn.addEventListener('click', addNewRow);
+        }
+
+        // Delete row buttons
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.delete-row')) {
+                e.preventDefault();
+                deleteRow(e.target.closest('.formset-row, .mobile-formset-row'));
+            }
+        });
+
+        // Context menu events
+        setupContextMenu();
+        setupMobileContextMenu();
+        
+        // Drag and drop
+        setupDragAndDrop();
+
+        // Form submission
+        const form = document.getElementById('productionOrderForm');
+        if (form) {
+            form.addEventListener('submit', handleFormSubmit);
+        }
+
+        // Section toggle
+        window.toggleSection = toggleSection;
+    }
+
+    function handleProductChange() {
+        const productId = this.value;
+        if (!productId) {
+            clearBOMOptions();
+            clearFormset();
+            return;
+        }
+
+        showLoadingState();
+        
+        // Fetch BOMs for the selected product using the correct API endpoint
+        fetch(`/production/api/product/${productId}/boms/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.boms) {
+                    updateBOMOptions(data.boms);
+                } else {
+                    console.error('Invalid data format:', data);
+                    showToast('Error: Invalid data format from API', 'error');
+                }
+                hideLoadingState();
+            })
+            .catch(error => {
+                console.error('Error fetching BOMs:', error);
+                hideLoadingState();
+                showToast('Error fetching BOMs: ' + error.message, 'error');
+            });
+            
+        // Also fetch product info if needed
+        fetch(`/production/api/product/${productId}/info/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.product) {
+                    // Use product info as needed
+                    console.log('Product info:', data.product);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching product info:', error);
+            });
+    }
+
+    function handleBOMChange() {
+        const bomId = this.value;
+        if (!bomId) {
+            clearFormset();
+            return;
+        }
+
+        showLoadingState();
+        
+        // Fetch components for the selected BOM using the correct API endpoint
+        fetch(`/production/api/bom/${bomId}/components/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.components) {
+                    // Store BOM x_quantity for calculations
+                    currentBOMXQuantity = data.x_quantity || 1;
+                    
+                    populateFormset(data.components);
+                    
+                    // Update quantities based on current planned quantity
+                    updateAllComponentQuantities();
+                } else {
+                    console.error('Invalid data format:', data);
+                    showToast('Error: Invalid data format from API', 'error');
+                }
+                hideLoadingState();
+            })
+            .catch(error => {
+                console.error('Error fetching BOM components:', error);
+                hideLoadingState();
+                showToast('Error fetching BOM components: ' + error.message, 'error');
+            });
+    }
+
+    function handlePlannedQuantityChange() {
+        if (isUpdatingQuantities) return;
+        
+        const plannedQuantity = parseFloat(this.value) || 0;
+        if (plannedQuantity <= 0) return;
+        
+        // Immediately update all component quantities
+        updateAllComponentQuantities();
+    }
+
+    function updateAllComponentQuantities() {
+        if (isUpdatingQuantities) return;
+        
+        isUpdatingQuantities = true;
+        const plannedQuantity = parseFloat(document.getElementById('{{ form.planned_quantity.id_for_label }}').value) || 1;
+        
+        // Update desktop view
+        const desktopRows = document.querySelectorAll('#formsetBody .formset-row');
+        desktopRows.forEach(row => {
+            updateRowQuantity(row, plannedQuantity);
+        });
+
+        // Update mobile view
+        const mobileRows = document.querySelectorAll('#mobileFormsetContainer .mobile-formset-row');
+        mobileRows.forEach(row => {
+            updateRowQuantity(row, plannedQuantity);
+        });
+        
+        isUpdatingQuantities = false;
+    }
+
+    function updateRowQuantity(row, plannedQuantity) {
+        const quantityInput = row.querySelector('.planned-quantity-input');
+        if (!quantityInput) return;
+
+        // Get the base quantity (stored as data attribute)
+        let baseQuantity = parseFloat(quantityInput.dataset.baseQuantity);
+        if (isNaN(baseQuantity)) {
+            // If no base quantity stored, use current value divided by planned quantity
+            const currentValue = parseFloat(quantityInput.value) || 0;
+            const currentPlannedQty = parseFloat(document.getElementById('{{ form.planned_quantity.id_for_label }}').value) || 1;
+            baseQuantity = currentValue / currentPlannedQty;
+            quantityInput.dataset.baseQuantity = baseQuantity;
+        }
+
+        // Calculate new quantity
+        const newQuantity = baseQuantity * plannedQuantity;
+        quantityInput.value = newQuantity.toFixed(6);
+    }
+
+    function clearBOMOptions() {
+        const bomSelect = document.getElementById('{{ form.bom.id_for_label }}');
+        if (bomSelect) {
+            bomSelect.innerHTML = '<option value="" disabled selected>Select BOM</option>';
+        }
+    }
+
+    function updateBOMOptions(boms) {
+        const bomSelect = document.getElementById('{{ form.bom.id_for_label }}');
+        if (!bomSelect) return;
+
+        bomSelect.innerHTML = '<option value="" disabled selected>Select BOM</option>';
+        boms.forEach(bom => {
+            const option = document.createElement('option');
+            option.value = bom.id;
+            option.textContent = bom.name || bom.code || `BOM #${bom.id}`;
+            option.className = 'py-3 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))]';
+            bomSelect.appendChild(option);
+        });
+    }
+
+    function clearFormset() {
+        // Clear desktop view
+        const formsetBody = document.getElementById('formsetBody');
+        if (formsetBody) {
+            formsetBody.innerHTML = '';
+        }
+
+        // Clear mobile view
+        const mobileContainer = document.getElementById('mobileFormsetContainer');
+        if (mobileContainer) {
+            mobileContainer.innerHTML = '';
+        }
+
+        // Reset formset index
+        formsetIndex = 0;
+        updateTotalForms();
+    }
+
+    function populateFormset(components) {
+        clearFormset();
+        
+        components.forEach((component, index) => {
+            addFormsetRow(component, index);
+        });
+
+        formsetIndex = components.length;
+        updateTotalForms();
+    }
+
+    function addFormsetRow(component = null, index = null) {
+        const currentIndex = index !== null ? index : formsetIndex;
+        
+        // Add to desktop view
+        addDesktopRow(component, currentIndex);
+        
+        // Add to mobile view
+        addMobileRow(component, currentIndex);
+
+        if (index === null) {
+            formsetIndex++;
+            updateTotalForms();
+        }
+    }
+
+    function addDesktopRow(component, index) {
+        const formsetBody = document.getElementById('formsetBody');
+        if (!formsetBody) return;
+
+        const plannedQuantity = parseFloat(document.getElementById('{{ form.planned_quantity.id_for_label }}').value) || 1;
+        const baseQuantity = component ? (parseFloat(component.quantity) / currentBOMXQuantity) : 1;
+        const calculatedQuantity = baseQuantity * plannedQuantity;
+
+        const row = document.createElement('tr');
+        row.className = 'formset-row group hover:bg-[hsl(var(--accent))] transition-all duration-300 draggable';
+        row.setAttribute('data-index', index);
+        row.setAttribute('draggable', 'true');
+        
+        row.innerHTML = `
+            <td class="py-2 px-4">
+                <div class="item-input-wrapper relative">
+                    <input type="text" 
+                           name="components-${index}-item_code" 
+                           value="${component ? component.item_code : ''}"
+                           class="w-full px-3 py-1 text-sm border border-[hsl(var(--border))] rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))] item-code-input transition-all duration-200"
+                           id="id_components-${index}-item_code">
+                </div>
+            </td>
+            <td class="py-2 px-4">
+                <input type="text" 
+                       name="components-${index}-item_name" 
+                       value="${component ? component.item_name : ''}"
+                       class="w-full px-3 py-1 text-sm border border-[hsl(var(--border))] rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))] item-name-input transition-all duration-200"
+                       id="id_components-${index}-item_name">
+            </td>
+            <td class="py-2 px-4">
+                <input type="number" 
+                       name="components-${index}-planned_quantity" 
+                       value="${calculatedQuantity.toFixed(6)}"
+                       data-base-quantity="${baseQuantity}"
+                       min="0" step="0.000001"
+                       class="w-full px-3 py-1 text-sm border border-[hsl(var(--border))] rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring))] planned-quantity-input transition-all duration-200"
+                       id="id_components-${index}-planned_quantity">
+            </td>
+            <td class="py-2 px-4 relative">
+                <button type="button" class="delete-row desktop-delete-row opacity-0 group-hover:opacity-100 transition-opacity duration-150 inline-flex items-center justify-center rounded-full w-8 h-8 bg-[hsl(var(--destructive))] text-[hsl(var(--destructive-foreground))] hover:bg-[hsl(var(--destructive))/90] shadow-md relative group" data-tooltip="Delete this component">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    <span class="tooltip-text absolute bottom-full mb-2 hidden group-hover:block text-xs text-[hsl(var(--destructive-foreground))] bg-[hsl(var(--destructive))] px-2 py-1 rounded-md shadow-md">Delete this component</span>
+                </button>
+                <input type="checkbox" name="components-${index}-DELETE" id="id_components-${index}-DELETE" class="delete-checkbox hidden">
+            </td>
+        `;
+
+        formsetBody.appendChild(row);
+        setupRowDragAndDrop(row);
+    }
+
+    function addMobileRow(component, index) {
+        const mobileContainer = document.getElementById('mobileFormsetContainer');
+        if (!mobileContainer) return;
+
+        const plannedQuantity = parseFloat(document.getElementById('{{ form.planned_quantity.id_for_label }}').value) || 1;
+        const baseQuantity = component ? (parseFloat(component.quantity) / currentBOMXQuantity) : 1;
+        const calculatedQuantity = baseQuantity * plannedQuantity;
+
+        const row = document.createElement('div');
+        row.className = 'mobile-formset-row p-3 border border-[hsl(var(--border))] rounded-lg relative transition-all duration-300 hover:shadow-md hover:border-[hsl(var(--primary))] draggable';
+        row.setAttribute('data-index', index);
+        row.setAttribute('draggable', 'true');
+        
+        row.innerHTML = `
+            <button type="button" class="mobile-context-btn absolute top-2 right-2 w-6 h-6 rounded-full bg-[hsl(var(--muted))] flex items-center justify-center hover:bg-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))] transition-colors">
+                <svg class="w-4 h-4 text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 5V5.01M12 12V12.01M12 19V19.01M12 6C11.4477 6 11 5.55228 11 5C11 4.44772 11.4477 4 12 4C12.5523 4 13 4.44772 13 5C13 5.55228 12.5523 6 12 6ZM12 13C11.4477 13 11 12.5523 11 12C11 11.4477 11.4477 11 12 11C12.5523 11 13 12.4477 13 12C13 12.5523 12.5523 13 12 13ZM12 20C11.4477 20 11 19.5523 11 19C11 18.4477 11.4477 18 12 18C12.5523 18 13 18.4477 13 19C13 19.5523 12.5523 20 12 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div class="space-y-2">
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="item-input-wrapper relative">
+                        <label class="text-xs font-medium mb-1 block">Item Code</label>
+                        <input type="text" 
+                               name="components-${index}-item_code" 
+                               value="${component ? component.item_code : ''}"
+                               class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--muted))] item-code-input transition-all duration-200 focus:ring-1 focus:ring-[hsl(var(--primary))]"
+                               id="id_components-${index}-item_code">
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium mb-1 block">Item Name</label>
+                        <input type="text" 
+                               name="components-${index}-item_name" 
+                               value="${component ? component.item_name : ''}"
+                               class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--background))] item-name-input transition-all duration-200 focus:ring-1 focus:ring-[hsl(var(--primary))]"
+                               id="id_components-${index}-item_name">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-medium mb-1 block">Planned Quantity</label>
+                    <input type="number" 
+                           name="components-${index}-planned_quantity" 
+                           value="${calculatedQuantity.toFixed(6)}"
+                           data-base-quantity="${baseQuantity}"
+                           min="0.000001" step="0.000001"
+                           class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--background))] planned-quantity-input transition-all duration-200 focus:ring-1 focus:ring-[hsl(var(--primary))]"
+                           id="id_components-${index}-planned_quantity">
+                </div>
+                <div class="flex justify-end mt-2">
+                    <button type="button" class="delete-row mobile-delete-row inline-flex items-center px-2 py-1 text-xs font-medium text-red-600 hover:text-red-700 relative group" data-tooltip="Delete this component">
+                        <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                            <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Delete
+                        <span class="tooltip-text absolute bottom-full mb-2 hidden group-hover:block text-xs text-[hsl(var(--destructive-foreground))] bg-[hsl(var(--destructive))] px-2 py-1 rounded-md shadow-md">Delete this component</span>
+                    </button>
+                    <input type="checkbox" name="components-${index}-DELETE" id="id_components-${index}-DELETE" class="delete-checkbox hidden">
+                </div>
+            </div>
+        `;
+
+        mobileContainer.appendChild(row);
+        setupRowDragAndDrop(row);
+    }
+
+    function addNewRow() {
+        addFormsetRow();
+        showToast('New component row added', 'success');
+    }
+
+    function deleteRow(row) {
+        if (!row) return;
+
+        const deleteCheckbox = row.querySelector('.delete-checkbox');
+        if (deleteCheckbox) {
+            deleteCheckbox.checked = true;
+        }
+        
+        row.style.display = 'none';
+        showToast('Component row marked for deletion', 'info');
+    }
+
+    function updateFormsetIndices() {
+        // Update desktop rows
+        const desktopRows = document.querySelectorAll('#formsetBody .formset-row');
+        desktopRows.forEach((row, index) => {
+            updateRowIndex(row, index);
+        });
+
+        // Update mobile rows
+        const mobileRows = document.querySelectorAll('#mobileFormsetContainer .mobile-formset-row');
+        mobileRows.forEach((row, index) => {
+            updateRowIndex(row, index);
+        });
+    }
+
+    function updateRowIndex(row, newIndex) {
+        row.setAttribute('data-index', newIndex);
+        
+        const inputs = row.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            const name = input.getAttribute('name');
+            const id = input.getAttribute('id');
+            
+            if (name && name.includes('components-')) {
+                const newName = name.replace(/components-\d+/, `components-${newIndex}`);
+                input.setAttribute('name', newName);
+            }
+            
+            if (id && id.includes('components-')) {
+                const newId = id.replace(/id_components-\d+/, `id_components-${newIndex}`);
+                input.setAttribute('id', newId);
+            }
+        });
+    }
+
+    function updateTotalForms() {
+        const totalFormsInput = document.querySelector('input[name$="-TOTAL_FORMS"]');
+        if (totalFormsInput) {
+            totalFormsInput.value = formsetIndex;
+        }
+    }
+
+    function setupContextMenu() {
+        const contextMenu = document.getElementById('contextMenu');
+        if (!contextMenu) return;
+
+        // Desktop context menu
+        document.addEventListener('contextmenu', function(e) {
+            const row = e.target.closest('.formset-row');
+            if (row && window.innerWidth >= 768) {
+                e.preventDefault();
+                contextMenuRow = row;
+                showContextMenu(e.pageX, e.pageY);
+            }
+        });
+
+        // Context menu actions
+        document.getElementById('addRowAboveBtn')?.addEventListener('click', function() {
+            if (contextMenuRow) {
+                const index = parseInt(contextMenuRow.getAttribute('data-index'));
+                insertRowAt(index);
+                hideContextMenu();
+            }
+        });
+
+        document.getElementById('addRowBelowBtn')?.addEventListener('click', function() {
+            if (contextMenuRow) {
+                const index = parseInt(contextMenuRow.getAttribute('data-index'));
+                insertRowAt(index + 1);
+                hideContextMenu();
+            }
+        });
+
+        document.getElementById('deleteRowBtn')?.addEventListener('click', function() {
+            if (contextMenuRow) {
+                deleteRow(contextMenuRow);
+                hideContextMenu();
+            }
+        });
+
+        // Hide context menu on click outside
+        document.addEventListener('click', hideContextMenu);
+    }
+
+    function setupMobileContextMenu() {
+        const mobileContextMenu = document.getElementById('mobileContextMenu');
+        if (!mobileContextMenu) return;
+
+        // Mobile context menu
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.mobile-context-btn')) {
+                e.preventDefault();
+                e.stopPropagation();
+                const row = e.target.closest('.mobile-formset-row');
+                if (row) {
+                    mobileContextMenuRow = row;
+                    const rect = e.target.getBoundingClientRect();
+                    showMobileContextMenu(rect.left, rect.bottom);
+                }
+            }
+        });
+
+        // Mobile context menu actions
+        document.getElementById('mobileAddRowAboveBtn')?.addEventListener('click', function() {
+            if (mobileContextMenuRow) {
+                const index = parseInt(mobileContextMenuRow.getAttribute('data-index'));
+                insertRowAt(index);
+                hideMobileContextMenu();
+            }
+        });
+
+        document.getElementById('mobileAddRowBelowBtn')?.addEventListener('click', function() {
+            if (mobileContextMenuRow) {
+                const index = parseInt(mobileContextMenuRow.getAttribute('data-index'));
+                insertRowAt(index + 1);
+                hideMobileContextMenu();
+            }
+        });
+
+        document.getElementById('mobileDeleteRowBtn')?.addEventListener('click', function() {
+            if (mobileContextMenuRow) {
+                deleteRow(mobileContextMenuRow);
+                hideMobileContextMenu();
+            }
+        });
+
+        // Hide mobile context menu on click outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#mobileContextMenu') && !e.target.closest('.mobile-context-btn')) {
+                hideMobileContextMenu();
+            }
+        });
+    }
+
+    function showContextMenu(x, y) {
+        const contextMenu = document.getElementById('contextMenu');
+        if (!contextMenu) return;
+
+        contextMenu.style.left = x + 'px';
+        contextMenu.style.top = y + 'px';
+        contextMenu.classList.remove('hidden');
+    }
+
+    function hideContextMenu() {
+        const contextMenu = document.getElementById('contextMenu');
+        if (contextMenu) {
+            contextMenu.classList.add('hidden');
+        }
+        contextMenuRow = null;
+    }
+
+    function showMobileContextMenu(x, y) {
+        const mobileContextMenu = document.getElementById('mobileContextMenu');
+        if (!mobileContextMenu) return;
+
+        mobileContextMenu.style.left = x + 'px';
+        mobileContextMenu.style.top = y + 'px';
+        mobileContextMenu.classList.remove('hidden');
+    }
+
+    function hideMobileContextMenu() {
+        const mobileContextMenu = document.getElementById('mobileContextMenu');
+        if (mobileContextMenu) {
+            mobileContextMenu.classList.add('hidden');
+        }
+        mobileContextMenuRow = null;
+    }
+
+    function insertRowAt(index) {
+        // This is a simplified version - you might want to implement proper insertion
+        addFormsetRow();
+        updateFormsetIndices();
+        showToast('New component row inserted', 'success');
+    }
+
+    function setupDragAndDrop() {
+        document.addEventListener('dragstart', function(e) {
+            const row = e.target.closest('.draggable');
+            if (row) {
+                draggedRow = row;
+                draggedIndex = parseInt(row.getAttribute('data-index'));
+                row.style.opacity = '0.5';
+            }
+        });
+
+        document.addEventListener('dragend', function(e) {
+            if (draggedRow) {
+                draggedRow.style.opacity = '';
+                draggedRow = null;
+                draggedIndex = null;
+            }
+        });
+
+        document.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('drop', function(e) {
+            e.preventDefault();
+            const targetRow = e.target.closest('.draggable');
+            if (targetRow && draggedRow && targetRow !== draggedRow) {
+                const targetIndex = parseInt(targetRow.getAttribute('data-index'));
+                swapRows(draggedIndex, targetIndex);
+            }
+        });
+    }
+
+    function setupRowDragAndDrop(row) {
+        row.addEventListener('dragstart', function(e) {
+            draggedRow = row;
+            draggedIndex = parseInt(row.getAttribute('data-index'));
+            row.style.opacity = '0.5';
+        });
+
+        row.addEventListener('dragend', function(e) {
+            row.style.opacity = '';
+        });
+    }
+
+    function swapRows(index1, index2) {
+        // This is a simplified version - you might want to implement proper row swapping
+        updateFormsetIndices();
+        showToast('Rows reordered', 'info');
+    }
+
+    function handleFormSubmit(e) {
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) {
+            const buttonText = submitBtn.querySelector('.button-text');
+            const buttonSpinner = submitBtn.querySelector('.button-spinner');
+            
+            if (buttonText) buttonText.textContent = 'Saving...';
+            if (buttonSpinner) {
+                buttonSpinner.classList.remove('hidden');
+            }
+            
+            submitBtn.disabled = true;
+        }
+    }
+
+    function showLoadingState() {
+        const addRowBtn = document.getElementById('addRowBtn');
+        if (addRowBtn) {
+            const buttonText = addRowBtn.querySelector('.button-text');
+            const buttonIcon = addRowBtn.querySelector('.button-icon');
+            const buttonSpinner = addRowBtn.querySelector('.button-spinner');
+            
+            if (buttonText) buttonText.textContent = 'Loading...';
+            if (buttonIcon) buttonIcon.classList.add('hidden');
+            if (buttonSpinner) buttonSpinner.classList.remove('hidden');
+            
+            addRowBtn.disabled = true;
+        }
+    }
+
+    function hideLoadingState() {
+        const addRowBtn = document.getElementById('addRowBtn');
+        if (addRowBtn) {
+            const buttonText = addRowBtn.querySelector('.button-text');
+            const buttonIcon = addRowBtn.querySelector('.button-icon');
+            const buttonSpinner = addRowBtn.querySelector('.button-spinner');
+            
+            if (buttonText) buttonText.textContent = 'Add New Component';
+            if (buttonIcon) buttonIcon.classList.remove('hidden');
+            if (buttonSpinner) buttonSpinner.classList.add('hidden');
+            
+            addRowBtn.disabled = false;
+        }
+    }
+
+    function toggleSection(sectionId) {
+        const section = document.querySelector(`[data-section="${sectionId}"]`);
+        if (!section) return;
+
+        const content = section.querySelector('.section-content');
+        const toggleIcon = section.querySelector('.section-toggle-icon');
+        
+        if (content && toggleIcon) {
+            const isCollapsed = content.style.display === 'none';
+            
+            if (isCollapsed) {
+                content.style.display = 'block';
+                toggleIcon.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.display = 'none';
+                toggleIcon.style.transform = 'rotate(-90deg)';
+            }
+        }
+    }
+
+    function showToast(message, type = 'info') {
+        // Simple toast implementation
+        const toast = document.createElement('div');
+        toast.className = `fixed top-4 right-4 z-50 px-4 py-2 rounded-md shadow-lg text-white text-sm transition-all duration-300 ${
+            type === 'success' ? 'bg-green-500' :
+            type === 'error' ? 'bg-red-500' :
+            type === 'warning' ? 'bg-yellow-500' :
+            'bg-blue-500'
+        }`;
+        toast.textContent = message;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 300);
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}

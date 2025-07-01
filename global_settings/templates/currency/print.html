@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - Print View{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media print {
+        body {
+            font-size: 12pt;
+            color: #000;
+            background-color: #fff;
+        }
+        .no-print {
+            display: none !important;
+        }
+        .print-only {
+            display: block !important;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .page-break {
+            page-break-after: always;
+        }
+    }
+    .print-only {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold">{{ title }}</h1>
+            <p class="text-[hsl(var(--muted-foreground))]">Generated on {% now "F j, Y H:i" %}</p>
+        </div>
+        <div class="no-print">
+            <button onclick="window.print()" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-10 px-4 py-2">
+                <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9V2H18V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6 18H4C3.46957 18 2.96086 17.7893 2.58579 17.4142C2.21071 17.0391 2 16.5304 2 16V11C2 10.4696 2.21071 9.96086 2.58579 9.58579C2.96086 9.21071 3.46957 9 4 9H20C20.5304 9 21.0391 9.21071 21.4142 9.58579C21.7893 9.96086 22 10.4696 22 11V16C22 16.5304 21.7893 17.0391 21.4142 17.4142C21.0391 17.7893 20.5304 18 20 18H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M18 14H6V22H18V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Print
+            </button>
+            <a href="{{ list_url }}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-10 px-4 py-2 ml-2">
+                <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="print-only mb-6">
+        <h1 class="text-2xl font-bold text-center">{{ title }}</h1>
+        <p class="text-center">Generated on {% now "F j, Y H:i" %}</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <table class="w-full">
+            <thead class="bg-[hsl(var(--muted))]">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Code</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Symbol</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--foreground))] uppercase tracking-wider">Exchange Rate</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-[hsl(var(--border))]">
+                {% for object in objects %}
+                <tr class="{% cycle 'bg-[hsl(var(--background))]' 'bg-[hsl(var(--muted))]' %}">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">{{ object.name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">{{ object.code }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">{{ object.symbol }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">{{ object.exchange_rate }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="px-6 py-4 text-center text-sm text-[hsl(var(--muted-foreground))]">No data available</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-6 text-sm text-[hsl(var(--muted-foreground))] no-print">
+        <p>This report contains {{ objects|length }} record(s).</p>
+    </div>
+
+    <div class="print-only mt-6 text-sm">
+        <p>This report contains {{ objects|length }} record(s).</p>
+        <p class="text-center mt-4">--- End of Report ---</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-print when the page loads in print mode
+    if (window.location.search.includes('autoprint=true')) {
+        window.onload = function() {
+            window.print();
+        }
+    }
+</script>
+{% endblock %}

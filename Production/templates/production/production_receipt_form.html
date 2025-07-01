@@ -1,0 +1,897 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="mx-auto max-w-8xl px-2 sm:px-4 lg:px-8 py-2 sm:py-6">
+    <div class="rounded-xl border-2 border-[hsl(var(--border))] bg-[hsl(var(--background))] shadow-xl p-4 sm:p-8 mb-6 relative">
+        <!-- Form Header -->
+        <div class="mb-8 border-b border-[hsl(var(--border))] pb-6 relative z-10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md premium-icon">
+                        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 16V8C20.9996 7.64928 20.9071 7.30481 20.7315 7.00116C20.556 6.69751 20.3037 6.44536 20 6.27L13 2.27C12.696 2.09446 12.3511 2.00205 12 2.00205C11.6489 2.00205 11.304 2.09446 11 2.27L4 6.27C3.69626 6.44536 3.44398 6.69751 3.26846 7.00116C3.09294 7.30481 3.00036 7.64928 3 8V16C3.00036 16.3507 3.09294 16.6952 3.26846 16.9988C3.44398 17.3025 3.69626 17.5546 4 17.73L11 21.73C11.304 21.9055 11.6489 21.9979 12 21.9979C12.3511 21.9979 12.696 21.9055 13 21.73L20 17.73C20.3037 17.5546 20.556 17.3025 20.7315 16.9988C20.9071 16.6952 20.9996 16.3507 21 16Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3.27 6.96L12 12.01L20.73 6.96" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 22.08V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">{{ title }}</h3>
+                        <p class="text-xs text-[hsl(var(--muted-foreground))]">{{ subtitle }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    {% if action_buttons %}
+                        {% for button in action_buttons %}
+                        <a href="{{ button.url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium {{ button.class }} hover:opacity-90 h-9 px-4 py-2 shadow-md transition">
+                            <span>{{ button.text }}</span>
+                        </a>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-4" id="productionReceiptForm">
+            {% csrf_token %}
+            
+            {% include 'common/toast.html' %}
+
+            <!-- Form Errors Summary -->
+            {% include 'common/form-details-error.html' %}
+
+            <!-- Form Fields -->
+            <div class="space-y-4">
+                <!-- Production Receipt Information -->
+                <div class="p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))] shadow-sm section-collapsible" data-section="receipt-info">
+                    <h3 class="text-base font-semibold mb-3 flex items-center gap-2 cursor-pointer" onclick="toggleSection('receipt-info')">
+                        <svg class="w-4 h-4 text-green-600 transition-transform duration-300 section-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 16V8C20.9996 7.64928 20.9071 7.30481 20.7315 7.00116C20.556 6.69751 20.3037 6.44536 20 6.27L13 2.27C12.696 2.09446 12.3511 2.00205 12 2.00205C11.6489 2.00205 11.304 2.09446 11 2.27L4 6.27C3.69626 6.44536 3.44398 6.69751 3.26846 7.00116C3.09294 7.30481 3.00036 7.64928 3 8V16C3.00036 16.3507 3.09294 16.6952 3.26846 16.9988C3.44398 17.3025 3.69626 17.5546 4 17.73L11 21.73C11.304 21.9055 11.6489 21.9979 12 21.9979C12.3511 21.9979 12.696 21.9055 13 21.73L20 17.73C20.3037 17.5546 20.556 17.3025 20.7315 16.9988C20.9071 16.6952 20.9996 16.3507 21 16Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Production Receipt Information
+                        <svg class="w-4 h-4 ml-auto text-[hsl(var(--muted-foreground))] section-toggle-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </h3>
+                    <div class="section-content">
+                        <!-- Receipt Number and Document Date -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <!-- Receipt Number (Auto-generated, display only) -->
+                            {% if production_receipt.receipt_number %}
+                            <div class="relative">
+                                <input type="text" 
+                                    value="{{ production_receipt.receipt_number }}"
+                                    class="peer w-full px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-[hsl(var(--muted))] cursor-not-allowed premium-input text-[hsl(var(--foreground))] transition-all duration-200 placeholder-transparent" 
+                                    placeholder="Receipt Number"
+                                    readonly>
+                                <label class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))]">
+                                    Receipt Number (Auto-generated)
+                                </label>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Document Date -->
+                            <div class="relative">
+                                <input type="date" 
+                                    id="{{ form.document_date.id_for_label }}" 
+                                    name="{{ form.document_date.name }}"
+                                    class="peer w-full px-3 py-2 rounded-md border-2 {% if form.document_date.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:bg-[hsl(var(--accent))] placeholder-transparent" 
+                                    placeholder="Document Date"
+                                    value="{{ form.document_date.value|date:'Y-m-d'|default:'' }}"
+                                    {% if form.document_date.field.required and not is_detail_view %}required{% endif %}
+                                    {% if is_detail_view %}readonly{% endif %}>
+                                <label for="{{ form.document_date.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.document_date.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-green-600 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                    Document Date {% if form.document_date.field.required and not is_detail_view %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                {% if form.document_date.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in form.document_date.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Production Order, Warehouse, Status -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <!-- Production Order -->
+                            <div class="relative">
+                                <select id="{{ form.production_order.id_for_label }}" 
+                                    name="{{ form.production_order.name }}"
+                                    class="peer w-full px-3 py-2 rounded-md border-2 {% if form.production_order.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:bg-[hsl(var(--accent))] appearance-none"
+                                    {% if form.production_order.field.required and not is_detail_view %}required{% endif %}
+                                    {% if is_detail_view %}disabled{% endif %}>
+                                    <option value="" disabled {% if not form.production_order.value %}selected{% endif %}>Select Production Order</option>
+                                    {% for choice in form.production_order.field.choices %}
+                                        <option value="{{ choice.0 }}" 
+                                            class="py-3 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-green-500 hover:text-white"
+                                            {% if form.production_order.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                            {{ choice.1 }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <label for="{{ form.production_order.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.production_order.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-green-600 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                    Production Order {% if form.production_order.field.required and not is_detail_view %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                {% if not is_detail_view %}
+                                <svg class="absolute right-3 top-3.5 w-5 h-5 pointer-events-none text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                {% endif %}
+                                {% if form.production_order.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in form.production_order.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Warehouse -->
+                            <div class="relative">
+                                <select id="{{ form.warehouse.id_for_label }}" 
+                                    name="{{ form.warehouse.name }}"
+                                    class="peer w-full px-3 py-2 rounded-md border-2 {% if form.warehouse.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:bg-[hsl(var(--accent))] appearance-none"
+                                    {% if form.warehouse.field.required and not is_detail_view %}required{% endif %}
+                                    {% if is_detail_view %}disabled{% endif %}>
+                                    <option value="" disabled {% if not form.warehouse.value %}selected{% endif %}>Select Warehouse</option>
+                                    {% for choice in form.warehouse.field.choices %}
+                                        <option value="{{ choice.0 }}" 
+                                            class="py-3 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-green-500 hover:text-white"
+                                            {% if form.warehouse.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                            {{ choice.1 }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <label for="{{ form.warehouse.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.warehouse.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-green-600 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                    Warehouse {% if form.warehouse.field.required and not is_detail_view %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                {% if not is_detail_view %}
+                                <svg class="absolute right-3 top-3.5 w-5 h-5 pointer-events-none text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                {% endif %}
+                                {% if form.warehouse.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in form.warehouse.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Status -->
+                            <div class="relative">
+                                <select id="{{ form.status.id_for_label }}" 
+                                    name="{{ form.status.name }}"
+                                    class="peer w-full px-3 py-2 rounded-md border-2 {% if form.status.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:bg-[hsl(var(--accent))] appearance-none"
+                                    {% if not is_detail_view %}required{% endif %}
+                                    {% if is_detail_view %}disabled{% endif %}>
+                                    <option value="" disabled {% if not form.status.value %}selected{% endif %}>Select Status</option>
+                                    {% for choice in form.status.field.choices %}
+                                        <option value="{{ choice.0 }}" 
+                                            class="py-3 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-green-500 hover:text-white"
+                                            {% if form.status.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                            {{ choice.1 }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <label for="{{ form.status.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if form.status.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-green-600 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                    Status {% if not is_detail_view %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                {% if not is_detail_view %}
+                                <svg class="absolute right-3 top-3.5 w-5 h-5 pointer-events-none text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                {% endif %}
+                                {% if form.status.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in form.status.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Remarks Field -->
+                        <div class="relative mb-4">
+                            <textarea 
+                                id="{{ extra_form.remarks.id_for_label }}" 
+                                name="{{ extra_form.remarks.name }}"
+                                class="peer w-full px-3 py-2 rounded-md border-2 {% if extra_form.remarks.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} {% if is_detail_view %}bg-[hsl(var(--muted))] cursor-not-allowed{% else %}bg-transparent{% endif %} premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:bg-[hsl(var(--accent))] placeholder-transparent" 
+                                placeholder="Remarks"
+                                rows="3"
+                                {% if is_detail_view %}readonly{% endif %}>{{ extra_form.remarks.value|default:'' }}</textarea>
+                            <label for="{{ extra_form.remarks.id_for_label }}" 
+                                class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] {% if extra_form.remarks.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-green-600 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                Remarks
+                            </label>
+                            {% if extra_form.remarks.errors %}
+                                <div class="text-red-500 text-xs mt-1">
+                                    {% for error in extra_form.remarks.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Receipt Items -->
+                <div class="p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))] shadow-sm section-collapsible" data-section="receipt-items">
+                    <h3 class="text-base font-semibold mb-3 flex items-center gap-2 cursor-pointer" onclick="toggleSection('receipt-items')">
+                        <svg class="w-4 h-4 text-green-600 transition-transform duration-300 section-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M16 3H8C6.89543 3 6 3.89543 6 5V19C6 20.1046 6 21 8 21H16C17.1046 21 18 20.1046 18 19V5C18 3.89543 17.1046 3 16 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 18H12.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Receipt Items
+                        <svg class="w-4 h-4 ml-auto text-[hsl(var(--muted-foreground))] section-toggle-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </h3>
+                    <div class="section-content">
+                        <!-- Formset Management Form -->
+                        {{ formset.management_form }}
+
+                        <!-- Mobile Display View -->
+                        <div class="md:hidden space-y-3" id="mobileFormsetContainer">
+                            {% for form in formset.forms %}
+                            <div class="mobile-formset-row p-3 border border-[hsl(var(--border))] rounded-lg relative transition-all duration-300 hover:shadow-md hover:border-green-500 draggable" data-index="{{ forloop.counter0 }}" draggable="true">
+                                <button type="button" class="mobile-context-btn absolute top-2 right-2 w-6 h-6 rounded-full bg-[hsl(var(--muted))] flex items-center justify-center hover:bg-green-500 hover:text-white transition-colors">
+                                    <svg class="w-4 h-4 text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none">
+                                        <path d="M12 5V5.01M12 12V12.01M12 19V19.01M12 6C11.4477 6 11 5.55228 11 5C11 4.44772 11.4477 4 12 4C12.5523 4 13 4.44772 13 5C13 5.55228 12.5523 6 12 6ZM12 13C11.4477 13 11 12.5523 11 12C11 11.4477 11.4477 11 12 11C12.5523 11 13 12.4477 13 12C13 12.5523 12.5523 13 12 13ZM12 20C11.4477 20 11 19.5523 11 19C11 18.4477 11.4477 18 12 18C12.5523 18 13 18.4477 13 19C13 19.5523 12.5523 20 12 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                                <div class="space-y-2">
+                                    <!-- Hidden Fields -->
+                                    {% if form.id %}
+                                    <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}" />
+                                    {% endif %}
+                                    <!-- Item Code and Name -->
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div class="item-input-wrapper relative">
+                                            <label class="text-xs font-medium mb-1 block">Item Code</label>
+                                            <input type="text" name="{{ form.item_code.html_name }}" value="{{ form.item_code.value|default:'' }}"
+                                                class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--background))] item-code-input transition-all duration-200 focus:ring-1 focus:ring-green-500"
+                                                id="{{ form.item_code.id_for_label }}" />
+                                        </div>
+                                        <div>
+                                            <label class="text-xs font-medium mb-1 block">Item Name</label>
+                                            <input type="text" name="{{ form.item_name.html_name }}" value="{{ form.item_name.value|default:'' }}"
+                                                class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--muted))] item-name-input transition-all duration-200 focus:ring-1 focus:ring-green-500"
+                                                id="{{ form.item_name.id_for_label }}" readonly />
+                                        </div>
+                                    </div>
+                                    <!-- Quantity and UOM -->
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="text-xs font-medium mb-1 block">Quantity</label>
+                                            <input type="number" name="{{ form.quantity.html_name }}" value="{{ form.quantity.value|default:'' }}"
+                                                min="0.000001" step="0.000001"
+                                                class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--background))] quantity-input transition-all duration-200 focus:ring-1 focus:ring-green-500"
+                                                id="{{ form.quantity.id_for_label }}" />
+                                        </div>
+                                        <div>
+                                            <label class="text-xs font-medium mb-1 block">UOM</label>
+                                            <input type="text" name="{{ form.uom.html_name }}" value="{{ form.uom.value|default:'' }}"
+                                                class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--muted))] uom-input transition-all duration-200 focus:ring-1 focus:ring-green-500"
+                                                id="{{ form.uom.id_for_label }}" readonly />
+                                        </div>
+                                    </div>
+                                    <!-- Remarks -->
+                                    <div>
+                                        <label class="text-xs font-medium mb-1 block">Remarks</label>
+                                        <textarea name="{{ form.remarks.html_name }}" rows="2"
+                                            class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--background))] remarks-input transition-all duration-200 focus:ring-1 focus:ring-green-500"
+                                            id="{{ form.remarks.id_for_label }}">{{ form.remarks.value|default:'' }}</textarea>
+                                    </div>
+                                    <!-- Delete Button -->
+                                    <div class="flex justify-end mt-2">
+                                        <button type="button" class="delete-row mobile-delete-row inline-flex items-center px-2 py-1 text-xs font-medium text-red-600 hover:text-red-700 relative group" data-tooltip="Delete this item">
+                                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                                <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            Delete
+                                        </button>
+                                        {% if form.DELETE %}
+                                        <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" class="delete-checkbox hidden">
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Desktop Display View -->
+                        <div class="hidden md:block">
+                            <div class="overflow-x-auto overflow-y-auto max-h-[400px] rounded-lg border border-[hsl(var(--border))] shadow-inner">
+                                <div class="min-w-[800px]">
+                                    <table class="w-full">
+                                        <thead class="sticky top-0 bg-green-50 z-10 shadow-sm">
+                                            <tr>
+                                                <th scope="col" class="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-green-700">Item Code</th>
+                                                <th scope="col" class="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-green-700">Item Name</th>
+                                                <th scope="col" class="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-green-700">Quantity</th>
+                                                <th scope="col" class="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-green-700">UOM</th>
+                                                <th scope="col" class="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-green-700">Remarks</th>
+                                                <th scope="col" class="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-green-700">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="formsetBody" class="formset-container divide-y divide-[hsl(var(--border))]">
+                                            {% for form in formset.forms %}
+                                            <tr class="formset-row group hover:bg-green-50 transition-all duration-300 draggable {% if form.errors %}has-errors{% endif %}" data-index="{{ forloop.counter0 }}" draggable="true">
+                                                <!-- Hidden Fields -->
+                                                {% if form.id %}
+                                                <input type="hidden" name="{{ form.id.html_name }}" value="{{ form.id.value|default:'' }}" id="{{ form.id.id_for_label }}">
+                                                {% endif %}
+                                                <td class="py-2 px-4">
+                                                    <div class="item-input-wrapper relative">
+                                                        <input type="text" name="{{ form.item_code.html_name }}" value="{{ form.item_code.value|default:'' }}"
+                                                            class="w-full px-3 py-1 text-sm border {% if form.item_code.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-green-500 item-code-input transition-all duration-200"
+                                                            id="{{ form.item_code.id_for_label }}">
+                                                        {% if form.item_code.errors %}
+                                                        <div class="text-red-500 text-xs mt-1">
+                                                            {% for error in form.item_code.errors %}
+                                                            <p>{{ error }}</p>
+                                                            {% endfor %}
+                                                        </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                                <td class="py-2 px-4">
+                                                    <input type="text" name="{{ form.item_name.html_name }}" value="{{ form.item_name.value|default:'' }}"
+                                                        class="w-full px-3 py-1 text-sm border {% if form.item_name.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} rounded-md bg-[hsl(var(--muted))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-green-500 item-name-input transition-all duration-200"
+                                                        id="{{ form.item_name.id_for_label }}" readonly>
+                                                    {% if form.item_name.errors %}
+                                                    <div class="text-red-500 text-xs mt-1">
+                                                        {% for error in form.item_name.errors %}
+                                                        <p>{{ error }}</p>
+                                                        {% endfor %}
+                                                    </div>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="py-2 px-4">
+                                                    <input type="number" name="{{ form.quantity.html_name }}" value="{{ form.quantity.value|default:'' }}" min="0" step="0.000001"
+                                                        class="w-full px-3 py-1 text-sm border {% if form.quantity.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-green-500 quantity-input transition-all duration-200"
+                                                        id="{{ form.quantity.id_for_label }}">
+                                                    {% if form.quantity.errors %}
+                                                    <div class="text-red-500 text-xs mt-1">
+                                                        {% for error in form.quantity.errors %}
+                                                        <p>{{ error }}</p>
+                                                        {% endfor %}
+                                                    </div>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="py-2 px-4">
+                                                    <input type="text" name="{{ form.uom.html_name }}" value="{{ form.uom.value|default:'' }}"
+                                                        class="w-full px-3 py-1 text-sm border {% if form.uom.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} rounded-md bg-[hsl(var(--muted))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-green-500 uom-input transition-all duration-200"
+                                                        id="{{ form.uom.id_for_label }}" readonly>
+                                                    {% if form.uom.errors %}
+                                                    <div class="text-red-500 text-xs mt-1">
+                                                        {% for error in form.uom.errors %}
+                                                        <p>{{ error }}</p>
+                                                        {% endfor %}
+                                                    </div>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="py-2 px-4">
+                                                    <textarea name="{{ form.remarks.html_name }}" rows="1"
+                                                        class="w-full px-3 py-1 text-sm border {% if form.remarks.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-green-500 remarks-input transition-all duration-200"
+                                                        id="{{ form.remarks.id_for_label }}">{{ form.remarks.value|default:'' }}</textarea>
+                                                    {% if form.remarks.errors %}
+                                                    <div class="text-red-500 text-xs mt-1">
+                                                        {% for error in form.remarks.errors %}
+                                                        <p>{{ error }}</p>
+                                                        {% endfor %}
+                                                    </div>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="py-2 px-4 relative">
+                                                    <button type="button" class="delete-row desktop-delete-row opacity-0 group-hover:opacity-100 transition-opacity duration-150 inline-flex items-center justify-center rounded-full w-8 h-8 bg-red-500 text-white hover:bg-red-600 shadow-md relative group" data-tooltip="Delete this item">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                        </svg>
+                                                    </button>
+                                                    {% if form.DELETE %}
+                                                    <input type="checkbox" name="{{ form.DELETE.html_name }}" id="{{ form.DELETE.id_for_label }}" class="delete-checkbox hidden">
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% if form.non_field_errors %}
+                                            <tr class="error-row bg-red-50">
+                                                <td colspan="6" class="py-1 px-2 text-xs text-red-600">
+                                                    <div class="flex items-center">
+                                                        <svg class="w-4 h-4 mr-1 text-red-500" viewBox="0 0 24 24" fill="none">
+                                                            <path d="M12 9V13M12 17H12.01M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        </svg>
+                                                        {% for error in form.non_field_errors %}
+                                                        <span>{{ error }}</span>{% if not forloop.last %}, {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add Row Button -->
+                        <button type="button" id="addRowBtn" class="w-full mt-3 px-4 py-2 rounded-lg text-xs font-medium bg-gradient-to-r from-green-500 to-green-600 text-white hover:opacity-90 shadow-md flex items-center justify-center gap-2 relative group">
+                            <svg class="w-4 h-4 button-icon" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span class="button-text">Add New Item</span>
+                            <svg class="w-4 h-4 button-spinner hidden animate-spin" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" fill="currentColor" opacity="0.3"/>
+                                <path d="M12 2a10 10 0 0 1 10 10h-2a8 8 0 0 0-8-8z" fill="currentColor"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Footer -->
+            <div class="border-t pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div class="text-xs text-[hsl(var(--muted-foreground))]">
+                    <span class="flex items-center">
+                        <svg class="w-4 h-4 mr-1 text-green-500" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="currentColor"/>
+                        </svg>
+                        Your production receipt is secure and encrypted
+                    </span>
+                </div>
+                <div class="flex gap-3 w-full sm:w-auto">
+                    {% if cancel_url %}
+                    <a href="{{ cancel_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                        {% if is_detail_view %}Back{% else %}Cancel{% endif %}
+                    </a>
+                    {% endif %}
+                    
+                    {% if is_detail_view %}
+                        {% if update_url %}
+                        <a href="{{ update_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Edit
+                        </a>
+                        {% endif %}
+                        {% if delete_url %}
+                        <a href="{{ delete_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 h-9 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Delete
+                        </a>
+                        {% endif %}
+                        {% if print_url %}
+                        <a href="{{ print_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 h-9 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M6 9V2H18V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M6 18H4C3.46957 18 2.96086 17.7893 2.58579 17.4142C2.21071 17.0391 2 16.5304 2 16V11C2 10.4696 2.21071 9.96086 2.58579 9.58579C2.96086 9.21071 3.46957 9 4 9H20C20.5304 9 21.0391 9.21071 21.4142 9.58579C21.7893 9.96086 22 10.4696 22 11V16C22 16.5304 21.7893 17.0391 21.4142 17.4142C21.0391 17.7893 20.5304 18 20 18H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M18 14H6V22H18V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Print
+                        </a>
+                        {% endif %}
+                    {% else %}
+                        <button type="reset" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                            Reset
+                        </button>
+                        <button type="submit" id="submitBtn" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-lg text-xs font-medium bg-gradient-to-r from-green-500 to-green-600 text-white hover:opacity-90 h-9 px-4 py-2 shadow-md">
+                            <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 12L10 17L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span class="button-text">{{ submit_text|default:"Save Production Receipt" }}</span>
+                            <svg class="w-4 h-4 button-spinner hidden animate-spin" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" fill="currentColor" opacity="0.3"/>
+                                <path d="M12 2a10 10 0 0 1 10 10h-2a8 8 0 0 0-8-8z" fill="currentColor"/>
+                            </svg>
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let formsetIndex = {{ formset.total_form_count }};
+    let contextMenuRow = null;
+    let mobileContextMenuRow = null;
+    let draggedRow = null;
+    let draggedIndex = null;
+
+    // Initialize form
+    initializeForm();
+
+    function initializeForm() {
+        setupEventListeners();
+        updateFormsetIndices();
+        updateTotalForms();
+        setupItemCodeAutocomplete();
+    }
+
+    function setupEventListeners() {
+        // Production order change event
+        const productionOrderSelect = document.getElementById('{{ form.production_order.id_for_label }}');
+        if (productionOrderSelect) {
+            productionOrderSelect.addEventListener('change', handleProductionOrderChange);
+        }
+
+        // Add row button
+        const addRowBtn = document.getElementById('addRowBtn');
+        if (addRowBtn) {
+            addRowBtn.addEventListener('click', addNewRow);
+        }
+
+        // Delete row buttons
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.delete-row')) {
+                e.preventDefault();
+                deleteRow(e.target.closest('.formset-row, .mobile-formset-row'));
+            }
+        });
+
+        // Item code change events
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('item-code-input')) {
+                handleItemCodeChange(e.target);
+            }
+        });
+
+        // Form submission
+        const form = document.getElementById('productionReceiptForm');
+        if (form) {
+            form.addEventListener('submit', handleFormSubmit);
+        }
+
+        // Section toggle
+        window.toggleSection = toggleSection;
+    }
+
+    function handleProductionOrderChange() {
+        const productionOrderId = this.value;
+        if (!productionOrderId) return;
+
+        // You can add logic here to fetch production order details
+        // and pre-populate receipt items if needed
+        showToast('Production order selected', 'info');
+    }
+
+    function handleItemCodeChange(input) {
+        const itemCode = input.value.trim();
+        if (!itemCode) return;
+
+        const row = input.closest('.formset-row, .mobile-formset-row');
+        if (!row) return;
+
+        const itemNameInput = row.querySelector('.item-name-input');
+        const uomInput = row.querySelector('.uom-input');
+
+        // Here you would typically make an API call to fetch item details
+        // For now, we'll just show a loading state
+        if (itemNameInput) {
+            itemNameInput.value = 'Loading...';
+        }
+        if (uomInput) {
+            uomInput.value = 'Loading...';
+        }
+
+        // Simulate API call
+        setTimeout(() => {
+            if (itemNameInput) {
+                itemNameInput.value = `Item Name for ${itemCode}`;
+            }
+            if (uomInput) {
+                uomInput.value = 'PCS';
+            }
+            showToast('Item details loaded', 'success');
+        }, 500);
+    }
+
+    function setupItemCodeAutocomplete() {
+        // Add autocomplete functionality for item codes
+        const itemCodeInputs = document.querySelectorAll('.item-code-input');
+        itemCodeInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                // Implement autocomplete logic here
+                // This would typically involve making API calls to search for items
+            });
+        });
+    }
+
+    function addFormsetRow(index = null) {
+        const currentIndex = index !== null ? index : formsetIndex;
+        
+        // Add to desktop view
+        addDesktopRow(currentIndex);
+        
+        // Add to mobile view
+        addMobileRow(currentIndex);
+
+        if (index === null) {
+            formsetIndex++;
+            updateTotalForms();
+        }
+    }
+
+    function addDesktopRow(index) {
+        const formsetBody = document.getElementById('formsetBody');
+        if (!formsetBody) return;
+
+        const row = document.createElement('tr');
+        row.className = 'formset-row group hover:bg-green-50 transition-all duration-300 draggable';
+        row.setAttribute('data-index', index);
+        row.setAttribute('draggable', 'true');
+        
+        row.innerHTML = `
+            <td class="py-2 px-4">
+                <div class="item-input-wrapper relative">
+                    <input type="text" 
+                           name="productionreceiptline_set-${index}-item_code" 
+                           value=""
+                           class="w-full px-3 py-1 text-sm border border-[hsl(var(--border))] rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-green-500 item-code-input transition-all duration-200"
+                           id="id_productionreceiptline_set-${index}-item_code">
+                </div>
+            </td>
+            <td class="py-2 px-4">
+                <input type="text" 
+                       name="productionreceiptline_set-${index}-item_name" 
+                       value=""
+                       class="w-full px-3 py-1 text-sm border border-[hsl(var(--border))] rounded-md bg-[hsl(var(--muted))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-green-500 item-name-input transition-all duration-200"
+                       id="id_productionreceiptline_set-${index}-item_name" readonly>
+            </td>
+            <td class="py-2 px-4">
+                <input type="number" 
+                       name="productionreceiptline_set-${index}-quantity" 
+                       value=""
+                       min="0" step="0.000001"
+                       class="w-full px-3 py-1 text-sm border border-[hsl(var(--border))] rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-green-500 quantity-input transition-all duration-200"
+                       id="id_productionreceiptline_set-${index}-quantity">
+            </td>
+            <td class="py-2 px-4">
+                <input type="text" 
+                       name="productionreceiptline_set-${index}-uom" 
+                       value=""
+                       class="w-full px-3 py-1 text-sm border border-[hsl(var(--border))] rounded-md bg-[hsl(var(--muted))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-green-500 uom-input transition-all duration-200"
+                       id="id_productionreceiptline_set-${index}-uom" readonly>
+            </td>
+            <td class="py-2 px-4">
+                <textarea name="productionreceiptline_set-${index}-remarks" rows="1"
+                    class="w-full px-3 py-1 text-sm border border-[hsl(var(--border))] rounded-md bg-[hsl(var(--background))] premium-input text-[hsl(var(--foreground))] focus:outline-none focus:ring-1 focus:ring-green-500 remarks-input transition-all duration-200"
+                    id="id_productionreceiptline_set-${index}-remarks"></textarea>
+            </td>
+            <td class="py-2 px-4 relative">
+                <button type="button" class="delete-row desktop-delete-row opacity-0 group-hover:opacity-100 transition-opacity duration-150 inline-flex items-center justify-center rounded-full w-8 h-8 bg-red-500 text-white hover:bg-red-600 shadow-md relative group" data-tooltip="Delete this item">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+                <input type="checkbox" name="productionreceiptline_set-${index}-DELETE" id="id_productionreceiptline_set-${index}-DELETE" class="delete-checkbox hidden">
+            </td>
+        `;
+
+        formsetBody.appendChild(row);
+        
+        // Setup event listeners for the new row
+        const itemCodeInput = row.querySelector('.item-code-input');
+        if (itemCodeInput) {
+            itemCodeInput.addEventListener('change', function() {
+                handleItemCodeChange(this);
+            });
+        }
+    }
+
+    function addMobileRow(index) {
+        const mobileContainer = document.getElementById('mobileFormsetContainer');
+        if (!mobileContainer) return;
+
+        const row = document.createElement('div');
+        row.className = 'mobile-formset-row p-3 border border-[hsl(var(--border))] rounded-lg relative transition-all duration-300 hover:shadow-md hover:border-green-500 draggable';
+        row.setAttribute('data-index', index);
+        row.setAttribute('draggable', 'true');
+        
+        row.innerHTML = `
+            <button type="button" class="mobile-context-btn absolute top-2 right-2 w-6 h-6 rounded-full bg-[hsl(var(--muted))] flex items-center justify-center hover:bg-green-500 hover:text-white transition-colors">
+                <svg class="w-4 h-4 text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 5V5.01M12 12V12.01M12 19V19.01M12 6C11.4477 6 11 5.55228 11 5C11 4.44772 11.4477 4 12 4C12.5523 4 13 4.44772 13 5C13 5.55228 12.5523 6 12 6ZM12 13C11.4477 13 11 12.5523 11 12C11 11.4477 11.4477 11 12 11C12.5523 11 13 12.4477 13 12C13 12.5523 12.5523 13 12 13ZM12 20C11.4477 20 11 19.5523 11 19C11 18.4477 11.4477 18 12 18C12.5523 18 13 18.4477 13 19C13 19.5523 12.5523 20 12 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div class="space-y-2">
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="item-input-wrapper relative">
+                        <label class="text-xs font-medium mb-1 block">Item Code</label>
+                        <input type="text" 
+                               name="productionreceiptline_set-${index}-item_code" 
+                               value=""
+                               class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--background))] item-code-input transition-all duration-200 focus:ring-1 focus:ring-green-500"
+                               id="id_productionreceiptline_set-${index}-item_code">
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium mb-1 block">Item Name</label>
+                        <input type="text" 
+                               name="productionreceiptline_set-${index}-item_name" 
+                               value=""
+                               class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--muted))] item-name-input transition-all duration-200 focus:ring-1 focus:ring-green-500"
+                               id="id_productionreceiptline_set-${index}-item_name" readonly>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs font-medium mb-1 block">Quantity</label>
+                        <input type="number" 
+                               name="productionreceiptline_set-${index}-quantity" 
+                               value=""
+                               min="0.000001" step="0.000001"
+                               class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--background))] quantity-input transition-all duration-200 focus:ring-1 focus:ring-green-500"
+                               id="id_productionreceiptline_set-${index}-quantity">
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium mb-1 block">UOM</label>
+                        <input type="text" 
+                               name="productionreceiptline_set-${index}-uom" 
+                               value=""
+                               class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--muted))] uom-input transition-all duration-200 focus:ring-1 focus:ring-green-500"
+                               id="id_productionreceiptline_set-${index}-uom" readonly>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-medium mb-1 block">Remarks</label>
+                    <textarea name="productionreceiptline_set-${index}-remarks" rows="2"
+                        class="w-full px-2 py-1 text-sm border rounded-md bg-[hsl(var(--background))] remarks-input transition-all duration-200 focus:ring-1 focus:ring-green-500"
+                        id="id_productionreceiptline_set-${index}-remarks"></textarea>
+                </div>
+                <div class="flex justify-end mt-2">
+                    <button type="button" class="delete-row mobile-delete-row inline-flex items-center px-2 py-1 text-xs font-medium text-red-600 hover:text-red-700 relative group" data-tooltip="Delete this item">
+                        <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                            <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Delete
+                    </button>
+                    <input type="checkbox" name="productionreceiptline_set-${index}-DELETE" id="id_productionreceiptline_set-${index}-DELETE" class="delete-checkbox hidden">
+                </div>
+            </div>
+        `;
+
+        mobileContainer.appendChild(row);
+        
+        // Setup event listeners for the new row
+        const itemCodeInput = row.querySelector('.item-code-input');
+        if (itemCodeInput) {
+            itemCodeInput.addEventListener('change', function() {
+                handleItemCodeChange(this);
+            });
+        }
+    }
+
+    function addNewRow() {
+        addFormsetRow();
+        showToast('New receipt item added', 'success');
+    }
+
+    function deleteRow(row) {
+        if (!row) return;
+
+        const deleteCheckbox = row.querySelector('.delete-checkbox');
+        if (deleteCheckbox) {
+            deleteCheckbox.checked = true;
+        }
+        
+        row.style.display = 'none';
+        showToast('Receipt item marked for deletion', 'info');
+    }
+
+    function updateFormsetIndices() {
+        // Update desktop rows
+        const desktopRows = document.querySelectorAll('#formsetBody .formset-row');
+        desktopRows.forEach((row, index) => {
+            updateRowIndex(row, index);
+        });
+
+        // Update mobile rows
+        const mobileRows = document.querySelectorAll('#mobileFormsetContainer .mobile-formset-row');
+        mobileRows.forEach((row, index) => {
+            updateRowIndex(row, index);
+        });
+    }
+
+    function updateRowIndex(row, newIndex) {
+        row.setAttribute('data-index', newIndex);
+        
+        const inputs = row.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            const name = input.getAttribute('name');
+            const id = input.getAttribute('id');
+            
+            if (name && name.includes('productionreceiptline_set-')) {
+                const newName = name.replace(/productionreceiptline_set-\d+/, `productionreceiptline_set-${newIndex}`);
+                input.setAttribute('name', newName);
+            }
+            
+            if (id && id.includes('productionreceiptline_set-')) {
+                const newId = id.replace(/id_productionreceiptline_set-\d+/, `id_productionreceiptline_set-${newIndex}`);
+                input.setAttribute('id', newId);
+            }
+        });
+    }
+
+    function updateTotalForms() {
+        const totalFormsInput = document.querySelector('input[name$="-TOTAL_FORMS"]');
+        if (totalFormsInput) {
+            totalFormsInput.value = formsetIndex;
+        }
+    }
+
+    function handleFormSubmit(e) {
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) {
+            const buttonText = submitBtn.querySelector('.button-text');
+            const buttonSpinner = submitBtn.querySelector('.button-spinner');
+            
+            if (buttonText) buttonText.textContent = 'Saving...';
+            if (buttonSpinner) {
+                buttonSpinner.classList.remove('hidden');
+            }
+            
+            submitBtn.disabled = true;
+        }
+    }
+
+    function toggleSection(sectionId) {
+        const section = document.querySelector(`[data-section="${sectionId}"]`);
+        if (!section) return;
+
+        const content = section.querySelector('.section-content');
+        const toggleIcon = section.querySelector('.section-toggle-icon');
+        
+        if (content && toggleIcon) {
+            const isCollapsed = content.style.display === 'none';
+            
+            if (isCollapsed) {
+                content.style.display = 'block';
+                toggleIcon.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.display = 'none';
+                toggleIcon.style.transform = 'rotate(-90deg)';
+            }
+        }
+    }
+
+    function showToast(message, type = 'info') {
+        // Simple toast implementation
+        const toast = document.createElement('div');
+        toast.className = `fixed top-4 right-4 z-50 px-4 py-2 rounded-md shadow-lg text-white text-sm transition-all duration-300 ${
+            type === 'success' ? 'bg-green-500' :
+            type === 'error' ? 'bg-red-500' :
+            type === 'warning' ? 'bg-yellow-500' :
+            'bg-blue-500'
+        }`;
+        toast.textContent = message;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 300);
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,105 @@
+# Python/Django specific
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.sqlite3
+*.db
+*.pid
+
+# Django migrations
+*/migrations/*.pyc
+*/migrations/__pycache__/
+
+# Django media and static files
+media/
+staticfiles/
+collected_static/
+
+# Environment variables and settings
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+local_settings.py
+settings.py.local
+settings_local.py
+
+# Virtual environment
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Django debug and logs
+*.log
+logs/
+debug.log
+
+# Editor and IDE files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+*.swp
+*~
+
+# Build and distribution
+dist/
+build/
+*.egg
+*.egg-info/
+*.dist-info/
+
+# Testing and coverage
+.coverage
+coverage.xml
+*.cover
+htmlcov/
+.tox/
+.pytest_cache/
+.nox/
+
+# Database dumps
+*.sql
+*.sql.gz
+
+# Sensitive files
+*.pem
+*.key
+*.crt
+*.csr
+*.cert
+
+# Temporary files
+*.bak
+*.tmp
+*.backup
+
+# Project-specific exclusions (based on your files)
+employee_profiles/
+investment_documents/
+mobile_attendance/
+notices/
+*.cache
+
+# macOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Other common exclusions
+node_modules/
+*.zip
+*.tar.gz
+*.rar

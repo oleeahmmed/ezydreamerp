@@ -1,0 +1,49 @@
+            {% if show_banking_menu %}
+            <div class="relative">
+                <button data-dropdown-toggle="bankingMenu" class="relative w-full flex items-center px-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Banking:payment_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                    <div class="absolute left-[-4px] top-0 bottom-0 w-[3px] bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.7)] rounded-r-full {% if 'Banking:payment_list' in request.path %}opacity-100{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-all duration-300 shadow-[0_0_8px_rgba(var(--primary),0.5)]"></div>
+                    
+                    <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-md group-hover:shadow-[0_0_12px_rgba(var(--primary),0.4)] transition-all duration-300 group-hover:scale-105">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 10V21H21V10L12 3L3 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M9 21V13H15V21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    
+                    <span class="sidebar-text font-medium group-hover:translate-x-0.5 transition-transform">Banking</span>
+                    <svg class="w-4 h-4 ml-auto transition-transform duration-200" id="bankingArrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            
+                <!-- Banking Submenu -->
+                <div id="bankingMenu" class="{% if 'Banking:payment_list' in request.path %}block animate-fade-in{% else %}hidden{% endif %} mt-2 space-y-1 ml-11 relative">
+                    <div class="absolute left-[-14px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-[hsl(var(--primary))] via-[hsl(var(--primary)/0.6)] to-[hsl(var(--primary)/0.2)] rounded-full shadow-[0_0_8px_rgba(var(--primary),0.3)]"></div>
+                    
+                    <!-- <span class="px-4 py-2 text-xs font-bold rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-badge">Transactions</span> -->
+                    <a href="{% url 'Banking:payment_method_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Banking:payment_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'Banking:payment_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'Banking:payment_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 6V18M6 12H18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Payments Method</span>
+                        </div>
+                    </a>
+                    <!-- Payments -->
+                    <a href="{% url 'Banking:payment_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'Banking:payment_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+                        <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'Banking:payment_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'Banking:payment_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 6V18M6 12H18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Payments</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endif %}

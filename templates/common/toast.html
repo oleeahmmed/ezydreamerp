@@ -1,0 +1,47 @@
+            
+            {% if messages %}
+            <div class="mb-6 space-y-3 animate-fade-in">
+                {% for message in messages %}
+                    <div class="p-4 rounded-lg border shadow-sm flex items-center gap-3 transition-all duration-300 hover:shadow-md {% if message.tags == 'error' %}bg-red-50 text-red-700 border-red-200{% elif message.tags == 'success' %}bg-green-50 text-green-700 border-green-200{% elif message.tags == 'warning' %}bg-amber-50 text-amber-700 border-amber-200{% else %}bg-blue-50 text-blue-700 border-blue-200{% endif %}">
+                        <div class="flex-shrink-0">
+                            {% if message.tags == 'error' %}
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center bg-red-100">
+                                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                            {% elif message.tags == 'success' %}
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center bg-green-100">
+                                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9 12L11 14L15 10M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            {% elif message.tags == 'warning' %}
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center bg-amber-100">
+                                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 9V13M12 17H12.01M3.98069 15.0177C2.99602 13.1147 2.99602 10.8853 3.98069 8.98229L7.52801 2.98229C8.51269 1.07931 10.6619 0 12.9999 0C15.3379 0 17.4872 1.07931 18.4718 2.98229L22.0191 8.98229C23.0038 10.8853 23.0038 13.1147 22.0191 15.0177L18.4718 21.0177C17.4872 22.9207 15.3379 24 12.9999 24C10.6619 24 8.51269 22.9207 7.52801 21.0177L3.98069 15.0177Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            {% else %}
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center bg-blue-100">
+                                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-medium">
+                                {% if message.tags == 'error' %}Error{% elif message.tags == 'success' %}Success{% elif message.tags == 'warning' %}Warning{% else %}Information{% endif %}
+                            </div>
+                            <div class="text-sm opacity-90">{{ message }}</div>
+                        </div>
+                        <button onclick="this.parentElement.classList.add('opacity-0', 'scale-95'); setTimeout(() => this.parentElement.remove(), 300);" class="flex-shrink-0 p-1.5 rounded-full hover:bg-white/50 transition-colors">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}

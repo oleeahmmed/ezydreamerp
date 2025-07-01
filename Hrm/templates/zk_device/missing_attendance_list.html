@@ -1,0 +1,657 @@
+{% extends "common/base-list-modern.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block list_icon %}
+<svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 8V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+    <path d="M8 2V6M16 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M3 10H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+{% endblock %}
+
+{% block list_title %}{% trans " Missing Attendance Report" %}{% endblock %}
+{% block list_subtitle %}{% trans "Days with incomplete punch records or insufficient working hours" %}{% endblock %}
+
+{% block list_actions %}
+<div class="flex gap-3">
+    <button id="generate-report-btn" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Generate Enhanced Report" %}
+    </button>
+</div>
+{% endblock %}
+
+{% block search_filter %}
+{% if report_generated %}
+<div class="flex flex-wrap justify-center gap-3 p-4 bg-white shadow-md rounded-lg border border-gray-200">
+    <input type="text" id="search-input" placeholder="{% trans 'Search Employee or Date...' %}" class="w-full sm:w-auto flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+    <button id="export-csv" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2H6A2 2 0 0 0 4 4V20A2 2 0 0 0 6 22H18A2 2 0 0 0 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Export CSV" %}
+    </button>
+    <button id="copy-clipboard" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-gray-600 to-gray-700 text-white hover:from-gray-700 hover:to-gray-800 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 15H4A2 2 0 0 1 2 13V4A2 2 0 0 1 4 2H13A2 2 0 0 1 15 4V5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Copy" %}
+    </button>
+    <button id="print-table" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="6,9 6,2 18,2 18,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 18H4A2 2 0 0 1 2 16V11A2 2 0 0 1 4 9H20A2 2 0 0 1 22 11V16A2 2 0 0 1 20 18H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="6" y="14" width="12" height="8" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Print Table" %}
+    </button>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block table_body %}
+{% if report_generated %}
+<div class="w-full overflow-x-auto overflow-y-auto max-h-[70vh]">
+    <table id="missing-attendance-table" class="w-full table-fixed border-collapse">
+        <thead class="bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] sticky top-0 z-10">
+            <tr>
+                <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                    {% trans "EMPLOYEE ID" %}
+                </th>
+                <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 130px;">
+                    {% trans "EMPLOYEE NAME" %}
+                </th>
+                <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                    {% trans "DEPARTMENT" %}
+                </th>
+                <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                    {% trans "MISSING DATE" %}
+                </th>
+                <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                    {% trans "DAY" %}
+                </th>
+                <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 80px;">
+                    {% trans "RECORDS" %}
+                </th>
+                <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                    {% trans "WORKING HOURS" %}
+                </th>
+                <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 90px;">
+                    {% trans "FIRST PUNCH" %}
+                </th>
+                <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 90px;">
+                    {% trans "LAST PUNCH" %}
+                </th>
+                <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 100px;">
+                    {% trans "MISSING TYPE" %}
+                </th>
+                <th class="px-2 py-2 text-xs font-medium text-center border border-[hsl(var(--border))]" style="width: 120px;">
+                    {% trans "DEVICES USED" %}
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for record in missing_records %}
+            <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] transition-colors">
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="employee_id" style="width: 100px;">
+                    <div class="font-medium text-[hsl(var(--foreground))]">{{ record.user_id }}</div>
+                </td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="employee_name" style="width: 130px;">
+                    <div class="text-[hsl(var(--foreground))]">{{ record.employee_name }}</div>
+                </td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="department" style="width: 100px;">
+                    <div class="text-[hsl(var(--foreground))]">{{ record.department }}</div>
+                </td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="date" style="width: 100px;">
+                    <div>{{ record.date|date:"d-m-Y" }}</div>
+                    <div class="text-xs text-gray-500">{{ record.day_name }}</div>
+                </td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="day" style="width: 80px;">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        {{ record.day_name }}
+                    </span>
+                </td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="records" style="width: 80px;">
+                    <div class="text-xs">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                            {% if record.record_count >= minimum_records %}bg-green-100 text-green-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ record.record_count }}/{{ minimum_records }}
+                        </span>
+                        {% if record.missing_count > 0 %}
+                            <div class="text-red-600 mt-1">-{{ record.missing_count }}</div>
+                        {% endif %}
+                    </div>
+                </td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="working_hours" style="width: 100px;">
+                    <div class="text-xs">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                            {% if record.working_hours >= record.minimum_working_hours %}bg-green-100 text-green-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ record.working_hours|floatformat:1 }}h
+                        </span>
+                        <div class="text-gray-500 mt-1">/{{ record.minimum_working_hours|floatformat:1 }}h</div>
+                        {% if record.hours_deficit > 0 %}
+                            <div class="text-red-600 mt-1">-{{ record.hours_deficit|floatformat:1 }}h</div>
+                        {% endif %}
+                    </div>
+                </td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="first_punch" style="width: 90px;">
+                    {% if record.first_punch %}
+                        <span class="text-green-600 font-medium">{{ record.first_punch|time:"H:i:s" }}</span>
+                    {% else %}
+                        <span class="text-gray-400">-</span>
+                    {% endif %}
+                </td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="last_punch" style="width: 90px;">
+                    {% if record.last_punch %}
+                        <span class="text-red-600 font-medium">{{ record.last_punch|time:"H:i:s" }}</span>
+                    {% else %}
+                        <span class="text-gray-400">-</span>
+                    {% endif %}
+                </td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="missing_type" style="width: 100px;">
+                    <div class="text-xs">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                            {% if record.missing_severity == 'high' %}bg-red-100 text-red-800
+                            {% elif record.missing_severity == 'medium' %}bg-yellow-100 text-yellow-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ record.missing_type }}
+                        </span>
+                        <div class="text-gray-500 mt-1">{{ record.missing_reasons }}</div>
+                    </div>
+                </td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" data-column="devices" style="width: 120px;">
+                    <div class="text-xs">{{ record.devices_used }}</div>
+                </td>
+            </tr>
+        {% empty %}
+            <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+                <td colspan="11" class="px-4 sm:px-8 py-4 text-center text-sm border border-[hsl(var(--border))]">
+                    <div class="flex flex-col items-center justify-center space-y-4">
+                        <div class="rounded-full bg-[hsl(var(--muted))] p-4">
+                            <svg class="h-8 w-8 text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="text-center">
+                            <h3 class="text-base font-medium">{% trans "No Missing Records Found!" %}</h3>
+                            <p class="text-[hsl(var(--muted-foreground))] text-sm">{% trans "All employees meet the attendance requirements for the selected period." %}</p>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        
+        <!-- Enhanced Summary Footer -->
+        {% if report_generated %}
+        <tfoot>
+            <tr class="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                <td colspan="11" class="px-4 py-3 text-center border border-blue-500">
+                    <div class="text-lg font-bold">{% trans "ENHANCED MISSING ATTENDANCE SUMMARY" %}</div>
+                </td>
+            </tr>
+            <tr class="bg-blue-50 text-blue-900">
+                <td colspan="2" class="px-3 py-2 text-sm text-center border border-blue-200">
+                    <div class="font-semibold text-blue-700">{% trans "DATE RANGE" %}</div>
+                    <div class="text-lg font-bold text-blue-800">{{ start_date|date:"d M" }} - {{ end_date|date:"d M Y" }}</div>
+                </td>
+                <td colspan="2" class="px-3 py-2 text-sm text-center border border-blue-200">
+                    <div class="font-semibold text-red-700">{% trans "MISSING DAYS" %}</div>
+                    <div class="text-lg font-bold text-red-800">{{ total_missing_days }}</div>
+                </td>
+                <td colspan="2" class="px-3 py-2 text-sm text-center border border-blue-200">
+                    <div class="font-semibold text-orange-700">{% trans "AFFECTED EMPLOYEES" %}</div>
+                    <div class="text-lg font-bold text-orange-800">{{ total_employees_with_missing }}</div>
+                </td>
+                <td colspan="2" class="px-3 py-2 text-sm text-center border border-blue-200">
+                    <div class="font-semibold text-green-700">{% trans "MIN RECORDS" %}</div>
+                    <div class="text-lg font-bold text-green-800">{{ minimum_records }}</div>
+                </td>
+                <td colspan="3" class="px-3 py-2 text-sm text-center border border-blue-200">
+                    <div class="font-semibold text-purple-700">{% trans "MIN WORKING HOURS" %}</div>
+                    <div class="text-lg font-bold text-purple-800">{{ minimum_working_hours|floatformat:1 }}h</div>
+                </td>
+            </tr>
+            <tr class="bg-blue-100 text-blue-900">
+                <td colspan="3" class="px-3 py-2 text-sm text-center border border-blue-200">
+                    <div class="font-semibold text-gray-700">{% trans "VALIDATION TYPE" %}</div>
+                    <div class="text-lg font-bold text-gray-800">
+                        {% if validation_type == 'records_only' %}{% trans "Records Only" %}
+                        {% elif validation_type == 'hours_only' %}{% trans "Hours Only" %}
+                        {% else %}{% trans "Both Records & Hours" %}{% endif %}
+                    </div>
+                </td>
+                <td colspan="3" class="px-3 py-2 text-sm text-center border border-blue-200">
+                    <div class="font-semibold text-indigo-700">{% trans "GRACE PERIOD" %}</div>
+                    <div class="text-lg font-bold text-indigo-800">{{ grace_period_minutes }} {% trans "minutes" %}</div>
+                </td>
+                <td colspan="5" class="px-3 py-2 text-sm text-center border border-blue-200">
+                    <div class="font-semibold text-purple-700">{% trans "REPORT GENERATED" %}</div>
+                    <div class="text-lg font-bold text-purple-800">{{ "now"|date:"d M Y H:i" }}</div>
+                    <div class="text-xs text-purple-600">{% trans "Enhanced Analysis with Working Hours Validation" %}</div>
+                </td>
+            </tr>
+        </tfoot>
+        {% endif %}
+    </table>
+</div>
+{% else %}
+<div class="text-center py-12 bg-white rounded-lg border border-gray-200">
+    <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+    </svg>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">{% trans "Generate Enhanced Missing Attendance Report" %}</h3>
+    <p class="text-gray-500">{% trans "Click the Generate Enhanced Report button to analyze incomplete attendance records with working hours validation." %}</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+#missing-attendance-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+#missing-attendance-table th,
+#missing-attendance-table td {
+    padding: 2px;
+    text-align: center;
+    border: 1px solid hsl(var(--border));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#missing-attendance-table thead th {
+    background-color: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Enhanced search functionality
+    document.getElementById('search-input')?.addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#missing-attendance-table tbody tr');
+        rows.forEach(row => {
+            const employeeId = row.querySelector('td[data-column="employee_id"]')?.textContent.toLowerCase() || '';
+            const employeeName = row.querySelector('td[data-column="employee_name"]')?.textContent.toLowerCase() || '';
+            const date = row.querySelector('td[data-column="date"]')?.textContent.toLowerCase() || '';
+            const department = row.querySelector('td[data-column="department"]')?.textContent.toLowerCase() || '';
+            const missingType = row.querySelector('td[data-column="missing_type"]')?.textContent.toLowerCase() || '';
+            
+            if (employeeId.includes(searchTerm) || employeeName.includes(searchTerm) || 
+                date.includes(searchTerm) || department.includes(searchTerm) || missingType.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Create modal for report generation
+    function createModal(id, title, content) {
+        const modal = document.createElement('div');
+        modal.id = id;
+        modal.className = 'hidden fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 backdrop-blur-sm';
+        modal.innerHTML = `
+            <div class="bg-white mx-auto mt-20 p-0 border border-gray-200 rounded-xl w-11/12 max-w-2xl shadow-2xl relative animate-in slide-in-from-bottom-4 duration-300">
+                <div class="bg-white px-6 pt-6 pb-0 border-b border-gray-200 rounded-t-xl relative">
+                    <h2 class="text-lg font-semibold text-gray-900">${title}</h2>
+                    <button class="absolute right-4 top-4 bg-gray-100 hover:bg-gray-200 border-0 rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200 text-gray-600 hover:text-gray-800 hover:scale-105 z-10" data-close-modal="${id}">×</button>
+                </div>
+                <div class="bg-white px-6 py-6 max-h-[70vh] overflow-y-auto rounded-b-xl">
+                    ${content}
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        return modal;
+    }
+
+    const reportModal = createModal('report-modal', '{% trans "Generate Enhanced Missing Attendance Report" %}', `
+        <form id="report-form" method="post" class="space-y-5">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Start Date" %}</label>
+                    <input type="date" name="start_date" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "End Date" %}</label>
+                    <input type="date" name="end_date" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Employee ID" %}</label>
+                    <input type="text" name="employee_id" placeholder="{% trans 'Optional - leave blank for all' %}" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Minimum Records Required" %}</label>
+                    <select name="minimum_records" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 cursor-pointer">
+                        <option value="2">{% trans "2 Records (In/Out)" %}</option>
+                        <option value="3">{% trans "3 Records" %}</option>
+                        <option value="4">{% trans "4 Records (In/Break/Break/Out)" %}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Minimum Working Hours" %}</label>
+                    <input type="number" name="minimum_working_hours" value="8.0" step="0.5" min="1.0" max="24.0" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Grace Period (Minutes)" %}</label>
+                    <input type="number" name="grace_period_minutes" value="30" min="0" max="120" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                </div>
+            </div>
+            <div>
+                <label class="block mb-2 text-sm font-medium text-gray-700">{% trans "Validation Type" %}</label>
+                <select name="validation_type" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 cursor-pointer">
+                    <option value="both">{% trans "Both Records Count and Working Hours" %}</option>
+                    <option value="records_only">{% trans "Records Count Only" %}</option>
+                    <option value="hours_only">{% trans "Working Hours Only" %}</option>
+                </select>
+            </div>
+            <div class="flex gap-3 pt-4">
+                <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 h-9 px-4 py-2 shadow-md transition-all duration-200">
+                    {% trans "Generate Enhanced Report" %}
+                </button>
+                <button type="button" data-close-modal="report-modal" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 h-9 px-4 py-2 shadow-sm transition-all duration-200">
+                    {% trans "Cancel" %}
+                </button>
+            </div>
+        </form>
+    `);
+
+    // Toast notification
+    const toast = document.createElement('div');
+    toast.id = 'copy-feedback';
+    toast.className = 'hidden fixed top-6 right-6 z-50 bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-xl';
+    toast.innerHTML = `
+        <div class="flex items-center space-x-3">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                <svg class="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div>
+                <p class="font-medium text-gray-900">{% trans "Success!" %}</p>
+                <p class="text-sm text-gray-600">{% trans "Copied to clipboard!" %}</p>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+
+    // Modal event handlers
+    document.addEventListener('click', function(e) {
+        if (e.target.dataset.closeModal) {
+            document.getElementById(e.target.dataset.closeModal).classList.add('hidden');
+        }
+        if (e.target.classList.contains('bg-black')) {
+            e.target.classList.add('hidden');
+        }
+    });
+
+    // Generate report button
+    document.getElementById('generate-report-btn').addEventListener('click', function() {
+        reportModal.classList.remove('hidden');
+        // Set default dates
+        const today = new Date();
+        const defaultEndDate = today.toISOString().split('T')[0];
+        const defaultStartDate = new Date(today);
+        defaultStartDate.setDate(today.getDate() - 7);
+        
+        const startDateInput = document.querySelector('input[name="start_date"]');
+        const endDateInput = document.querySelector('input[name="end_date"]');
+        
+        if (!startDateInput.value) {
+            startDateInput.value = defaultStartDate.toISOString().split('T')[0];
+        }
+        if (!endDateInput.value) {
+            endDateInput.value = defaultEndDate;
+        }
+    });
+
+    // Enhanced Print Function with working hours information
+    function printMissingAttendanceTable() {
+        const table = document.getElementById('missing-attendance-table');
+        
+        if (!table) return;
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Enhanced Missing Attendance Report - {{ start_date|date:"Y-m-d"|default:"" }} to {{ end_date|date:"Y-m-d"|default:"" }}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 10px; font-size: 10px; }
+                    .header { text-align: center; margin-bottom: 10px; }
+                    table { width: 100%; border-collapse: collapse; font-size: 7px; }
+                    th, td { border: 1px solid #000; padding: 2px; text-align: center; }
+                    thead th { 
+                        background-color: #e0e0e0 !important; 
+                        font-weight: bold;
+                        -webkit-print-color-adjust: exact;
+                        color-adjust: exact;
+                    }
+                    tbody td { font-size: 6px; }
+                    tfoot td {
+                        background-color: #f0f0f0 !important;
+                        font-weight: bold;
+                        -webkit-print-color-adjust: exact;
+                        color-adjust: exact;
+                        font-size: 7px;
+                    }
+                    .missing-highlight { background-color: #fef2f2 !important; }
+                    .hours-deficit { background-color: #fef3c7 !important; }
+                    @page { margin: 0.2in; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>ENHANCED MISSING ATTENDANCE RECORDS REPORT</h1>
+                    <p>Generated on: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
+                    <p>Period: {{ start_date|date:"d M Y"|default:"" }} to {{ end_date|date:"d M Y"|default:"" }}</p>
+                    <p>Validation: {{ validation_type|title }} | Min Records: {{ minimum_records }} | Min Hours: {{ minimum_working_hours|floatformat:1 }}h</p>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>EMPLOYEE ID</th>
+                            <th>EMPLOYEE NAME</th>
+                            <th>DEPARTMENT</th>
+                            <th>MISSING DATE</th>
+                            <th>DAY</th>
+                            <th>RECORDS</th>
+                            <th>WORKING HOURS</th>
+                            <th>FIRST PUNCH</th>
+                            <th>LAST PUNCH</th>
+                            <th>MISSING TYPE</th>
+                            <th>DEVICES USED</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `);
+
+        // Add table rows with enhanced highlighting
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            if (row.style.display !== 'none') {
+                const cells = row.querySelectorAll('td');
+                let rowHtml = '<tr>';
+                cells.forEach((cell, index) => {
+                    let className = 'missing-highlight';
+                    // Add special highlighting for hours deficit
+                    if (index === 6) { // Working hours column
+                        const hoursText = cell.textContent;
+                        if (hoursText.includes('red-100')) {
+                            className = 'hours-deficit';
+                        }
+                    }
+                    rowHtml += `<td class="${className}">${cell.textContent.trim()}</td>`;
+                });
+                rowHtml += '</tr>';
+                printWindow.document.write(rowHtml);
+            }
+        });
+
+        // Add table footer
+        const tfoot = table.querySelector('tfoot');
+        if (tfoot) {
+            printWindow.document.write('</tbody><tfoot>');
+            const footerRows = tfoot.querySelectorAll('tr');
+            footerRows.forEach((row, index) => {
+                const cells = row.querySelectorAll('td');
+                let rowHtml = '<tr>';
+                cells.forEach(cell => {
+                    rowHtml += `<td colspan="${cell.getAttribute('colspan') || '1'}">${cell.textContent.trim()}</td>`;
+                });
+                rowHtml += '</tr>';
+                printWindow.document.write(rowHtml);
+            });
+            printWindow.document.write('</tfoot>');
+        } else {
+            printWindow.document.write('</tbody>');
+        }
+
+        printWindow.document.write(`
+                </table>
+            </body>
+            </html>
+        `);
+
+        printWindow.document.close();
+        printWindow.focus();
+        
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 250);
+    }
+
+    // Enhanced CSV Export with working hours data
+    document.getElementById('export-csv')?.addEventListener('click', function() {
+        const table = document.getElementById('missing-attendance-table');
+        const rows = table.querySelectorAll('tbody tr');
+        const columnDefs = [
+            { id: 'employee_id', label: '{% trans "EMPLOYEE ID" %}' },
+            { id: 'employee_name', label: '{% trans "EMPLOYEE NAME" %}' },
+            { id: 'department', label: '{% trans "DEPARTMENT" %}' },
+            { id: 'date', label: '{% trans "MISSING DATE" %}' },
+            { id: 'day', label: '{% trans "DAY" %}' },
+            { id: 'records', label: '{% trans "RECORDS" %}' },
+            { id: 'working_hours', label: '{% trans "WORKING HOURS" %}' },
+            { id: 'first_punch', label: '{% trans "FIRST PUNCH" %}' },
+            { id: 'last_punch', label: '{% trans "LAST PUNCH" %}' },
+            { id: 'missing_type', label: '{% trans "MISSING TYPE" %}' },
+            { id: 'devices', label: '{% trans "DEVICES USED" %}' }
+        ];
+        
+        let csvContent = [];
+        csvContent.push(columnDefs.map(col => `"${col.label.replace(/"/g, '""')}"`).join(','));
+        
+        rows.forEach(row => {
+            if (row.style.display !== 'none') {
+                const rowData = columnDefs.map(col => {
+                    const cell = row.querySelector(`td[data-column="${col.id}"]`);
+                    return cell ? `"${cell.textContent.trim().replace(/"/g, '""')}"` : '""';
+                });
+                csvContent.push(rowData.join(','));
+            }
+        });
+        
+        const csv = csvContent.join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'enhanced_missing_attendance_report_{{ start_date|date:"Y-m-d"|default:"" }}_to_{{ end_date|date:"Y-m-d"|default:"" }}.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+    });
+
+    // Enhanced Copy to Clipboard with working hours
+    document.getElementById('copy-clipboard')?.addEventListener('click', function() {
+        const table = document.getElementById('missing-attendance-table');
+        const rows = table.querySelectorAll('tbody tr');
+        const columnDefs = [
+            { id: 'employee_id', label: '{% trans "EMPLOYEE ID" %}' },
+            { id: 'employee_name', label: '{% trans "EMPLOYEE NAME" %}' },
+            { id: 'department', label: '{% trans "DEPARTMENT" %}' },
+            { id: 'date', label: '{% trans "MISSING DATE" %}' },
+            { id: 'day', label: '{% trans "DAY" %}' },
+            { id: 'records', label: '{% trans "RECORDS" %}' },
+            { id: 'working_hours', label: '{% trans "WORKING HOURS" %}' },
+            { id: 'first_punch', label: '{% trans "FIRST PUNCH" %}' },
+            { id: 'last_punch', label: '{% trans "LAST PUNCH" %}' },
+            { id: 'missing_type', label: '{% trans "MISSING TYPE" %}' },
+            { id: 'devices', label: '{% trans "DEVICES USED" %}' }
+        ];
+        
+        let tsvContent = [];
+        tsvContent.push(columnDefs.map(col => col.label).join('\t'));
+        
+        rows.forEach(row => {
+            if (row.style.display !== 'none') {
+                const rowData = columnDefs.map(col => {
+                    const cell = row.querySelector(`td[data-column="${col.id}"]`);
+                    return cell ? cell.textContent.trim() : '';
+                });
+                tsvContent.push(rowData.join('\t'));
+            }
+        });
+        
+        const tsv = tsvContent.join('\n');
+        navigator.clipboard.writeText(tsv).then(() => {
+            document.getElementById('copy-feedback').classList.remove('hidden');
+            setTimeout(() => document.getElementById('copy-feedback').classList.add('hidden'), 3000);
+        }).catch(err => console.error('Failed to copy:', err));
+    });
+
+    // Print Table Event Listener
+    document.getElementById('print-table')?.addEventListener('click', printMissingAttendanceTable);
+
+    // Form submission
+    document.getElementById('report-form').addEventListener('submit', function(e) {
+        reportModal.classList.add('hidden');
+    });
+
+    // Auto-update minimum working hours based on minimum records selection
+    document.querySelector('select[name="minimum_records"]')?.addEventListener('change', function() {
+        const hoursInput = document.querySelector('input[name="minimum_working_hours"]');
+        if (hoursInput) {
+            // Set default hours based on records requirement
+            const recordsValue = parseInt(this.value);
+            if (recordsValue === 2) {
+                hoursInput.value = '8.0';
+            } else if (recordsValue === 3) {
+                hoursInput.value = '8.0';
+            } else if (recordsValue === 4) {
+                hoursInput.value = '8.0';
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

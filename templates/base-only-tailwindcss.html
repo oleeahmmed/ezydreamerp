@@ -1,0 +1,832 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Base theme (always included) -->
+    <link rel="stylesheet" href="{% static 'css/default-theme.css' %}">
+    <!-- Theme-specific CSS (loaded conditionally by JavaScript) -->
+    <link id="theme-css" rel="stylesheet" href="">
+    {% block extra_css %}{% endblock %}
+    <style>
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        .dropdown-menu {
+            animation: slideDown 0.3s ease forwards;
+        }
+
+        .dropdown-menu.closing {
+            animation: slideUp 0.3s ease forwards;
+        }
+        
+        /* Theme icons */
+        .theme-light {
+            display: none;
+        }
+        
+        .theme-dark {
+            display: none;
+        }
+        
+        .theme-system {
+            display: none;
+        }
+        
+        /* For manual theme switching */
+        [data-theme="dark"] .light-pattern {
+            display: none;
+        }
+        [data-theme="dark"] .dark-pattern {
+            display: block;
+        }
+
+        [data-theme="light"] .light-pattern {
+            display: block;
+        }
+        [data-theme="light"] .dark-pattern {
+            display: none;
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: hsl(var(--background));
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: hsl(var(--muted));
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: hsl(var(--muted-foreground));
+        }
+        
+        /* Variables for sidebar width */
+        :root {
+            --sidebar-width: 280px;
+            --sidebar-width-collapsed: 80px;
+        }
+        
+        /* Topbar dropdown animation */
+        .topbar-dropdown {
+            position: absolute;
+            right: 0;
+            margin-top: 0.5rem;
+            width: 12rem;
+            animation: slideDown 0.2s ease-out;
+        }
+    </style>
+    {% block custom_css %}{% endblock %}
+</head>
+<body class="bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="hidden md:block relative border-r border-[hsl(var(--border))] bg-[hsl(var(--background))] transition-all duration-300" style="width: var(--sidebar-width);">
+            <!-- Logo -->
+            <div class="p-4 border-b border-[hsl(var(--border))]">
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="sidebar-text">
+                        <h1 class="text-lg font-semibold">{% block site_title %}Dashboard{% endblock %}</h1>
+                        <p class="text-xs text-[hsl(var(--muted-foreground))]">{% block site_subtitle %}Admin Portal{% endblock %}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="p-4 space-y-4">
+                <!-- Main Menu -->
+                <div class="space-y-1">
+                    {% block sidebar_menu %}
+                    <a href="{% url 'permission:dashboard'%}" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] transition-all duration-300 hover:scale-[0.98] active:scale-[0.97] shadow-sm bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] border border-[hsl(var(--border))] hover:-translate-y-0.5 hover:shadow-md hover:border-[hsl(var(--primary))]">
+                        <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <rect x="14" y="14" width="7" height="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1 sidebar-text">
+                            <span class="font-medium">Dashboard</span>
+                            <!-- <span class="block text-xs text-[hsl(var(--muted-foreground))]">Overview & Stats</span> -->
+                        </div>
+                    </a>
+
+                    <div class="relative">
+                        <button onclick="toggleAuthMenu()" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] transition-all duration-300 hover:scale-[0.98] active:scale-[0.97] shadow-sm bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] border border-[hsl(var(--border))] hover:-translate-y-0.5 hover:shadow-md hover:border-[hsl(var(--primary))]">
+                            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]">
+                                <svg class="w-5 h-5"  viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M19.4 15C19.1277 15.8031 19.2583 16.6846 19.75 17.4L19.81 17.49C20.2025 17.8827 20.4111 18.4353 20.3965 19.0054C20.3819 19.5755 20.1452 20.1163 19.73 20.49C19.3148 20.8637 18.7741 21.1004 18.204 21.115C17.6339 21.1296 17.0813 20.921 16.6886 20.5285L16.6 20.47C15.8846 19.9783 15.0031 19.8477 14.2 20.12C13.4101 20.3865 12.7935 21.0031 12.527 21.793L12.5 21.913C12.3724 22.4723 12.0467 22.9654 11.5833 23.3006C11.1199 23.6358 10.5499 23.7947 9.97002 23.7479C9.39016 23.7011 8.8526 23.4519 8.44804 23.0473C8.04348 22.6428 7.79429 22.1052 7.75002 21.5254L7.75002 21.4C7.71821 20.5868 7.32511 19.8372 6.68002 19.34C5.99033 18.8016 5.09577 18.6117 4.25002 18.82C3.68325 18.9861 3.07685 18.9106 2.55811 18.6082C2.03938 18.3057 1.64908 17.8015 1.46002 17.21C1.27478 16.6266 1.30843 15.9926 1.55524 15.4332C1.80205 14.8738 2.24558 14.4303 2.80502 14.1835L2.92502 14.13C3.71416 13.7613 4.29325 13.0844 4.52502 12.27C4.79728 11.4669 4.66672 10.5854 4.17502 9.87L4.11502 9.78C3.72258 9.38734 3.51397 8.83467 3.52858 8.26458C3.54319 7.69449 3.77988 7.15372 4.19502 6.78C4.61017 6.40627 5.15094 6.16959 5.72102 6.15498C6.29111 6.14037 6.84378 6.34897 7.23644 6.74142L7.32502 6.8C8.04044 7.29168 8.92189 7.42224 9.72502 7.15C10.515 6.88347 11.1316 6.26687 11.398 5.47697L11.425 5.357C11.5526 4.79774 11.8783 4.30461 12.3417 3.96941C12.8051 3.6342 13.3751 3.47527 13.955 3.52208C14.5349 3.56889 15.0724 3.81809 15.477 4.22264C15.8815 4.6272 16.1307 5.16476 16.175 5.74462V5.87C16.2068 6.68323 16.5999 7.43277 17.245 7.93C17.9347 8.46843 18.8293 8.65829 19.675 8.45C20.2418 8.28391 20.8482 8.35941 21.3669 8.66185C21.8857 8.96428 22.276 9.46853 22.465 10.06C22.6502 10.6434 22.6166 11.2774 22.3698 11.8368C22.123 12.3962 21.6794 12.8397 21.12 13.0865L20.999 13.14C20.2099 13.5087 19.6308 14.1856 19.399 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 sidebar-text">
+                                <span class="font-medium">Authentication</span>
+                                <!-- <span class="block text-xs text-[hsl(var(--muted-foreground))]">Role & Permission</span> -->
+                            </div>
+                            <svg class="w-4 h-4 transition-transform duration-200 sidebar-text" id="authArrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div id="authMenu" class="hidden mt-2 space-y-1 pl-8">
+                            {% if show_permission_menu %}
+                                <a href="{% url 'permission:user_list' %}" class="relative flex items-center px-3 py-2 rounded-lg transition-all duration-300 border border-transparent hover:translate-x-1 hover:border-[hsl(var(--border))] hover:shadow-md group">
+                                    <div class="flex items-center justify-center w-9 h-9 mr-3 rounded-lg bg-[hsl(var(--muted))] border border-[hsl(var(--border))] shadow-md transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-[hsl(var(--primary))] group-hover:to-transparent group-hover:text-[hsl(var(--primary-foreground))] group-hover:rotate-[5deg] group-hover:scale-105 group-hover:shadow-lg">
+                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M6 21V19C6 17.9391 6.42143 16.9217 7.17157 16.1716C7.92172 15.4214 8.93913 15 10 15H14C15.0609 15 16.0783 15.4214 16.8284 16.1716C17.5786 16.9217 18 17.9391 18 19V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="font-semibold text-sm">Users</span>
+                                        <span class="text-xs text-[hsl(var(--muted-foreground))] mt-0.5 transition-all duration-200 group-hover:text-[hsl(var(--foreground))]">Manage system users</span>
+                                    </div>
+                                </a>
+                                <a href="{% url 'permission:group_list' %}" class="relative flex items-center px-3 py-2 rounded-lg transition-all duration-300 border border-transparent hover:translate-x-1 hover:border-[hsl(var(--border))] hover:shadow-md group">
+                                    <div class="flex items-center justify-center w-9 h-9 mr-3 rounded-lg bg-[hsl(var(--muted))] border border-[hsl(var(--border))] shadow-md transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-[hsl(var(--primary))] group-hover:to-transparent group-hover:text-[hsl(var(--primary-foreground))] group-hover:rotate-[5deg] group-hover:scale-105 group-hover:shadow-lg">
+                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M17 20H22V18C22 16.3431 20.6569 15 19 15C18.0444 15 17.1931 15.4468 16.6438 16.1429M17 20H7M17 20V18C17 17.3438 16.8736 16.717 16.6438 16.1429M7 20H2V18C2 16.3431 3.34315 15 5 15C5.95561 15 6.80686 15.4468 7.35625 16.1429M7 20V18C7 17.3438 7.12642 16.717 7.35625 16.1429M7.35625 16.1429C8.0935 14.301 9.89482 13 12 13C14.1052 13 15.9065 14.301 16.6438 16.1429M15 7C15 8.65685 13.6569 10 12 10C10.3431 10 9 8.65685 9 7C9 5.34315 10.3431 4 12 4C13.6569 4 15 5.34315 15 7ZM21 10C21 11.1046 20.1046 12 19 12C17.8954 12 17 11.1046 17 10C17 8.89543 17.8954 8 19 8C20.1046 8 21 8.89543 21 10ZM7 10C7 11.1046 6.10457 12 5 12C3.89543 12 3 11.1046 3 10C3 8.89543 3.89543 8 5 8C6.10457 8 7 8.89543 7 10Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="font-semibold text-sm">Groups</span>
+                                        <span class="text-xs text-[hsl(var(--muted-foreground))] mt-0.5 transition-all duration-200 group-hover:text-[hsl(var(--foreground))]">Manage user groups</span>
+                                    </div>
+                                </a>
+
+                                <a href="{% url 'permission:permission_list' %}" class="relative flex items-center px-3 py-2 rounded-lg transition-all duration-300 border border-transparent hover:translate-x-1 hover:border-[hsl(var(--border))] hover:shadow-md group">
+                                    <div class="flex items-center justify-center w-9 h-9 mr-3 rounded-lg bg-[hsl(var(--muted))] border border-[hsl(var(--border))] shadow-md transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-[hsl(var(--primary))] group-hover:to-transparent group-hover:text-[hsl(var(--primary-foreground))] group-hover:rotate-[5deg] group-hover:scale-105 group-hover:shadow-lg">
+                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2"/>
+                                            <path d="M19.4 15C19.1277 15.8031 19.2583 16.6846 19.75 17.4L19.81 17.49C20.2025 17.8827 20.4111 18.4353 20.3965 19.0054C20.3819 19.5755 20.1452 20.1163 19.73 20.49C19.3148 20.8637 18.7741 21.1004 18.204 21.115C17.6339 21.1296 17.0813 20.921 16.6886 20.5285L16.6 20.47C15.8846 19.9783 15.0031 19.8477 14.2 20.12C13.4101 20.3865 12.7935 21.0031 12.527 21.793L12.5 21.913C12.3724 22.4723 12.0467 22.9654 11.5833 23.3006C11.1199 23.6358 10.5499 23.7947 9.97002 23.7479C9.39016 23.7011 8.8526 23.4519 8.44804 23.0473C8.04348 22.6428 7.79429 22.1052 7.75002 21.5254L7.75002 21.4C7.71821 20.5868 7.32511 19.8372 6.68002 19.34C5.99033 18.8016 5.09577 18.6117 4.25002 18.82C3.68325 18.9861 3.07685 18.9106 2.55811 18.6082C2.03938 18.3057 1.64908 17.8015 1.46002 17.21C1.27478 16.6266 1.30843 15.9926 1.55524 15.4332C1.80205 14.8738 2.24558 14.4303 2.80502 14.1835L2.92502 14.13C3.71416 13.7613 4.29325 13.0844 4.52502 12.27C4.79728 11.4669 4.66672 10.5854 4.17502 9.87L4.11502 9.78C3.72258 9.38734 3.51397 8.83467 3.52858 8.26458C3.54319 7.69449 3.77988 7.15372 4.19502 6.78C4.61017 6.40627 5.15094 6.16959 5.72102 6.15498C6.29111 6.14037 6.84378 6.34897 7.23644 6.74142L7.32502 6.8C8.04044 7.29168 8.92189 7.42224 9.72502 7.15C10.515 6.88347 11.1316 6.26687 11.398 5.47697L11.425 5.357C11.5526 4.79774 11.8783 4.30461 12.3417 3.96941C12.8051 3.6342 13.3751 3.47527 13.955 3.52208C14.5349 3.56889 15.0724 3.81809 15.477 4.22264C15.8815 4.6272 16.1307 5.16476 16.175 5.74462V5.87C16.2068 6.68323 16.5999 7.43277 17.245 7.93C17.9347 8.46843 18.8293 8.65829 19.675 8.45C20.2418 8.28391 20.8482 8.35941 21.3669 8.66185C21.8857 8.96428 22.276 9.46853 22.465 10.06C22.6502 10.6434 22.6166 11.2774 22.3698 11.8368C22.123 12.3962 21.6794 12.8397 21.12 13.0865L20.999 13.14C20.2099 13.5087 19.6308 14.1856 19.399 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="font-semibold text-sm">Permissions</span>
+                                        <span class="text-xs text-[hsl(var(--muted-foreground))] mt-0.5 transition-all duration-200 group-hover:text-[hsl(var(--foreground))]">Manage system permissions</span>
+                                    </div>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if show_business_partner_menu %}
+                    <div class="relative">
+                        <button onclick="toggleBusinessPartnerMenu()" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] transition-all duration-300 hover:scale-[0.98] active:scale-[0.97] shadow-sm bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] border border-[hsl(var(--border))] hover:-translate-y-0.5 hover:shadow-md hover:border-[hsl(var(--primary))]">
+                            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M20 18L14 18M17 15L17 21M12 15C12 17.2091 10.2091 19 8 19C5.79086 19 4 17.2091 4 15C4 12.7909 5.79086 11 8 11C10.2091 11 12 12.7909 12 15ZM12 15V15.0001M8 7C10.2091 7 12 5.20914 12 3M4 3C4 5.20914 5.79086 7 8 7M16 7C18.2091 7 20 5.20914 20 3M20 7C20 4.79086 18.2091 3 16 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 sidebar-text">
+                                <span class="font-medium">Business Partners</span>
+                                <!-- <span class="block text-xs text-[hsl(var(--muted-foreground))]">Manage Partners</span> -->
+                            </div>
+                            <svg class="w-4 h-4 transition-transform duration-200 sidebar-text" id="businessPartnerArrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div id="businessPartnerMenu" class="hidden mt-2 space-y-1 pl-8">
+                            <a href="#" class="relative flex items-center px-3 py-2 rounded-lg transition-all duration-300 border border-transparent hover:translate-x-1 hover:border-[hsl(var(--border))] hover:shadow-md group">
+                                <div class="flex items-center justify-center w-9 h-9 mr-3 rounded-lg bg-[hsl(var(--muted))] border border-[hsl(var(--border))] shadow-md transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-[hsl(var(--primary))] group-hover:to-transparent group-hover:text-[hsl(var(--primary-foreground))] group-hover:rotate-[5deg] group-hover:scale-105 group-hover:shadow-lg">
+                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="1.5"/>
+                                        <path d="M20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12Z" stroke="currentColor" stroke-width="1.5"/>
+                                    </svg>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="font-semibold text-sm">Overview</span>
+                                    <span class="text-xs text-[hsl(var(--muted-foreground))] mt-0.5 group-hover:text-[hsl(var(--foreground))]">Partner dashboard</span>
+                                </div>
+                            </a>
+                    
+                            <a href="{% url 'BusinessPartnerMasterData:business_partner_list' %}" class="relative flex items-center px-3 py-2 rounded-lg transition-all duration-300 border border-transparent hover:translate-x-1 hover:border-[hsl(var(--border))] hover:shadow-md group">
+                                <div class="flex items-center justify-center w-9 h-9 mr-3 rounded-lg bg-[hsl(var(--muted))] border border-[hsl(var(--border))] shadow-md transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-[hsl(var(--primary))] group-hover:to-transparent group-hover:text-[hsl(var(--primary-foreground))] group-hover:rotate-[5deg] group-hover:scale-105 group-hover:shadow-lg">
+                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="1.5"/>
+                                        <path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="currentColor" stroke-width="1.5"/>
+                                    </svg>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="font-semibold text-sm"> Customers & Suppliers </span>
+                                    <span class="text-xs text-[hsl(var(--muted-foreground))] mt-0.5 group-hover:text-[hsl(var(--foreground))]">Manage Customers & Suppliers </span>
+                                </div>
+                            </a>
+
+                        </div>
+                    </div>
+                    {% endif %}   
+
+                    {% if show_inventory_menu %}
+                    <div class="relative">
+                        <button onclick="toggleInventoryMenu()" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] transition-all duration-300 hover:scale-[0.98] active:scale-[0.97] shadow-sm bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] border border-[hsl(var(--border))] hover:-translate-y-0.5 hover:shadow-md hover:border-[hsl(var(--primary))]">
+                            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M20 3H4C2.89543 3 2 3.89543 2 5V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V5C22 3.89543 21.1046 3 20 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    <path d="M16 8H8M16 12H8M16 16H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 sidebar-text">
+                                <span class="font-medium">Inventory</span>
+                                <!-- <span class="block text-xs text-[hsl(var(--muted-foreground))]">Stock Management</span> -->
+                            </div>
+                            <svg class="w-4 h-4 transition-transform duration-200 sidebar-text" id="inventoryArrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div id="inventoryMenu" class="hidden mt-2 space-y-1 pl-8">
+                            <a href="{% url 'Inventory:uom_list'%}" class="relative flex items-center px-3 py-2 rounded-lg transition-all duration-300 border border-transparent hover:translate-x-1 hover:border-[hsl(var(--border))] hover:shadow-md group">
+                                <div class="flex items-center justify-center w-9 h-9 mr-3 rounded-lg bg-[hsl(var(--muted))] border border-[hsl(var(--border))] shadow-md transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-[hsl(var(--primary))] group-hover:to-transparent group-hover:text-[hsl(var(--primary-foreground))] group-hover:rotate-[5deg] group-hover:scale-105 group-hover:shadow-lg">
+                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M20 7H4C2.89543 7 2 7.89543 2 9V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V9C22 7.89543 21.1046 7 20 7Z" stroke="currentColor" stroke-width="1.5"/>
+                                        <path d="M16 7V5C16 3.89543 15.1046 3 14 3H10C8.89543 3 8 3.89543 8 5V7" stroke="currentColor" stroke-width="1.5"/>
+                                    </svg>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="font-semibold text-sm">Unit</span>
+                                    <span class="text-xs text-[hsl(var(--muted-foreground))] mt-0.5 group-hover:text-[hsl(var(--foreground))]">Unit Of Measurement </span>
+                                </div>
+                            </a>
+                    
+                            <a href="{% url 'Inventory:item_group_list'%}" class="relative flex items-center px-3 py-2 rounded-lg transition-all duration-300 border border-transparent hover:translate-x-1 hover:border-[hsl(var(--border))] hover:shadow-md group">
+                                <div class="flex items-center justify-center w-9 h-9 mr-3 rounded-lg bg-[hsl(var(--muted))] border border-[hsl(var(--border))] shadow-md transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-[hsl(var(--primary))] group-hover:to-transparent group-hover:text-[hsl(var(--primary-foreground))] group-hover:rotate-[5deg] group-hover:scale-105 group-hover:shadow-lg">
+                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 3H21M3 8H21M3 13H21M3 18H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="font-semibold text-sm">Categoris</span>
+                                    <span class="text-xs text-[hsl(var(--muted-foreground))] mt-0.5 group-hover:text-[hsl(var(--foreground))]">Item Groups</span>
+                                </div>
+                            </a>
+                    
+                            <a href="{% url 'Inventory:warehouse_list'%}" class="relative flex items-center px-3 py-2 rounded-lg transition-all duration-300 border border-transparent hover:translate-x-1 hover:border-[hsl(var(--border))] hover:shadow-md group">
+                                <div class="flex items-center justify-center w-9 h-9 mr-3 rounded-lg bg-[hsl(var(--muted))] border border-[hsl(var(--border))] shadow-md transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-[hsl(var(--primary))] group-hover:to-transparent group-hover:text-[hsl(var(--primary-foreground))] group-hover:rotate-[5deg] group-hover:scale-105 group-hover:shadow-lg">
+                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5" stroke="currentColor" stroke-width="1.5"/>
+                                    </svg>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="font-semibold text-sm">Warehouses</span>
+                                    <span class="text-xs text-[hsl(var(--muted-foreground))] mt-0.5 group-hover:text-[hsl(var(--foreground))]">Manage Warehouse</span>
+                                </div>
+                            </a>
+                            <a href="{% url 'Inventory:item_list'%}" class="relative flex items-center px-3 py-2 rounded-lg transition-all duration-300 border border-transparent hover:translate-x-1 hover:border-[hsl(var(--border))] hover:shadow-md group">
+                                <div class="flex items-center justify-center w-9 h-9 mr-3 rounded-lg bg-[hsl(var(--muted))] border border-[hsl(var(--border))] shadow-md transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-[hsl(var(--primary))] group-hover:to-transparent group-hover:text-[hsl(var(--primary-foreground))] group-hover:rotate-[5deg] group-hover:scale-105 group-hover:shadow-lg">
+                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke="currentColor" stroke-width="1.5"/>
+                                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="1.5"/>
+                                    </svg>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="font-semibold text-sm">Item information</span>
+                                    <span class="text-xs text-[hsl(var(--muted-foreground))] mt-0.5 group-hover:text-[hsl(var(--foreground))]">Inventory settings</span>
+                                </div>
+                            </a>                    
+ 
+                        </div>
+                    </div>
+                    {% endif %}  
+                    
+                    {% endblock %}
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="mt-6 pt-6 border-t border-[hsl(var(--border))]">
+                    <h3 class="px-3 mb-2 text-xs font-medium text-[hsl(var(--muted-foreground))]">QUICK ACTIONS</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        {% block quick_actions %}
+                        <button class="flex flex-col items-center justify-center p-4 rounded-lg border border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--primary))] transition-all duration-300 group bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] hover:-translate-y-0.5 hover:shadow-md">
+                            <div class="flex items-center justify-center w-8 h-8 mb-2 rounded-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] transform group-hover:scale-110 transition-transform">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="text-xs font-medium sidebar-text">New Order</span>
+                        </button>
+                        <button class="flex flex-col items-center justify-center p-4 rounded-lg border border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--primary))] transition-all duration-300 group bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] hover:-translate-y-0.5 hover:shadow-md">
+                            <div class="flex items-center justify-center w-8 h-8 mb-2 rounded-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] transform group-hover:scale-110 transition-transform">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="text-xs font-medium sidebar-text">Add User</span>
+                        </button>
+                        {% endblock %}
+                    </div>
+
+                </div>
+            </nav>
+    <!-- Profile Card -->
+    <div class="p-4 border-b border-[hsl(var(--border))]">
+        <div class="flex items-center gap-4">
+            <div class="relative">
+                {% if request.user.profile.profile_picture %}
+                    <img src="{{ request.user.profile.profile_picture.url }}" 
+                         alt="Profile Picture"
+                         class="w-12 h-12 rounded-full object-cover border-2 border-[hsl(var(--border))]">
+                {% else %}
+                    <div class="w-12 h-12 rounded-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] flex items-center justify-center text-xl font-semibold">
+                        {{ request.user.username|make_list|first|upper }}
+                    </div>
+                {% endif %}
+                <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-[hsl(var(--background))]"></div>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-semibold truncate text-[hsl(var(--foreground))]">
+                        {{ request.user.profile.full_name }}
+                    </h2>
+                    <div class="flex items-center gap-2">
+                        <a href="{% url 'permission:view_profile' %}" 
+                           class="rounded-full p-1.5 hover:bg-[hsl(var(--accent))] transition-colors"
+                           title="Edit Profile">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M19.4 15C19.1277 15.6171 19.2583 16.3378 19.73 16.82L19.79 16.88C20.1656 17.2551 20.3766 17.7642 20.3766 18.295C20.3766 18.8258 20.1656 19.3349 19.79 19.71C19.4149 20.0856 18.9058 20.2966 18.375 20.2966C17.8442 20.2966 17.3351 20.0856 16.96 19.71L16.9 19.65C16.4178 19.1783 15.6971 19.0477 15.08 19.32C14.4755 19.5791 14.0826 20.1724 14.08 20.83V21C14.08 22.1046 13.1846 23 12.08 23C10.9754 23 10.08 22.1046 10.08 21V20.91C10.0642 20.2327 9.63587 19.6339 9 19.4C8.38291 19.1277 7.66219 19.2583 7.18 19.73L7.12 19.79C6.74486 20.1656 6.23577 20.3766 5.705 20.3766C5.17423 20.3766 4.66514 20.1656 4.29 19.79C3.91445 19.4149 3.70343 18.9058 3.70343 18.375C3.70343 17.8442 3.91445 17.3351 4.29 16.96L4.35 16.9C4.82167 16.4178 4.95235 15.6971 4.68 15.08C4.42093 14.4755 3.82764 14.0826 3.17 14.08H3C1.89543 14.08 1 13.1846 1 12.08C1 10.9754 1.89543 10.08 3 10.08H3.09C3.76733 10.0642 4.36613 9.63587 4.6 9C4.87235 8.38291 4.74167 7.66219 4.27 7.18L4.21 7.12C3.83445 6.74486 3.62343 6.23577 3.62343 5.705C3.62343 5.17423 3.83445 4.66514 4.21 4.29C4.58514 3.91445 5.09423 3.70343 5.625 3.70343C6.15577 3.70343 6.66486 3.91445 7.04 4.29L7.1 4.35C7.58219 4.82167 8.30291 4.95235 8.92 4.68H9C9.60447 4.42093 9.99738 3.82764 10 3.17V3C10 1.89543 10.8954 1 12 1C13.1046 1 14 1.89543 14 3V3.09C14.0026 3.74764 14.3955 4.34093 15 4.6C15.6171 4.87235 16.3378 4.74167 16.82 4.27L16.88 4.21C17.2551 3.83445 17.7642 3.62343 18.295 3.62343C18.8258 3.62343 19.3349 3.83445 19.71 4.21C20.0856 4.58514 20.2966 5.09423 20.2966 5.625C20.2966 6.15577 20.0856 6.66486 19.71 7.04L19.65 7.1C19.1783 7.58219 19.0477 8.30291 19.32 8.92V9C19.5791 9.60447 20.1724 9.99738 20.83 10H21C22.1046 10 23 10.8954 23 12C23 13.1046 22.1046 14 21 14H20.91C20.2524 14.0026 19.6591 14.3955 19.4 15Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </a>
+                        <form method="post" action="{% url 'permission:logout' %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                    class="rounded-full p-1.5 hover:bg-[hsl(var(--accent))] transition-colors text-red-500"
+                                    title="Logout">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M16 17L21 12M21 12L16 7M21 12H9M9 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V16.2C3 17.8802 3 18.7202 3.32698 19.362C3.6146 19.9265 4.07354 20.3854 4.63803 20.673C5.27976 21 6.11984 21 7.8 21H9" 
+                                          stroke="currentColor" 
+                                          stroke-width="2" 
+                                          stroke-linecap="round" 
+                                          stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="mt-1 flex flex-col text-xs text-[hsl(var(--muted-foreground))]">
+                    {% if request.user.profile.position %}
+                        <span class="truncate">{{ request.user.profile.position }}</span>
+                    {% endif %}
+                    {% if request.user.profile.department %}
+                        <span class="truncate">{{ request.user.profile.department }}</span>
+                    {% endif %}
+                    <span class="truncate">{{ request.user.email }}</span>
+                </div>
+            </div>
+        </div>
+        
+
+        </aside>
+
+        <div class="flex flex-col flex-1">
+            <!-- Topbar -->
+            <header class="h-14 border-b border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 flex items-center justify-between">
+                <!-- Left side -->
+                <div class="flex items-center space-x-4">
+                    <button id="toggleSidebar" class="p-2 rounded-lg hover:bg-[hsl(var(--accent))] transition-colors hidden md:block">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="text-sm font-medium">{% block page_title %}Dashboard{% endblock %}</div>
+                </div>
+
+                
+                <!-- Right side -->
+                <div class="flex items-center space-x-4">
+                    <!-- Open Sheet Button -->
+                    <button id="openSheetBtn" class="p-2 rounded-lg hover:bg-[hsl(var(--accent))] transition-colors">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13 5H21M21 5V13M21 5L13 13M11 19H3M3 19V11M3 19L11 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="relative">
+                        <button id="themeToggle" class="p-2 rounded-lg hover:bg-[hsl(var(--accent))] transition-colors flex items-center space-x-2">
+                            <!-- Light mode icon -->
+                            <svg class="theme-light w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+                                <path d="M12 5V3M12 21V19M5 12H3M21 12H19M17.6569 17.6569L19.0711 19.0711M4.92893 4.92893L6.34315 6.34315M6.34315 17.6569L4.92893 19.0711M19.0711 4.92893L17.6569 6.34315" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <!-- Dark mode icon -->
+                            <svg class="theme-dark w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21.9548 12.9564C20.5779 15.3717 17.9791 17.0001 15 17.0001C10.5817 17.0001 7 13.4184 7 9.00006C7 6.02097 8.62837 3.42216 11.0437 2.04529C5.96874 2.52861 2 6.79962 2 12.0001C2 17.5229 6.47715 22.0001 12 22.0001C17.2004 22.0001 21.4714 18.0313 21.9548 12.9564Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <!-- System mode icon -->
+                            <svg class="theme-system w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                                <path d="M7 8H17M7 12H17M7 16H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <svg class="w-4 h-4 ml-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <!-- Theme dropdown -->
+                        <div id="themeDropdown" class="hidden topbar-dropdown bg-[hsl(var(--background))] border border-[hsl(var(--border))] rounded-lg shadow-lg py-1 z-50">
+                            <button onclick="setTheme('light')" class="flex items-center w-full px-4 py-2 text-sm hover:bg-[hsl(var(--accent))] transition-colors">
+                                <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M12 5V3M12 21V19M5 12H3M21 12H19M17.6569 17.6569L19.0711 19.0711M4.92893 4.92893L6.34315 6.34315M6.34315 17.6569L4.92893 19.0711M19.0711 4.92893L17.6569 6.34315" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                Light
+                            </button>
+                            <button onclick="setTheme('dark')" class="flex items-center w-full px-4 py-2 text-sm hover:bg-[hsl(var(--accent))] transition-colors">
+                                <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M21.9548 12.9564C20.5779 15.3717 17.9791 17.0001 15 17.0001C10.5817 17.0001 7 13.4184 7 9.00006C7 6.02097 8.62837 3.42216 11.0437 2.04529C5.96874 2.52861 2 6.79962 2 12.0001C2 17.5229 6.47715 22.0001 12 22.0001C17.2004 22.0001 21.4714 18.0313 21.9548 12.9564Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Dark
+                            </button>
+                            <button onclick="setTheme('system')" class="flex items-center w-full px-4 py-2 text-sm hover:bg-[hsl(var(--accent))] transition-colors">
+                                <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M7 8H17M7 12H17M7 16H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                System
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="flex-1 p-4 overflow-auto">
+
+                {% block content %}
+                <div class="grid gap-4">
+                    <div class="grid gap-4 md:grid-cols-3">
+                        <div class="h-32 rounded-lg bg-[hsl(var(--muted))]"></div>
+                        <div class="h-32 rounded-lg bg-[hsl(var(--muted))]"></div>
+                        <div class="h-32 rounded-lg bg-[hsl(var(--muted))]"></div>
+                    </div>
+                    <div class="h-[500px] rounded-lg bg-[hsl(var(--muted))]"></div>
+                </div>
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Sheet Component (Using Tailwind CSS classes) -->
+    <div id="sheetOverlay" class="fixed inset-0 bg-black/40 z-40 opacity-0 invisible transition-opacity duration-300"></div>
+    <div id="sheet" class="fixed top-0 right-0 bottom-0 w-full max-w-md bg-[hsl(var(--background))] border-l border-[hsl(var(--border))] shadow-lg z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <div class="flex items-center justify-between p-4 border-b border-[hsl(var(--border))]">
+            <h2 class="text-lg font-semibold">Recent Activity</h2>
+            <button id="closeSheetBtn" class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-[hsl(var(--accent))] transition-colors">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+        <div class="flex-1 p-4 overflow-y-auto">
+            {% block sheet_content %}
+            <div class="space-y-4">
+                <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))]">TODAY</h3>
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4">
+                        <div class="w-9 h-9 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-500">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 4.75L19.25 9L12 13.25L4.75 9L12 4.75Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M9.25 11.5L4.75 14L12 18.25L19.25 14L14.6722 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1 space-y-1">
+                            <p class="text-sm">New order <span class="font-medium">#28123</span> from John Doe</p>
+                            <p class="text-xs text-[hsl(var(--muted-foreground))]">2 hours ago</p>
+                        </div>
+                        <span class="px-2 py-1 text-xs rounded-full bg-green-500/10 text-green-500">Completed</span>
+                    </div>
+
+                    <div class="flex items-start gap-4">
+                        <div class="w-9 h-9 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1 space-y-1">
+                            <p class="text-sm">Payment pending for order <span class="font-medium">#28122</span></p>
+                            <p class="text-xs text-[hsl(var(--muted-foreground))]">3 hours ago</p>
+                        </div>
+                        <span class="px-2 py-1 text-xs rounded-full bg-yellow-500/10 text-yellow-500">Pending</span>
+                    </div>
+                </div>
+
+                <h3 class="text-sm font-medium text-[hsl(var(--muted-foreground))] pt-4">YESTERDAY</h3>
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4">
+                        <div class="w-9 h-9 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1 space-y-1">
+                            <p class="text-sm">Order <span class="font-medium">#28121</span> was cancelled</p>
+                            <p class="text-xs text-[hsl(var(--muted-foreground))]">Yesterday at 3:12 PM</p>
+                        </div>
+                        <span class="px-2 py-1 text-xs rounded-full bg-red-500/10 text-red-500">Cancelled</span>
+                    </div>
+
+                    <div class="flex items-start gap-4">
+                        <div class="w-9 h-9 rounded-full bg-green-500/20 flex items-center justify-center text-green-500">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 12L11 14L15 10M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1 space-y-1">
+                            <p class="text-sm">New user <span class="font-medium">Sarah Wilson</span> registered</p>
+                            <p class="text-xs text-[hsl(var(--muted-foreground))]">Yesterday at 2:45 PM</p>
+                        </div>
+                        <span class="px-2 py-1 text-xs rounded-full bg-green-500/10 text-green-500">New</span>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+    
+<!-- Mobile Bottom Menu (Only visible on mobile) -->
+{% include 'inc/mobile-bottom-menu.html'%}
+    {% block extra_js %}{% endblock %}
+    <script src="{% static 'js/theme-toggle.js'%}"></script>
+    <script>
+        // Enhanced JavaScript for smooth animations and interactions
+        function toggleSettings() {
+            const menu = document.getElementById('settingsMenu');
+            const arrow = document.getElementById('settingsArrow');
+            
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('dropdown-menu');
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                menu.classList.add('closing');
+                arrow.style.transform = 'rotate(0deg)';
+                setTimeout(() => {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('dropdown-menu', 'closing');
+                }, 300);
+            }
+        }
+
+        function toggleGlobalSettingsMenu() {
+            const menu = document.getElementById('globalSettingsMenu');
+            const arrow = document.getElementById('globalSettingsArrow');
+            
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('dropdown-menu');
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                menu.classList.add('closing');
+                arrow.style.transform = 'rotate(0deg)';
+                setTimeout(() => {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('dropdown-menu', 'closing');
+                }, 300);
+            }
+        }        
+        function toggleAuthMenu() {
+        const menu = document.getElementById('authMenu');
+        const arrow = document.getElementById('authArrow');
+        
+        if (menu.classList.contains('hidden')) {
+            menu.classList.remove('hidden');
+            menu.classList.add('dropdown-menu');
+            arrow.style.transform = 'rotate(180deg)';
+        } else {
+            menu.classList.add('closing');
+            arrow.style.transform = 'rotate(0deg)';
+            setTimeout(() => {
+                menu.classList.add('hidden');
+                menu.classList.remove('dropdown-menu', 'closing');
+            }, 300);
+        }
+    }
+
+    function toggleFinanceMenu() {
+            const menu = document.getElementById('financeMenu');
+            const arrow = document.getElementById('financeArrow');
+            
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('dropdown-menu');
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                menu.classList.add('closing');
+                arrow.style.transform = 'rotate(0deg)';
+                setTimeout(() => {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('dropdown-menu', 'closing');
+                }, 300);
+            }
+        }
+        function toggleBusinessPartnerMenu() {
+            const menu = document.getElementById('businessPartnerMenu');
+            const arrow = document.getElementById('businessPartnerArrow');
+            
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('dropdown-menu');
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                menu.classList.add('closing');
+                arrow.style.transform = 'rotate(0deg)';
+                setTimeout(() => {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('dropdown-menu', 'closing');
+                }, 300);
+            }
+        }        
+        function toggleInventoryMenu() {
+            const menu = document.getElementById('inventoryMenu');
+            const arrow = document.getElementById('inventoryArrow');
+            
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('dropdown-menu');
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                menu.classList.add('closing');
+                arrow.style.transform = 'rotate(0deg)';
+                setTimeout(() => {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('dropdown-menu', 'closing');
+                }, 300);
+            }
+        }        
+        function toggleProfileMenu() {
+            const menu = document.getElementById('profileMenu');
+            const arrow = document.getElementById('profileArrow');
+            
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('dropdown-menu');
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                menu.classList.add('closing');
+                arrow.style.transform = 'rotate(0deg)';
+                setTimeout(() => {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('dropdown-menu', 'closing');
+                }, 300);
+            }
+        }
+
+        // Add hover effect to menu items
+        document.querySelectorAll('.menu-item-hover').forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                item.style.transform = 'translateX(4px)';
+            });
+            
+            item.addEventListener('mouseleave', () => {
+                item.style.transform = 'translateX(0)';
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            const settingsMenu = document.getElementById('settingsMenu');
+            const profileMenu = document.getElementById('profileMenu');
+            const settingsArrow = document.getElementById('settingsArrow');
+            const profileArrow = document.getElementById('profileArrow');
+
+            if (!event.target.closest('#authMenu') && !event.target.closest('button')) {
+                settingsMenu.classList.add('hidden');
+                settingsArrow.style.transform = 'rotate(0deg)';
+            }
+            if (!event.target.closest('#settingsMenu') && !event.target.closest('button')) {
+                settingsMenu.classList.add('hidden');
+                settingsArrow.style.transform = 'rotate(0deg)';
+            }
+
+            if (!event.target.closest('#profileMenu') && !event.target.closest('button')) {
+                profileMenu.classList.add('hidden');
+                profileArrow.style.transform = 'rotate(0deg)';
+            }
+        });
+
+        // Close dropdowns when pressing Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const dropdowns = document.querySelectorAll('#settingsMenu, #profileMenu');
+                const arrows = document.querySelectorAll('#settingsArrow, #profileArrow');
+                
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.add('hidden');
+                    dropdown.classList.remove('dropdown-menu', 'closing');
+                });
+                
+                arrows.forEach(arrow => {
+                    arrow.style.transform = 'rotate(0deg)';
+                });
+            }
+        });
+
+
+
+
+        // Close all dropdowns when pressing Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                themeDropdown.classList.add('hidden');
+                // Your existing dropdown close code here
+                const dropdowns = document.querySelectorAll('#settingsMenu, #profileMenu');
+                const arrows = document.querySelectorAll('#settingsArrow, #profileArrow');
+                
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.add('hidden');
+                    dropdown.classList.remove('dropdown-menu', 'closing');
+                });
+                
+                arrows.forEach(arrow => {
+                    arrow.style.transform = 'rotate(0deg)';
+                });
+            }
+        });
+
+        // Toggle sidebar collapse
+        document.getElementById('toggleSidebar').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar.style.width === 'var(--sidebar-width-collapsed)') {
+                sidebar.style.width = 'var(--sidebar-width)';
+                sidebar.classList.remove('sidebar-collapsed');
+                sidebar.classList.add('sidebar-expanded');
+            } else {
+                sidebar.style.width = 'var(--sidebar-width-collapsed)';
+                sidebar.classList.remove('sidebar-expanded');
+                sidebar.classList.add('sidebar-collapsed');
+            }
+        });
+
+        // Theme toggle dropdown
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            const dropdown = document.getElementById('themeDropdown');
+            dropdown.classList.toggle('hidden');
+        });
+
+        // Handle form submission errors
+        document.addEventListener('DOMContentLoaded', function() {
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    try {
+                        // Form validation can be added here
+                    } catch (error) {
+                        e.preventDefault();
+                        showToast(error.message, 'error');
+                    }
+                });
+            });
+        });
+    </script>
+  <script src="{% static 'js/toast.js' %}"></script>
+  <script src="{% static 'js/sheet.js' %}"></script>
+
+    {% block custom_js %}{% endblock %}
+</body>
+</html>

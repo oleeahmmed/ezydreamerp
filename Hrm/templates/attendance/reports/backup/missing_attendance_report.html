@@ -1,0 +1,147 @@
+{% extends "common/base-list-modern.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block list_icon %}
+<svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 9V13L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M15 3L12 6L15 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+{% endblock %}
+
+{% block list_title %}Missing Attendance Report{% endblock %}
+{% block list_subtitle %}Employees with missing check-in or check-out{% endblock %}
+
+{% block additional_filters %}
+<select name="employee" class="px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] min-w-[150px]">
+    <option value="">All Employees</option>
+    {% for emp in employees %}
+    <option value="{{ emp.id }}" {% if request.GET.employee == emp.id|stringformat:"s" %}selected{% endif %}>{{ emp.get_full_name }}</option>
+    {% endfor %}
+</select>
+
+<input type="date" name="date_from" value="{{ request.GET.date_from }}" class="px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] min-w-[150px]">
+
+<input type="date" name="date_to" value="{{ request.GET.date_to }}" class="px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] min-w-[150px]">
+
+<button type="button" onclick="window.print()" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:bg-[hsl(var(--secondary-hover))] h-10 px-4 py-2 shadow-md">
+    <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 9V2H18V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M6 18H4C3.46957 18 2.96086 17.7893 2.58579 17.4142C2.21071 17.0391 2 16.5304 2 16V11C2 10.4696 2.21071 9.96086 2.58579 9.58579C2.96086 9.21071 3.46957 9 4 9H20C20.5304 9 21.0391 9.21071 21.4142 9.58579C21.7893 9.96086 22 10.4696 22 11V16C22 16.5304 21.7893 17.0391 21.4142 17.4142C21.0391 17.7893 20.5304 18 20 18H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M18 14H6V22H18V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Print
+</button>
+{% endblock %}
+
+{% block table_headers %}
+<th scope="col" class="px-3 sm:px-6 py-3 sortable" data-sort="employee">
+    <div class="flex items-center gap-1">
+        Employee
+        <svg class="w-4 h-4 sort-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </div>
+</th>
+<th scope="col" class="px-3 sm:px-6 py-3 sortable" data-sort="date">
+    <div class="flex items-center gap-1">
+        Date
+        <svg class="w-4 h-4 sort-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </div>
+</th>
+<th scope="col" class="px-3 sm:px-6 py-3">Check In</th>
+<th scope="col" class="px-3 sm:px-6 py-3">Check Out</th>
+<th scope="col" class="px-3 sm:px-6 py-3">Missing Type</th>
+<th scope="col" class="px-3 sm:px-6 py-3">Department</th>
+<th scope="col" class="px-3 sm:px-6 py-3 text-right">Actions</th>
+{% endblock %}
+
+{% block table_body %}
+{% for attendance in attendances %}
+<tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]">
+    <td class="px-3 sm:px-6 py-4">
+        <input type="checkbox" name="selected_items" value="{{ attendance.pk }}" class="item-checkbox form-checkbox h-4 w-4 text-[hsl(var(--primary))] rounded border-[hsl(var(--border))] focus:ring-[hsl(var(--primary))]">
+    </td>
+    <td class="px-3 sm:px-6 py-4 font-medium">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-red-400 to-red-600 text-white flex items-center justify-center text-sm font-medium">
+                {{ attendance.employee.first_name|first }}{{ attendance.employee.last_name|first }}
+            </div>
+            <div>
+                <div class="font-medium">{{ attendance.employee.get_full_name }}</div>
+                <div class="text-sm text-[hsl(var(--muted-foreground))]">{{ attendance.employee.employee_id }}</div>
+            </div>
+        </div>
+    </td>
+    <td class="px-3 sm:px-6 py-4">{{ attendance.date|date:"M d, Y" }}</td>
+    <td class="px-3 sm:px-6 py-4">
+        {% if attendance.check_in %}
+            <span class="text-green-600">{{ attendance.check_in|time:"H:i" }}</span>
+        {% else %}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                Missing
+            </span>
+        {% endif %}
+    </td>
+    <td class="px-3 sm:px-6 py-4">
+        {% if attendance.check_out %}
+            <span class="text-blue-600">{{ attendance.check_out|time:"H:i" }}</span>
+        {% else %}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                Missing
+            </span>
+        {% endif %}
+    </td>
+    <td class="px-3 sm:px-6 py-4">
+        {% if not attendance.check_in and not attendance.check_out %}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                Both Missing
+            </span>
+        {% elif not attendance.check_in %}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                Check-in Missing
+            </span>
+        {% elif not attendance.check_out %}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                Check-out Missing
+            </span>
+        {% endif %}
+    </td>
+    <td class="px-3 sm:px-6 py-4">{{ attendance.employee.department.name|default:"--" }}</td>
+    <td class="px-3 sm:px-6 py-4 text-right">
+        <div class="relative inline-block">
+            <button type="button" class="action-menu-btn inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 py-2">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V5.01M12 12V12.01M12 19V19.01M12 6C11.4477 6 11 5.55228 11 5C11 4.44772 11.4477 4 12 4C12.5523 4 13 4.44772 13 5C13 5.55228 12.5523 6 12 6ZM12 13C11.4477 13 11 12.5523 11 12C11 11.4477 11.4477 11 12 11C12.5523 11 13 11.4477 13 12C13 12.5523 12.5523 13 12 13ZM12 20C11.4477 20 11 19.5523 11 19C11 18.4477 11.4477 18 12 18C12.5523 18 13 18.4477 13 19C13 19.5523 12.5523 20 12 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div class="action-menu hidden absolute right-0 mt-2 w-48 bg-[hsl(var(--popover))] text-[hsl(var(--popover-foreground))] shadow-lg rounded-md border border-[hsl(var(--border))] z-10">
+                <a href="{% url 'hrm:attendance_update' attendance.pk %}" class="flex items-center px-4 py-2 text-sm hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition-colors">
+                    <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Fix Attendance
+                </a>
+            </div>
+        </div>
+    </td>
+</tr>
+{% empty %}
+<tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+    <td colspan="8" class="px-3 sm:px-6 py-4 text-center text-[hsl(var(--muted-foreground))]">
+        <div class="flex flex-col items-center py-6">
+            <svg class="w-12 h-12 text-green-500 mb-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <p class="text-lg font-medium mb-2">No missing attendance records found</p>
+            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-4">All attendance records are complete for the selected period</p>
+        </div>
+    </td>
+</tr>
+{% endfor %}
+{% endblock %}
+
+{% block empty_colspan %}8{% endblock %}

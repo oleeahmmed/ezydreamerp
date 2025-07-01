@@ -1,0 +1,788 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block extra_css %}
+<style>
+.custom-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 2px solid hsl(var(--border));
+    border-radius: 0.5rem;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+.custom-checkbox:checked {
+    background-color: hsl(var(--primary));
+    border-color: hsl(var(--primary));
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='hsl(var(--primary-foreground))' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");
+}
+.custom-checkbox:focus {
+    box-shadow: 0 0 0 4px hsl(var(--primary)/0.2);
+}
+.loader { 
+    border: 4px solid hsl(var(--muted)); 
+    border-top: 4px solid hsl(var(--primary)); 
+    border-radius: 50%; 
+    width: 24px; 
+    height: 24px; 
+    animation: spin 1s linear infinite; 
+}
+@keyframes spin { 
+    0% { transform: rotate(0deg); } 
+    100% { transform: rotate(360deg); } 
+}
+.fade-in { 
+    animation: fadeIn 0.6s ease-in; 
+}
+@keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(15px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
+.tab-active {
+    background: linear-gradient(90deg, hsl(var(--primary)/0.9), hsl(var(--primary)/1.2));
+    color: hsl(var(--primary-foreground));
+    border-bottom: 3px solid hsl(var(--primary));
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+    <div class="relative rounded-2xl border-2 bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] shadow-xl p-6 sm:p-8 premium-card overflow-hidden">
+        <!-- Decorative Elements -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[hsl(var(--primary)/0.3)] to-transparent rounded-bl-full opacity-20"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-[hsl(var(--primary)/0.3)] to-transparent rounded-tr-full opacity-20"></div>
+
+        <!-- Header -->
+        <div class="mb-8 border-b border-[hsl(var(--border))] pb-6 relative z-10">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r from-[hsl(var(--primary)/0.9)] to-[hsl(var(--primary)/1.3)] text-[hsl(var(--primary-foreground))] shadow-lg">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))] bg-clip-text text-transparent">{{ title }}</h1>
+                        <p class="text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">{{ subtitle }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include "common/toast.html" %}
+
+        {% if not zk_available %}
+        <div class="bg-[hsl(var(--warning)/0.1)] dark:bg-[hsl(var(--warning)/0.2)] border-l-4 border-[hsl(var(--warning))] text-[hsl(var(--warning-foreground))] dark:text-[hsl(var(--warning-foreground))] p-6 mb-8 rounded-lg shadow-md">
+            <p class="font-semibold text-lg">{% trans "ZK Library Not Available" %}</p>
+            <p class="text-sm">{% trans "Please install the ZK library with 'pip install pyzk' to enable device connectivity." %}</p>
+        </div>
+        {% endif %}
+
+        <!-- Tab Navigation -->
+        <div class="border-b border-[hsl(var(--border))] mb-8">
+            <nav class="flex flex-wrap gap-2" aria-label="Tabs">
+                <button class="tab-button px-4 py-2 text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] rounded-t-lg hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))] transition-all duration-200 {% if active_tab == 'test-connection' %}tab-active{% endif %}" data-tab="test-connection">{% trans "Test Connection" %}</button>
+                <button class="tab-button px-4 py-2 text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] rounded-t-lg hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))] transition-all duration-200 {% if active_tab == 'sync-devices' %}tab-active{% endif %}" data-tab="sync-devices">{% trans "Sync Devices" %}</button>
+                <button class="tab-button px-4 py-2 text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] rounded-t-lg hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))] transition-all duration-200 {% if active_tab == 'sync-users' %}tab-active{% endif %}" data-tab="sync-users">{% trans "Sync Users" %}</button>
+            </nav>
+        </div>
+
+        <!-- Test Connection Tab -->
+        <div id="test-connection-tab" class="tab-content {% if active_tab == 'test-connection' %}block{% else %}hidden{% endif %}">
+            <form method="post" class="space-y-8">
+                {% csrf_token %}
+                <input type="hidden" name="active_tab" value="test-connection">
+                
+                <div class="space-y-6">
+                    <h4 class="text-xl font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{% trans "Select Device to Test" %}</h4>
+                    <div class="space-y-3">
+                        <label for="{{ connection_form.device.id_for_label }}" class="block text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
+                            {% trans "Device" %}
+                        </label>
+                        {{ connection_form.device }}
+                        {% if connection_form.device.errors %}
+                        <p class="text-[hsl(var(--destructive))] dark:text-[hsl(var(--destructive))] text-sm mt-2">{{ connection_form.device.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="bg-[hsl(var(--muted)/0.3)] dark:bg-[hsl(var(--muted)/0.4)] rounded-lg p-6 border border-[hsl(var(--border))]">
+                    <h4 class="text-lg font-semibold mb-4 text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{% trans "Connection Instructions" %}</h4>
+                    <ul class="list-disc list-inside space-y-2 text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">
+                        <li>{% trans "Ensure device is powered on and networked" %}</li>
+                        <li>{% trans "Verify IP address accessibility" %}</li>
+                        <li>{% trans "Default port is 4370" %}</li>
+                        <li>{% trans "Try 'Force UDP' if connection fails" %}</li>
+                    </ul>
+                </div>
+                
+                <div class="flex justify-end space-x-4 pt-6 border-t border-[hsl(var(--border))]">
+                    <a href="{% url 'hrm:zk_device_list' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors border border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))] text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] h-11 px-6 py-2 shadow-sm">
+                        {% trans "Cancel" %}
+                    </a>
+                    <button type="submit" class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors bg-gradient-to-r from-[hsl(var(--primary)/0.9)] to-[hsl(var(--primary)/1.3)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-11 px-8 py-2 shadow-md">
+                        {% trans "Test Connection" %}
+                    </button>
+                </div>
+            </form>
+
+            {% if connection_tested %}
+            <div class="mt-8">
+                <h3 class="text-lg font-semibold mb-4 text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{% trans "Device Information" %}</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">{% trans "Name" %}</p>
+                        <p class="font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ device.name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">{% trans "IP Address" %}</p>
+                        <p class="font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ device.ip_address }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">{% trans "Port" %}</p>
+                        <p class="font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ device.port }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">{% trans "Connection Type" %}</p>
+                        <p class="font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{% if device.force_udp %}UDP{% else %}TCP{% endif %}</p>
+                    </div>
+                </div>
+
+                {% if success %}
+                <div class="bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-700 rounded-lg p-6 mt-6">
+                    <div class="flex items-center mb-4">
+                        <svg class="w-6 h-6 text-green-600 dark:text-green-400 mr-2" viewBox="0 0 24 24" fill="none">
+                            <path d="M22 11.0857V12.0057C21.9988 14.1621 21.3005 16.2604 20.0093 17.9875C18.7182 19.7147 16.9033 20.9782 14.8354 21.5896C12.7674 22.201 10.5573 22.1276 8.53447 21.3803C6.51168 20.633 4.78465 19.2518 3.61096 17.4428C2.43727 15.6338 1.87979 13.4938 2.02168 11.342C2.16356 9.19029 2.99721 7.14205 4.39828 5.5028C5.79935 3.86354 7.69279 2.72111 9.79619 2.24587C11.8996 1.77063 14.1003 1.98806 16.07 2.86572" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M22 4L12 14.01L9 11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <h4 class="text-lg font-semibold text-green-800 dark:text-green-300">{% trans "Connection Successful" %}</h4>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-green-700 dark:text-green-400">{% trans "Firmware Version" %}</p>
+                            <p class="font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ device_info.firmware_version }}</p>
+                        </div>
+                        <div>
+                            <p class="text-green-700 dark:text-green-400">{% trans "Device Name" %}</p>
+                            <p class="font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ device_info.device_name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-green-700 dark:text-green-400">{% trans "Serial Number" %}</p>
+                            <p class="font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ device_info.serial_number }}</p>
+                        </div>
+                        <div>
+                            <p class="text-green-700 dark:text-green-400">{% trans "User Count" %}</p>
+                            <p class="font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ device_info.user_count }}</p>
+                        </div>
+                        <div>
+                            <p class="text-green-700 dark:text-green-400">{% trans "Platform" %}</p>
+                            <p class="font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ device_info.platform }}</p>
+                        </div>
+                        <div>
+                            <p class="text-green-700 dark:text-green-400">{% trans "Total Records" %}</p>
+                            <p class="font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ device_info.attendance_count }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {% if attendance_preview %}
+                <div class="mt-6">
+                    <h4 class="text-lg font-semibold mb-4 text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{% trans "Recent Attendance (50 rows)" %}</h4>
+                    <div class="relative overflow-x-auto rounded-lg border border-[hsl(var(--border))] max-h-96">
+                        <table class="w-full text-sm">
+                            <thead class="text-xs uppercase bg-[hsl(var(--muted))] dark:bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] sticky top-0">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">{% trans "User ID" %}</th>
+                                    <th scope="col" class="px-6 py-3">{% trans "Timestamp" %}</th>
+                                    <th scope="col" class="px-6 py-3">{% trans "Punch Type" %}</th>
+                                    <th scope="col" class="px-6 py-3">{% trans "Verification" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in attendance_preview %}
+                                <tr class="bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))]">
+                                    <td class="px-6 py-4 font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ record.user_id }}</td>
+                                    <td class="px-6 py-4 text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ record.timestamp|date:"Y-m-d H:i:s" }}</td>
+                                    <td class="px-6 py-4">
+                                        {% if record.punch_type %}
+                                        <span class="px-2 py-1 rounded-lg text-xs font-medium 
+                                            {% if record.punch_type == 'Check In' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300
+                                            {% elif record.punch_type == 'Check Out' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300
+                                            {% elif record.punch_type == 'Break Out' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300
+                                            {% elif record.punch_type == 'Break In' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300
+                                            {% elif record.punch_type == 'Overtime In' %}bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300
+                                            {% elif record.punch_type == 'Overtime Out' %}bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300
+                                            {% else %}bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300{% endif %}">
+                                            {{ record.punch_type }}
+                                        </span>
+                                        {% else %}
+                                        <span class="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-6 py-4 text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ record.verify_type|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-400 rounded-lg p-6 mt-6">
+                <div class="flex items-start">
+                    <svg class="w-6 h-6 text-red-600 dark:text-red-400 mt-0.5 mr-2 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 9V11M12 15H12.01M5.07183 19H18.9282C21 19 21.4303 17.3333 20.6603 16L13.7321 4C12.9623 2.66667 11.0378 2.66667 10.268 4L3.33978 16C2.56997 17.3333 3 19 5.07183 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div>
+                        <p class="text-red-700 dark:text-red-300 font-medium">{% trans "Connection Failed" %}</p>
+                        <p class="text-red-600 dark:text-red-400 text-sm mt-2">{{ error }}</p>
+                        <p class="text-red-600 dark:text-red-400 text-sm mt-2">{% trans "Please check:" %}</p>
+                        <ul class="list-disc text-sm text-red-600 dark:text-red-400 ml-5 mt-2 space-y-1">
+                            <li>{% trans "Device is powered on and networked" %}</li>
+                            <li>{% trans "IP address and port are correct" %}</li>
+                            <li>{% trans "Firewall allows connection" %}</li>
+                            <li>{% trans "Try enabling 'Force UDP'" %}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sync Devices Tab -->
+        <div id="sync-devices-tab" class="tab-content {% if active_tab == 'sync-devices' %}block{% else %}hidden{% endif %}">
+            <form method="post" class="space-y-8">
+                {% csrf_token %}
+                <input type="hidden" name="active_tab" value="sync-devices">
+                
+                <div class="space-y-6">
+                    <h4 class="text-xl font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{% trans "Select Devices to Sync" %}</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for device in sync_form.devices.field.queryset %}
+                        <div class="group border border-[hsl(var(--border))] rounded-lg p-4 bg-white dark:bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))] transition-all">
+                            <div class="flex items-center">
+                                <input type="checkbox" name="devices" value="{{ device.id }}" id="device_{{ device.id }}" 
+                                       class="custom-checkbox"
+                                       {% if device.id|stringformat:"i" in request.GET.device %}checked{% endif %}>
+                                <label for="device_{{ device.id }}" class="ml-3 block text-sm cursor-pointer">
+                                    <div class="font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] group-hover:text-[hsl(var(--primary))]">{{ device.name }}</div>
+                                    <div class="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-xs">{{ device.ip_address }}</div>
+                                    {% if device.last_sync %}
+                                    <div class="text-xs text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] mt-1">
+                                        {% trans "Last sync:" %} {{ device.last_sync|date:"Y-m-d H:i" }}
+                                    </div>
+                                    {% endif %}
+                                </label>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] col-span-full text-center py-8">
+                            {% trans "No active devices found." %}
+                            <a href="{% url 'hrm:zk_device_create' %}" class="text-[hsl(var(--primary))] hover:underline">{% trans "Add a device" %}</a>
+                        </p>
+                        {% endfor %}
+                    </div>
+                    {% if sync_form.devices.errors %}
+                    <p class="text-[hsl(var(--destructive))] dark:text-[hsl(var(--destructive))] text-sm mt-1">{{ sync_form.devices.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label for="{{ sync_form.start_date.id_for_label }}" class="block text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
+                            {% trans "Start Date" %} <span class="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-xs">({% trans "Optional" %})</span>
+                        </label>
+                        <input type="date" id="{{ sync_form.start_date.id_for_label }}" name="{{ sync_form.start_date.name }}"
+                               value="{{ sync_form.start_date.value|default_if_none:"" }}"
+                               class="w-full px-4 py-2 rounded-lg text-sm border border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-[hsl(var(--primary))] transition-all duration-200 placeholder:text-[hsl(var(--muted-foreground))] dark:placeholder:text-[hsl(var(--muted-foreground))]">
+                        {% if sync_form.start_date.errors %}
+                        <p class="text-[hsl(var(--destructive))] dark:text-[hsl(var(--destructive))] text-sm mt-1">{{ sync_form.start_date.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        <label for="{{ sync_form.end_date.id_for_label }}" class="block text-sm font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">
+                            {% trans "End Date" %} <span class="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-xs">({% trans "Optional" %})</span>
+                        </label>
+                        <input type="date" id="{{ sync_form.end_date.id_for_label }}" name="{{ sync_form.end_date.name }}"
+                               value="{{ sync_form.end_date.value|default_if_none:"" }}"
+                               class="w-full px-4 py-2 rounded-lg text-sm border border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-[hsl(var(--primary))] transition-all duration-200 placeholder:text-[hsl(var(--muted-foreground))] dark:placeholder:text-[hsl(var(--muted-foreground))]">
+                        {% if sync_form.end_date.errors %}
+                        <p class="text-[hsl(var(--destructive))] dark:text-[hsl(var(--destructive))] text-sm mt-1">{{ sync_form.end_date.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-4 pt-6 border-t border-[hsl(var(--border))]">
+                    <a href="{% url 'hrm:zk_device_list' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors border border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))] text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] h-11 px-6 py-2 shadow-sm">
+                        {% trans "Cancel" %}
+                    </a>
+                    <button type="submit" class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors bg-gradient-to-r from-[hsl(var(--primary)/0.9)] to-[hsl(var(--primary)/1.3)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-11 px-8 py-2 shadow-md">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        {% trans "Preview Data" %}
+                    </button>
+                </div>
+            </form>
+
+            {% if sync_performed %}
+            <div class="bg-gradient-to-r from-[hsl(var(--primary)/0.9)] to-[hsl(var(--primary)/1.3)] rounded-lg p-6 text-[hsl(var(--primary-foreground))] dark:text-[hsl(var(--primary-foreground))] mt-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold">{% trans "Sync Complete" %}</h3>
+                        <p class="text-[hsl(var(--primary-foreground))/0.8] dark:text-[hsl(var(--primary-foreground))/0.8] text-sm">
+                            {% trans "Retrieved data from" %} {{ sync_results|length }} {% trans "device(s)" %}
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-3xl font-bold">{{ total_records }}</div>
+                        <div class="text-sm text-[hsl(var(--primary-foreground))/0.8] dark:text-[hsl(var(--primary-foreground))/0.8]">{% trans "Total Records" %}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-end gap-4 pt-6 border-t border-[hsl(var(--border))]">
+                <a href="{% url 'hrm:zk_device_list' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors border border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))] text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] h-11 px-6 py-2 shadow-sm">
+                    {% trans "Back to Devices" %}
+                </a>
+                <a href="{% url 'hrm:zk_device_all_operations' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors bg-gradient-to-r from-[hsl(var(--primary)/0.9)] to-[hsl(var(--primary)/1.3)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-11 px-6 py-2 shadow-md">
+                    {% trans "Sync Again" %}
+                </a>
+                {% if all_attendance_data %}
+                <button id="save-data-btn" class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors bg-gradient-to-r from-[hsl(var(--accent-save)/0.9)] to-[hsl(var(--accent-save)/1.3)] text-[hsl(var(--accent-save-foreground))] hover:opacity-90 h-11 px-8 py-2 shadow-md">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                    <span id="save-btn-text">{% trans "Save to Database" %}</span>
+                </button>
+                {% endif %}
+                <a href="{% url 'hrm:zk_attendance_log_list' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors bg-gradient-to-r from-[hsl(var(--accent-logs)/0.9)] to-[hsl(var(--accent-logs)/1.3)] text-[hsl(var(--accent-logs-foreground))] hover:opacity-90 h-11 px-6 py-2 shadow-md">
+                    {% trans "View Saved Logs" %}
+                </a>
+            </div>
+
+            <div class="rounded-lg border border-[hsl(var(--border))] overflow-hidden mt-8">
+                <div class="px-6 py-4 bg-[hsl(var(--muted))] dark:bg-[hsl(var(--muted))] border-b border-[hsl(var(--border))]">
+                    <h4 class="text-lg font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{% trans "Device Results" %}</h4>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-[hsl(var(--border))]">
+                        <thead class="bg-[hsl(var(--muted))] dark:bg-[hsl(var(--muted))]">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">{% trans "Device" %}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">{% trans "Status" %}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">{% trans "Records" %}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">{% trans "Details" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] divide-y divide-[hsl(var(--border))]">
+                            {% for result in sync_results %}
+                            <tr class="hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))]">
+                                <td class="px-6 py-4 whitespace-nowrap font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ result.device.name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {% if result.success %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">{% trans "Success" %}</span>
+                                    {% else %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">{% trans "Failed" %}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ result.records_found|default:"-" }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    {% if result.success %}
+                                    <span class="text-green-600 dark:text-green-400">{% trans "Data retrieved successfully" %}</span>
+                                    {% else %}
+                                    <span class="text-[hsl(var(--destructive))] dark:text-[hsl(var(--destructive))]">{{ result.error }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {% if all_attendance_data %}
+            <div class="rounded-lg border border-[hsl(var(--border))] overflow-hidden mt-8">
+                <div class="px-6 py-4 bg-[hsl(var(--muted))] dark:bg-[hsl(var(--muted))] border-b border-[hsl(var(--border))] flex items-center justify-between">
+                    <h4 class="text-lg font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{% trans "Data Preview" %}</h4>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[hsl(var(--warning)/0.1)] dark:bg-[hsl(var(--warning)/0.2)] text-[hsl(var(--warning-foreground))] dark:text-[hsl(var(--warning-foreground))]">
+                        {% trans "Preview Only" %}
+                    </span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-[hsl(var(--border))]">
+                        <thead class="bg-[hsl(var(--muted))] dark:bg-[hsl(var(--muted))] sticky top-0">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">{% trans "Device" %}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">{% trans "User ID" %}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">{% trans "Timestamp" %}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">{% trans "Punch Type" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-table-body" class="bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] divide-y divide-[hsl(var(--border))]">
+                            {% for record in all_attendance_data %}
+                            <tr class="hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))] fade-in">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-200 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300">
+                                        {{ record.device_name }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ record.user_id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ record.timestamp }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {% if record.punch_type %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        {% if record.punch_type == 'Check In' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300
+                                        {% elif record.punch_type == 'Check Out' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300
+                                        {% elif record.punch_type == 'Break Out' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300
+                                        {% elif record.punch_type == 'Break In' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300
+                                        {% elif record.punch_type == 'Overtime In' %}bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300
+                                        {% elif record.punch_type == 'Overtime Out' %}bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300
+                                        {% else %}bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300{% endif %}">
+                                        {{ record.punch_type }}
+                                    </span>
+                                    {% else %}
+                                    <span class="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="px-6 py-4 text-center text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">{% trans "No attendance data found." %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sync Users Tab -->
+        <div id="sync-users-tab" class="tab-content {% if active_tab == 'sync-users' %}block{% else %}hidden{% endif %}">
+            <form method="post" class="space-y-8">
+                {% csrf_token %}
+                <input type="hidden" name="active_tab" value="sync-users">
+                
+                <div class="space-y-6">
+                    <h4 class="text-xl font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{% trans "Select Devices to Sync Users" %}</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for device in sync_form.devices.field.queryset %}
+                        <div class="group border border-[hsl(var(--border))] rounded-lg p-4 bg-white dark:bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))] transition-all">
+                            <div class="flex items-center">
+                                <input type="checkbox" name="devices" value="{{ device.id }}" id="user_device_{{ device.id }}" 
+                                       class="custom-checkbox">
+                                <label for="user_device_{{ device.id }}" class="ml-3 block text-sm cursor-pointer">
+                                    <div class="font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] group-hover:text-[hsl(var(--primary))]">{{ device.name }}</div>
+                                    <div class="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] text-xs">{{ device.ip_address }}</div>
+                                </label>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] col-span-full text-center py-8">
+                            {% trans "No active devices found." %}
+                            <a href="{% url 'hrm:zk_device_create' %}" class="text-[hsl(var(--primary))] hover:underline">{% trans "Add a device" %}</a>
+                        </p>
+                        {% endfor %}
+                    </div>
+                    {% if sync_form.devices.errors %}
+                    <p class="text-[hsl(var(--destructive))] dark:text-[hsl(var(--destructive))] text-sm mt-1">{{ sync_form.devices.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="flex justify-end space-x-4 pt-6 border-t border-[hsl(var(--border))]">
+                    <a href="{% url 'hrm:zk_device_list' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors border border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))] text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))] h-11 px-6 py-2 shadow-sm">
+                        {% trans "Cancel" %}
+                    </a>
+                    <button type="submit" class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors bg-gradient-to-r from-[hsl(var(--primary)/0.9)] to-[hsl(var(--primary)/1.3)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-11 px-6 py-2 shadow-md">
+                        <svg class="w-5 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2 h-0A8.001 0 004.582 9m0 h-0H9m11 11v-5h-.581m0 0 h-0 a8.003 0 01-15.357-2m0 0H15"/>
+                        </svg>
+                        {% trans "Sync Users" %}
+                    </button>
+                </div>
+            </form>
+
+            {% if users_data %}
+            <div class="flex flex-wrap justify-end gap-4 pt-6 border-t border-[hsl(var(--border))] mt-6">
+                <a href="{% url 'hrm:zk_device_list' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors border border-[hsl(var(--border))] bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))] text-[hsl(var(--foreground))] dark:text-[hsl(varanmar))] h-11 px-6 py-2 shadow-sm">
+                    {% trans "Back to Devices" %}
+                </a>
+                <a href="{% url 'hrm:zk_device_all_operations' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors bg-gradient-to-r from-[hsl(var(--primary)/0.9)] to-[hsl(var(--primary)/1.3)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-11 px-6 py-2 shadow-md">
+                    {% trans "Sync Again" %}
+                </a>
+                <button id="save-users-btn" class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors bg-gradient-to-r from-[hsl(var(--accent-save)/0.9)] to-[hsl(var(--accent-save)/1.3)] text-[hsl(var(--accent-save-foreground))] hover:opacity-90 h-11 px-8 py-2 shadow-md">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                    <span id="save-users-text">{% trans "Save Users" %}</span>
+                </button>
+            </div>
+
+            <div class="rounded-lg border border-[hsl(var(--border))] overflow-hidden mt-8">
+                <div class="px-6 py-4 bg-[hsl(var(--muted))] dark:bg-[hsl(var(--muted))] border-b border-[hsl(var(--border))]">
+                    <h4 class="text-lg font-semibold text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{% trans "Synced Users" %}</h4>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-[hsl(var(--border))]">
+                        <thead class="bg-[hsl(var(--muted))] dark:bg-[hsl(var(--muted))]">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                                    <input type="checkbox" id="select-all-users" class="custom-checkbox">
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">{% trans "Device" %}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">{% trans "User ID" %}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">{% trans "Name" %}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))] uppercase tracking-wider">{% trans "Card No" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-[hsl(var(--background))] dark:bg-[hsl(var(--background))] divide-y divide-[hsl(var(--border))]">
+                            {% for user in users_data %}
+                            <tr class="hover:bg-[hsl(var(--accent))] dark:hover:bg-[hsl(var(--accent))]">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="checkbox" class="custom-checkbox user-checkbox" data-user-id="{{ user.user_id }}"
+                                           data-name="{{ user.name }}" data-card-no="{{ user.card_no }}">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ user.device.name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap font-medium text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ user.user_id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ user.name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[hsl(var(--foreground))] dark:text-[hsl(var(--foreground))]">{{ user.card_no|default:"-" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="px-6 py-4 text-center text-sm text-[hsl(var(--muted-foreground))] dark:text-[hsl(var(--muted-foreground))]">{% trans "No users found." %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script type="text/javascript">
+    var gk_isXlsx = false;
+    var gk_xlsxFileLookup = {};
+    var gk_fileData = {};
+    function filledCell(cell) {
+        return cell !== '' && cell != null;
+    }
+    function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find header row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                    index + 1 < filteredData.length && row.filter(filledCell).length >= filteredData[index + 1].filter(filledCell).length
+                );
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                    headerRowIndex = 0;
+                }
+
+                // Convert filtered data to CSV
+                var csvSheet = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
+                var csv = XLSX.utils.sheet_to_csv(csvSheet);
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return '';
+            }
+        }
+        return gk_fileData[filename] || '';
+    }
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab Switching
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                tabButtons.forEach(btn => btn.classList.remove('tab-active'));
+                button.classList.add('tab-active');
+                tabContents.forEach(content => {
+                    content.classList.add('hidden');
+                    if (content.id === `${tabId}-tab`) {
+                        content.classList.remove('hidden');
+                    }
+                });
+            });
+        });
+
+        // Save Attendance Data
+        const saveDataBtn = document.getElementById('save-data-btn');
+        const saveDataText = document.getElementById('save-btn-text');
+        if (saveDataBtn) {
+            saveDataBtn.addEventListener('click', function() {
+                const attendanceData = [];
+                {% for record in all_attendance_data %}
+                attendanceData.push({
+                    device_id: {{ record.device_id|default:0 }},
+                    user_id: {{ record.user_id|default:0 }},
+                    timestamp: "{{ record.timestamp|default:'' }}",
+                    punch_type: "{{ record.punch_type|default:'' }}",
+                    status: {{ record.status|default:0 }},
+                    verify_type: "{{ record.verify_type|default:'' }}",
+                    work_code: "{{ record.work_code|default:'' }}"
+                });
+                {% endfor %}
+                
+                if (!attendanceData.length) {
+                    alert('{% trans "No data to save" %}');
+                    return;
+                }
+
+                saveDataText.innerHTML = '<div class="loader mr-2 inline-block"></div>{% trans "Saving..." %}';
+                saveDataBtn.disabled = true;
+
+                fetch('{% url "hrm:zk_device_all_operations" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        active_tab: 'save-attendance',
+                        attendance_data: attendanceData
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        saveDataText.textContent = '{% trans "Saved Successfully!" %}';
+                        saveDataBtn.classList.remove('bg-gradient-to-r', 'from-[hsl(var(--accent-save)/0.9)]', 'to-[hsl(var(--accent-save)/1.3)]', 'hover:opacity-90');
+                        saveDataBtn.classList.add('bg-green-500', 'cursor-default');
+                        alert(data.message);
+                        setTimeout(() => {
+                            window.location.href = '{% url "hrm:zk_attendance_log_list" %}';
+                        }, 2000);
+                    } else {
+                        alert('{% trans "Error saving data: " %}' + data.error + (data.errors ? '\n' + data.errors.join('\n') : ''));
+                        saveDataText.textContent = '{% trans "Save to Database" %}';
+                        saveDataBtn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    alert('{% trans "An error occurred: " %}' + error.message);
+                    saveDataText.textContent = '{% trans "Save to Database" %}';
+                    saveDataBtn.disabled = false;
+                });
+            });
+        }
+
+        // Save Users
+        const saveUsersBtn = document.getElementById('save-users-btn');
+        const saveUsersText = document.getElementById('save-users-text');
+        const selectAllCheckbox = document.getElementById('select-all-users');
+        const userCheckboxes = document.querySelectorAll('.user-checkbox');
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                userCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+        }
+
+        if (saveUsersBtn) {
+            saveUsersBtn.addEventListener('click', function() {
+                const selectedUsers = [];
+                userCheckboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        selectedUsers.push({
+                            user_id: checkbox.getAttribute('data-user-id'),
+                            name: checkbox.getAttribute('data-name'),
+                            card_no: checkbox.getAttribute('data-card-no')
+                        });
+                    }
+                });
+
+                if (!selectedUsers.length) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '{% trans "No users selected" %}',
+                        text: '{% trans "Please select at least one user to save." %}',
+                        confirmButtonColor: 'hsl(var(--primary))'
+                    });
+                    return;
+                }
+
+                saveUsersText.innerHTML = '<div class="loader mr-2 inline-block"></div>{% trans "Saving..." %}';
+                saveUsersBtn.disabled = true;
+
+                fetch('{% url "hrm:zk_device_all_operations" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        active_tab: 'save-users',
+                        users: selectedUsers
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        saveUsersText.textContent = '{% trans "Saved Successfully!" %}';
+                        saveUsersBtn.classList.remove('bg-gradient-to-r', 'from-[hsl(var(--accent-save)/0.9)]', 'to-[hsl(var(--accent-save)/1.3)]', 'hover:opacity-90');
+                        saveUsersBtn.classList.add('bg-green-500', 'text-white', 'cursor-default');
+                        Swal.fire({
+                            icon: 'success',
+                            title: '{% trans "Success" %}',
+                            text: data.message,
+                            confirmButtonColor: 'hsl(var(--primary))'
+                        }).then(() => {
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '{% trans "Error" %}',
+                            text: data.error + (data.errors ? '\n' + data.errors.join('\n') : ''),
+                            confirmButtonColor: 'hsl(var(--primary))'
+                        });
+                        saveUsersText.textContent = '{% trans "Save Users" %}';
+                        saveUsersBtn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '{% trans "Error" %}',
+                        text: '{% trans "An error occurred: " %}' + error.message,
+                        confirmButtonColor: 'hsl(var(--primary))'
+                    });
+                    saveUsersText.textContent = '{% trans "Save Users" %}';
+                    saveUsersBtn.disabled = false;
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

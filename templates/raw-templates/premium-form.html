@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Form Card</title>
+    <style>
+        :root {
+            --sidebar-width: 16rem;
+            --sidebar-width-collapsed: 3rem;
+            --background: 0 0% 100%;
+            --foreground: 240 10% 3.9%;
+            --muted: 240 4.8% 95.9%;
+            --muted-foreground: 240 3.8% 46.1%;
+            --popover: 0 0% 100%;
+            --popover-foreground: 240 10% 3.9%;
+            --border: 240 5.9% 90%;
+            --input: 240 5.9% 90%;
+            --primary: 240 5.9% 10%;
+            --primary-foreground: 0 0% 98%;
+            --secondary: 240 4.8% 95.9%;
+            --secondary-foreground: 240 5.9% 10%;
+            --accent: 240 4.8% 95.9%;
+            --accent-foreground: 240 5.9% 10%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 0 0% 98%;
+            --ring: 240 5% 64.9%;
+            --radius: 0.5rem;
+            --topbar-height: 3.5rem;
+        }
+
+        .dark {
+            --background: 240 10% 3.9%;
+            --foreground: 0 0% 98%;
+            --muted: 240 3.7% 15.9%;
+            --muted-foreground: 240 5% 64.9%;
+            --popover: 240 10% 3.9%;
+            --popover-foreground: 0 0% 98%;
+            --border: 240 3.7% 15.9%;
+            --input: 240 3.7% 15.9%;
+            --primary: 0 0% 98%;
+            --primary-foreground: 240 5.9% 10%;
+            --secondary: 240 3.7% 15.9%;
+            --secondary-foreground: 0 0% 98%;
+            --accent: 240 3.7% 15.9%;
+            --accent-foreground: 0 0% 98%;
+            --destructive: 0 62.8% 30.6%;
+            --destructive-foreground: 0 0% 98%;
+            --ring: 240 3.7% 15.9%;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(var(--primary-rgb), 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0);
+            }
+        }
+
+        .premium-card {
+            background: linear-gradient(135deg, 
+                hsl(var(--background)) 0%,
+                hsl(var(--muted)) 100%
+            );
+            border: 1px solid hsl(var(--border));
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .premium-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.03) 30%,
+                rgba(255, 255, 255, 0.1) 50%,
+                rgba(255, 255, 255, 0.03) 70%,
+                transparent 100%
+            );
+            transform: rotate(45deg);
+            animation: shimmer 5s infinite linear;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .premium-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+            border-color: hsl(var(--primary));
+        }
+
+        .premium-badge {
+            animation: pulse 2s infinite;
+        }
+
+        .premium-section {
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .premium-section:hover {
+            transform: translateY(-2px);
+        }
+
+        .premium-input {
+            transition: all 0.3s ease;
+        }
+
+        .premium-input:focus {
+            transform: scale(1.01);
+        }
+
+        .premium-button {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .premium-button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.5s;
+        }
+
+        .premium-button:hover::after {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .premium-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .premium-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .menu-item-hover {
+            transition: all 0.3s ease;
+        }
+
+        .menu-item-hover:hover {
+            transform: translateX(4px);
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[hsl(var(--background))] text-[hsl(var(--foreground))] p-6">
+    <div class="max-w-5xl mx-auto">
+        <!-- Premium Form Card -->
+        <div class="rounded-xl border-2 bg-[hsl(var(--background))] shadow-lg p-8 mb-6 premium-card relative">
+            <!-- Decorative Elements -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[hsl(var(--primary))] to-transparent opacity-10 rounded-bl-full"></div>
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-[hsl(var(--primary))] to-transparent opacity-10 rounded-tr-full"></div>
+            
+            <!-- Form Header -->
+            <div class="mb-8 border-b border-[hsl(var(--border))] pb-6 relative z-10">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-icon">
+                            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2"/>
+                                <path d="M19.4 15C19.1277 15.8031 19.2583 16.6846 19.75 17.4L19.81 17.49C20.2025 17.8827 20.4111 18.4353 20.3965 19.0054C20.3819 19.5755 20.1452 20.1163 19.73 20.49C19.3148 20.8637 18.7741 21.1004 18.204 21.115C17.6339 21.1296 17.0813 20.921 16.6886 20.5285L16.6 20.47C15.8846 19.9783 15.0031 19.8477 14.2 20.12C13.4101 20.3865 12.7935 21.0031 12.527 21.793L12.5 21.913C12.3724 22.4723 12.0467 22.9654 11.5833 23.3006C11.1199 23.6358 10.5499 23.7947 9.97002 23.7479C9.39016 23.7011 8.8526 23.4519 8.44804 23.0473C8.04348 22.6428 7.79429 22.1052 7.75002 21.5254L7.75002 21.4C7.71821 20.5868 7.32511 19.8372 6.68002 19.34C5.99033 18.8016 5.09577 18.6117 4.25002 18.82C3.68325 18.9861 3.07685 18.9106 2.55811 18.6082C2.03938 18.3057 1.64908 17.8015 1.46002 17.21C1.27478 16.6266 1.30843 15.9926 1.55524 15.4332C1.80205 14.8738 2.24558 14.4303 2.80502 14.1835L2.92502 14.13C3.71416 13.7613 4.29325 13.0844 4.52502 12.27C4.79728 11.4669 4.66672 10.5854 4.17502 9.87L4.11502 9.78C3.72258 9.38734 3.51397 8.83467 3.52858 8.26458C3.54319 7.69449 3.77988 7.15372 4.19502 6.78C4.61017 6.40627 5.15094 6.16959 5.72102 6.15498C6.29111 6.14037 6.84378 6.34897 7.23644 6.74142L7.32502 6.8C8.04044 7.29168 8.92189 7.42224 9.72502 7.15C10.515 6.88347 11.1316 6.26687 11.398 5.47697L11.425 5.357C11.5526 4.79774 11.8783 4.30461 12.3417 3.96941C12.8051 3.6342 13.3751 3.47527 13.955 3.52208C14.5349 3.56889 15.0724 3.81809 15.477 4.22264C15.8815 4.6272 16.1307 5.16476 16.175 5.74462V5.87C16.2068 6.68323 16.5999 7.43277 17.245 7.93C17.9347 8.46843 18.8293 8.65829 19.675 8.45C20.2418 8.28391 20.8482 8.35941 21.3669 8.66185C21.8857 8.96428 22.276 9.46853 22.465 10.06C22.6502 10.6434 22.6166 11.2774 22.3698 11.8368C22.123 12.3962 21.6794 12.8397 21.12 13.0865L20.999 13.14C20.2099 13.5087 19.6308 14.1856 19.399 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-foreground))] bg-clip-text text-transparent">Premium Account</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))]">Customize your profile and preferences</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-center px-4 py-2 text-xs font-bold rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-badge">
+                        PREMIUM PLUS
+                    </div>
+                </div>
+            </div>
+
+            <form class="space-y-8 relative z-10">
+                <!-- Two Column Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Left Column -->
+                    <div class="space-y-8">
+                        <!-- Personal Information Section -->
+                        <div class="bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] rounded-xl p-6 border-2 border-[hsl(var(--border))] shadow-md hover:shadow-lg transition-all duration-300 premium-section">
+                            <h4 class="text-base font-bold mb-6 flex items-center text-[hsl(var(--foreground))]">
+                                <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M20 21C20 16.5817 16.4183 13 12 13C7.58172 13 4 16.5817 4 21" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                                Personal Information
+                            </h4>
+
+                            <!-- Full Name -->
+                            <div class="relative mb-6">
+                                <input type="text" id="fullName" 
+                                    class="peer w-full px-4 py-3.5 rounded-lg border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-300 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-2 focus:ring-[hsl(var(--primary))] focus:ring-opacity-20 focus:bg-[hsl(var(--accent))] placeholder-transparent premium-input" 
+                                    placeholder="Full Name" required>
+                                <label for="fullName" 
+                                    class="absolute left-3 -top-2.5 px-2 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base">
+                                    Full Name
+                                </label>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="relative mb-6">
+                                <input type="email" id="email" 
+                                    class="peer w-full px-4 py-3.5 rounded-lg border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-300 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-2 focus:ring-[hsl(var(--primary))] focus:ring-opacity-20 focus:bg-[hsl(var(--accent))] placeholder-transparent premium-input" 
+                                    placeholder="Email Address" required>
+                                <label for="email" 
+                                    class="absolute left-3 -top-2.5 px-2 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base">
+                                    Email Address
+                                </label>
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="relative">
+                                <input type="tel" id="phone" 
+                                    class="peer w-full px-4 py-3.5 rounded-lg border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-300 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-2 focus:ring-[hsl(var(--primary))] focus:ring-opacity-20 focus:bg-[hsl(var(--accent))] placeholder-transparent premium-input" 
+                                    placeholder="Phone Number">
+                                <label for="phone" 
+                                    class="absolute left-3 -top-2.5 px-2 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base">
+                                    Phone Number
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Address Section -->
+                        <div class="bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] rounded-xl p-6 border-2 border-[hsl(var(--border))] shadow-md hover:shadow-lg transition-all duration-300 premium-section">
+                            <h4 class="text-base font-bold mb-6 flex items-center text-[hsl(var(--foreground))]">
+                                <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 21C16.4183 21 20 17.4183 20 13C20 10.25 17.5 6.75 12 2C6.5 6.75 4 10.25 4 13C4 17.4183 7.58172 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Address Information
+                            </h4>
+
+                            <!-- Country -->
+                            <div class="relative mb-6">
+                                <select id="country" required
+                                    class="peer w-full px-4 py-3.5 rounded-lg border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-300 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-2 focus:ring-[hsl(var(--primary))] focus:ring-opacity-20 focus:bg-[hsl(var(--accent))] appearance-none premium-input">
+                                    <option value="" disabled selected></option>
+                                    <option value="us">United States</option>
+                                    <option value="ca">Canada</option>
+                                    <option value="uk">United Kingdom</option>
+                                    <option value="au">Australia</option>
+                                    <option value="de">Germany</option>
+                                    <option value="fr">France</option>
+                                    <option value="jp">Japan</option>
+                                </select>
+                                <label for="country" 
+                                    class="absolute left-3 -top-2.5 px-2 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base">
+                                    Country
+                                </label>
+                                <svg class="absolute right-4 top-4 w-5 h-5 pointer-events-none text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+
+                            <!-- City -->
+                            <div class="relative mb-6">
+                                <input type="text" id="city" 
+                                    class="peer w-full px-4 py-3.5 rounded-lg border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-300 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-2 focus:ring-[hsl(var(--primary))] focus:ring-opacity-20 focus:bg-[hsl(var(--accent))] placeholder-transparent premium-input" 
+                                    placeholder="City">
+                                <label for="city" 
+                                    class="absolute left-3 -top-2.5 px-2 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base">
+                                    City
+                                </label>
+                            </div>
+
+                            <!-- Postal Code -->
+                            <div class="relative">
+                                <input type="text" id="postalCode" 
+                                    class="peer w-full px-4 py-3.5 rounded-lg border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-300 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-2 focus:ring-[hsl(var(--primary))] focus:ring-opacity-20 focus:bg-[hsl(var(--accent))] placeholder-transparent premium-input" 
+                                    placeholder="Postal Code">
+                                <label for="postalCode" 
+                                    class="absolute left-3 -top-2.5 px-2 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base">
+                                    Postal Code
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="space-y-8">
+                        <!-- Account Settings Section -->
+                        <div class="bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] rounded-xl p-6 border-2 border-[hsl(var(--border))] shadow-md hover:shadow-lg transition-all duration-300 premium-section">
+                            <h4 class="text-base font-bold mb-6 flex items-center text-[hsl(var(--foreground))]">
+                                <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M19.4 15C19.1277 15.8031 19.2583 16.6846 19.75 17.4L19.81 17.49C20.2025 17.8827 20.4111 18.4353 20.3965 19.0054C20.3819 19.5755 20.1452 20.1163 19.73 20.49C19.3148 20.8637 18.7741 21.1004 18.204 21.115C17.6339 21.1296 17.0813 20.921 16.6886 20.5285L16.6 20.47C15.8846 19.9783 15.0031 19.8477 14.2 20.12C13.4101 20.3865 12.7935 21.0031 12.527 21.793L12.5 21.913C12.3724 22.4723 12.0467 22.9654 11.5833 23.3006C11.1199 23.6358 10.5499 23.7947 9.97002 23.7479C9.39016 23.7011 8.8526 23.4519 8.44804 23.0473C8.04348 22.6428 7.79429 22.1052 7.75002 21.5254L7.75002 21.4C7.71821 20.5868 7.32511 19.8372 6.68002 19.34C5.99033 18.8016 5.09577 18.6117 4.25002 18.82C3.68325 18.9861 3.07685 18.9106 2.55811 18.6082C2.03938 18.3057 1.64908 17.8015 1.46002 17.21C1.27478 16.6266 1.30843 15.9926 1.55524 15.4332C1.80205 14.8738 2.24558 14.4303 2.80502 14.1835L2.92502 14.13C3.71416 13.7613 4.29325 13.0844 4.52502 12.27C4.79728 11.4669 4.66672 10.5854 4.17502 9.87L4.11502 9.78C3.72258 9.38734 3.51397 8.83467 3.52858 8.26458C3.54319 7.69449 3.77988 7.15372 4.19502 6.78C4.61017 6.40627 5.15094 6.16959 5.72102 6.15498C6.29111 6.14037 6.84378 6.34897 7.23644 6.74142L7.32502 6.8C8.04044 7.29168 8.92189 7.42224 9.72502 7.15C10.515 6.88347 11.1316 6.26687 11.398 5.47697L11.425 5.357C11.5526 4.79774 11.8783 4.30461 12.3417 3.96941C12.8051 3.6342 13.3751 3.47527 13.955 3.52208C14.5349 3.56889 15.0724 3.81809 15.477 4.22264C15.8815 4.6272 16.1307 5.16476 16.175 5.74462V5.87C16.2068 6.68323 16.5999 7.43277 17.245 7.93C17.9347 8.46843 18.8293 8.65829 19.675 8.45C20.2418 8.28391 20.8482 8.35941 21.3669 8.66185C21.8857 8.96428 22.276 9.46853 22.465 10.06C22.6502 10.6434 22.6166 11.2774 22.3698 11.8368C22.123 12.3962 21.6794 12.8397 21.12 13.0865L20.999 13.14C20.2099 13.5087 19.6308 14.1856 19.399 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Account Settings
+                        </h4>
+
+                        <!-- Username -->
+                        <div class="relative mb-6">
+                            <input type="text" id="username" 
+                                class="peer w-full px-4 py-3.5 rounded-lg border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-300 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-2 focus:ring-[hsl(var(--primary))] focus:ring-opacity-20 focus:bg-[hsl(var(--accent))] placeholder-transparent premium-input" 
+                                placeholder="Username" required>
+                            <label for="username" 
+                                class="absolute left-3 -top-2.5 px-2 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base">
+                                Username
+                            </label>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="relative mb-6">
+                            <input type="password" id="password" 
+                                class="peer w-full px-4 py-3.5 rounded-lg border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-300 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-2 focus:ring-[hsl(var(--primary))] focus:ring-opacity-20 focus:bg-[hsl(var(--accent))] placeholder-transparent premium-input" 
+                                placeholder="Password" required>
+                            <label for="password" 
+                                class="absolute left-3 -top-2.5 px-2 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base">
+                                Password
+                            </label>
+                        </div>
+
+                        <!-- Language Preference -->
+                        <div class="relative">
+                            <select id="language" required
+                                class="peer w-full px-4 py-3.5 rounded-lg border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-300 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-2 focus:ring-[hsl(var(--primary))] focus:ring-opacity-20 focus:bg-[hsl(var(--accent))] appearance-none premium-input">
+                                <option value="en" selected>English</option>
+                                <option value="es">Spanish</option>
+                                <option value="fr">French</option>
+                                <option value="de">German</option>
+                                <option value="ja">Japanese</option>
+                                <option value="zh">Chinese</option>
+                            </select>
+                            <label for="language" 
+                                class="absolute left-3 -top-2.5 px-2 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base">
+                                Language Preference
+                            </label>
+                            <svg class="absolute right-4 top-4 w-5 h-5 pointer-events-none text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Notification Preferences -->
+                    <div class="bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] rounded-xl p-6 border-2 border-[hsl(var(--border))] shadow-md hover:shadow-lg transition-all duration-300 premium-section">
+                        <h4 class="text-base font-bold mb-6 flex items-center text-[hsl(var(--foreground))]">
+                            <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Notification Preferences
+                        </h4>
+
+                        <!-- Email Notifications -->
+                        <div class="flex items-center justify-between p-3 rounded-lg border-2 border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--accent))] transition-all duration-300 mb-4 group">
+                            <div>
+                                <h5 class="text-sm font-medium group-hover:text-[hsl(var(--primary))]">Email Notifications</h5>
+                                <p class="text-xs text-[hsl(var(--muted-foreground))]">Receive updates via email</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-12 h-6 bg-[hsl(var(--muted))] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[hsl(var(--primary))]"></div>
+                            </label>
+                        </div>
+
+                        <!-- Push Notifications -->
+                        <div class="flex items-center justify-between p-3 rounded-lg border-2 border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--accent))] transition-all duration-300 mb-4 group">
+                            <div>
+                                <h5 class="text-sm font-medium group-hover:text-[hsl(var(--primary))]">Push Notifications</h5>
+                                <p class="text-xs text-[hsl(var(--muted-foreground))]">Receive alerts on your device</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-12 h-6 bg-[hsl(var(--muted))] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[hsl(var(--primary))]"></div>
+                            </label>
+                        </div>
+
+                        <!-- SMS Notifications -->
+                        <div class="flex items-center justify-between p-3 rounded-lg border-2 border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--accent))] transition-all duration-300 group">
+                            <div>
+                                <h5 class="text-sm font-medium group-hover:text-[hsl(var(--primary))]">SMS Notifications</h5>
+                                <p class="text-xs text-[hsl(var(--muted-foreground))]">Receive text messages for important updates</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-12 h-6 bg-[hsl(var(--muted))] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[hsl(var(--primary))]"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Footer -->
+            <div class="border-t-2 border-[hsl(var(--border))] pt-8 flex flex-col sm:flex-row justify-between items-center gap-6 relative z-10">
+                <div class="text-sm text-[hsl(var(--muted-foreground))]">
+                    <span class="flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-green-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Your data is secure and encrypted with premium protection
+                    </span>
+                </div>
+                <div class="flex gap-4">
+                    <button type="button" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-11 px-6 py-2 shadow-md">
+                        Cancel
+                    </button>
+                    <button type="submit" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-11 px-6 py-2 shadow-md premium-button">
+                        <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12L10 17L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

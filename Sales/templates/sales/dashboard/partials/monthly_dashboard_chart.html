@@ -1,0 +1,587 @@
+<!-- Tab navigation -->
+<div class="tab-container">
+    <div class="tab-list">
+        <div class="tab-item active" data-tab="tab-summary">Summary</div>
+        <div class="tab-item" data-tab="tab-sales">Sales Charts</div>
+        <div class="tab-item" data-tab="tab-products">Product Analysis</div>
+        <div class="tab-item" data-tab="tab-customers">Customer Analysis</div>
+        <div class="tab-item" data-tab="tab-performance">Performance</div>
+    </div>
+</div>
+
+<!-- Tab content -->
+<div id="tab-summary" class="tab-content active">
+    <!-- Metrics Cards -->
+    <div class="metrics-grid">
+        <!-- Monthly Sales -->
+        <div class="metric-card">
+            <div class="metric-label">MONTHLY SALES</div>
+            <div class="metric-value">{{ monthly_sales.total|floatformat:2 }}</div>
+            <div class="metric-subvalue">{{ monthly_sales.count }} orders</div>
+            <div class="metric-change positive">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12 7a1 1 0 01-1 1H9v1h2a1 1 0 110 2H9v1h2a1 1 0 110 2H9v1a1 1 0 11-2 0v-1H5a1 1 0 110-2h2v-1H5a1 1 0 110-2h2V8H5a1 1 0 010-2h2V5a1 1 0 112 0v1h2a1 1 0 011 1z" clip-rule="evenodd" />
+                </svg>
+                <span>5.8%</span>
+                <span class="metric-change-text">from last month</span>
+            </div>
+        </div>
+
+        <!-- Monthly Deliveries -->
+        <div class="metric-card">
+            <div class="metric-label">MONTHLY DELIVERIES</div>
+            <div class="metric-value">{{ monthly_deliveries.count }}</div>
+            <div class="metric-subvalue">{{ monthly_deliveries.total|floatformat:2 }}</div>
+            <div class="metric-change positive">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12 7a1 1 0 01-1 1H9v1h2a1 1 0 110 2H9v1h2a1 1 0 110 2H9v1a1 1 0 11-2 0v-1H5a1 1 0 110-2h2v-1H5a1 1 0 110-2h2V8H5a1 1 0 010-2h2V5a1 1 0 112 0v1h2a1 1 0 011 1z" clip-rule="evenodd" />
+                </svg>
+                <span>4.2%</span>
+                <span class="metric-change-text">from last month</span>
+            </div>
+        </div>
+
+        <!-- Monthly Invoices -->
+        <div class="metric-card">
+            <div class="metric-label">MONTHLY INVOICES</div>
+            <div class="metric-value">{{ monthly_invoices.count }}</div>
+            <div class="metric-subvalue">{{ monthly_invoices.total|floatformat:2 }}</div>
+            <div class="metric-change positive">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12 7a1 1 0 01-1 1H9v1h2a1 1 0 110 2H9v1h2a1 1 0 110 2H9v1a1 1 0 11-2 0v-1H5a1 1 0 110-2h2v-1H5a1 1 0 110-2h2V8H5a1 1 0 010-2h2V5a1 1 0 112 0v1h2a1 1 0 011 1z" clip-rule="evenodd" />
+                </svg>
+                <span>3.7%</span>
+                <span class="metric-change-text">from last month</span>
+            </div>
+        </div>
+
+        <!-- Monthly Returns -->
+        <div class="metric-card">
+            <div class="metric-label">MONTHLY RETURNS</div>
+            <div class="metric-value">{{ monthly_returns.count }}</div>
+            <div class="metric-subvalue">{{ monthly_returns.total|floatformat:2 }}</div>
+            <div class="metric-change negative">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span>1.2%</span>
+                <span class="metric-change-text">from last month</span>
+            </div>
+        </div>
+
+        <!-- Monthly Quotations -->
+        <div class="metric-card">
+            <div class="metric-label">MONTHLY QUOTATIONS</div>
+            <div class="metric-value">{{ monthly_quotations.count }}</div>
+            <div class="metric-subvalue">{{ monthly_quotations.total|floatformat:2 }}</div>
+            <div class="metric-change positive">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12 7a1 1 0 01-1 1H9v1h2a1 1 0 110 2H9v1h2a1 1 0 110 2H9v1a1 1 0 11-2 0v-1H5a1 1 0 110-2h2v-1H5a1 1 0 110-2h2V8H5a1 1 0 010-2h2V5a1 1 0 112 0v1h2a1 1 0 011 1z" clip-rule="evenodd" />
+                </svg>
+                <span>6.5%</span>
+                <span class="metric-change-text">from last month</span>
+            </div>
+        </div>
+
+        <!-- Monthly Orders -->
+        <div class="metric-card">
+            <div class="metric-label">MONTHLY ORDERS</div>
+            <div class="metric-value">{{ monthly_orders.count }}</div>
+            <div class="metric-subvalue">{{ monthly_orders.total|floatformat:2 }}</div>
+            <div class="metric-change positive">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12 7a1 1 0 01-1 1H9v1h2a1 1 0 110 2H9v1h2a1 1 0 110 2H9v1a1 1 0 11-2 0v-1H5a1 1 0 110-2h2v-1H5a1 1 0 110-2h2V8H5a1 1 0 010-2h2V5a1 1 0 112 0v1h2a1 1 0 011 1z" clip-rule="evenodd" />
+                </svg>
+                <span>4.8%</span>
+                <span class="metric-change-text">from last month</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Sales Chart -->
+    <div class="chart-card chart-full">
+        <div class="chart-header">
+            <h3 class="chart-title">Monthly Sales (Last 6 Months)</h3>
+            <p class="chart-subtitle">Track your monthly sales performance</p>
+        </div>
+        <div class="chart-container">
+            <canvas id="monthlySalesChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Products and Top Customers Charts -->
+    <div class="chart-grid">
+        <!-- Top Products Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3 class="chart-title">Top Products (Monthly)</h3>
+                <p class="chart-subtitle">Best selling products by revenue</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="topProductsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Customers Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3 class="chart-title">Top Customers (Monthly)</h3>
+                <p class="chart-subtitle">Customers with highest purchase value</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="topCustomersChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sales Charts Tab -->
+<div id="tab-sales" class="tab-content">
+    <!-- Sales vs Returns Chart -->
+    <div class="chart-card chart-full">
+        <div class="chart-header">
+            <h3 class="chart-title">Sales vs Returns (Last 6 Months)</h3>
+            <p class="chart-subtitle">Compare sales and returns over time</p>
+        </div>
+        <div class="chart-container">
+            <canvas id="salesVsReturnsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Monthly Orders Table -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3 class="table-title">Monthly Sales Orders</h3>
+            <p class="table-subtitle">Top orders this month</p>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ORDER #</th>
+                        <th>DATE</th>
+                        <th>CUSTOMER</th>
+                        <th>SALES EMPLOYEE</th>
+                        <th class="text-right">AMOUNT</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in top_monthly_orders %}
+                    <tr>
+                        <td class="font-medium">{{ order.id }}</td>
+                        <td>{{ order.document_date|date:"Y-m-d" }}</td>
+                        <td>{{ order.customer.name }}</td>
+                        <td>{{ order.sales_employee.name|default:"Not Assigned" }}</td>
+                        <td class="text-right">{{ order.total_amount|floatformat:2 }}</td>
+                        <td>
+                            <span class="badge {% if order.status == 'Delivered' %}badge-success
+                                {% elif order.status == 'Partially Delivered' %}badge-warning
+                                {% elif order.status == 'Cancelled' %}badge-danger
+                                {% else %}badge-info{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-state">No orders this month</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Product Analysis Tab -->
+<div id="tab-products" class="tab-content">
+    <!-- Top Products Chart -->
+    <div class="chart-card chart-full">
+        <div class="chart-header">
+            <h3 class="chart-title">Top Products Analysis</h3>
+            <p class="chart-subtitle">Sales amount vs quantity sold</p>
+        </div>
+        <div class="chart-container">
+            <canvas id="productAnalysisChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Products Table -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3 class="table-title">Top Products (Monthly)</h3>
+            <p class="table-subtitle">Best selling products by revenue</p>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>PRODUCT</th>
+                        <th class="text-right">QUANTITY</th>
+                        <th class="text-right">SALES</th>
+                        <th class="text-right">AVG. PRICE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in top_products_monthly %}
+                    <tr>
+                        <td class="font-medium">{{ product.item_name }}</td>
+                        <td class="text-right">{{ product.total_quantity|floatformat:2 }}</td>
+                        <td class="text-right">{{ product.total_sales|floatformat:2 }}</td>
+                        <td class="text-right">{{ product.avg_price|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="empty-state">No data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Analysis Tab -->
+<div id="tab-customers" class="tab-content">
+    <!-- Top Customers Chart -->
+    <div class="chart-card chart-full">
+        <div class="chart-header">
+            <h3 class="chart-title">Top Customers Analysis</h3>
+            <p class="chart-subtitle">Sales amount vs order count</p>
+        </div>
+        <div class="chart-container">
+            <canvas id="customerAnalysisChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Customers Table -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3 class="table-title">Top Customers (Monthly)</h3>
+            <p class="chart-subtitle">Customers with highest purchase value</p>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>CUSTOMER</th>
+                        <th class="text-right">INVOICES</th>
+                        <th class="text-right">ORDERS</th>
+                        <th class="text-right">TOTAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in top_customers_monthly %}
+                    <tr>
+                        <td class="font-medium">{{ customer.customer_name }}</td>
+                        <td class="text-right">{{ customer.invoice_count }}</td>
+                        <td class="text-right">{{ customer.order_count }}</td>
+                        <td class="text-right">{{ customer.total_sales|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="empty-state">No data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Tab -->
+<div id="tab-performance" class="tab-content">
+    <!-- Employee Performance Chart -->
+    <div class="chart-card chart-full">
+        <div class="chart-header">
+            <h3 class="chart-title">Sales Employee Performance (Monthly)</h3>
+            <p class="chart-subtitle">Sales amount vs order count by employee</p>
+        </div>
+        <div class="chart-container">
+            <canvas id="employeePerformanceChart"></canvas>
+        </div>
+    </div>
+
+    <div class="table-grid">
+        <!-- Sales Employee Orders -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3 class="table-title">Sales Employee Performance (Monthly)</h3>
+                <p class="table-subtitle">All orders by sales employee</p>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>EMPLOYEE</th>
+                            <th class="text-right">ORDERS</th>
+                            <th class="text-right">AMOUNT</th>
+                            <th class="text-right">AVG. ORDER</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in sales_employee_orders_monthly %}
+                        <tr>
+                            <td class="font-medium">{{ employee.employee_name }}</td>
+                            <td class="text-right">{{ employee.order_count }}</td>
+                            <td class="text-right">{{ employee.total_amount|floatformat:2 }}</td>
+                            <td class="text-right">{{ employee.avg_order|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="empty-state">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Delivery Employee Deliveries -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3 class="table-title">Delivery Employee Performance (Monthly)</h3>
+                <p class="table-subtitle">Deliveries by delivery employee</p>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>EMPLOYEE</th>
+                            <th class="text-right">DELIVERIES</th>
+                            <th class="text-right">AMOUNT</th>
+                            <th class="text-right">AVG. DELIVERY</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in delivery_employee_deliveries_monthly %}
+                        <tr>
+                            <td class="font-medium">{{ employee.delivery_employee_name }}</td>
+                            <td class="text-right">{{ employee.delivery_count }}</td>
+                            <td class="text-right">{{ employee.total_amount|floatformat:2 }}</td>
+                            <td class="text-right">{{ employee.avg_delivery|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="empty-state">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Chart.js configuration
+        Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+        Chart.defaults.font.size = 12;
+        Chart.defaults.color = '#64748b';
+        
+        // Monthly Sales Chart
+        const monthlySalesCtx = document.getElementById('monthlySalesChart').getContext('2d');
+        const monthlySalesData = {{ monthly_sales_chart_data|safe }};
+        new Chart(monthlySalesCtx, {
+            type: 'line',
+            data: {
+                labels: monthlySalesData.labels,
+                datasets: monthlySalesData.datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                        text: 'Monthly Sales (Last 6 Months)'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // Top Products Chart
+        const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
+        const topProductsData = {{ top_products_chart_data|safe }};
+        new Chart(topProductsCtx, {
+            type: 'bar',
+            data: {
+                labels: topProductsData.labels,
+                datasets: topProductsData.datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                        text: topProductsData.title
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // Top Customers Chart
+        const topCustomersCtx = document.getElementById('topCustomersChart').getContext('2d');
+        const topCustomersData = {{ top_customers_chart_data|safe }};
+        new Chart(topCustomersCtx, {
+            type: 'bar',
+            data: {
+                labels: topCustomersData.labels,
+                datasets: topCustomersData.datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                        text: topCustomersData.title
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // Sales vs Returns Chart
+        const salesVsReturnsCtx = document.getElementById('salesVsReturnsChart').getContext('2d');
+        const salesVsReturnsData = {{ sales_vs_returns_chart_data|safe }};
+        new Chart(salesVsReturnsCtx, {
+            type: 'line',
+            data: {
+                labels: salesVsReturnsData.labels,
+                datasets: salesVsReturnsData.datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                        text: salesVsReturnsData.title
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // Product Analysis Chart
+        const productAnalysisCtx = document.getElementById('productAnalysisChart').getContext('2d');
+        const productAnalysisData = {{ top_products_chart_data|safe }};
+        new Chart(productAnalysisCtx, {
+            type: 'bar',
+            data: {
+                labels: productAnalysisData.labels,
+                datasets: productAnalysisData.datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                        text: 'Product Analysis'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // Customer Analysis Chart
+        const customerAnalysisCtx = document.getElementById('customerAnalysisChart').getContext('2d');
+        const customerAnalysisData = {{ top_customers_chart_data|safe }};
+        new Chart(customerAnalysisCtx, {
+            type: 'bar',
+            data: {
+                labels: customerAnalysisData.labels,
+                datasets: customerAnalysisData.datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                        text: 'Customer Analysis'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // Employee Performance Chart
+        const employeePerformanceCtx = document.getElementById('employeePerformanceChart').getContext('2d');
+        const employeePerformanceData = {{ employee_performance_chart_data|safe }};
+        new Chart(employeePerformanceCtx, {
+            type: 'bar',
+            data: {
+                labels: employeePerformanceData.labels,
+                datasets: employeePerformanceData.datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                        text: employeePerformanceData.title
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>

@@ -1,0 +1,257 @@
+{% extends "common/base-list-modern.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block list_icon %}
+{% endblock %}
+
+{% block list_title %}Preview Overtime Records{% endblock %}
+{% block list_subtitle %}Generate and preview overtime data from attendance logs{% endblock %}
+
+{% block list_actions %}
+    <a href="{% url 'hrm:attendance_log_list' %}" class="btn btn-primary">
+        {% trans "View Attendance Logs" %}
+    </a>
+{% endblock %}
+
+{% block search_filter %}
+    <form id="overtimeForm" method="post" action="{% url 'hrm:overtime-record-save-zktico' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary" name="action" value="preview">
+            {% trans "Generate Overtime Preview" %}
+        </button>
+        <div id="saveSection" style="display: none;">
+            <button type="submit" class="btn btn-success" name="action" value="save" id="saveButton">
+                {% trans "Save Records" %}
+            </button>
+        </div>
+    </form>
+
+    <!-- Confirm Save Modal -->
+    <div class="modal fade" id="confirmSaveModal" tabindex="-1" aria-labelledby="confirmSaveModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmSaveModalLabel">{% trans "Confirm Save" %}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmSaveMessage">{% trans "Save" %} <span id="recordCount">0</span> {% trans "overtime records to Overtime table?" %}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+                    <button type="button" class="btn btn-primary" id="confirmSaveButton">{% trans "Save" %}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="successModalLabel">{% trans "Success" %}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="successMessage">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">{% trans "OK" %}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalLabel">{% trans "Error" %}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="errorMessage">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">{% trans "OK" %}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block table_headers %}
+<thead>
+    <tr>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10" style="width: 100px;">{% trans "Employee ID" %}</th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10" style="width: 150px;">{% trans "Employee Name" %}</th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10" style="width: 120px;">{% trans "Date" %}</th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10" style="width: 100px;">{% trans "Start Time" %}</th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10" style="width: 100px;">{% trans "End Time" %}</th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10" style="width: 100px;">{% trans "Overtime Hours" %}</th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10" style="width: 120px;">{% trans "Device" %}</th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10" style="width: 150px;">{% trans "Reason" %}</th>
+        <th scope="col" class="px-2 py-1 text-sm text-center sticky top-0 bg-[hsl(var(--background))] z-10" style="width: 50px;">
+            <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+        </th>
+    </tr>
+</thead>
+{% endblock %}
+
+{% block table_body %}
+<div class="w-full overflow-x-auto overflow-y-auto max-h-[70vh]">
+    <table id="overtime-table" class="w-full table-fixed border-collapse">
+        <tbody id="overtimeBody">
+        {% if sync_performed and all_overtime_data %}
+            {% for record in all_overtime_data %}
+            <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] transition-colors">
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">{{ record.employee_id }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 150px;">{{ record.employee_name }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 120px;">{{ record.date }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">{{ record.start_time }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">{{ record.end_time }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">{{ record.overtime_hours }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 120px;">{{ record.device_name }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 150px;">{{ record.reason }}</td>
+                <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 50px;">
+                    <input type="checkbox" class="record-checkbox" data-index="{{ forloop.counter0 }}" checked>
+                </td>
+            </tr>
+            {% endfor %}
+        {% elif sync_performed %}
+            <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+                <td colspan="9" class="px-4 py-4 text-center text-sm border border-[hsl(var(--border))]">
+                    {% trans "No overtime records found in attendance logs." %}
+                </td>
+            </tr>
+        {% else %}
+            <tr class="bg-[hsl(var(--background))] border-b border-[hsl(var(--border))]">
+                <td colspan="9" class="px-4 py-4 text-center text-sm border border-[hsl(var(--border))]">
+                    {% trans "Click 'Generate Overtime Preview' to load overtime records from attendance logs." %}
+                </td>
+            </tr>
+        {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('overtimeForm');
+        const saveSection = document.getElementById('saveSection');
+        const saveButton = document.getElementById('saveButton');
+        const confirmSaveModal = new bootstrap.Modal(document.getElementById('confirmSaveModal'));
+        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+        const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        const confirmSaveButton = document.getElementById('confirmSaveButton');
+        const recordCount = document.getElementById('recordCount');
+        let overtimeData = [];
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const action = new FormData(form).get('action');
+            if (action === 'preview') {
+                fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        overtimeData = data.all_overtime_data;
+                        updateTable(data.all_overtime_data);
+                        saveSection.style.display = data.total_records > 0 ? 'inline-block' : 'none';
+                        data.messages.forEach(msg => {
+                            if (msg.includes('success')) messages.success(msg);
+                            else if (msg.includes('info')) messages.info(msg);
+                        });
+                    } else {
+                        showErrorModal(data.error);
+                    }
+                })
+                .catch(error => showErrorModal(error));
+            }
+        });
+
+        saveButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const selectedCount = document.querySelectorAll('.record-checkbox:checked').length;
+            recordCount.textContent = selectedCount;
+            confirmSaveModal.show();
+        });
+
+        confirmSaveButton.addEventListener('click', function() {
+            confirmSaveModal.hide();
+            const selectedRecords = [];
+            document.querySelectorAll('.record-checkbox:checked').forEach(checkbox => {
+                const index = checkbox.getAttribute('data-index');
+                selectedRecords.push(overtimeData[index]);
+            });
+
+            fetch('{% url "hrm:overtime-record-save-zktico" %}', {
+                method: 'POST',
+                body: JSON.stringify({ action: 'save', overtime_data: selectedRecords }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('successMessage').textContent = data.message;
+                    successModal.show();
+                    updateTable(overtimeData.filter(r => !selectedRecords.includes(r)));
+                    saveSection.style.display = 'none';
+                } else {
+                    showErrorModal(data.error || data.errors.join(', '));
+                }
+            })
+            .catch(error => showErrorModal(error));
+        });
+
+        function updateTable(data) {
+            const tbody = document.getElementById('overtimeBody');
+            tbody.innerHTML = '';
+            if (data.length) {
+                data.forEach((record, index) => {
+                    const row = document.createElement('tr');
+                    row.className = 'bg-[hsl(var(--background))] border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] transition-colors';
+                    row.innerHTML = `
+                        <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">${record.employee_id}</td>
+                        <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 150px;">${record.employee_name}</td>
+                        <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 120px;">${record.date}</td>
+                        <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">${record.start_time}</td>
+                        <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">${record.end_time}</td>
+                        <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 100px;">${record.overtime_hours}</td>
+                        <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 120px;">${record.device_name}</td>
+                        <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 150px;">${record.reason}</td>
+                        <td class="px-2 py-0.5 text-sm text-center border border-[hsl(var(--border))]" style="width: 50px;">
+                            <input type="checkbox" class="record-checkbox" data-index="${index}" ${record.selected ? 'checked' : ''}>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else if (overtimeData.length) {
+                tbody.innerHTML = `<tr><td colspan="9" class="px-4 py-4 text-center text-sm border border-[hsl(var(--border))]">{% trans "No overtime records found in attendance logs." %}</td></tr>`;
+            } else {
+                tbody.innerHTML = `<tr><td colspan="9" class="px-4 py-4 text-center text-sm border border-[hsl(var(--border))]">{% trans "Click 'Generate Overtime Preview' to load overtime records from attendance logs." %}</td></tr>`;
+            }
+        }
+
+        function toggleSelectAll(checkbox) {
+            document.querySelectorAll('.record-checkbox').forEach(cb => cb.checked = checkbox.checked);
+        }
+
+        function showErrorModal(message) {
+            document.getElementById('errorMessage').textContent = message;
+            errorModal.show();
+        }
+    </script>
+{% endblock %}

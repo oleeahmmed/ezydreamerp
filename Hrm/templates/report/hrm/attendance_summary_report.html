@@ -1,0 +1,1796 @@
+{% extends "common/base-list-modern.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block list_icon %}
+<svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+{% endblock %}
+
+{% block list_title %}{% trans "Attendance Summary Report" %}{% endblock %}
+{% block list_subtitle %}{% trans "Comprehensive attendance analysis with advanced metrics and intelligent insights over date ranges" %}{% endblock %}
+
+{% block list_actions %}
+<div class="flex gap-3">
+<button id="generate-summary-report-btn" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 px-5 py-2.5 shadow-md">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    {% trans "Generate Summary" %}
+</button>
+</div>
+{% endblock %}
+
+{% block search_filter %}
+{% if report_generated %}
+<div class="flex flex-wrap justify-center gap-3 p-4 bg-white shadow-md rounded-lg border border-gray-200">
+<input type="text" id="search-summary-report" placeholder="{% trans 'Search Employee ID, Name, or Department...' %}" class="w-full sm:w-auto flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 transition-all duration-200 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
+<select id="department-filter-summary" class="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+    <option value="">{% trans "All Departments" %}</option>
+    {% for dept in departments %}
+    <option value="{{ dept.name }}">{{ dept.name }}</option>
+    {% endfor %}
+</select>
+<select id="attendance-range-filter" class="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+    <option value="">{% trans "All Attendance %" %}</option>
+    <option value="excellent">{% trans "Excellent (95-100%)" %}</option>
+    <option value="good">{% trans "Good (85-94%)" %}</option>
+    <option value="average">{% trans "Average (70-84%)" %}</option>
+    <option value="poor">{% trans "Poor (<70%)" %}</option>
+</select>
+<select id="overtime-filter" class="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700">
+    <option value="">{% trans "All Overtime" %}</option>
+    <option value="high">{% trans "High (>40h)" %}</option>
+    <option value="medium">{% trans "Medium (20-40h)" %}</option>
+    <option value="low">{% trans "Low (1-20h)" %}</option>
+    <option value="none">{% trans "No Overtime" %}</option>
+</select>
+</div>
+
+<!-- Table Controls -->
+<div class="flex flex-wrap justify-between items-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-lg mt-3">
+<div class="flex flex-wrap gap-2">
+    <button id="column-visibility-btn" class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
+        </svg>
+        {% trans "Columns" %}
+    </button>
+    <button id="print-summary-btn" class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-purple-600 border border-purple-600 rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+        </svg>
+        {% trans "Print" %}
+    </button>
+    <button id="copy-summary-btn" class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+        </svg>
+        {% trans "Copy" %}
+    </button>
+    <button id="export-excel-btn" class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-300 rounded-lg hover:bg-green-100 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        {% trans "Excel" %}
+    </button>
+</div>
+<div class="text-sm text-gray-600">
+    <span id="visible-rows-count">{{ employee_count|default:0 }}</span> {% trans "employees" %}
+</div>
+</div>
+
+<!-- Column Visibility Panel -->
+<div id="column-visibility-panel" class="hidden bg-white border border-gray-200 rounded-lg p-4 mt-3 shadow-sm">
+<h4 class="text-sm font-medium text-gray-900 mb-3">{% trans "Show/Hide Columns" %}</h4>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2" id="column-toggles">
+    <!-- Column toggles will be populated by JavaScript -->
+</div>
+<div class="flex gap-2 mt-4 pt-3 border-t border-gray-200">
+    <button id="show-all-columns" class="px-3 py-1 text-xs font-medium text-purple-600 bg-purple-50 border border-purple-200 rounded hover:bg-purple-100 transition-all">
+        {% trans "Show All" %}
+    </button>
+    <button id="hide-all-columns" class="px-3 py-1 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded hover:bg-gray-100 transition-all">
+        {% trans "Hide All" %}
+    </button>
+    <button id="reset-columns" class="px-3 py-1 text-xs font-medium text-green-600 bg-green-50 border border-green-200 rounded hover:bg-green-100 transition-all">
+        {% trans "Reset" %}
+    </button>
+</div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block table_body %}
+{% if report_generated %}
+
+<!-- Summary Report Table -->
+<div class="bg-white rounded-lg shadow-md">
+<div class="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-4 rounded-t-lg">
+    <h3 class="text-lg font-bold">{% trans "Attendance Summary Report" %} ({{ employee_count }} {% trans "employees" %})</h3>
+    <p class="text-sm opacity-90">{% trans "Period:" %} {{ start_date|date:"M d, Y" }} - {{ end_date|date:"M d, Y" }} | {% trans "Total Days:" %} {{ total_days }}</p>
+</div>
+
+<div class="w-full overflow-x-auto overflow-y-auto max-h-[70vh] relative">
+    <table id="summary-report-table" class="w-full border-collapse min-w-max">
+        <thead class="bg-gray-50 text-gray-700 sticky top-0 z-10">
+            <tr>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[80px]" data-column="employee_id">
+                    {% trans "EMPLOYEE ID" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[120px]" data-column="employee_name">
+                    {% trans "EMPLOYEE NAME" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[100px]" data-column="department">
+                    {% trans "DEPARTMENT" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[100px]" data-column="designation">
+                    {% trans "DESIGNATION" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[80px]" data-column="working_days">
+                    {% trans "WORKING DAYS" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[80px]" data-column="present_days">
+                    {% trans "PRESENT" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[80px]" data-column="absent_days">
+                    {% trans "ABSENT" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[80px]" data-column="late_days">
+                    {% trans "LATE DAYS" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[80px]" data-column="half_days">
+                    {% trans "HALF DAYS" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[90px]" data-column="attendance_percentage">
+                    {% trans "ATTENDANCE %" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[90px]" data-column="punctuality_percentage">
+                    {% trans "PUNCTUALITY %" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[100px]" data-column="working_hours">
+                    {% trans "WORKING HOURS" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[90px]" data-column="average_daily_hours">
+                    {% trans "AVG HOURS/DAY" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[90px]" data-column="overtime_hours">
+                    {% trans "OVERTIME" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[80px]" data-column="overtime_days">
+                    {% trans "OT DAYS" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[90px]" data-column="total_late_minutes">
+                    {% trans "LATE MINUTES" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[90px]" data-column="early_out_days">
+                    {% trans "EARLY OUT DAYS" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[100px]" data-column="leave_days">
+                    {% trans "LEAVE DAYS" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[100px]" data-column="holiday_work_days">
+                    {% trans "HOLIDAY WORK" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[100px]" data-column="weekend_work_days">
+                    {% trans "WEEKEND WORK" %}
+                </th>
+                <th class="px-2 py-3 text-xs font-medium text-center border border-gray-300 min-w-[100px]" data-column="attendance_category">
+                    {% trans "CATEGORY" %}
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for employee in employee_summaries %}
+            <tr class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors summary-row"
+                data-department="{{ employee.department }}"
+                data-attendance-percentage="{{ employee.attendance_percentage }}"
+                data-overtime-hours="{{ employee.overtime_hours }}">
+                
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="employee_id">
+                    <span class="font-medium">{{ employee.employee_id }}</span>
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="employee_name">
+                    <div class="font-medium">{{ employee.employee_name }}</div>
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="department">
+                    {{ employee.department }}
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="designation">
+                    {{ employee.designation }}
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="working_days">
+                    <span class="font-medium">{{ employee.working_days }}</span>
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="present_days">
+                    <span class="font-bold text-green-600">{{ employee.present_days }}</span>
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="absent_days">
+                    {% if employee.absent_days > 0 %}
+                        <span class="font-bold text-red-600">{{ employee.absent_days }}</span>
+                    {% else %}
+                        <span class="text-gray-400">0</span>
+                    {% endif %}
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="late_days">
+                    {% if employee.late_days > 0 %}
+                        <span class="font-bold text-yellow-600">{{ employee.late_days }}</span>
+                    {% else %}
+                        <span class="text-gray-400">0</span>
+                    {% endif %}
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="half_days">
+                    {% if employee.half_days > 0 %}
+                        <span class="font-bold text-orange-600">{{ employee.half_days }}</span>
+                    {% else %}
+                        <span class="text-gray-400">0</span>
+                    {% endif %}
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="attendance_percentage">
+                    {% if employee.attendance_percentage >= 95 %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">{{ employee.attendance_percentage }}%</span>
+                    {% elif employee.attendance_percentage >= 85 %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">{{ employee.attendance_percentage }}%</span>
+                    {% elif employee.attendance_percentage >= 70 %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">{{ employee.attendance_percentage }}%</span>
+                    {% else %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">{{ employee.attendance_percentage }}%</span>
+                    {% endif %}
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="punctuality_percentage">
+                    {% if employee.punctuality_percentage >= 90 %}
+                        <span class="font-bold text-green-600">{{ employee.punctuality_percentage }}%</span>
+                    {% elif employee.punctuality_percentage >= 75 %}
+                        <span class="font-bold text-blue-600">{{ employee.punctuality_percentage }}%</span>
+                    {% elif employee.punctuality_percentage >= 50 %}
+                        <span class="font-bold text-yellow-600">{{ employee.punctuality_percentage }}%</span>
+                    {% else %}
+                        <span class="font-bold text-red-600">{{ employee.punctuality_percentage }}%</span>
+                    {% endif %}
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="working_hours">
+                    <span class="font-bold text-purple-600">{{ employee.working_hours }}h</span>
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="average_daily_hours">
+                    <span class="font-medium text-indigo-600">{{ employee.average_daily_hours }}h</span>
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="overtime_hours">
+                    {% if employee.overtime_hours > 0 %}
+                        <span class="font-bold text-indigo-600">{{ employee.overtime_hours }}h</span>
+                    {% else %}
+                        <span class="text-gray-400">0h</span>
+                    {% endif %}
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="overtime_days">
+                    {% if employee.overtime_days > 0 %}
+                        <span class="font-medium text-indigo-600">{{ employee.overtime_days }}</span>
+                    {% else %}
+                        <span class="text-gray-400">0</span>
+                    {% endif %}
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="total_late_minutes">
+                    {% if employee.total_late_minutes > 0 %}
+                        <span class="font-bold text-red-600">{{ employee.total_late_minutes }}</span>
+                    {% else %}
+                        <span class="text-gray-400">0</span>
+                    {% endif %}
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="early_out_days">
+                    {% if employee.early_out_days > 0 %}
+                        <span class="font-bold text-orange-600">{{ employee.early_out_days }}</span>
+                    {% else %}
+                        <span class="text-gray-400">0</span>
+                    {% endif %}
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="leave_days">
+                    {% if employee.leave_days > 0 %}
+                        <span class="font-medium text-blue-600">{{ employee.leave_days }}</span>
+                    {% else %}
+                        <span class="text-gray-400">0</span>
+                    {% endif %}
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="holiday_work_days">
+                    {% if employee.holiday_work_days > 0 %}
+                        <span class="font-medium text-purple-600">{{ employee.holiday_work_days }}</span>
+                    {% else %}
+                        <span class="text-gray-400">0</span>
+                    {% endif %}
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="weekend_work_days">
+                    {% if employee.weekend_work_days > 0 %}
+                        <span class="font-medium text-cyan-600">{{ employee.weekend_work_days }}</span>
+                    {% else %}
+                        <span class="text-gray-400">0</span>
+                    {% endif %}
+                </td>
+                <td class="px-2 py-2 text-xs text-center border border-gray-300" data-column="attendance_category">
+                    {% if employee.attendance_category == "Excellent" %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Excellent</span>
+                    {% elif employee.attendance_category == "Good" %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Good</span>
+                    {% elif employee.attendance_category == "Average" %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Average</span>
+                    {% else %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Poor</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr class="bg-white border-b border-gray-200">
+                <td colspan="21" class="px-4 py-8 text-center text-sm border border-gray-300">
+                    <div class="flex flex-col items-center justify-center space-y-4">
+                        <div class="rounded-full bg-gray-100 p-4">
+                            <svg class="h-8 w-8 text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="text-center">
+                            <h3 class="text-base font-medium">{% trans "No Summary Data Found" %}</h3>
+                            <p class="text-gray-500 text-sm">{% trans "No employees found for the selected date range and criteria." %}</p>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Configuration Applied Footer -->
+<div class="bg-gray-50 border-t border-gray-200 p-4 rounded-b-lg">
+    <div class="text-sm">
+        <h4 class="font-semibold text-gray-800 mb-3">{% trans "Configuration Applied" %}</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 text-xs">
+            <div class="bg-blue-100 p-2 rounded">
+                <div class="font-medium text-blue-800">{% trans "Grace Minutes" %}</div>
+                <div class="text-blue-600">{{ form_data.grace_minutes|default:"15" }}</div>
+            </div>
+            <div class="bg-green-100 p-2 rounded">
+                <div class="font-medium text-green-800">{% trans "Early Out Threshold" %}</div>
+                <div class="text-green-600">{{ form_data.early_out_threshold_minutes|default:"30" }} min</div>
+            </div>
+            <div class="bg-purple-100 p-2 rounded">
+                <div class="font-medium text-purple-800">{% trans "Overtime Start" %}</div>
+                <div class="text-purple-600">{{ form_data.overtime_start_after_minutes|default:"15" }} min</div>
+            </div>
+            <div class="bg-yellow-100 p-2 rounded">
+                <div class="font-medium text-yellow-800">{% trans "Min Overtime" %}</div>
+                <div class="text-yellow-600">{{ form_data.minimum_overtime_minutes|default:"60" }} min</div>
+            </div>
+            {% if form_data.enable_dynamic_shift_detection %}
+            <div class="bg-cyan-100 p-2 rounded">
+                <div class="font-medium text-cyan-800">{% trans "Dynamic Shifts" %}</div>
+                <div class="text-cyan-600">{% trans "Enabled" %}</div>
+            </div>
+            {% endif %}
+            <div class="bg-indigo-100 p-2 rounded">
+                <div class="font-medium text-indigo-800">{% trans "Break Time" %}</div>
+                <div class="text-indigo-600">{{ form_data.default_break_minutes|default:"60" }} min</div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+{% else %}
+<div class="text-center py-12 bg-white rounded-lg border border-gray-200">
+<svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+</svg>
+<h3 class="text-lg font-medium text-gray-900 mb-2">{% trans "Generate Attendance Summary Report" %}</h3>
+<p class="text-gray-500">{% trans "Click the Generate Summary button to create a comprehensive attendance analysis over a date range with advanced metrics and insights." %}</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+#summary-report-table {
+border-collapse: collapse;
+}
+
+#summary-report-table th,
+#summary-report-table td {
+border: 1px solid #d1d5db;
+white-space: nowrap;
+}
+
+#summary-report-table thead th {
+background-color: #f9fafb;
+color: #374151;
+font-weight: 600;
+position: sticky;
+top: 0;
+z-index: 10;
+}
+
+/* Responsive table adjustments */
+@media (max-width: 768px) {
+#summary-report-table {
+    font-size: 0.75rem;
+}
+
+#summary-report-table th,
+#summary-report-table td {
+    padding: 0.25rem;
+    min-width: 60px;
+}
+}
+
+.loading-overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(255, 255, 255, 0.9);
+backdrop-filter: blur(5px);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 9999;
+opacity: 0;
+visibility: hidden;
+transition: all 0.3s ease;
+}
+
+.loading-overlay.active {
+opacity: 1;
+visibility: visible;
+}
+
+.loading-spinner {
+width: 50px;
+height: 50px;
+border: 4px solid #f3f4f6;
+border-top: 4px solid #7c3aed;
+border-radius: 50%;
+animation: spin 1s linear infinite;
+margin-bottom: 15px;
+}
+
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+
+.animate-fade-in {
+animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(10px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tab Styles */
+.tab-nav {
+display: flex;
+background: #f3f4f6;
+border-radius: 0.5rem;
+padding: 0.25rem;
+}
+
+.tab-button {
+flex: 1;
+padding: 0.75rem 1.5rem;
+text-align: center;
+border-radius: 0.375rem;
+font-weight: 500;
+font-size: 0.875rem;
+transition: all 0.2s;
+cursor: pointer;
+border: none;
+background: transparent;
+color: #6b7280;
+}
+
+.tab-button.active {
+background: white;
+color: #1f2937;
+box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.tab-button:hover:not(.active) {
+color: #374151;
+background: #e5e7eb;
+}
+
+.tab-content {
+display: none;
+padding: 1.5rem 0;
+}
+
+.tab-content.active {
+display: block;
+animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Form field visibility */
+.field-group {
+transition: all 0.3s ease;
+}
+
+.field-group.hidden {
+display: none !important;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+background-color: rgba(0, 0, 0, 0.5);
+backdrop-filter: blur(4px);
+}
+
+.modal-content {
+pointer-events: auto;
+}
+
+/* Column visibility styles */
+.column-hidden {
+display: none !important;
+}
+
+/* Copy notification */
+.copy-notification {
+position: fixed;
+top: 20px;
+right: 20px;
+background: #7c3aed;
+color: white;
+padding: 12px 24px;
+border-radius: 8px;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+z-index: 10000;
+transform: translateX(100%);
+transition: transform 0.3s ease;
+}
+
+.copy-notification.show {
+transform: translateX(0);
+}
+
+/* Print styles */
+@media print {
+body * {
+    visibility: hidden;
+}
+
+#summary-report-table,
+#summary-report-table * {
+    visibility: visible;
+}
+
+#summary-report-table {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    font-size: 10px;
+}
+
+.column-hidden {
+    display: none !important;
+}
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- PrintJS CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/print-js/1.6.0/print.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/print-js/1.6.0/print.min.css">
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+// Loading overlay
+const loadingOverlay = document.createElement('div');
+loadingOverlay.className = 'loading-overlay';
+loadingOverlay.innerHTML = `
+    <div class="text-center">
+        <div class="loading-spinner"></div>
+        <div class="text-lg font-semibold text-gray-700">{% trans "Generating Attendance Summary Report..." %}</div>
+        <div class="text-sm text-gray-500 mt-2">{% trans "Processing attendance data with advanced analytics" %}</div>
+    </div>
+`;
+document.body.appendChild(loadingOverlay);
+
+// Column visibility management
+const columnVisibilityState = {
+    employee_id: true,
+    employee_name: true,
+    department: true,
+    designation: false,
+    working_days: true,
+    present_days: true,
+    absent_days: true,
+    late_days: true,
+    half_days: false,
+    attendance_percentage: true,
+    punctuality_percentage: true,
+    working_hours: true,
+    average_daily_hours: false,
+    overtime_hours: true,
+    overtime_days: false,
+    total_late_minutes: false,
+    early_out_days: false,
+    leave_days: false,
+    holiday_work_days: false,
+    weekend_work_days: false,
+    attendance_category: true
+};
+
+// Initialize column visibility controls
+function initializeColumnVisibility() {
+    const table = document.getElementById('summary-report-table');
+    if (!table) return;
+
+    const headers = table.querySelectorAll('thead th[data-column]');
+    const togglesContainer = document.getElementById('column-toggles');
+    
+    if (!togglesContainer) return;
+
+    togglesContainer.innerHTML = '';
+
+    headers.forEach(header => {
+        const columnName = header.dataset.column;
+        const columnText = header.textContent.trim();
+        
+        const toggle = document.createElement('label');
+        toggle.className = 'flex items-center p-2 bg-gray-50 rounded border border-gray-200 hover:bg-gray-100 cursor-pointer text-xs';
+        toggle.innerHTML = `
+            <input type="checkbox" class="h-3 w-3 text-purple-600 focus:ring-purple-500 border-gray-300 rounded mr-2" 
+                   data-column="${columnName}" ${columnVisibilityState[columnName] ? 'checked' : ''}>
+            <span class="text-gray-700">${columnText}</span>
+        `;
+        
+        togglesContainer.appendChild(toggle);
+        
+        const checkbox = toggle.querySelector('input');
+        checkbox.addEventListener('change', function() {
+            toggleColumn(columnName, this.checked);
+        });
+    });
+}
+
+// Toggle column visibility
+function toggleColumn(columnName, visible) {
+    columnVisibilityState[columnName] = visible;
+    
+    const table = document.getElementById('summary-report-table');
+    if (!table) return;
+
+    const elements = table.querySelectorAll(`[data-column="${columnName}"]`);
+    elements.forEach(element => {
+        if (visible) {
+            element.classList.remove('column-hidden');
+        } else {
+            element.classList.add('column-hidden');
+        }
+    });
+
+    updateVisibleRowsCount();
+}
+
+// Update visible rows count
+function updateVisibleRowsCount() {
+    const visibleRows = document.querySelectorAll('#summary-report-table tbody tr:not([style*="display: none"])');
+    const countElement = document.getElementById('visible-rows-count');
+    if (countElement) {
+        countElement.textContent = visibleRows.length;
+    }
+}
+
+// Column visibility panel toggle
+const columnVisibilityBtn = document.getElementById('column-visibility-btn');
+const columnVisibilityPanel = document.getElementById('column-visibility-panel');
+
+if (columnVisibilityBtn && columnVisibilityPanel) {
+    columnVisibilityBtn.addEventListener('click', function() {
+        columnVisibilityPanel.classList.toggle('hidden');
+    });
+}
+
+// Show/Hide all columns
+const showAllBtn = document.getElementById('show-all-columns');
+const hideAllBtn = document.getElementById('hide-all-columns');
+const resetBtn = document.getElementById('reset-columns');
+
+if (showAllBtn) {
+    showAllBtn.addEventListener('click', function() {
+        Object.keys(columnVisibilityState).forEach(column => {
+            columnVisibilityState[column] = true;
+            toggleColumn(column, true);
+        });
+        
+        // Update checkboxes
+        document.querySelectorAll('#column-toggles input[type="checkbox"]').forEach(cb => {
+            cb.checked = true;
+        });
+    });
+}
+
+if (hideAllBtn) {
+    hideAllBtn.addEventListener('click', function() {
+        Object.keys(columnVisibilityState).forEach(column => {
+            if (column !== 'employee_id' && column !== 'employee_name' && column !== 'attendance_percentage') {
+                columnVisibilityState[column] = false;
+                toggleColumn(column, false);
+            }
+        });
+        
+        // Update checkboxes
+        document.querySelectorAll('#column-toggles input[type="checkbox"]').forEach(cb => {
+            const column = cb.dataset.column;
+            cb.checked = column === 'employee_id' || column === 'employee_name' || column === 'attendance_percentage';
+        });
+    });
+}
+
+if (resetBtn) {
+    resetBtn.addEventListener('click', function() {
+        // Reset to default visibility
+        const defaultColumns = ['employee_id', 'employee_name', 'department', 'working_days', 'present_days', 'absent_days', 'attendance_percentage', 'punctuality_percentage', 'working_hours', 'overtime_hours', 'attendance_category'];
+        
+        Object.keys(columnVisibilityState).forEach(column => {
+            const visible = defaultColumns.includes(column);
+            columnVisibilityState[column] = visible;
+            toggleColumn(column, visible);
+        });
+        
+        // Update checkboxes
+        document.querySelectorAll('#column-toggles input[type="checkbox"]').forEach(cb => {
+            const column = cb.dataset.column;
+            cb.checked = defaultColumns.includes(column);
+        });
+    });
+}
+
+// Print functionality
+const printBtn = document.getElementById('print-summary-btn');
+if (printBtn) {
+    printBtn.addEventListener('click', function() {
+        const table = document.getElementById('summary-report-table');
+        if (!table) return;
+
+        // Create a clean copy of the table for printing
+        const tableClone = table.cloneNode(true);
+        
+        // Remove hidden columns from the clone
+        tableClone.querySelectorAll('.column-hidden').forEach(el => el.remove());
+        
+        // Print using PrintJS
+        printJS({
+            printable: tableClone.outerHTML,
+            type: 'raw-html',
+            style: `
+                table { 
+                    width: 100%; 
+                    border-collapse: collapse; 
+                    font-size: 8px;
+                    margin: 0;
+                }
+                th, td { 
+                    border: 1px solid #000; 
+                    padding: 2px; 
+                    text-align: center;
+                    word-wrap: break-word;
+                }
+                th { 
+                    background-color: #f0f0f0; 
+                    font-weight: bold;
+                }
+                .column-hidden { 
+                    display: none !important; 
+                }
+            `,
+            scanStyles: false,
+            targetStyles: ['*']
+        });
+    });
+}
+
+// Copy to clipboard functionality
+const copyBtn = document.getElementById('copy-summary-btn');
+if (copyBtn) {
+    copyBtn.addEventListener('click', function() {
+        const table = document.getElementById('summary-report-table');
+        if (!table) return;
+
+        let csvContent = '';
+        
+        // Get headers (only visible ones)
+        const headers = Array.from(table.querySelectorAll('thead th[data-column]'))
+            .filter(th => !th.classList.contains('column-hidden'))
+            .map(th => `"${th.textContent.trim()}"`);
+        csvContent += headers.join(',') + '\n';
+        
+        // Get data rows (only visible columns)
+        const rows = table.querySelectorAll('tbody tr.summary-row');
+        rows.forEach(row => {
+            if (row.style.display !== 'none') {
+                const cells = Array.from(row.querySelectorAll('td[data-column]'))
+                    .filter(td => !td.classList.contains('column-hidden'))
+                    .map(td => {
+                        let text = td.textContent.trim();
+                        // Clean up text and escape quotes
+                        text = text.replace(/\s+/g, ' ').replace(/"/g, '""');
+                        return `"${text}"`;
+                    });
+                csvContent += cells.join(',') + '\n';
+            }
+        });
+
+        // Copy to clipboard
+        navigator.clipboard.writeText(csvContent).then(() => {
+            showCopyNotification('Summary data copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+            showCopyNotification('Failed to copy data', 'error');
+        });
+    });
+}
+
+// Excel export functionality
+const excelBtn = document.getElementById('export-excel-btn');
+if (excelBtn) {
+    excelBtn.addEventListener('click', function() {
+        const table = document.getElementById('summary-report-table');
+        if (!table) return;
+
+        let csvContent = '';
+        
+        // Get headers (only visible ones)
+        const headers = Array.from(table.querySelectorAll('thead th[data-column]'))
+            .filter(th => !th.classList.contains('column-hidden'))
+            .map(th => `"${th.textContent.trim()}"`);
+        csvContent += headers.join(',') + '\n';
+        
+        // Get data rows (only visible columns)
+        const rows = table.querySelectorAll('tbody tr.summary-row');
+        rows.forEach(row => {
+            if (row.style.display !== 'none') {
+                const cells = Array.from(row.querySelectorAll('td[data-column]'))
+                    .filter(td => !td.classList.contains('column-hidden'))
+                    .map(td => {
+                        let text = td.textContent.trim();
+                        text = text.replace(/\s+/g, ' ').replace(/"/g, '""');
+                        return `"${text}"`;
+                    });
+                csvContent += cells.join(',') + '\n';
+            }
+        });
+
+        // Create and download file
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'attendance_summary_report.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showCopyNotification('Excel file downloaded!');
+    });
+}
+
+// Show copy notification
+function showCopyNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `copy-notification ${type === 'error' ? 'bg-red-500' : 'bg-purple-500'}`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                ${type === 'error' ? 
+                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>' :
+                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>'
+                }
+            </svg>
+            ${message}
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Show notification
+    setTimeout(() => notification.classList.add('show'), 100);
+    
+    // Hide and remove notification
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => document.body.removeChild(notification), 300);
+    }, 3000);
+}
+
+// Search functionality
+const searchInput = document.getElementById('search-summary-report');
+if (searchInput) {
+    searchInput.addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#summary-report-table tbody tr.summary-row');
+        rows.forEach(row => {
+            const employeeId = row.querySelector('td[data-column="employee_id"]')?.textContent.toLowerCase() || '';
+            const employeeName = row.querySelector('td[data-column="employee_name"]')?.textContent.toLowerCase() || '';
+            const department = row.querySelector('td[data-column="department"]')?.textContent.toLowerCase() || '';
+            if (employeeId.includes(searchTerm) || employeeName.includes(searchTerm) || department.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        updateVisibleRowsCount();
+    });
+}
+
+// Department filter
+const departmentFilter = document.getElementById('department-filter-summary');
+if (departmentFilter) {
+    departmentFilter.addEventListener('change', function() {
+        const filterValue = this.value;
+        const rows = document.querySelectorAll('#summary-report-table tbody tr.summary-row');
+        rows.forEach(row => {
+            const department = row.dataset.department;
+            if (!filterValue || department === filterValue) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        updateVisibleRowsCount();
+    });
+}
+
+// Attendance percentage filter
+const attendanceFilter = document.getElementById('attendance-range-filter');
+if (attendanceFilter) {
+    attendanceFilter.addEventListener('change', function() {
+        const filterValue = this.value;
+        const rows = document.querySelectorAll('#summary-report-table tbody tr.summary-row');
+        rows.forEach(row => {
+            const attendance = parseFloat(row.dataset.attendancePercentage);
+            let show = true;
+            
+            if (filterValue === 'excellent' && attendance < 95) show = false;
+            else if (filterValue === 'good' && (attendance < 85 || attendance >= 95)) show = false;
+            else if (filterValue === 'average' && (attendance < 70 || attendance >= 85)) show = false;
+            else if (filterValue === 'poor' && attendance >= 70) show = false;
+            
+            row.style.display = show ? '' : 'none';
+        });
+        updateVisibleRowsCount();
+    });
+}
+
+// Overtime filter
+const overtimeFilter = document.getElementById('overtime-filter');
+if (overtimeFilter) {
+    overtimeFilter.addEventListener('change', function() {
+        const filterValue = this.value;
+        const rows = document.querySelectorAll('#summary-report-table tbody tr.summary-row');
+        rows.forEach(row => {
+            const overtime = parseFloat(row.dataset.overtimeHours);
+            let show = true;
+            
+            if (filterValue === 'high' && overtime <= 40) show = false;
+            else if (filterValue === 'medium' && (overtime < 20 || overtime > 40)) show = false;
+            else if (filterValue === 'low' && (overtime < 1 || overtime >= 20)) show = false;
+            else if (filterValue === 'none' && overtime > 0) show = false;
+            
+            row.style.display = show ? '' : 'none';
+        });
+        updateVisibleRowsCount();
+    });
+}
+
+// Modal creation function (same as daily attendance)
+function createModal(id, title, content, size = 'large') {
+    const existingModal = document.getElementById(id);
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    const modal = document.createElement('div');
+    modal.id = id;
+    modal.className = 'fixed inset-0 z-50 overflow-auto modal-backdrop hidden';
+    modal.innerHTML = `
+        <div class="bg-white mx-auto mt-10 p-0 border border-gray-200 rounded-xl w-11/12 ${size === 'extra-large' ? 'max-w-7xl' : size === 'large' ? 'max-w-5xl' : 'max-w-lg'} shadow-2xl relative modal-content">
+            <div class="bg-white px-6 pt-6 pb-0 border-b border-gray-200 rounded-t-xl relative">
+                <h2 class="text-lg font-semibold text-gray-900">${title}</h2>
+                <button type="button" class="modal-close-btn absolute right-4 top-4 bg-gray-100 hover:bg-gray-200 border-0 rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200 text-gray-600 hover:text-gray-800 hover:scale-105 z-10">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="bg-white px-6 py-6 max-h-[80vh] overflow-y-auto rounded-b-xl">
+                ${content}
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    return modal;
+}
+
+// Create the summary report modal with EXACT same structure as daily attendance
+const summaryReportModal = createModal('summary-report-modal', 'Attendance Summary Report Configuration', `
+    <form id="summary-report-form" method="post" class="space-y-0">
+        {% csrf_token %}
+        
+        <!-- Header Section -->
+        <div class="flex flex-col space-y-1.5 p-6 border-b">
+            <h3 class="text-2xl font-semibold leading-none tracking-tight">Attendance Summary Report</h3>
+            <p class="text-sm text-muted-foreground">Comprehensive attendance analysis over date ranges with advanced metrics and insights</p>
+        </div>
+
+        <div class="max-w-4xl mx-auto bg-white rounded-xl border border-gray-200 shadow-lg">
+            
+            <!-- Fixed Tab Navigation -->
+            <div class="tab-nav" role="tablist">
+                <button type="button" class="tab-button active" data-tab="basic" role="tab" aria-selected="true">
+                    <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    Basic Settings
+                </button>
+                <button type="button" class="tab-button" data-tab="rules" role="tab" aria-selected="false">
+                    <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Attendance Rules
+                </button>
+                <button type="button" class="tab-button" data-tab="shifts" role="tab" aria-selected="false">
+                    <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Shift Detection
+                </button>
+                <button type="button" class="tab-button" data-tab="overtime" role="tab" aria-selected="false">
+                    <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Overtime & Breaks
+                </button>
+                <button type="button" class="tab-button" data-tab="advanced" role="tab" aria-selected="false">
+                    <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    Advanced
+                </button>
+            </div>
+
+            <!-- Tab Content Container -->
+            <div class="p-8">
+                
+                <!-- Basic Settings Tab -->
+                <div class="tab-content active" id="basic" role="tabpanel">
+                    <div class="space-y-6">
+                        
+                        <!-- Date Range & Employee Selection -->
+                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                            <div class="flex items-center mb-4">
+                                <svg class="w-5 h-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <h4 class="font-medium text-gray-900">Date Range & Employee Selection</h4>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Start Date</label>
+                                    <input type="date" name="start_date" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all" required>
+                                </div>
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">End Date</label>
+                                    <input type="date" name="end_date" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all" required>
+                                </div>
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Employee Filter</label>
+                                    <select name="employee_filter" id="employee_filter_summary" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all">
+                                        <option value="all">All Active Employees</option>
+                                        <option value="department">By Department</option>
+                                        <option value="designation">By Designation</option>
+                                        <option value="specific">Specific Employees</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Dynamic Filter Options -->
+                            <div id="department_filter_summary" class="field-group hidden mt-4">
+                                <label class="block mb-2 text-sm font-medium text-gray-700">Select Departments</label>
+                                <select name="departments" multiple class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200" size="5">
+                                    {% for dept in departments %}
+                                    <option value="{{ dept.id }}">{{ dept.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div id="designation_filter_summary" class="field-group hidden mt-4">
+                                <label class="block mb-2 text-sm font-medium text-gray-700">Select Designations</label>
+                                <select name="designations" multiple class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200" size="5">
+                                    {% for desig in designations %}
+                                    <option value="{{ desig.id }}">{{ desig.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div id="employee_filter_specific_summary" class="field-group hidden mt-4">
+                                <label class="block mb-2 text-sm font-medium text-gray-700">Employee IDs (comma-separated)</label>
+                                <input type="text" name="employee_ids" placeholder="EMP001, EMP002, EMP003" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all">
+                            </div>
+                        </div>
+
+                        <!-- Time Settings -->
+                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                            <div class="flex items-center mb-4">
+                                <svg class="w-5 h-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <h4 class="font-medium text-gray-900">Time Settings</h4>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Grace Minutes</label>
+                                    <input type="number" name="grace_minutes" value="15" min="0" max="120" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all">
+                                    <p class="text-xs text-gray-500 mt-1">Late threshold tolerance</p>
+                                </div>
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Early Out Threshold (Minutes)</label>
+                                    <input type="number" name="early_out_threshold_minutes" value="30" min="0" max="240" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all">
+                                    <p class="text-xs text-gray-500 mt-1">Early departure detection</p>
+                                </div>
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Overtime Start After (Minutes)</label>
+                                    <input type="number" name="overtime_start_after_minutes" value="15" min="0" max="120" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all">
+                                    <p class="text-xs text-gray-500 mt-1">Grace period before OT</p>
+                                </div>
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Minimum Overtime (Minutes)</label>
+                                    <input type="number" name="minimum_overtime_minutes" value="60" min="0" max="480" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all">
+                                    <p class="text-xs text-gray-500 mt-1">Minimum OT to qualify</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Weekend Configuration -->
+                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                            <div class="flex items-center mb-4">
+                                <svg class="w-5 h-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <h4 class="font-medium text-gray-900">Weekend Configuration</h4>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-50 transition-all cursor-pointer">
+                                    <input type="checkbox" name="weekend_days" value="0" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Monday</span>
+                                </label>
+                                <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-50 transition-all cursor-pointer">
+                                    <input type="checkbox" name="weekend_days" value="1" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Tuesday</span>
+                                </label>
+                                <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-50 transition-all cursor-pointer">
+                                    <input type="checkbox" name="weekend_days" value="2" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Wednesday</span>
+                                </label>
+                                <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-50 transition-all cursor-pointer">
+                                    <input type="checkbox" name="weekend_days" value="3" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Thursday</span>
+                                </label>
+                                <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-50 transition-all cursor-pointer">
+                                    <input type="checkbox" name="weekend_days" value="4" checked class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Friday</span>
+                                </label>
+                                <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-50 transition-all cursor-pointer">
+                                    <input type="checkbox" name="weekend_days" value="5" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Saturday</span>
+                                </label>
+                                <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-50 transition-all cursor-pointer">
+                                    <input type="checkbox" name="weekend_days" value="6" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Sunday</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Display Options -->
+                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                            <div class="flex items-center mb-4">
+                                <svg class="w-5 h-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                                <h4 class="font-medium text-gray-900">Display Options</h4>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-50 transition-all cursor-pointer">
+                                        <input type="checkbox" name="show_absent_employees" checked class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">Show Absent Employees</span>
+                                    </label>
+                                    <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-50 transition-all cursor-pointer">
+                                        <input type="checkbox" name="show_leave_employees" checked class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">Show Employees on Leave</span>
+                                    </label>
+                                    <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-50 transition-all cursor-pointer">
+                                        <input type="checkbox" name="show_attendance_percentage" checked class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">Show Attendance Percentage</span>
+                                    </label>
+                                    <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-50 transition-all cursor-pointer">
+                                        <input type="checkbox" name="show_overtime_summary" checked class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">Show Overtime Summary</span>
+                                    </label>
+                                </div>
+                                <div class="space-y-3">
+                                    <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-50 transition-all cursor-pointer">
+                                        <input type="checkbox" name="show_holiday_status" checked class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">Show Holiday Status</span>
+                                    </label>
+                                    <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-50 transition-all cursor-pointer">
+                                        <input type="checkbox" name="include_roster_info" checked class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">Include Roster Information</span>
+                                    </label>
+                                    <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-50 transition-all cursor-pointer">
+                                        <input type="checkbox" name="show_punctuality_metrics" checked class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">Show Punctuality Metrics</span>
+                                    </label>
+                                    <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-50 transition-all cursor-pointer">
+                                        <input type="checkbox" name="group_by_department" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">Group by Department</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attendance Rules Tab -->
+                <div class="tab-content" id="rules" role="tabpanel">
+                    <div class="space-y-6">
+                        <div class="text-center mb-8">
+                            <h3 class="text-2xl font-semibold text-gray-900 mb-2">🔥 Attendance Rules</h3>
+                            <p class="text-gray-600">Configure advanced attendance processing rules</p>
+                        </div>
+
+                        <!-- Minimum Working Hours Rules -->
+                        <div class="bg-white rounded-lg p-6 border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Minimum Working Hours Rules</h4>
+                            <div class="space-y-4">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="enable_minimum_working_hours_rule" id="enable_minimum_working_hours_rule" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Enable Minimum Working Hours Rule</span>
+                                </label>
+                                <div id="minimum_working_hours_options" class="field-group hidden space-y-3">
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium text-gray-700">Minimum Working Hours for Present</label>
+                                        <input type="number" name="minimum_working_hours_for_present" value="4" min="0.5" max="12" step="0.5" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                                        <p class="text-xs text-gray-500 mt-1">Minimum hours required to mark attendance as present</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Half Day Rules -->
+                        <div class="bg-white rounded-lg p-6 border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Half Day Rules</h4>
+                            <div class="space-y-4">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="enable_working_hours_half_day_rule" id="enable_working_hours_half_day_rule" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Enable Working Hours Half Day Rule</span>
+                                </label>
+                                <div id="half_day_options" class="field-group hidden space-y-3">
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block mb-2 text-sm font-medium text-gray-700">Half Day Minimum Hours</label>
+                                            <input type="number" name="half_day_minimum_hours" value="4" min="2" max="8" step="0.5" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200">
+                                        </div>
+                                        <div>
+                                            <label class="block mb-2 text-sm font-medium text-gray-700">Half Day Maximum Hours</label>
+                                            <input type="number" name="half_day_maximum_hours" value="6" min="4" max="10" step="0.5" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Attendance Validation Rules -->
+                        <div class="bg-white rounded-lg p-6 border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Attendance Validation Rules</h4>
+                            <div class="space-y-3">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="require_both_in_and_out" class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Require Both In and Out Times</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="enable_maximum_working_hours_rule" id="enable_maximum_working_hours_rule" class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Enable Maximum Working Hours Rule</span>
+                                </label>
+                                <div id="maximum_working_hours_options" class="field-group hidden">
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium text-gray-700">Maximum Allowable Working Hours</label>
+                                        <input type="number" name="maximum_allowable_working_hours" value="16" min="8" max="24" step="0.5" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200">
+                                        <p class="text-xs text-gray-500 mt-1">Maximum hours allowed per day</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shift Detection Tab -->
+                <div class="tab-content" id="shifts" role="tabpanel">
+                    <div class="space-y-6">
+                        <div class="text-center mb-8">
+                            <h3 class="text-2xl font-semibold text-gray-900 mb-2">🔥 Shift Detection</h3>
+                            <p class="text-gray-600">Configure dynamic shift detection and fallback options</p>
+                        </div>
+                        
+                        <!-- Dynamic Shift Detection -->
+                        <div class="bg-white rounded-lg p-6 border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                            <div class="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Dynamic Shift Detection</h4>
+                            <label class="flex items-center cursor-pointer mb-4">
+                                <input type="checkbox" name="enable_dynamic_shift_detection" id="enable_dynamic_shift_detection" class="h-5 w-5 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded">
+                                <span class="ml-3 text-sm font-medium text-gray-900">Enable Automatic Shift Detection</span>
+                            </label>
+                            <p class="text-sm text-gray-600 mb-4">Automatically detect shifts based on actual check-in/out times instead of roster assignments</p>
+                            
+                            <div id="dynamic_shift_options" class="field-group hidden space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium text-gray-700">Tolerance (Minutes)</label>
+                                        <input type="number" name="dynamic_shift_tolerance_minutes" value="30" min="5" max="120" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200">
+                                        <p class="text-xs text-gray-500 mt-1">Time tolerance for matching attendance to shifts</p>
+                                    </div>
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium text-gray-700">Multiple Match Priority</label>
+                                        <select name="multiple_shift_priority" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200">
+                                            <option value="least_break">Least Break Time</option>
+                                            <option value="shortest_duration">Shortest Duration</option>
+                                            <option value="alphabetical">Alphabetical Order</option>
+                                        </select>
+                                        <p class="text-xs text-gray-500 mt-1">How to choose when multiple shifts match</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="checkbox" name="dynamic_shift_fallback_to_default" id="dynamic_shift_fallback_to_default" class="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">Fallback to Default Shift</span>
+                                    </label>
+                                    <div id="fallback_shift_options" class="field-group hidden">
+                                        <label class="block mb-2 text-sm font-medium text-gray-700">Fallback Shift</label>
+                                        <select name="dynamic_shift_fallback_shift_id" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200">
+                                            <option value="">Select Fallback Shift</option>
+                                            {% for shift in shifts %}
+                                            <option value="{{ shift.id }}">{{ shift.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Shift Grace Time -->
+                        <div class="bg-white rounded-lg p-6 border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                            <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Shift Grace Time</h4>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" name="use_shift_grace_time" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-700">Use Shift-Specific Grace Time</span>
+                            </label>
+                            <p class="text-xs text-gray-500 mt-2">Use grace time defined in shift settings instead of global grace time</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overtime & Breaks Tab -->
+                <div class="tab-content" id="overtime" role="tabpanel">
+                    <div class="space-y-6">
+                        <div class="text-center mb-8">
+                            <h3 class="text-2xl font-semibold text-gray-900 mb-2">🔥 Overtime & Break Management</h3>
+                            <p class="text-gray-600">Configure overtime calculation and break time settings</p>
+                        </div>
+                        
+                        <!-- Overtime Calculation -->
+                        <div class="bg-white rounded-lg p-6 border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Overtime Calculation</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Overtime Calculation Method</label>
+                                    <select name="overtime_calculation_method" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200">
+                                        <option value="shift_based">Shift Based</option>
+                                        <option value="daily_hours">Daily Hours Based</option>
+                                        <option value="weekly_hours">Weekly Hours Based</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <label class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-orange-50 transition-all cursor-pointer">
+                                        <input type="checkbox" name="holiday_overtime_full_day" class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">Holiday Overtime Full Day</span>
+                                    </label>
+                                    <label class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-orange-50 transition-all cursor-pointer">
+                                        <input type="checkbox" name="weekend_overtime_full_day" class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">Weekend Overtime Full Day</span>
+                                    </label>
+                                    <label class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-orange-50 transition-all cursor-pointer">
+                                        <input type="checkbox" name="late_affects_overtime" class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">Late Affects Overtime</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Break Time Management -->
+                        <div class="bg-white rounded-lg p-6 border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Break Time Management</h4>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium text-gray-700">Default Break Time (Minutes)</label>
+                                        <input type="number" name="default_break_minutes" value="60" min="0" max="240" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
+                                    </div>
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium text-gray-700">Separate OT Break Time (Minutes)</label>
+                                        <input type="number" name="separate_ot_break_time" value="0" min="0" max="120" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Break Deduction Method</label>
+                                    <select name="break_deduction_method" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
+                                        <option value="fixed">Fixed Break Time</option>
+                                        <option value="proportional">Proportional to Working Hours</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-purple-50 transition-all cursor-pointer">
+                                        <input type="checkbox" name="use_shift_break_time" checked class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">Use Shift-Specific Break Time</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Tab -->
+                <div class="tab-content" id="advanced" role="tabpanel">
+                    <div class="space-y-6">
+                        <div class="text-center mb-8">
+                            <h3 class="text-2xl font-semibold text-gray-900 mb-2">🔥 Advanced Settings</h3>
+                            <p class="text-gray-600">Configure advanced rules and employee overrides</p>
+                        </div>
+                        
+                        <!-- Absence Flagging -->
+                        <div class="bg-white rounded-lg p-6 border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Absence Flagging</h4>
+                            <div class="space-y-4">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="enable_consecutive_absence_flagging" id="enable_consecutive_absence_flagging" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Enable Consecutive Absence Flagging</span>
+                                </label>
+                                <div id="consecutive_absence_options" class="field-group hidden">
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium text-gray-700">Termination Risk Days</label>
+                                        <input type="number" name="consecutive_absence_termination_risk_days" value="5" min="3" max="15" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200">
+                                        <p class="text-xs text-gray-500 mt-1">Days of consecutive absence before flagging as termination risk</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Early Out Flagging -->
+                        <div class="bg-white rounded-lg p-6 border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Early Out Flagging</h4>
+                            <div class="space-y-4">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="enable_max_early_out_flagging" id="enable_max_early_out_flagging" class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Enable Maximum Early Out Flagging</span>
+                                </label>
+                                <div id="max_early_out_options" class="field-group hidden space-y-3">
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block mb-2 text-sm font-medium text-gray-700">Max Early Out Threshold (Minutes)</label>
+                                            <input type="number" name="max_early_out_threshold_minutes" value="120" min="30" max="300" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200">
+                                        </div>
+                                        <div>
+                                            <label class="block mb-2 text-sm font-medium text-gray-700">Max Early Out Occurrences</label>
+                                            <input type="number" name="max_early_out_occurrences" value="3" min="1" max="10" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Rules -->
+                        <div class="bg-white rounded-lg p-6 border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                            <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Advanced Rules</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Late to Absent Conversion (Days)</label>
+                                    <input type="number" name="late_to_absent_days" value="3" min="1" max="10" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-200">
+                                    <p class="text-xs text-gray-500 mt-1">Convert to absent after consecutive late days</p>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <label class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all cursor-pointer">
+                                        <input type="checkbox" name="holiday_before_after_absent" checked class="h-4 w-4 text-gray-600 focus:ring-gray-500 border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">Holiday Before/After Absent Rule</span>
+                                    </label>
+                                    <label class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all cursor-pointer">
+                                        <input type="checkbox" name="weekend_before_after_absent" checked class="h-4 w-4 text-gray-600 focus:ring-gray-500 border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">Weekend Before/After Absent Rule</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Employee Override Settings -->
+                        <div class="bg-white rounded-lg p-6 border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Employee Override Settings</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <label class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-blue-50 transition-all cursor-pointer">
+                                    <input type="checkbox" name="use_employee_specific_grace" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Employee-Specific Grace</span>
+                                </label>
+                                <label class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-blue-50 transition-all cursor-pointer">
+                                    <input type="checkbox" name="use_employee_specific_overtime" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Employee-Specific OT</span>
+                                </label>
+                                <label class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-blue-50 transition-all cursor-pointer">
+                                    <input type="checkbox" name="use_employee_expected_hours" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Employee Expected Hours</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex gap-3 pt-6 border-t border-gray-200">
+            <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 h-12 px-8 py-3 shadow-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                Generate Summary
+            </button>
+            <button type="button" class="modal-close-btn flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 h-12 px-8 py-3 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                Cancel
+            </button>
+        </div>
+    </form>
+`, 'extra-large');
+
+// Initialize all the same functionality as daily attendance
+initializeTabs();
+setupFieldVisibility();
+setupModalHandlers();
+
+// Generate summary report button handler
+const generateBtn = document.getElementById('generate-summary-report-btn');
+if (generateBtn) {
+    generateBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const modal = document.getElementById('summary-report-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            
+            // Set default dates (last 30 days)
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+            
+            const startDateInput = document.querySelector('#summary-report-modal input[name="start_date"]');
+            const endDateInput = document.querySelector('#summary-report-modal input[name="end_date"]');
+            
+            if (startDateInput && !startDateInput.value) {
+                startDateInput.value = thirtyDaysAgo.toISOString().split('T')[0];
+            }
+            if (endDateInput && !endDateInput.value) {
+                endDateInput.value = today.toISOString().split('T')[0];
+            }
+        }
+    });
+}
+
+// Form submission handler
+document.addEventListener('submit', function(e) {
+    if (e.target.id === 'summary-report-form') {
+        const modal = document.getElementById('summary-report-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+        
+        loadingOverlay.classList.add('active');
+        
+        setTimeout(() => {
+            loadingOverlay.classList.remove('active');
+        }, 5000);
+    }
+});
+
+// Initialize column visibility controls when page loads
+if (document.getElementById('summary-report-table')) {
+    initializeColumnVisibility();
+}
+
+// Helper functions for tab and field management (same as daily attendance)
+function initializeTabs() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const targetTab = this.dataset.tab;
+            
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.setAttribute('aria-selected', 'false');
+            });
+            
+            this.classList.add('active');
+            this.setAttribute('aria-selected', 'true');
+            
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            const targetContent = document.getElementById(targetTab);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+        });
+    });
+}
+
+function setupFieldVisibility() {
+    const employeeFilter = document.getElementById('employee_filter_summary');
+    if (employeeFilter) {
+        employeeFilter.addEventListener('change', function() {
+            const value = this.value;
+            const departmentFilter = document.getElementById('department_filter_summary');
+            const designationFilter = document.getElementById('designation_filter_summary');
+            const employeeFilterSpecific = document.getElementById('employee_filter_specific_summary');
+            
+            if (departmentFilter) departmentFilter.classList.add('hidden');
+            if (designationFilter) designationFilter.classList.add('hidden');
+            if (employeeFilterSpecific) employeeFilterSpecific.classList.add('hidden');
+            
+            if (value === 'department' && departmentFilter) {
+                departmentFilter.classList.remove('hidden');
+            } else if (value === 'designation' && designationFilter) {
+                designationFilter.classList.remove('hidden');
+            } else if (value === 'specific' && employeeFilterSpecific) {
+                employeeFilterSpecific.classList.remove('hidden');
+            }
+        });
+    }
+
+    // All the conditional field visibility handlers
+    const conditionalFields = [
+        { checkbox: 'enable_dynamic_shift_detection', target: 'dynamic_shift_options' },
+        { checkbox: 'dynamic_shift_fallback_to_default', target: 'fallback_shift_options' },
+        { checkbox: 'enable_minimum_working_hours_rule', target: 'minimum_working_hours_options' },
+        { checkbox: 'enable_working_hours_half_day_rule', target: 'half_day_options' },
+        { checkbox: 'enable_maximum_working_hours_rule', target: 'maximum_working_hours_options' },
+        { checkbox: 'enable_consecutive_absence_flagging', target: 'consecutive_absence_options' },
+        { checkbox: 'enable_max_early_out_flagging', target: 'max_early_out_options' }
+    ];
+
+    conditionalFields.forEach(field => {
+        const checkbox = document.getElementById(field.checkbox);
+        const target = document.getElementById(field.target);
+        
+        if (checkbox && target) {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    target.classList.remove('hidden');
+                } else {
+                    target.classList.add('hidden');
+                }
+            });
+        }
+    });
+}
+
+function setupModalHandlers() {
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal-close-btn') || e.target.closest('.modal-close-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const modal = document.getElementById('summary-report-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal-backdrop')) {
+            const modal = document.getElementById('summary-report-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal-content') || e.target.closest('.modal-content')) {
+            e.stopPropagation();
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('summary-report-modal');
+            if (modal && !modal.classList.contains('hidden')) {
+                modal.classList.add('hidden');
+            }
+        }
+    });
+}
+});
+</script>
+{% endblock %}

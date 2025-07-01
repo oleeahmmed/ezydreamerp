@@ -1,0 +1,1274 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="https://printjs-4de6.kxcdn.com/print.min.css">
+<style>
+/* Use your default theme variables */
+.loader { 
+    border: 3px solid hsl(var(--muted)); 
+    border-top: 3px solid hsl(var(--primary)); 
+    border-radius: 50%; 
+    width: 20px; 
+    height: 20px; 
+    animation: spin 1s linear infinite; 
+    display: inline-block;
+}
+
+@keyframes spin { 
+    0% { transform: rotate(0deg); } 
+    100% { transform: rotate(360deg); } 
+}
+
+/* Print styles */
+@media print {
+    .no-print { display: none !important; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #000; padding: 8px; text-align: center; }
+    th { background-color: #f0f0f0; font-weight: bold; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="bg-white dark:bg-gray-900 rounded-xl border-2 border-gray-200 dark:border-gray-700 shadow-lg p-4 sm:p-8 mb-6">
+        <!-- Header -->
+        <div class="mb-6 sm:mb-8 border-b border-gray-200 dark:border-gray-700 pb-4 sm:pb-6">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <div class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-blue-600 text-white shadow-md">
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ title }}</h1>
+                        <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{{ subtitle }}</p>
+                    </div>
+                </div>
+                
+                <div class="flex gap-2">
+                    <button id="generate-report-btn" class="inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 px-6 py-3 shadow-md">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 17h6l3 3v-3h2V5H4v12h5zm-2 0H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v9a2 2 0 01-2 2h-1l-3 3-3-3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Generate Report
+                    </button>
+                    
+                    {% if data_generated %}
+                    <button id="print-table-btn" class="no-print inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gray-600 text-white hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 px-6 py-3 shadow-md">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Print PDF
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% include "common/toast.html" %}
+
+        <!-- Results Section -->
+        {% if data_generated %}
+        <div class="mb-6">
+            <!-- Summary Stats -->
+            <div class="bg-blue-600 text-white p-4 rounded-lg mb-4">
+                <h4 class="text-lg font-bold mb-2">📊 Report Summary</h4>
+                <div class="grid grid-cols-2 md:grid-cols-8 gap-4 text-sm">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold">{{ summary_stats.total_records }}</div>
+                        <div class="opacity-90">Total Records</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-300">{{ summary_stats.present_records }}</div>
+                        <div class="opacity-90">Present</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-red-300">{{ summary_stats.absent_records }}</div>
+                        <div class="opacity-90">Absent</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-yellow-300">{{ summary_stats.late_records }}</div>
+                        <div class="opacity-90">Late</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold">{{ summary_stats.leave_records }}</div>
+                        <div class="opacity-90">Leave</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold">{{ summary_stats.holiday_records }}</div>
+                        <div class="opacity-90">Holiday</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-300">{{ summary_stats.new_records }}</div>
+                        <div class="opacity-90">New</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-gray-300">{{ summary_stats.existing_records }}</div>
+                        <div class="opacity-90">Existing</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bulk Actions -->
+            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4 no-print">
+                <div class="flex flex-wrap items-center gap-4">
+                    <!-- Selection Controls -->
+                    <div class="flex items-center gap-2">
+                        <button id="select-all-btn" class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 transition-colors">
+                            Select All
+                        </button>
+                        <button id="select-none-btn" class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 transition-colors">
+                            Select None
+                        </button>
+                        <button id="select-new-btn" class="px-3 py-2 text-sm bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 rounded-md border border-blue-300 dark:border-blue-600 transition-colors">
+                            Select New
+                        </button>
+                    </div>
+                    
+                    <!-- Selection Info -->
+                    <div class="bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <span id="selection-count">0</span> records selected
+                    </div>
+                    
+                    <!-- Import Buttons -->
+                    <div class="flex items-center gap-2">
+                        <button id="import-selected-btn" class="inline-flex items-center gap-2 px-4 py-2 text-sm bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-md transition-colors" disabled>
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Import Selected
+                        </button>
+                        <button id="import-all-btn" class="inline-flex items-center gap-2 px-4 py-2 text-sm bg-orange-600 hover:bg-orange-700 text-white rounded-md transition-colors">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Import All
+                        </button>
+                        <button id="import-new-btn" class="inline-flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Import New Only
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Table -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700" id="attendance-table">
+                <div class="overflow-x-auto overflow-y-auto max-h-[70vh]">
+                    <table class="w-full border-collapse min-w-max">
+                        <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
+                            <tr>
+                                <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 no-print">
+                                    <input type="checkbox" id="select-all-checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                </th>
+                                <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">EMPLOYEE ID</th>
+                                <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">EMPLOYEE NAME</th>
+                                <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">DATE</th>
+                                <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">STATUS</th>
+                                <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">CHECK IN</th>
+                                <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">CHECK OUT</th>
+                                <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">WORKING HOURS</th>
+                                <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">LATE MINUTES</th>
+                                <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">OVERTIME</th>
+                                <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">SHIFT</th>
+                                <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">IMPORT STATUS</th>
+                                <th class="px-3 py-3 text-xs font-medium text-center border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300">REMARKS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-tbody">
+                            {% for record in attendance_records %}
+                            <tr class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors attendance-row" 
+                                data-employee-id="{{ record.employee_id }}"
+                                data-date="{{ record.date }}"
+                                data-status="{{ record.status }}"
+                                data-is-duplicate="{{ record.is_duplicate|yesno:'true,false' }}"
+                                data-selected="{{ record.selected|yesno:'true,false' }}"
+                                data-working-hours="{{ record.working_hours|default:0 }}"
+                                data-late-minutes="{{ record.late_minutes|default:0 }}"
+                                data-overtime-minutes="{{ record.overtime_minutes|default:0 }}">
+                                <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600 no-print">
+                                    <input type="checkbox" class="row-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500" 
+                                           {% if record.selected %}checked{% endif %}
+                                           data-record-index="{{ forloop.counter0 }}">
+                                </td>
+                                <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600 font-medium text-gray-900 dark:text-gray-100">{{ record.employee_id }}</td>
+                                <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">{{ record.employee_name }}</td>
+                                <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">{{ record.date }}</td>
+                                <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600">
+                                    {% if record.status == 'PRE' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Present</span>
+                                    {% elif record.status == 'ABS' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Absent</span>
+                                    {% elif record.status == 'LAT' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Late</span>
+                                    {% elif record.status == 'LEA' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">Leave</span>
+                                    {% elif record.status == 'HOL' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">Holiday</span>
+                                    {% elif record.status == 'HAL' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">Half Day</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">
+                                    {% if record.check_in %}{{ record.check_in|slice:":16" }}{% else %}--:--{% endif %}
+                                </td>
+                                <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">
+                                    {% if record.check_out %}{{ record.check_out|slice:":16" }}{% else %}--:--{% endif %}
+                                </td>
+                                <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600">
+                                    <span class="font-bold text-blue-600 dark:text-blue-400">{{ record.working_hours|floatformat:1 }}h</span>
+                                </td>
+                                <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600">
+                                    {% if record.late_minutes > 0 %}
+                                        <span class="font-bold text-red-600 dark:text-red-400">{{ record.late_minutes }}m</span>
+                                    {% else %}
+                                        <span class="text-gray-500 dark:text-gray-400">0m</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600">
+                                    {% if record.overtime_minutes > 0 %}
+                                        <span class="font-bold text-green-600 dark:text-green-400">{{ record.overtime_minutes }}m</span>
+                                    {% else %}
+                                        <span class="text-gray-500 dark:text-gray-400">0m</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">{{ record.shift_name }}</td>
+                                <td class="px-3 py-2 text-xs text-center border border-gray-200 dark:border-gray-600">
+                                    {% if record.is_duplicate %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">Imported</span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">New</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-3 py-2 text-xs border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">
+                                    {% if record.remarks %}
+                                        <span class="text-gray-600 dark:text-gray-400">{{ record.remarks|truncatechars:50 }}</span>
+                                    {% else %}
+                                        <span class="text-gray-500 dark:text-gray-500">--</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="13" class="px-4 py-8 text-center text-sm border border-gray-200 dark:border-gray-600">
+                                    <div class="flex flex-col items-center justify-center space-y-4">
+                                        <div class="rounded-full bg-gray-100 dark:bg-gray-700 p-4">
+                                            <svg class="h-8 w-8 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none">
+                                                <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2"/>
+                                            </svg>
+                                        </div>
+                                        <div class="text-center">
+                                            <h3 class="text-base font-medium text-gray-900 dark:text-gray-100">No Records Found</h3>
+                                            <p class="text-gray-600 dark:text-gray-400 text-sm">No attendance records found for the selected criteria.</p>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        
+                        <!-- Summary Footer -->
+                        {% if attendance_records %}
+                        <tfoot class="bg-gray-100 dark:bg-gray-700 border-t-2 border-gray-300 dark:border-gray-600">
+                            <tr>
+                                <td class="px-3 py-3 text-sm font-semibold text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600 no-print"></td>
+                                <td colspan="4" class="px-3 py-3 text-sm font-semibold text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600">
+                                    SUMMARY TOTALS
+                                </td>
+                                <td class="px-3 py-3 text-sm text-center border border-gray-200 dark:border-gray-600">
+                                    <span class="text-gray-600 dark:text-gray-400">Total Records</span>
+                                </td>
+                                <td class="px-3 py-3 text-sm text-center border border-gray-200 dark:border-gray-600">
+                                    <span class="font-bold text-blue-600 dark:text-blue-400" id="total-records-count">{{ summary_stats.total_records }}</span>
+                                </td>
+                                <td class="px-3 py-3 text-sm text-center border border-gray-200 dark:border-gray-600">
+                                    <span class="font-bold text-blue-600 dark:text-blue-400" id="total-working-hours">0h</span>
+                                </td>
+                                <td class="px-3 py-3 text-sm text-center border border-gray-200 dark:border-gray-600">
+                                    <span class="font-bold text-red-600 dark:text-red-400" id="total-late-minutes">0m</span>
+                                </td>
+                                <td class="px-3 py-3 text-sm text-center border border-gray-200 dark:border-gray-600">
+                                    <span class="font-bold text-green-600 dark:text-green-400" id="total-overtime-minutes">0m</span>
+                                </td>
+                                <td class="px-3 py-3 text-sm text-center border border-gray-200 dark:border-gray-600">
+                                    <span class="text-gray-600 dark:text-gray-400">Shifts</span>
+                                </td>
+                                <td class="px-3 py-3 text-sm text-center border border-gray-200 dark:border-gray-600">
+                                    <div class="flex gap-2 justify-center text-xs">
+                                        <span class="text-blue-600 dark:text-blue-400">New: <span id="summary-new-count">{{ summary_stats.new_records }}</span></span>
+                                        <span class="text-gray-600 dark:text-gray-400">Existing: <span id="summary-existing-count">{{ summary_stats.existing_records }}</span></span>
+                                    </div>
+                                </td>
+                                <td class="px-3 py-3 text-sm text-center border border-gray-200 dark:border-gray-600">
+                                    <div class="flex gap-2 justify-center text-xs">
+                                        <span class="text-green-600 dark:text-green-400">P: <span id="summary-present-count">{{ summary_stats.present_records }}</span></span>
+                                        <span class="text-red-600 dark:text-red-400">A: <span id="summary-absent-count">{{ summary_stats.absent_records }}</span></span>
+                                        <span class="text-yellow-600 dark:text-yellow-400">L: <span id="summary-late-count">{{ summary_stats.late_records }}</span></span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Comprehensive Attendance Report Modal -->
+<div id="report-modal" class="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 backdrop-blur-sm hidden">
+    <div class="bg-white dark:bg-gray-900 mx-auto mt-5 p-0 border border-gray-200 dark:border-gray-700 rounded-xl w-11/12 max-w-6xl shadow-2xl relative">
+        <div class="bg-white dark:bg-gray-900 px-6 pt-6 pb-0 border-b border-gray-200 dark:border-gray-700 rounded-t-xl relative">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">🔥 Generate Comprehensive Attendance Report</h2>
+            <button type="button" class="modal-close-btn absolute right-4 top-4 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 border-0 rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-900 px-6 py-6 max-h-[80vh] overflow-y-auto rounded-b-xl">
+            <form id="report-form" method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Tab Navigation -->
+                <div class="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1 mb-6">
+                    <button type="button" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm" data-tab="basic">Basic Settings</button>
+                    <button type="button" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-tab="employee">Employee Filter</button>
+                    <button type="button" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-tab="rules">Enhanced Rules</button>
+                    <button type="button" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-tab="advanced">Advanced Options</button>
+                    <button type="button" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-tab="weekend">Weekend & Breaks</button>
+                </div>
+
+                <!-- Basic Settings Tab -->
+                <div class="tab-content" id="basic">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">📅 Date Range</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
+                                    <input type="date" id="start_date" name="start_date" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
+                                </div>
+                                <div>
+                                    <label for="end_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
+                                    <input type="date" id="end_date" name="end_date" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">⏰ Time Settings</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="grace_minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Grace Minutes</label>
+                                    <input type="number" id="grace_minutes" name="grace_minutes" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="15" min="0" max="120">
+                                </div>
+                                <div>
+                                    <label for="early_out_threshold_minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Early Out Threshold (Minutes)</label>
+                                    <input type="number" id="early_out_threshold_minutes" name="early_out_threshold_minutes" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="30" min="0" max="240">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">💼 Overtime Settings</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="overtime_start_after_minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Overtime Start After (Minutes)</label>
+                                    <input type="number" id="overtime_start_after_minutes" name="overtime_start_after_minutes" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="15" min="0" max="120">
+                                </div>
+                                <div>
+                                    <label for="minimum_overtime_minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Minimum Overtime (Minutes)</label>
+                                    <input type="number" id="minimum_overtime_minutes" name="minimum_overtime_minutes" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="60" min="0" max="480">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employee Filter Tab -->
+                <div class="tab-content hidden" id="employee">
+                    <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                        <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">👥 Employee Selection</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="employee_filter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employee Filter</label>
+                                <select id="employee_filter" name="employee_filter" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                                    <option value="all">All Active Employees</option>
+                                    <option value="department">Filter by Department</option>
+                                    <option value="designation">Filter by Designation</option>
+                                    <option value="specific">Specific Employee IDs</option>
+                                </select>
+                            </div>
+                            
+                            <div id="department_filter" class="hidden">
+                                <label for="departments" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Departments</label>
+                                <select name="departments" multiple class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" size="5">
+                                    {% for dept in departments %}
+                                    <option value="{{ dept.id }}">{{ dept.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div id="designation_filter" class="hidden">
+                                <label for="designations" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Designations</label>
+                                <select name="designations" multiple class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" size="5">
+                                    {% for desig in designations %}
+                                    <option value="{{ desig.id }}">{{ desig.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div id="employee_filter_specific" class="hidden">
+                                <label for="employee_ids" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employee IDs (comma-separated)</label>
+                                <input type="text" name="employee_ids" placeholder="EMP001, EMP002, EMP003" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Rules Tab -->
+                <div class="tab-content hidden" id="rules">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">🔥 Working Hours Rules</h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="enable_minimum_working_hours_rule" name="enable_minimum_working_hours_rule" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="enable_minimum_working_hours_rule" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Enable Minimum Working Hours Rule</label>
+                                </div>
+                                <div>
+                                    <label for="minimum_working_hours_threshold" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Minimum Working Hours Threshold</label>
+                                    <input type="number" id="minimum_working_hours_threshold" name="minimum_working_hours_threshold" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="4.0" min="1.0" max="12.0" step="0.5">
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="enable_working_hours_half_day_rule" name="enable_working_hours_half_day_rule" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="enable_working_hours_half_day_rule" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Enable Working Hours Half Day Rule</label>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="half_day_min_hours" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Half Day Min Hours</label>
+                                        <input type="number" id="half_day_min_hours" name="half_day_min_hours" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="2.0" min="1.0" max="4.0" step="0.5">
+                                    </div>
+                                    <div>
+                                        <label for="half_day_max_hours" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Half Day Max Hours</label>
+                                        <input type="number" id="half_day_max_hours" name="half_day_max_hours" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="4.0" min="2.0" max="6.0" step="0.5">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">🔥 Validation Rules</h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="enable_both_in_out_required_rule" name="enable_both_in_out_required_rule" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="enable_both_in_out_required_rule" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Both Check-In & Check-Out Required</label>
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="enable_maximum_working_hours_rule" name="enable_maximum_working_hours_rule" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="enable_maximum_working_hours_rule" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Enable Maximum Working Hours Rule</label>
+                                </div>
+                                <div>
+                                    <label for="maximum_working_hours_threshold" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Maximum Working Hours Threshold</label>
+                                    <input type="number" id="maximum_working_hours_threshold" name="maximum_working_hours_threshold" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="12.0" min="8.0" max="24.0" step="0.5">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Options Tab -->
+                <div class="tab-content hidden" id="advanced">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">🔥 Advanced Processing</h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="enable_dynamic_shift_detection" name="enable_dynamic_shift_detection" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="enable_dynamic_shift_detection" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Enable Dynamic Shift Detection</label>
+                                </div>
+                                <div>
+                                    <label for="dynamic_shift_tolerance_minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dynamic Shift Tolerance (Minutes)</label>
+                                    <input type="number" id="dynamic_shift_tolerance_minutes" name="dynamic_shift_tolerance_minutes" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="30" min="5" max="120">
+                                </div>
+                                
+                                <div>
+                                    <label for="multiple_shift_priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Multiple Shift Priority</label>
+                                    <select id="multiple_shift_priority" name="multiple_shift_priority" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                                        <option value="least_break">Least Break Time</option>
+                                        <option value="shortest_duration">Shortest Duration</option>
+                                        <option value="alphabetical">Alphabetical</option>
+                                        <option value="highest_score">Highest Score</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">🔥 Overtime Configuration</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="overtime_calculation_method" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Overtime Calculation Method</label>
+                                    <select id="overtime_calculation_method" name="overtime_calculation_method" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                                        <option value="shift_based">Shift Based</option>
+                                        <option value="hours_based">Hours Based</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="holiday_overtime_full_day" name="holiday_overtime_full_day" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="holiday_overtime_full_day" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Holiday Overtime Full Day</label>
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="weekend_overtime_full_day" name="weekend_overtime_full_day" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="weekend_overtime_full_day" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Weekend Overtime Full Day</label>
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="late_affects_overtime" name="late_affects_overtime" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="late_affects_overtime" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Late Affects Overtime</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekend & Breaks Tab -->
+                <div class="tab-content hidden" id="weekend">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">📅 Weekend Configuration</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="flex items-center">
+                                    <input type="checkbox" name="weekend_days" value="0" id="monday" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="monday" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Monday</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" name="weekend_days" value="1" id="tuesday" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="tuesday" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Tuesday</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" name="weekend_days" value="2" id="wednesday" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="wednesday" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Wednesday</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" name="weekend_days" value="3" id="thursday" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="thursday" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Thursday</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" name="weekend_days" value="4" id="friday" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="friday" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Friday</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" name="weekend_days" value="5" id="saturday" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="saturday" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Saturday</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" name="weekend_days" value="6" id="sunday" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="sunday" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Sunday</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">☕ Break Time Configuration</h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="use_shift_break_time" name="use_shift_break_time" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="use_shift_break_time" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Use Shift Break Time</label>
+                                </div>
+                                
+                                <div>
+                                    <label for="default_break_minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Default Break Minutes</label>
+                                    <input type="number" id="default_break_minutes" name="default_break_minutes" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="60" min="0" max="180">
+                                </div>
+                                
+                                <div>
+                                    <label for="break_deduction_method" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Break Deduction Method</label>
+                                    <select id="break_deduction_method" name="break_deduction_method" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                                        <option value="fixed">Fixed</option>
+                                        <option value="proportional">Proportional</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label for="separate_ot_break_time" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Separate OT Break Time (Minutes)</label>
+                                    <input type="number" id="separate_ot_break_time" name="separate_ot_break_time" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="0" min="0" max="120">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Submit Buttons -->
+                <div class="flex gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 h-12 px-8 py-3 shadow-lg transition-all duration-200 transform hover:scale-105">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 17h6l3 3v-3h2V5H4v12h5zm-2 0H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v9a2 2 0 01-2 2h-1l-3 3-3-3z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Generate Report
+                    </button>
+                    <button type="button" class="modal-close-btn flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gray-600 text-white hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 h-12 px-8 py-3 shadow-sm transition-all duration-200">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Import Progress Modal -->
+<div id="import-progress-modal" class="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 backdrop-blur-sm hidden">
+    <div class="bg-white dark:bg-gray-900 mx-auto mt-20 p-6 border border-gray-200 dark:border-gray-700 rounded-xl w-11/12 max-w-md shadow-2xl relative">
+        <div class="text-center">
+            <div class="loader mx-auto mb-4"></div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Importing Attendance Records</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">Please wait while we process your request...</p>
+            <div class="bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-4">
+                <div id="import-progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <p id="import-status-text" class="text-sm text-gray-600 dark:text-gray-400">Preparing import...</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Print.js CDN -->
+<script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const generateReportBtn = document.getElementById('generate-report-btn');
+    const reportModal = document.getElementById('report-modal');
+    const reportForm = document.getElementById('report-form');
+    const printTableBtn = document.getElementById('print-table-btn');
+    const importProgressModal = document.getElementById('import-progress-modal');
+
+    // Store attendance records data
+    let attendanceRecords = [];
+    
+    // Initialize attendance records from template data
+    {% if attendance_records %}
+    attendanceRecords = [
+        {% for record in attendance_records %}
+        {
+            employee_id: "{{ record.employee_id }}",
+            employee_name: "{{ record.employee_name }}",
+            date: "{{ record.date }}",
+            status: "{{ record.status }}",
+            check_in: "{{ record.check_in|default:'' }}",
+            check_out: "{{ record.check_out|default:'' }}",
+            working_hours: {{ record.working_hours|default:0 }},
+            late_minutes: {{ record.late_minutes|default:0 }},
+            overtime_minutes: {{ record.overtime_minutes|default:0 }},
+            shift_name: "{{ record.shift_name|default:'No Shift' }}",
+            is_duplicate: {{ record.is_duplicate|yesno:'true,false' }},
+            selected: {{ record.selected|yesno:'true,false' }},
+            remarks: "{{ record.remarks|default:'' }}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    {% endif %}
+
+    // Initialize all functionality
+    initializeModal();
+    initializeTabs();
+    setupFieldVisibility();
+    setDefaultDates();
+    initializeTableFunctionality();
+    initializePrintFunctionality();
+    initializeImportFunctionality();
+    calculateSummaryTotals();
+
+    function initializeModal() {
+        // Open modal
+        if (generateReportBtn) {
+            generateReportBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (reportModal) {
+                    reportModal.classList.remove('hidden');
+                }
+            });
+        }
+
+        // Close modal handlers
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal-close-btn') || e.target.closest('.modal-close-btn')) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeModal();
+            }
+        });
+
+        // Close on backdrop click
+        if (reportModal) {
+            reportModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+        }
+
+        // Close on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+                if (importProgressModal && !importProgressModal.classList.contains('hidden')) {
+                    importProgressModal.classList.add('hidden');
+                }
+            }
+        });
+
+        function closeModal() {
+            if (reportModal) {
+                reportModal.classList.add('hidden');
+            }
+        }
+
+        // Form submission
+        if (reportForm) {
+            reportForm.addEventListener('submit', function(e) {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<div class="loader mr-2"></div>Generating Report...';
+                submitBtn.disabled = true;
+                
+                // Form will submit normally to your existing POST endpoint
+            });
+        }
+    }
+
+    function initializeTabs() {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const targetTab = this.dataset.tab;
+                
+                // Remove active class from all buttons
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('bg-white', 'dark:bg-gray-800', 'text-gray-900', 'dark:text-white', 'shadow-sm');
+                    btn.classList.add('text-gray-600', 'dark:text-gray-400');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('bg-white', 'dark:bg-gray-800', 'text-gray-900', 'dark:text-white', 'shadow-sm');
+                this.classList.remove('text-gray-600', 'dark:text-gray-400');
+                
+                // Hide all tab contents
+                tabContents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                // Show target tab content
+                const targetContent = document.getElementById(targetTab);
+                if (targetContent) {
+                    targetContent.classList.remove('hidden');
+                }
+            });
+        });
+    }
+
+    function setupFieldVisibility() {
+        const employeeFilter = document.getElementById('employee_filter');
+        if (employeeFilter) {
+            employeeFilter.addEventListener('change', function() {
+                const value = this.value;
+                const departmentFilter = document.getElementById('department_filter');
+                const designationFilter = document.getElementById('designation_filter');
+                const employeeFilterSpecific = document.getElementById('employee_filter_specific');
+                
+                // Hide all filter options
+                if (departmentFilter) departmentFilter.classList.add('hidden');
+                if (designationFilter) designationFilter.classList.add('hidden');
+                if (employeeFilterSpecific) employeeFilterSpecific.classList.add('hidden');
+                
+                // Show relevant filter option
+                if (value === 'department' && departmentFilter) {
+                    departmentFilter.classList.remove('hidden');
+                } else if (value === 'designation' && designationFilter) {
+                    designationFilter.classList.remove('hidden');
+                } else if (value === 'specific' && employeeFilterSpecific) {
+                    employeeFilterSpecific.classList.remove('hidden');
+                }
+            });
+        }
+    }
+
+    function setDefaultDates() {
+        const today = new Date();
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+        
+        if (startDateInput && !startDateInput.value) {
+            startDateInput.value = firstDay.toISOString().split('T')[0];
+        }
+        if (endDateInput && !endDateInput.value) {
+            endDateInput.value = today.toISOString().split('T')[0];
+        }
+    }
+
+    function initializeTableFunctionality() {
+        const selectAllCheckbox = document.getElementById('select-all-checkbox');
+        const selectAllBtn = document.getElementById('select-all-btn');
+        const selectNoneBtn = document.getElementById('select-none-btn');
+        const selectNewBtn = document.getElementById('select-new-btn');
+        const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+        const selectionCount = document.getElementById('selection-count');
+
+        // Initialize selection state
+        updateSelectionCount();
+        updateRowSelection();
+
+        // Select all checkbox functionality
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                const isChecked = this.checked;
+                rowCheckboxes.forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                    updateRowAppearance(checkbox);
+                });
+                updateSelectionCount();
+            });
+        }
+
+        // Individual row checkbox functionality
+        rowCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateRowAppearance(this);
+                updateSelectionCount();
+                updateSelectAllCheckbox();
+            });
+        });
+
+        // Bulk selection buttons
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                rowCheckboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                    updateRowAppearance(checkbox);
+                });
+                updateSelectionCount();
+                updateSelectAllCheckbox();
+            });
+        }
+
+        if (selectNoneBtn) {
+            selectNoneBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                rowCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                    updateRowAppearance(checkbox);
+                });
+                updateSelectionCount();
+                updateSelectAllCheckbox();
+            });
+        }
+
+        if (selectNewBtn) {
+            selectNewBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                rowCheckboxes.forEach(checkbox => {
+                    const row = checkbox.closest('.attendance-row');
+                    const isDuplicate = row.dataset.isDuplicate === 'true';
+                    checkbox.checked = !isDuplicate;
+                    updateRowAppearance(checkbox);
+                });
+                updateSelectionCount();
+                updateSelectAllCheckbox();
+            });
+        }
+
+        function updateRowAppearance(checkbox) {
+            const row = checkbox.closest('.attendance-row');
+            if (checkbox.checked) {
+                row.classList.add('bg-blue-50', 'dark:bg-blue-900/20', 'border-blue-200', 'dark:border-blue-700');
+            } else {
+                row.classList.remove('bg-blue-50', 'dark:bg-blue-900/20', 'border-blue-200', 'dark:border-blue-700');
+            }
+        }
+
+        function updateSelectionCount() {
+            const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
+            if (selectionCount) {
+                selectionCount.textContent = checkedCount;
+            }
+            
+            // Update import button states
+            const importSelectedBtn = document.getElementById('import-selected-btn');
+            if (importSelectedBtn) {
+                importSelectedBtn.disabled = checkedCount === 0;
+                if (checkedCount === 0) {
+                    importSelectedBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                    importSelectedBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                } else {
+                    importSelectedBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                    importSelectedBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                }
+            }
+        }
+
+        function updateSelectAllCheckbox() {
+            const totalCheckboxes = rowCheckboxes.length;
+            const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
+            
+            if (selectAllCheckbox) {
+                if (checkedCount === 0) {
+                    selectAllCheckbox.indeterminate = false;
+                    selectAllCheckbox.checked = false;
+                } else if (checkedCount === totalCheckboxes) {
+                    selectAllCheckbox.indeterminate = false;
+                    selectAllCheckbox.checked = true;
+                } else {
+                    selectAllCheckbox.indeterminate = true;
+                    selectAllCheckbox.checked = false;
+                }
+            }
+        }
+
+        function updateRowSelection() {
+            rowCheckboxes.forEach(checkbox => {
+                updateRowAppearance(checkbox);
+            });
+        }
+    }
+
+    function initializePrintFunctionality() {
+        if (printTableBtn) {
+            printTableBtn.addEventListener('click', function() {
+                const tableElement = document.getElementById('attendance-table');
+                if (tableElement) {
+                    printJS({
+                        printable: 'attendance-table',
+                        type: 'html',
+                        header: '<h2>Attendance Import Report</h2>',
+                        css: 'https://printjs-4de6.kxcdn.com/print.min.css',
+                        scanStyles: false,
+                        style: `
+                            @media print {
+                                .no-print { display: none !important; }
+                                table { border-collapse: collapse; width: 100%; }
+                                th, td { border: 1px solid #000; padding: 8px; text-align: center; }
+                                th { background-color: #f0f0f0; font-weight: bold; }
+                                .inline-flex { display: inline-block; }
+                            }
+                        `,
+                        onPrintDialogClose: function() {
+                            console.log('Print dialog closed');
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    function initializeImportFunctionality() {
+        const importSelectedBtn = document.getElementById('import-selected-btn');
+        const importAllBtn = document.getElementById('import-all-btn');
+        const importNewBtn = document.getElementById('import-new-btn');
+
+        if (importSelectedBtn) {
+            importSelectedBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const selectedRecords = getSelectedRecords();
+                if (selectedRecords.length > 0) {
+                    performImport(selectedRecords, 'selected');
+                } else {
+                    showToast('No records selected for import', 'warning');
+                }
+            });
+        }
+
+        if (importAllBtn) {
+            importAllBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (attendanceRecords.length > 0) {
+                    performImport(attendanceRecords, 'all');
+                } else {
+                    showToast('No records available for import', 'warning');
+                }
+            });
+        }
+
+        if (importNewBtn) {
+            importNewBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const newRecords = attendanceRecords.filter(record => !record.is_duplicate);
+                if (newRecords.length > 0) {
+                    performImport(newRecords, 'new');
+                } else {
+                    showToast('No new records to import', 'warning');
+                }
+            });
+        }
+
+        function getSelectedRecords() {
+            const selectedRecords = [];
+            const checkedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+            
+            checkedCheckboxes.forEach(checkbox => {
+                const recordIndex = parseInt(checkbox.dataset.recordIndex);
+                if (recordIndex >= 0 && recordIndex < attendanceRecords.length) {
+                    selectedRecords.push(attendanceRecords[recordIndex]);
+                }
+            });
+            
+            return selectedRecords;
+        }
+
+        function performImport(records, importType) {
+            if (records.length === 0) {
+                showToast('No records to import', 'warning');
+                return;
+            }
+
+            // Show progress modal
+            showImportProgress();
+
+            // Prepare data for import
+            const importData = {
+                attendance_data: records,
+                import_type: importType
+            };
+
+            // Send to Django backend
+            fetch('{% url "hrm:attendance-import-save" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify(importData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideImportProgress();
+                
+                if (data.success) {
+                    showToast(
+                        `Import completed successfully! ${data.saved_count} records saved, ${data.updated_count} records updated.`,
+                        'success'
+                    );
+                    
+                    // Update UI to reflect imported records
+                    updateImportStatus(records);
+                    
+                    // Optionally reload the page to refresh data
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    showToast(`Import failed: ${data.error}`, 'error');
+                    if (data.errors && data.errors.length > 0) {
+                        console.error('Import errors:', data.errors);
+                    }
+                }
+            })
+            .catch(error => {
+                hideImportProgress();
+                console.error('Import error:', error);
+                showToast('Import failed due to network error', 'error');
+            });
+        }
+
+        function updateImportStatus(importedRecords) {
+            importedRecords.forEach(record => {
+                const rows = document.querySelectorAll('.attendance-row');
+                rows.forEach(row => {
+                    const employeeId = row.dataset.employeeId;
+                    const date = row.dataset.date;
+                    
+                    if (employeeId === record.employee_id && date === record.date) {
+                        // Update import status badge
+                        const statusCell = row.querySelector('td:nth-last-child(2)');
+                        if (statusCell) {
+                            statusCell.innerHTML = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">Imported</span>';
+                        }
+                        
+                        // Update row data
+                        row.dataset.isDuplicate = 'true';
+                        
+                        // Uncheck the checkbox
+                        const checkbox = row.querySelector('.row-checkbox');
+                        if (checkbox) {
+                            checkbox.checked = false;
+                            updateRowAppearance(checkbox);
+                        }
+                    }
+                });
+            });
+            
+            // Update selection count
+            updateSelectionCount();
+        }
+
+        function showImportProgress() {
+            if (importProgressModal) {
+                importProgressModal.classList.remove('hidden');
+                
+                // Simulate progress
+                let progress = 0;
+                const progressBar = document.getElementById('import-progress-bar');
+                const statusText = document.getElementById('import-status-text');
+                
+                const interval = setInterval(() => {
+                    progress += Math.random() * 20;
+                    if (progress > 90) progress = 90;
+                    
+                    if (progressBar) {
+                        progressBar.style.width = progress + '%';
+                    }
+                    
+                    if (statusText) {
+                        if (progress < 30) {
+                            statusText.textContent = 'Validating records...';
+                        } else if (progress < 60) {
+                            statusText.textContent = 'Processing attendance data...';
+                        } else {
+                            statusText.textContent = 'Saving to database...';
+                        }
+                    }
+                }, 200);
+                
+                // Store interval for cleanup
+                importProgressModal.dataset.progressInterval = interval;
+            }
+        }
+
+        function hideImportProgress() {
+            if (importProgressModal) {
+                // Clear progress interval
+                const interval = importProgressModal.dataset.progressInterval;
+                if (interval) {
+                    clearInterval(interval);
+                }
+                
+                // Complete progress bar
+                const progressBar = document.getElementById('import-progress-bar');
+                const statusText = document.getElementById('import-status-text');
+                
+                if (progressBar) {
+                    progressBar.style.width = '100%';
+                }
+                
+                if (statusText) {
+                    statusText.textContent = 'Import completed!';
+                }
+                
+                // Hide modal after a short delay
+                setTimeout(() => {
+                    importProgressModal.classList.add('hidden');
+                }, 1000);
+            }
+        }
+
+        function getCsrfToken() {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            return csrfToken ? csrfToken.value : '';
+        }
+
+        function showToast(message, type = 'info') {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transition-all duration-300 transform translate-x-full`;
+            
+            // Set toast style based on type
+            switch (type) {
+                case 'success':
+                    toast.classList.add('bg-green-500', 'text-white');
+                    break;
+                case 'error':
+                    toast.classList.add('bg-red-500', 'text-white');
+                    break;
+                case 'warning':
+                    toast.classList.add('bg-yellow-500', 'text-white');
+                    break;
+                default:
+                    toast.classList.add('bg-blue-500', 'text-white');
+            }
+            
+            toast.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span>${message}</span>
+                    <button class="ml-4 text-white hover:text-gray-200" onclick="this.parentElement.parentElement.remove()">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.remove();
+                    }
+                }, 300);
+            }, 5000);
+        }
+    }
+
+    function calculateSummaryTotals() {
+        const rows = document.querySelectorAll('.attendance-row');
+        let totalWorkingHours = 0;
+        let totalLateMinutes = 0;
+        let totalOvertimeMinutes = 0;
+
+        rows.forEach(row => {
+            const workingHours = parseFloat(row.dataset.workingHours) || 0;
+            const lateMinutes = parseInt(row.dataset.lateMinutes) || 0;
+            const overtimeMinutes = parseInt(row.dataset.overtimeMinutes) || 0;
+
+            totalWorkingHours += workingHours;
+            totalLateMinutes += lateMinutes;
+            totalOvertimeMinutes += overtimeMinutes;
+        });
+
+        // Update summary footer
+        const totalWorkingHoursElement = document.getElementById('total-working-hours');
+        const totalLateMinutesElement = document.getElementById('total-late-minutes');
+        const totalOvertimeMinutesElement = document.getElementById('total-overtime-minutes');
+
+        if (totalWorkingHoursElement) {
+            totalWorkingHoursElement.textContent = totalWorkingHours.toFixed(1) + 'h';
+        }
+        if (totalLateMinutesElement) {
+            totalLateMinutesElement.textContent = totalLateMinutes + 'm';
+        }
+        if (totalOvertimeMinutesElement) {
+            totalOvertimeMinutesElement.textContent = totalOvertimeMinutes + 'm';
+        }
+    }
+});
+</script>
+{% endblock %}

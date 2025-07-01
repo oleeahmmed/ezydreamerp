@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block page_title %}Sales Sample Data Setup{% endblock %}
+
+{% block content %}
+<div class="mx-auto">
+    <div class="rounded-xl border-2 bg-[hsl(var(--background))] shadow-lg p-8 mb-6 premium-card relative transition-all duration-300 hover:border-[hsl(var(--primary)/1)] hover:shadow-xl">
+        <div class="absolute inset-0 rounded-xl border-2 border-transparent"></div>
+
+        <!-- Decorative Elements -->
+        <div class="absolute top-0 right-0 w-32 h-6 bg-gradient-to-br from-[hsl(var(--primary))] to-transparent opacity-10 rounded-bl-full"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-6 bg-gradient-to-tr from-[hsl(var(--primary))] to-transparent opacity-10 rounded-tr-full"></div>
+
+        <!-- Form Header -->
+        <div class="mb-8 border-b border-[hsl(var(--border))] pb-6 relative">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-icon">
+                        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" stroke="currentColor" stroke-width="2"/>
+                            <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5C15 6.10457 14.1046 7 13 7H11C9.89543 7 9 6.10457 9 5Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 12H15M12 16H15M9 12H9.01M9 16H9.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-foreground))] bg-clip-text text-transparent">Sales Sample Data Setup</h3>
+                        <p class="text-sm text-[hsl(var(--muted-foreground))]">Import or delete sample data for the sales module</p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-center px-4 py-2 text-xs font-bold rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-badge">
+                    SALES PREMIUM
+                </div>
+            </div>
+        </div>
+
+        <form method="post" class="space-y-6 relative">
+            {% csrf_token %}
+            {% include "common/toast.html" %}
+            {% include 'common/form-details-error.html' %}
+
+            <!-- Form Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Action Selection -->
+                <div>
+                    <div class="relative">
+                        <select id="{{ form.action.id_for_label }}" 
+                            name="{{ form.action.name }}"
+                            class="peer w-full px-3 py-2 rounded-md border-2 border-[hsl(var(--border))] bg-transparent premium-input text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] appearance-none"
+                            required>
+                            <option value="" disabled {% if not form.action.value %}selected{% endif %}></option>
+                            {% for value, label in form.action.field.choices %}
+                                <option value="{{ value }}" 
+                                    class="py-3 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))]"
+                                    {% if form.action.value == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <label for="{{ form.action.id_for_label }}" 
+                            class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                            {{ form.action.label }}<span class="text-red-500">*</span>
+                        </label>
+                        <svg class="absolute right-3 top-3.5 w-5 h-5 pointer-events-none text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% if form.action.errors %}
+                            <div class="text-red-500 text-xs mt-1">
+                                {% for error in form.action.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Include Transactions -->
+                <div>
+                    <div class="flex items-center justify-between p-3 rounded-lg border-2 border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--accent))] transition-all duration-300 mb-4 group">
+                        <div>
+                            <h5 class="text-sm font-medium group-hover:text-[hsl(var(--primary))]">Include Sample Transactions</h5>
+                            <p class="text-xs text-[hsl(var(--muted-foreground))]">Add sample quotations, orders, deliveries, invoices, and returns</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" 
+                                   id="{{ form.include_transactions.id_for_label }}" 
+                                   name="{{ form.include_transactions.name }}"
+                                   class="sr-only peer"
+                                   {% if form.include_transactions.value %}checked{% endif %}>
+                            <div class="w-12 h-6 bg-[hsl(var(--muted))] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[hsl(var(--primary))]"></div>
+                        </label>
+                        {% if form.include_transactions.errors %}
+                            <div class="text-red-500 text-xs mt-1">
+                                {% for error in form.include_transactions.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Information Box -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-blue-500 mt-0.5 mr-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div>
+                        <h4 class="text-sm font-medium text-blue-800">Sample Data Information</h4>
+                        <p class="text-xs text-blue-600 mt-1">
+                            This will create sample sales employees, customers, quotations, orders, deliveries, invoices, and returns. 
+                            Make sure you have inventory items (ITEM001, ITEM002) before importing transactions.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Footer -->
+            <div class="border-t-2 border-[hsl(var(--border))] pt-8 flex flex-col sm:flex-row justify-between items-center gap-6 relative">
+                <div class="text-sm text-[hsl(var(--muted-foreground))]">
+                    <span class="flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-green-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Your sales data is secure and encrypted with premium protection
+                    </span>
+                </div>
+                <div class="flex gap-4">
+                    <a href="{{ cancel_url }}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-11 px-6 py-2 shadow-md">
+                        Cancel
+                    </a>
+                    <button type="reset" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-11 px-6 py-2 shadow-md">
+                        Reset
+                    </button>
+                    <button type="submit" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-11 px-6 py-2 shadow-md premium-button">
+                        Submit
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/select-search.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        makeSelectSearchable('action');  // For action select field
+    });
+</script>
+{% endblock %}

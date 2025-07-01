@@ -1,0 +1,278 @@
+/* Premium Card Styling */
+.premium-card {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.premium-card:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-2px);
+}
+
+.premium-icon {
+    position: relative;
+    overflow: hidden;
+}
+
+.premium-icon::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        to bottom right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(45deg);
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    0% {
+        top: -100%;
+        left: -100%;
+    }
+    100% {
+        top: 100%;
+        left: 100%;
+    }
+}
+
+/* Button Enhancements */
+.premium-button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.premium-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.premium-button::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        to bottom right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(45deg);
+    transition: all 0.3s ease;
+    opacity: 0;
+}
+
+.premium-button:hover::after {
+    animation: button-shine 1s forwards;
+}
+
+@keyframes button-shine {
+    0% {
+        top: -100%;
+        left: -100%;
+        opacity: 0.5;
+    }
+    100% {
+        top: 100%;
+        left: 100%;
+        opacity: 0;
+    }
+}
+
+/* Table Enhancements */
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+table th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    font-weight: 600;
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+table tr {
+    transition: all 0.2s ease;
+}
+
+table tr:hover td {
+    background-color: hsl(var(--accent));
+}
+
+/* Status Badges */
+table td span.rounded-full {
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+table td span.rounded-full:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Receipt and Issue Type Styling */
+table td span.rounded-full:contains("RECEIPT") {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+table td span.rounded-full:contains("ISSUE") {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+/* Action Buttons */
+.table-actions a {
+    transition: all 0.2s ease;
+}
+
+.table-actions a:hover {
+    transform: translateY(-2px);
+}
+
+/* Checkbox Styling */
+input[type="checkbox"] {
+    cursor: pointer;
+    position: relative;
+    width: 1.2rem;
+    height: 1.2rem;
+    border: 2px solid hsl(var(--border));
+    border-radius: 0.25rem;
+    appearance: none;
+    transition: all 0.2s ease;
+    vertical-align: middle;
+}
+
+input[type="checkbox"]:checked {
+    background-color: hsl(var(--primary));
+    border-color: hsl(var(--primary));
+}
+
+input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 0.2rem;
+    left: 0.4rem;
+    width: 0.25rem;
+    height: 0.5rem;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+input[type="checkbox"]:hover {
+    border-color: hsl(var(--primary));
+}
+
+/* Form Controls Enhancement */
+input[type="text"],
+input[type="date"],
+select {
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:hover,
+input[type="date"]:hover,
+select:hover {
+    border-color: hsl(var(--primary));
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+select:focus {
+    box-shadow: 0 0 0 2px hsla(var(--primary), 0.2);
+}
+
+/* Pagination Enhancement */
+.pagination a, .pagination span {
+    transition: all 0.3s ease;
+}
+
+.pagination a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+    .premium-card {
+        padding: 1rem;
+    }
+    
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .table-actions {
+        flex-wrap: wrap;
+    }
+}
+
+/* Dark Mode Enhancements */
+.dark .premium-card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.dark input[type="checkbox"] {
+    border-color: hsl(var(--border));
+}
+
+.dark input[type="checkbox"]:checked {
+    background-color: hsl(var(--primary));
+}
+
+.dark table tr:hover td {
+    background-color: hsl(var(--accent));
+}
+
+/* Animation for row selection */
+@keyframes row-select {
+    0% {
+        background-color: hsla(var(--primary), 0.1);
+    }
+    50% {
+        background-color: hsla(var(--primary), 0.2);
+    }
+    100% {
+        background-color: hsla(var(--primary), 0.1);
+    }
+}
+
+tr.selected {
+    animation: row-select 2s infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+}

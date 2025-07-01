@@ -1,0 +1,122 @@
+{% extends "common/base-list.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block card_header %}
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M16.28 13.61C15.15 14.74 13.53 15.09 12.1 14.64L9.51001 17.22C9.33001 17.41 8.96001 17.53 8.69001 17.49L7.49001 17.33C7.09001 17.28 6.73001 16.9 6.67001 16.51L6.51001 15.31C6.47001 15.04 6.60001 14.68 6.78001 14.49L9.36001 11.91C8.92001 10.48 9.26001 8.86001 10.39 7.73001C12.01 6.11001 14.65 6.11001 16.28 7.73001C17.9 9.34001 17.9 11.98 16.28 13.61Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <div>
+            <h3 class="font-semibold">{% trans "User Management" %}</h3>
+            <p class="text-xs text-[hsl(var(--muted-foreground))]">{% trans "Manage system users" %}</p>
+        </div>
+    </div>
+    <div class="flex items-center gap-2">
+        <form method="get" class="relative">
+            <input type="text" name="search" placeholder="{% trans 'Search users...' %}" 
+                   value="{{ request.GET.search|default:'' }}"
+                   class="w-full px-3 py-2 text-sm rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] pl-9">
+            <svg class="w-4 h-4 absolute left-3 top-2.5 text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </form>
+        <a href="{% url 'permission:user_create' %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-9 px-4 py-2">
+            <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {% trans "Add User" %}
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block list_header %}
+<div class="col-span-4">{% trans "Username" %}</div>
+<div class="col-span-3">{% trans "Email" %}</div>
+<div class="col-span-2">{% trans "Status" %}</div>
+<div class="col-span-3 text-right">{% trans "Actions" %}</div>
+{% endblock %}
+
+{% block list_items %}
+{% for user in users %}
+<div class="grid grid-cols-12 gap-4 p-4 items-center {% if not forloop.last %}border-b border-[hsl(var(--border))]{% endif %} hover:bg-[hsl(var(--accent))] transition-colors duration-200">
+    <div class="col-span-4">
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center w-9 h-9 rounded-lg bg-blue-100 text-blue-600">
+                {{ user.username|first|upper }}
+            </div>
+            <div>
+                <p class="font-medium">{{ user.username }}</p>
+                <p class="text-xs text-[hsl(var(--muted-foreground))]">{% trans "Joined" %} {{ user.date_joined|date:"M d, Y" }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-span-3">
+        {{ user.email }}
+    </div>
+    <div class="col-span-2">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if user.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+            {% if user.is_active %}{% trans "Active" %}{% else %}{% trans "Inactive" %}{% endif %}
+        </span>
+    </div>
+    <div class="col-span-3 flex justify-end">
+        <div class="relative dropdown-container">
+            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] h-9 px-3 dropdown-trigger">
+                <span>{% trans "Actions" %}</span>
+                <svg class="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-[hsl(var(--background))] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dropdown-menu hidden">
+                <div class="py-1">
+                    <a href="{% url 'permission:user_edit' user.id %}" class="flex items-center px-4 py-2 text-sm hover:bg-[hsl(var(--accent))] transition-colors">
+                        <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M11 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22H15C20 22 22 20 22 15V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16.04 3.02001L8.16 10.9C7.86 11.2 7.56 11.79 7.5 12.22L7.07 15.23C6.91 16.32 7.68 17.08 8.77 16.93L11.78 16.5C12.2 16.44 12.79 16.14 13.1 15.84L20.98 7.96001C22.34 6.60001 22.98 5.02001 20.98 3.02001C18.98 1.02001 17.4 1.66001 16.04 3.02001Z" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% trans "Edit User" %}
+                    </a>
+                    <a href="{% url 'permission:user_roles_permissions' user.id %}" class="flex items-center px-4 py-2 text-sm hover:bg-[hsl(var(--accent))] transition-colors">
+                        <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M19.4 15C19.1277 15.8031 19.2583 16.6846 19.75 17.4L19.81 17.49C20.2025 17.8827 20.4111 18.4353 20.3965 19.0054C20.3819 19.5755 20.1452 20.1163 19.73 20.49C19.3148 20.8637 18.7741 21.1004 18.204 21.115C17.6339 21.1296 17.0813 20.921 16.6886 20.5285L16.6 20.47C15.8846 19.9783 15.0031 19.8477 14.2 20.12C13.4101 20.3865 12.7935 21.0031 12.527 21.793L12.5 21.913C12.3724 22.4723 12.0467 22.9654 11.5833 23.3006C11.1199 23.6358 10.5499 23.7947 9.97002 23.7479C9.39016 23.7011 8.8526 23.4519 8.44804 23.0473C8.04348 22.6428 7.79429 22.1052 7.75002 21.5254L7.75002 21.4C7.71821 20.5868 7.32511 19.8372 6.68002 19.34C5.99033 18.8016 5.09577 18.6117 4.25002 18.82C3.68325 18.9861 3.07685 18.9106 2.55811 18.6082C2.03938 18.3057 1.64908 17.8015 1.46002 17.21C1.27478 16.6266 1.30843 15.9926 1.55524 15.4332C1.80205 14.8738 2.24558 14.4303 2.80502 14.1835L2.92502 14.13C3.71416 13.7613 4.29325 13.0844 4.52502 12.27C4.79728 11.4669 4.66672 10.5854 4.17502 9.87L4.11502 9.78C3.72258 9.38734 3.51397 8.83467 3.52858 8.26458C3.54319 7.69449 3.77988 7.15372 4.19502 6.78C4.61017 6.40627 5.15094 6.16959 5.72102 6.15498C6.29111 6.14037 6.84378 6.34897 7.23644 6.74142L7.32502 6.8C8.04044 7.29168 8.92189 7.42224 9.72502 7.15C10.515 6.88347 11.1316 6.26687 11.398 5.47697L11.425 5.357C11.5526 4.79774 11.8783 4.30461 12.3417 3.96941C12.8051 3.6342 13.3751 3.47527 13.955 3.52208C14.5349 3.56889 15.0724 3.81809 15.477 4.22264C15.8815 4.6272 16.1307 5.16476 16.175 5.74462V5.87C16.2068 6.68323 16.5999 7.43277 17.245 7.93C17.9347 8.46843 18.8293 8.65829 19.675 8.45C20.2418 8.28391 20.8482 8.35941 21.3669 8.66185C21.8857 8.96428 22.276 9.46853 22.465 10.06C22.6502 10.6434 22.6166 11.2774 22.3698 11.8368C22.123 12.3962 21.6794 12.8397 21.12 13.0865L20.999 13.14C20.2099 13.5087 19.6308 14.1856 19.399 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% trans "Permissions" %}
+                    </a>
+                    <a href="{% url 'permission:user_delete' user.id %}" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                        <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 5.98C17.67 5.65 14.32 5.48 10.98 5.48C9 5.48 7.02 5.58 5.04 5.78L3 5.98" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8.5 4.97L8.72 3.66C8.88 2.71 9 2 10.69 2H13.31C15 2 15.13 2.75 15.28 3.67L15.5 4.97" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M18.85 9.14L18.2 19.21C18.09 20.78 18 22 15.21 22H8.79C6 22 5.91 20.78 5.8 19.21L5.15 9.14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M10.33 16.5H13.66" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9.5 12.5H14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% trans "Delete" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% empty %}
+<div class="p-4 text-center text-[hsl(var(--muted-foreground))]">
+    {% trans "No users found." %}
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block card_footer %}
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="text-sm text-[hsl(var(--muted-foreground))]">
+        {% trans "Showing" %} {{ users|length }} {% trans "of" %} {{ paginator.count }} {% trans "users" %}
+    </div>
+{% include 'common/pagination.html'%}
+</div>
+{% endblock %}

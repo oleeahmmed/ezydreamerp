@@ -1,0 +1,245 @@
+{% if show_global_settings_menu %}
+<div class="relative">
+    <button data-dropdown-toggle="globalSettingsMenu" class="relative w-full flex items-center px-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'global_settings:' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+        <!-- Active indicator line with animation -->
+        <div class="absolute left-[-4px] top-0 bottom-0 w-[3px] bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.7)] rounded-r-full {% if 'global_settings:' in request.path %}opacity-100{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-all duration-300 shadow-[0_0_8px_rgba(var(--primary),0.5)]"></div>
+        
+        <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-md group-hover:shadow-[0_0_12px_rgba(var(--primary),0.4)] transition-all duration-300 group-hover:scale-105">
+            <!-- Global Settings Module icon -->
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M19.441 15C19.432 15.588 19.818 16.167 19.818 16.818C19.818 19.135 17.964 21 15.818 21C14.879 21 14.016 20.655 13.346 20.074M4.559 9C4.568 8.412 4.182 7.833 4.182 7.182C4.182 4.865 6.036 3 8.182 3C9.121 3 9.984 3.345 10.654 3.926M12 4V3M12 21V20M20 12H21M3 12H4M18 6L17 7M18 18L17 17M7 7L6 6M7 17L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <span class="sidebar-text font-medium group-hover:translate-x-0.5 transition-transform">Global Settings</span>
+        <!-- {% if unread_notification_count %}
+            <span class="ml-2 bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] text-xs font-bold rounded-full px-2 py-1 animate-pulse">{{ unread_notification_count }}</span>
+        {% endif %} -->
+        <svg class="w-4 h-4 ml-auto transition-transform duration-200" id="globalSettingsArrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </button>
+    
+    <!-- Global Settings Submenu -->
+    <div id="globalSettingsMenu" class="{% if 'global_settings:' in request.path %}block animate-fade-in{% else %}hidden{% endif %} mt-2 space-y-1 ml-11 relative">
+        <!-- Submenu vertical line indicator with gradient and glow -->
+        <div class="absolute left-[-14px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-[hsl(var(--primary))] via-[hsl(var(--primary)/0.6)] to-[hsl(var(--primary)/0.2)] rounded-full shadow-[0_0_8px_rgba(var(--primary),0.3)]"></div>
+        
+        <!-- Currency -->
+        <a href="{% url 'global_settings:currency_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'global_settings:currency_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'global_settings:currency_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'global_settings:currency_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 18C10.34 18 9 16.66 9 15C9 13.34 10.34 12 12 12C13.66 12 15 13.34 15 15C15 16.66 13.66 18 12 18ZM13 9H11V7H13V9Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Currency</span>
+                    <span class="text-xs {% if 'global_settings:currency_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage currencies</span>
+                </div>
+            </div>
+        </a>
+        
+        <!-- Payment Terms -->
+        <!-- <a href="{% url 'global_settings:payment_terms_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'global_settings:payment_terms_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'global_settings:payment_terms_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'global_settings:payment_terms_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 16H8V14H12V12H10V10H12V8H8V6H12C13.66 6 15 7.34 15 9C15 10.66 13.66 12 12 12C13.66 12 15 13.34 15 15C15 16.66 13.66 18 12 18V16Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Payment Terms</span>
+                    <span class="text-xs {% if 'global_settings:payment_terms_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage payment terms</span>
+                </div>
+            </div>
+        </a> -->
+        
+        <!-- Company Info -->
+        <a href="{% url 'global_settings:company_info_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'global_settings:company_info_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'global_settings:company_info_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'global_settings:company_info_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 7C3 5.89543 3.89543 5 5 5H19C20.1046 5 21 5.89543 21 7V17C21 18.1046 20.1046 19 19 19H5C3.89543 19 3 18.1046 3 17V7Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 12C13.6569 12 15 10.6569 15 9C15 7.34315 13.6569 6 12 6C10.3431 6 9 7.34315 9 9C9 10.6569 10.3431 12 12 12ZM12 14C9.79086 14 8 15.7909 8 18H16C16 15.7909 14.2091 14 12 14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Company Info</span>
+                    <span class="text-xs {% if 'global_settings:company_info_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage company details</span>
+                </div>
+            </div>
+        </a>
+        
+        <!-- Localization -->
+        <!-- <a href="{% url 'global_settings:localization_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'global_settings:localization_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'global_settings:localization_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'global_settings:localization_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 18C9.79 18 8 16.21 8 14H16C16 16.21 14.21 18 12 18ZM16 12H8C8 9.79 9.79 8 12 8C14.21 8 16 9.79 16 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Localization</span>
+                    <span class="text-xs {% if 'global_settings:localization_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Configure regional settings</span>
+                </div>
+            </div>
+        </a> -->
+        
+        <!-- Accounting Settings -->
+        <a href="{% url 'global_settings:accounting_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'global_settings:accounting_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'global_settings:accounting_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'global_settings:accounting_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 7C3 5.89543 3.89543 5 5 5H19C20.1046 5 21 5.89543 21 7V17C21 18.1046 20.1046 19 19 19H5C3.89543 19 3 18.1046 3 17V7Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M7 9H17M7 13H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Accounting Settings</span>
+                    <span class="text-xs {% if 'global_settings:accounting_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Configure accounting periods</span>
+                </div>
+            </div>
+        </a>
+        
+        <!-- User Settings -->
+        <!-- <a href="{% url 'global_settings:user_settings_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'global_settings:user_settings_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'global_settings:user_settings_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'global_settings:user_settings_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 12C14.2091 12 16 10.2091 16 8C16 5.79086 14.2091 4 12 4C9.79086 4 8 5.79086 8 8C8 10.2091 9.79086 12 12 12ZM12 14C8.68629 14 6 16.6863 6 20H18C18 16.6863 15.3137 14 12 14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">User Settings</span>
+                    <span class="text-xs {% if 'global_settings:user_settings_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Manage user preferences</span>
+                </div>
+            </div>
+        </a> -->
+        
+        <!-- Email Settings -->
+        <!-- <a href="{% url 'global_settings:email_settings_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'global_settings:email_settings_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'global_settings:email_settings_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'global_settings:email_settings_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 8L10.89 13.26C11.2187 13.4793 11.604 13.5963 12 13.5963C12.396 13.5963 12.7813 13.4793 13.11 13.26L21 8M5 19H19C20.1046 19 21 18.1046 21 17V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V17C3 18.1046 3.89543 19 5 19Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Email Settings</span>
+                    <span class="text-xs {% if 'global_settings:email_settings_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Configure email services</span>
+                </div>
+            </div>
+        </a> -->
+        
+        <!-- Tax Settings -->
+<!-- <a href="{% url 'global_settings:tax_settings_list' %}"
+   class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group 
+          {% if 'global_settings:tax_settings_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+    
+    <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] 
+         {% if 'global_settings:tax_settings_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} 
+         transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse">
+    </div>
+
+    <div class="flex items-center">
+        <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg 
+             {% if 'global_settings:tax_settings_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]
+             {% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %}
+             transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 18C10.34 18 9 16.66 9 15C9 13.34 10.34 12 12 12C13.66 12 15 13.34 15 15C15 16.66 13.66 18 12 18ZM12 10H8V8H12V6H16V8H12V10Z"
+                      stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+
+        <div class="flex flex-col">
+            <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Tax Settings</span>
+            <span class="text-xs 
+                 {% if 'global_settings:tax_settings_list' in request.path %}
+                     text-[hsl(var(--foreground))]
+                 {% else %}
+                     text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]
+                 {% endif %} transition-colors">
+                 Configure tax rates
+            </span>
+        </div>
+    </div>
+</a> -->
+
+        
+        <!-- Payment Settings -->
+        <!-- <a href="{% url 'global_settings:payment_settings_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'global_settings:payment_settings_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <div class="absolute left-[-15px] top-1/3 transform-translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'global_settings:payment_settings_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'global_settings:payment_settings_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 7C3 5.89543 3.89543 5 5 5H19C20.1046 5 21 5.89543 21 7V17C21 18.1046 20.1046 19 19 19H5C3.89543 19 3 18.1046 3 17V7Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M7 15C8.10457 15 9 14.1046 9 13C9 11.8954 8.10457 11 7 11C5.89543 11 5 11.8954 5 13C5 14.1046 5.89543 15 7 15Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 9H17M12 13H17M12 17H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Payment Settings</span>
+                    <span class="text-xs {% if 'global_settings:payment_settings_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Configure payment methods</span>
+                </div>
+            </div>
+        </a> -->
+        
+        <!-- Backup Settings -->
+        <!-- <a href="{% url 'global_settings:backup_settings_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'global_settings:backup_settings_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'global_settings:backup_settings_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'global_settings:backup_settings_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52poser 22 6.48 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 16.5L6 12.5L7.41 11.09L10 13.67L16.59 7.09 18 8.5 10 16.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Backup Settings</span>
+                    <span class="text-xs {% if 'global_settings:backup_settings_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Configure backups</span>
+                </div>
+            </div>
+        </a>
+         -->
+        <!-- General Settings -->
+        <!-- <a href="{% url 'global_settings:general_settings_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'global_settings:general_settings_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'global_settings:general_settings_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'global_settings:general_settings_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19.441 15C19.432 15.588 19.818 16.167 19.818 16.818C19.818 19.135 17.964 21 15.818 21H18C20.2091 18 22 20.2091 18 22H18C15.7909 18 18 14 18 14H6M4.559 15C4.568 15.588 4.641 16.167 4.641 13.64C4.641 17.135 6 19 8.146 14C9.085 19 9.948 19.345 10.645 13.926M12 4V3M12 21V20M20 12H21M3 12H4M18 6L17 7M18 18L17 17M7 7L6 6M7 17L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">General Settings</span>
+                    <span class="text-xs {% if 'global_settings:general_settings_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">Configure system settings</span>
+                </div>
+            </div>
+        </a>
+         -->
+        <!-- Notifications -->
+        <a href="{% url 'global_settings:notification_list' %}" class="relative block w-full pl-6 pr-3 py-2 rounded-lg transition-all duration-300 hover:bg-[hsl(var(--accent))] group {% if 'global_settings:notification_list' in request.path %}bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]{% endif %}">
+            <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-[4px] h-[4px] rounded-full bg-[hsl(var(--primary))] {% if 'global_settings:notification_list' in request.path %}opacity-100 animate-pulse{% else %}opacity-0 group-hover:opacity-100{% endif %} transition-opacity shadow-[0_0_5px_rgba(var(--primary),0.7)] group-hover:animate-pulse"></div>
+            <div class="flex items-center">
+                <div class="w-6 h-6 mr-3 flex items-center justify-center rounded-lg {% if 'global_settings:notification_list' in request.path %}bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-[0_0_10px_rgba(var(--primary),0.3)]{% else %}bg-[hsl(var(--muted))] group-hover:bg-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary-foreground))]{% endif %} transition-colors duration-300 shadow-sm group-hover:shadow-[0_0_10px_rgba(var(--primary),0.3)]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C13.1046 22 14 21.1046 14 20H10C10 21.1046 10.8954 22 12 22ZM18 16V11C18 7.93 16.37 5.36 13.5 4.68V4C13.5 3.17 12.83 2.5 12 2.5C11.17 2.5 10.5 3.17 10.5 4V4.68C7.64 5.36 6 7.92 6 11V16L4 18V19H20V18L18 16Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-sm group-hover:translate-x-0.5 transition-transform">Notifications</span>
+                    <span class="text-xs {% if 'global_settings:notification_list' in request.path %}text-[hsl(var(--foreground))]{% else %}text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]{% endif %} transition-colors">View system notifications</span>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+{% endif %}

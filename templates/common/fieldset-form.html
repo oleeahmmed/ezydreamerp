@@ -1,0 +1,486 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class=" mx-auto">
+    <div class="rounded-xl border-2 bg-[hsl(var(--background))] shadow-lg p-8 mb-6 premium-card relative">
+        <!-- Decorative Elements -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[hsl(var(--primary))] to-transparent opacity-10 rounded-bl-full"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-[hsl(var(--primary))] to-transparent opacity-10 rounded-tr-full"></div>
+        
+        <!-- Form Header -->
+        <div class="mb-8 border-b border-[hsl(var(--border))] pb-6 relative z-10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-icon">
+                        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M19.4 15C19.1277 15.8031 19.2583 16.6846 19.75 17.4L19.81 17.49C20.2025 17.8827 20.4111 18.4353 20.3965 19.0054C20.3819 19.5755 20.1452 20.1163 19.73 20.49C19.3148 20.8637 18.7741 21.1004 18.204 21.115C17.6339 21.1296 17.0813 20.921 16.6886 20.5285L16.6 20.47C15.8846 19.9783 15.0031 19.8477 14.2 20.12C13.4101 20.3865 12.7935 21.0031 12.527 21.793L12.5 21.913C12.3724 22.4723 12.0467 22.9654 11.5833 23.3006C11.1199 23.6358 10.5499 23.7947 9.97002 23.7479C9.39016 23.7011 8.8526 23.4519 8.44804 23.0473C8.04348 22.6428 7.79429 22.1052 7.75002 21.5254L7.75002 21.4C7.71821 20.5868 7.32511 19.8372 6.68002 19.34C5.99033 18.8016 5.09577 18.6117 4.25002 18.82C3.68325 18.9861 3.07685 18.9106 2.55811 18.6082C2.03938 18.3057 1.64908 17.8015 1.46002 17.21C1.27478 16.6266 1.30843 15.9926 1.55524 15.4332C1.80205 14.8738 2.24558 14.4303 2.80502 14.1835L2.92502 14.13C3.71416 13.7613 4.29325 13.0844 4.52502 12.27C4.79728 11.4669 4.66672 10.5854 4.17502 9.87L4.11502 9.78C3.72258 9.38734 3.51397 8.83467 3.52858 8.26458C3.54319 7.69449 3.77988 7.15372 4.19502 6.78C4.61017 6.40627 5.15094 6.16959 5.72102 6.15498C6.29111 6.14037 6.84378 6.34897 7.23644 6.74142L7.32502 6.8C8.04044 7.29168 8.92189 7.42224 9.72502 7.15C10.515 6.88347 11.1316 6.26687 11.398 5.47697L11.425 5.357C11.5526 4.79774 11.8783 4.30461 12.3417 3.96941C12.8051 3.6342 13.3751 3.47527 13.955 3.52208C14.5349 3.56889 15.0724 3.81809 15.477 4.22264C15.8815 4.6272 16.1307 5.16476 16.175 5.74462V5.87C16.2068 6.68323 16.5999 7.43277 17.245 7.93C17.9347 8.46843 18.8293 8.65829 19.675 8.45C20.2418 8.28391 20.8482 8.35941 21.3669 8.66185C21.8857 8.96428 22.276 9.46853 22.465 10.06C22.6502 10.6434 22.6166 11.2774 22.3698 11.8368C22.123 12.3962 21.6794 12.8397 21.12 13.0865L20.999 13.14C20.2099 13.5087 19.6308 14.1856 19.399 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-foreground))] bg-clip-text text-transparent">{{ title }}</h3>
+                        <p class="text-sm text-[hsl(var(--muted-foreground))]">Update your {{ model_name }} information</p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-center px-4 py-2 text-xs font-bold rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] shadow-md premium-badge">
+                    PREMIUM PLUS
+                </div>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-8 relative z-10">
+            {% csrf_token %}
+            {% include "common/toast.html" %}
+
+            <!-- Form Errors Summary -->
+            {% if form.errors %}
+            <div class="mb-6 p-4 rounded-lg border-2 border-red-500 bg-red-50">
+                <div class="flex items-start mb-2">
+                    <svg class="w-6 h-6 mr-2 text-red-600 mt-0.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <div>
+                        <h4 class="text-lg font-semibold text-red-700">Please correct the following errors:</h4>
+                        <ul class="mt-2 list-disc list-inside text-red-600">
+                            {% for field in form %}
+                                {% if field.errors %}
+                                    {% for error in field.errors %}
+                                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <!-- Two Column Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+{% for fieldset in form.fieldsets %}
+    <div class="space-y-8">
+        <div class="bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] rounded-xl p-6 border-2 border-[hsl(var(--border))] shadow-md hover:shadow-lg transition-all duration-300 premium-section">
+            <h4 class="text-base font-bold mb-6 flex items-center text-[hsl(var(--foreground))]">
+                <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    {% if fieldset.icon == 'user' %}
+                        <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+                        <path d="M20 21C20 16.5817 16.4183 13 12 13C7.58172 13 4 16.5817 4 21" stroke="currentColor" stroke-width="2"/>
+                    {% elif fieldset.icon == 'briefcase' %}
+                        <path d="M20 7H4C2.89543 7 2 7.89543 2 9V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V9C22 7.89543 21.1046 7 20 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 21V5C16 4.46957 15.7893 3.96086 15.4142 3.58579C15.0391 3.21071 14.5304 3 14 3H10C9.46957 3 8.96086 3.21071 8.58579 3.58579C8.21071 3.96086 8 4.46957 8 5V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    {% else %}
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    {% endif %}
+                </svg>
+                {{ fieldset.title }}
+            </h4>
+            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-4">{{ fieldset.description }}</p>
+
+            {% for field_name in fieldset.fields %}
+                {% for field in form %}
+                    {% if field.name == field_name %}
+                        <div class="relative mb-6">
+                            {% if field.field.widget.input_type == 'text' or field.field.widget.input_type == 'email' or field.field.widget.input_type == 'password' or field.field.widget.input_type == 'number' %}
+                            <!-- Text, Email, Password, Number Input -->
+                            <div class="relative">
+                                <input type="{{ field.field.widget.input_type }}" 
+                                    id="{{ field.id_for_label }}" 
+                                    name="{{ field.name }}"
+                                    class="peer w-full px-3 py-3 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent {% if is_disabled %}cursor-not-allowed opacity-70{% endif %}" 
+                                    placeholder="{{ field.label }}"
+                                    value="{{ field.value|default:'' }}"
+                                    {% if field.field.required %}required{% endif %}
+                                    {% if field.field.widget.attrs.min %}min="{{ field.field.widget.attrs.min }}"{% endif %}
+                                    {% if field.field.widget.attrs.max %}max="{{ field.field.widget.attrs.max }}"{% endif %}
+                                    {% if is_disabled %}disabled{% endif %}>
+                                <label for="{{ field.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                    {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                {% if field.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in field.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                        {% elif field.field.widget.input_type == 'date' %}
+                            <!-- Date Input -->
+                            <div class="relative">
+                                <div class="relative">
+                                    <input type="date" 
+                                        id="{{ field.id_for_label }}" 
+                                        name="{{ field.name }}"
+                                        class="peer w-full px-3 py-3 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1  transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent {% if is_disabled %}cursor-not-allowed opacity-70{% endif %}" 
+                                        placeholder="{{ field.label }}"
+                                        value="{{ field.value|date:'Y-m-d'|default:'' }}"
+                                        {% if field.field.required %}required{% endif %}
+                                        {% if is_disabled %}disabled{% endif %}>
+                                    <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute right-3 top-3 text-[hsl(var(--muted-foreground))]">
+                                        <path d="M8 2v4"></path>
+                                        <path d="M16 2v4"></path>
+                                        <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+                                        <path d="M3 10h18"></path>
+                                    </svg> -->
+                                    <label for="{{ field.id_for_label }}" 
+                                        class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                        {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                                    </label>
+                                    {% if field.errors %}
+                                        <div class="text-red-500 text-xs mt-1">
+                                            {% for error in field.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+								{% elif field.field.widget.input_type == 'url' %}
+									<!-- URL Input -->
+									<div class="relative">
+										<input type="url" 
+											id="{{ field.id_for_label }}" 
+											name="{{ field.name }}" 
+											value="{{ field.value|default:'' }}"
+											class="peer w-full px-3 py-3 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent {% if is_disabled %}cursor-not-allowed opacity-70{% endif %}"
+											placeholder="{{ field.label }}"
+											{% if field.field.required %}required{% endif %}
+											{% if is_disabled %}disabled{% endif %}>
+										<label for="{{ field.id_for_label }}" 
+											class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+											{{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+										</label>
+										{% if field.errors %}
+											<div class="text-red-500 text-xs mt-1">
+												{% for error in field.errors %}
+													<p>{{ error }}</p>
+												{% endfor %}
+											</div>
+										{% endif %}
+									</div>
+                        {% elif field.field.widget.input_type == 'time' %}
+                            <!-- Time Input -->
+                            <div class="relative">
+                                <div class="relative">
+                                    <input type="time" 
+                                        id="{{ field.id_for_label }}" 
+                                        name="{{ field.name }}"
+                                        class="peer w-full px-3 py-3 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent {% if is_disabled %}cursor-not-allowed opacity-70{% endif %}" 
+                                        placeholder="{{ field.label }}"
+                                        value="{{ field.value|time:'H:i'|default:'' }}"
+                                        {% if field.field.required %}required{% endif %}
+                                        {% if is_disabled %}disabled{% endif %}>
+                                    <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute right-3 top-3 text-[hsl(var(--muted-foreground))]">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg> -->
+                                    <label for="{{ field.id_for_label }}" 
+                                        class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                        {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                                    </label>
+                                    {% if field.errors %}
+                                        <div class="text-red-500 text-xs mt-1">
+                                            {% for error in field.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                        {% elif field.field.widget.input_type == 'color' %}
+                            <!-- Color Input -->
+                            <div class="relative">
+                                <input type="color" 
+                                    id="{{ field.id_for_label }}" 
+                                    name="{{ field.name }}"
+                                    class="peer w-full h-10 px-1 py-1 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] cursor-pointer {% if is_disabled %}cursor-not-allowed opacity-70{% endif %}"
+                                    value="{{ field.value|default:'#000000' }}"
+                                    {% if field.field.required %}required{% endif %}
+                                    {% if is_disabled %}disabled{% endif %}>
+                                <label for="{{ field.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:text-[hsl(var(--primary))]">
+                                    {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                {% if field.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in field.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                        {% elif field.field.widget.input_type == 'range' %}
+                            <!-- Range Input -->
+                            <div>
+                                <label for="{{ field.id_for_label }}" class="block text-sm mb-2">{{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}</label>
+                                <input type="range" 
+                                    id="{{ field.id_for_label }}" 
+                                    name="{{ field.name }}"
+                                    min="{{ field.field.widget.attrs.min|default:0 }}" 
+                                    max="{{ field.field.widget.attrs.max|default:100 }}"
+                                    value="{{ field.value|default:0 }}"
+                                    class="w-full h-2 bg-[hsl(var(--secondary))] rounded-full appearance-none cursor-pointer focus:outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[hsl(var(--primary))] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:duration-200 [&::-webkit-slider-thumb]:hover:scale-110 {% if is_disabled %}cursor-not-allowed opacity-70{% endif %}"
+                                    {% if field.field.required %}required{% endif %}
+                                    {% if is_disabled %}disabled{% endif %}>
+                                {% if field.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in field.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                        {% elif field.field.widget.input_type == 'select' %}
+                            <!-- Select Input -->
+                            <div class="relative">
+                                <select id="{{ field.id_for_label }}" 
+                                    name="{{ field.name }}"
+                                    class="peer w-full px-3 py-3 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] appearance-none {% if is_disabled %}cursor-not-allowed opacity-70{% endif %}"
+                                    {% if field.field.required %}required{% endif %}
+                                    {% if is_disabled %}disabled{% endif %}>
+                                    <option value="" disabled {% if not field.value %}selected{% endif %}></option>
+                                    {% for choice in field.field.choices %}
+                                        <option value="{{ choice.0 }}" 
+                                            class="py-3 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))]"
+                                            {% if field.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                            {{ choice.1 }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <label for="{{ field.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                    {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                <svg class="absolute right-3 top-3.5 w-5 h-5 pointer-events-none text-[hsl(var(--muted-foreground))]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                {% if field.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in field.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                        {% elif field.field.widget.input_type == 'select-multiple' %}
+                            <!-- Multiple Select -->
+                            <div class="relative">
+                                <select id="{{ field.id_for_label }}" 
+                                    name="{{ field.name }}" 
+                                    multiple 
+                                    size="3"
+                                    class="peer w-full px-3 py-3 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] {% if is_disabled %}cursor-not-allowed opacity-70{% endif %}"
+                                    {% if field.field.required %}required{% endif %}
+                                    {% if is_disabled %}disabled{% endif %}>
+                                    {% for choice in field.field.choices %}
+                                        <option value="{{ choice.0 }}" 
+                                            class="py-2 px-3 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))] [&:checked]:bg-[hsl(var(--primary))] [&:checked]:text-[hsl(var(--primary-foreground))]"
+                                            {% if choice.0 in field.value %}selected{% endif %}>
+                                            {{ choice.1 }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <label for="{{ field.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:text-[hsl(var(--primary))]">
+                                    {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                {% if field.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in field.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                        {% elif field.field.widget.input_type == 'radio' %}
+                            <!-- Radio Buttons -->
+                            <fieldset class="space-y-2 bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] rounded-md p-4 border border-[hsl(var(--border))]">
+                                <legend class="text-sm font-medium px-2 -ml-1">{{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}</legend>
+                                {% for choice in field.field.choices %}
+                                    <div class="flex items-center gap-2">
+                                        <input type="radio" 
+                                            id="{{ field.id_for_label }}_{{ forloop.counter }}" 
+                                            name="{{ field.name }}" 
+                                            value="{{ choice.0 }}"
+                                            class="appearance-none w-5 h-5 rounded-full border-2 border-[hsl(var(--border))] checked:border-[hsl(var(--primary))] relative cursor-pointer transition-all duration-200 after:content-[''] after:absolute after:opacity-0 after:w-2.5 after:h-2.5 after:bg-[hsl(var(--primary))] after:rounded-full after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 checked:after:opacity-100 {% if is_disabled %}cursor-not-allowed opacity-70{% endif %}"
+                                            {% if field.value|stringformat:"s" == choice.0|stringformat:"s" %}checked{% endif %}
+                                            {% if field.field.required %}required{% endif %}
+                                            {% if is_disabled %}disabled{% endif %}>
+                                        <label for="{{ field.id_for_label }}_{{ forloop.counter }}" class="text-[hsl(var(--foreground))] cursor-pointer">{{ choice.1 }}</label>
+                                    </div>
+                                {% endfor %}
+                                {% if field.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in field.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </fieldset>
+
+                        {% elif field.field.widget.input_type == 'checkbox' %}
+                            {% if field.field.choices %}
+                                <!-- Checkbox Group -->
+                                <fieldset class="space-y-2 bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] rounded-md p-4 border border-[hsl(var(--border))]">
+                                    <legend class="text-sm font-medium px-2 -ml-1">{{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}</legend>
+                                    {% for choice in field.field.choices %}
+                                        <div class="flex items-center p-2 rounded-md border border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--accent))] transition-all duration-200">
+                                            <input type="checkbox" 
+                                                id="{{ field.id_for_label }}_{{ forloop.counter }}" 
+                                                name="{{ field.name }}" 
+                                                value="{{ choice.0 }}"
+                                                class="appearance-none w-6 h-6 rounded-md border-2 border-[hsl(var(--border))] checked:bg-[hsl(var(--primary))] checked:border-[hsl(var(--primary))] relative cursor-pointer transition-all duration-200 after:content-[''] after:absolute after:opacity-0 after:w-1 after:h-2 after:border-r-2 after:border-b-2 after:border-[hsl(var(--primary-foreground))] after:rotate-45 after:top-1/2 after:left-1/2 after:-translate-y-[60%] after:-translate-x-1/2 checked:after:opacity-100 mr-3 {% if is_disabled %}cursor-not-allowed opacity-70{% endif %}"
+                                                {% if choice.0 in field.value %}checked{% endif %}
+                                                {% if is_disabled %}disabled{% endif %}>
+                                            <label for="{{ field.id_for_label }}_{{ forloop.counter }}" class="text-[hsl(var(--foreground))] cursor-pointer">{{ choice.1 }}</label>
+                                        </div>
+                                    {% endfor %}
+                                    {% if field.errors %}
+                                        <div class="text-red-500 text-xs mt-1">
+                                            {% for error in field.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </fieldset>
+                            {% else %}
+                                <!-- Single Checkbox / Toggle -->
+                                <div class="flex items-center gap-2 bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] rounded-md p-4 border border-[hsl(var(--border))]">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" 
+                                            id="{{ field.id_for_label }}" 
+                                            name="{{ field.name }}" 
+                                            class="sr-only peer"
+                                            {% if field.value %}checked{% endif %}
+                                            {% if field.field.required %}required{% endif %}
+                                            {% if is_disabled %}disabled{% endif %}>
+                                        <div class="w-11 h-6 bg-[hsl(var(--muted))] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[hsl(var(--primary))] {% if is_disabled %}cursor-not-allowed opacity-70{% endif %}"></div>
+                                        <span class="ml-3 text-sm font-medium">{{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}</span>
+                                    </label>
+                                    {% if field.errors %}
+                                        <div class="text-red-500 text-xs mt-1">
+                                            {% for error in field.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+
+                        {% elif field.field.widget.input_type == 'file' %}
+                            <!-- File Input -->
+                            <div class="relative ">
+                                <input type="file" 
+                                    id="{{ field.id_for_label }}" 
+                                    name="{{ field.name }}"
+                                    class="peer w-full px-3 py-3 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] file:bg-[hsl(var(--secondary))] file:text-[hsl(var(--secondary-foreground))] file:border-0 file:px-4 file:py-2 file:mr-4 file:rounded-md file:cursor-pointer file:hover:bg-[hsl(var(--accent))] file:transition-all {% if is_disabled %}cursor-not-allowed opacity-70 file:cursor-not-allowed{% endif %}"
+                                    {% if field.field.required %}required{% endif %}
+                                    {% if is_disabled %}disabled{% endif %}>
+                                {% if field.value %}
+                                <div class="mt-2 flex items-center">
+                                    <span class="text-sm text-[hsl(var(--muted-foreground))]">Current: {{ field.value }}</span>
+                                </div>
+                                {% endif %}
+                                <label for="{{ field.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:text-[hsl(var(--primary))]">
+                                    {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                {% if field.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in field.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                        {% elif field.field.widget.input_type == 'textarea' %}
+                            <!-- Textarea -->
+                            <div class="relative ">
+                                <textarea id="{{ field.id_for_label }}" 
+                                    name="{{ field.name }}" 
+                                    rows="4" 
+                                    class="peer w-full px-3 py-3 rounded-md border-2 border-[hsl(var(--border))] bg-transparent text-[hsl(var(--foreground))] transition-all duration-200 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-1 focus:ring-[hsl(var(--primary))] focus:bg-[hsl(var(--accent))] placeholder-transparent {% if is_disabled %}cursor-not-allowed opacity-70{% endif %}" 
+                                    placeholder="{{ field.label }}"
+                                    {% if field.field.required %}required{% endif %}
+                                    {% if is_disabled %}disabled{% endif %}>{{ field.value|default:'' }}</textarea>
+                                <label for="{{ field.id_for_label }}" 
+                                    class="absolute left-3 -top-2.5 px-1 text-sm transition-all duration-300 bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))] peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-3 peer-placeholder-shown:text-base">
+                                    {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                {% if field.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in field.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        
+                        {% else %}
+                            <!-- Fallback for any other field types -->
+                            <div class="relative">
+                                {{ field }}
+                                <label for="{{ field.id_for_label }}" class="block text-sm font-medium mb-1">
+                                    {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                                </label>
+                                {% if field.errors %}
+                                    <div class="text-red-500 text-xs mt-1">
+                                        {% for error in field.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+{% endfor %}
+            </div>
+
+            <!-- Form Footer -->
+            <div class="border-t-2 border-[hsl(var(--border))] pt-8 flex flex-col sm:flex-row justify-between items-center gap-6 relative z-10">
+                <div class="text-sm text-[hsl(var(--muted-foreground))]">
+                    <span class="flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-green-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Your data is secure and encrypted with premium protection
+                    </span>
+                </div>
+                <div class="flex gap-4">
+                    <a href="{{ cancel_url }}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-11 px-6 py-2 shadow-md">
+                        Cancel
+                    </a>
+                    <button type="submit" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-11 px-6 py-2 shadow-md premium-button">
+                        <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12L10 17L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

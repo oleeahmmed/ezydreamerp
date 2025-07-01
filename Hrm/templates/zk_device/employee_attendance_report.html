@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold">{% trans "Attendance Report" %}</h1>
+    <form method="post" class="space-y-4 mt-4">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label for="{{ form.start_date.id_for_label }}" class="block text-sm font-medium">
+                    {% trans "Start Date" %}
+                </label>
+                {{ form.start_date }}
+            </div>
+            <div>
+                <label for="{{ form.end_date.id_for_label }}" class="block text-sm font-medium">
+                    {% trans "End Date" %}
+                </label>
+                {{ form.end_date }}
+            </div>
+        </div>
+        <div class="flex justify-end">
+            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                {% trans "Generate Report" %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block table_headers %}
+{% if attendance_data %}
+<tr>
+    <th class="px-4 py-2">{% trans "Employee ID" %}</th>
+    <th class="px-4 py-2">{% trans "Employee Name" %}</th>
+    <th class="px-4 py-2">{% trans "Date" %}</th>
+    <th class="px-4 py-2">{% trans "In Time" %}</th>
+    <th class="px-4 py-2">{% trans "Out Time" %}</th>
+</tr>
+{% endif %}
+{% endblock %}
+
+{% block table_body %}
+{% if attendance_data %}
+    {% for record in attendance_data %}
+    <tr class="border-b">
+        <td class="px-4 py-2">{{ record.user_id }}</td>
+        <td class="px-4 py-2">{{ record.employee_name }}</td>
+        <td class="px-4 py-2">{{ record.date }}</td>
+        <td class="px-4 py-2">{{ record.in_time }}</td>
+        <td class="px-4 py-2">{{ record.out_time }}</td>
+    </tr>
+    {% endfor %}
+{% else %}
+    <tr>
+        <td colspan="5" class="px-4 py-2 text-center">
+            {% trans "No records found. Select a date range and click 'Generate Report'." %}
+        </td>
+    </tr>
+{% endif %}
+{% endblock %}
+
+{% block empty_colspan %}5{% endblock %}

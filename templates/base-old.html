@@ -1,0 +1,420 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Base theme (always included) -->
+    <link rel="stylesheet" href="{% static 'css/default-theme.css' %}">
+    <!-- Theme-specific CSS (loaded conditionally by JavaScript) -->
+    <link id="theme-css" rel="stylesheet" href="">
+
+    <!-- Google Fonts - Premium-Like Selection -->
+    <link rel="stylesheet" id="fontStylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&family=Montserrat:wght@300;400;700&family=Inter:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Raleway:wght@300;400;700&display=swap">
+
+    {% block extra_css %}{% endblock %}
+
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif; /* Default premium font */
+            font-weight: 400;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        .dropdown-menu {
+            animation: slideDown 0.3s ease forwards;
+        }
+
+        .dropdown-menu.closing {
+            animation: slideUp 0.3s ease forwards;
+        }
+        
+        /* Theme icons */
+        .theme-light {
+            display: none;
+        }
+        
+        .theme-dark {
+            display: none;
+        }
+        
+        .theme-system {
+            display: none;
+        }
+        
+        /* For manual theme switching */
+        [data-theme="dark"] .light-pattern {
+            display: none;
+        }
+        [data-theme="dark"] .dark-pattern {
+            display: block;
+        }
+
+        [data-theme="light"] .light-pattern {
+            display: block;
+        }
+        [data-theme="light"] .dark-pattern {
+            display: none;
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: hsl(var(--background));
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: hsl(var(--muted));
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: hsl(var(--muted-foreground));
+        }
+        
+        /* Topbar dropdown animation */
+        .topbar-dropdown {
+            position: absolute;
+            right: 0;
+            margin-top: 0.5rem;
+            width: 12rem;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        .premium-input {
+            transition: all 0.3s ease;
+            background: linear-gradient(
+                to right,
+                hsl(var(--background)) 0%,
+                hsl(var(--muted)) 50%,
+                hsl(var(--background)) 100%
+            );
+        }
+
+        .premium-input:focus {
+            background: hsl(var(--background));
+            box-shadow: 0 0 0 2px hsl(var(--background)),
+                       0 0 0 4px hsl(var(--primary) / 0.1);
+        }
+
+        .sidebar-collapsed .sidebar-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            transition: opacity 0.2s ease-in-out, width 0.2s ease-in-out;
+        }
+
+        .sidebar-expanded .sidebar-text {
+            opacity: 1;
+            width: auto;
+            transition: opacity 0.2s ease-in-out, width 0.2s ease-in-out;
+        }
+
+        /* Mobile sidebar overlay */
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-backdrop.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Layout container */
+        .layout-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        #sidebar {
+            height: 100vh;
+            transition: width 0.3s ease;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 10;
+        }
+
+        /* Main content area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin-left: 0 !important; /* Override any inline styles */
+        }
+
+        /* Mobile sidebar styles */
+        @media (max-width: 768px) {
+            #sidebar {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                height: 100%;
+                z-index: 50;
+                transition: left 0.3s ease;
+                width: var(--sidebar-width) !important;
+            }
+            
+            #sidebar.mobile-open {
+                left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+        }
+    </style>
+    {% block custom_css %}{% endblock %}
+</head>
+<body class="bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
+    
+    <!-- Mobile sidebar backdrop -->
+    <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+    
+    <div class="layout-container">
+        <!-- Sidebar -->
+        {% include "inc/sidebar.html"%}
+
+        <div class="main-content">
+            <!-- Topbar -->
+            <header class="h-14 bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))]
+            border-b border-[hsl(var(--border))] px-4 flex items-center justify-between">
+                <!-- Left side -->
+                <div class="flex items-center space-x-4">
+                    <button id="toggleSidebar" class="p-2 rounded-lg hover:bg-[hsl(var(--accent))] transition-colors">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="text-sm font-medium">{% block page_title %}Dashboard{% endblock %}</div>
+                </div>
+
+                
+                <!-- Right side -->
+                <div class="flex items-center space-x-4">
+                    <!-- Language Switcher -->
+                    <!-- Premium Language Switcher (Tailwind CSS only) -->
+                    <div class="relative language-switcher">
+                        <form action="{% url 'set_language' %}" method="post">
+                            {% csrf_token %}
+                            <input name="next" type="hidden" value="{{ request.path }}">
+                            <div class="relative">
+                                {% get_current_language as CURRENT_LANGUAGE %}
+                                {% get_available_languages as AVAILABLE_LANGUAGES %}
+                                {% get_language_info_list for AVAILABLE_LANGUAGES as languages %}
+                                
+                                <div class="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2 text-[hsl(var(--primary))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                                    </svg>
+                                    <select 
+                                        name="language" 
+                                        onchange="this.form.submit()" 
+                                        class="appearance-none bg-[hsl(var(--background))] border border-[hsl(var(--border))] rounded-md pl-2 pr-8 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary)/0.3)] focus:border-[hsl(var(--primary))] transition-all cursor-pointer hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]"
+                                    >
+                                        {% for language in languages %}
+                                            <option 
+                                                value="{{ language.code }}" 
+                                                {% if language.code == CURRENT_LANGUAGE %}selected{% endif %}
+                                                class="py-1"
+                                            >
+                                                {{ language.name_local }} ({{ language.code }})
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[hsl(var(--primary))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Open Sheet Button -->
+                    <button id="openSheetBtn" class="p-2 rounded-lg hover:bg-[hsl(var(--accent))] transition-colors">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13 5H21M21 5V13M21 5L13 13M11 19H3M3 19V11M3 19L11 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <!-- Theme Toggle Button and Dropdown -->
+                    {% include "inc/theme-dropdown.html"%}
+                      
+                    <div class="relative">
+                        <button id="fontToggle" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-xs font-medium bg-gradient-to-r from-[hsl(var(--primary)/0.8)] to-[hsl(var(--primary)/1.2)] text-[hsl(var(--primary-foreground))] hover:opacity-90 h-9 px-4 py-2 shadow-md transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 16h6m-3-3v6M6 4h12M6 20h6M6 10h12M6 16h6" />
+                            </svg>
+                            <span>Change Font</span>
+                        </button>
+
+                        <div id="fontDropdown" class="hidden absolute right-0 mt-2 w-48 bg-[hsl(var(--popover))] text-[hsl(var(--popover-foreground))] shadow-lg rounded-md border border-[hsl(var(--border))] z-10">
+                            <button class="font-option w-full text-left px-4 py-2 hover:bg-[hsl(var(--muted))] transition" data-font="Poppins">Poppins</button>
+                            <button class="font-option w-full text-left px-4 py-2 hover:bg-[hsl(var(--muted))] transition" data-font="Montserrat">Montserrat</button>
+                            <button class="font-option w-full text-left px-4 py-2 hover:bg-[hsl(var(--muted))] transition" data-font="Inter">Inter</button>
+                            <button class="font-option w-full text-left px-4 py-2 hover:bg-[hsl(var(--muted))] transition" data-font="Playfair Display">Playfair Display</button>
+                            <button class="font-option w-full text-left px-4 py-2 hover:bg-[hsl(var(--muted))] transition" data-font="Raleway">Raleway</button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="flex-1 overflow-auto p-4">
+                {% block content %}
+                <div class="grid gap-4">
+                    <div class="grid gap-4 md:grid-cols-3">
+                        <div class="h-32 rounded-lg bg-[hsl(var(--muted))]"></div>
+                        <div class="h-32 rounded-lg bg-[hsl(var(--muted))]"></div>
+                        <div class="h-32 rounded-lg bg-[hsl(var(--muted))]"></div>
+                    </div>
+                    <div class="h-[500px] rounded-lg bg-[hsl(var(--muted))]"></div>
+                </div>
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Sheet Component (Using Tailwind CSS classes) -->
+    {% include 'inc/sheet.html'%}
+    <div class="relative py-12">
+        {% include 'inc/mobile-bottom-menu.html'%}
+    </div>
+    <!-- Mobile Bottom Menu (Only visible on mobile) -->
+    {% block extra_js %}{% endblock %}
+    <script src="{% static 'js/theme-toggle.js'%}"></script>
+    <script>document.getElementById('themeToggle').addEventListener('click', function() {
+        const dropdown = document.getElementById('themeDropdown');
+        dropdown.classList.toggle('hidden');
+      });</script>
+    <script>
+        // Toggle sidebar for both desktop and mobile
+        document.getElementById('toggleSidebar').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            
+            // Check if we're on mobile
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('mobile-open');
+                backdrop.classList.toggle('active');
+            } else {
+                // Desktop behavior - just toggle the sidebar width
+                if (sidebar.style.width === 'var(--sidebar-width-collapsed)') {
+                    sidebar.style.width = 'var(--sidebar-width)';
+                    sidebar.classList.remove('sidebar-collapsed');
+                    sidebar.classList.add('sidebar-expanded');
+                } else {
+                    sidebar.style.width = 'var(--sidebar-width-collapsed)';
+                    sidebar.classList.remove('sidebar-expanded');
+                    sidebar.classList.add('sidebar-collapsed');
+                }
+            }
+        });
+        
+        // Close sidebar when clicking outside on mobile
+        document.getElementById('sidebarBackdrop').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            
+            sidebar.classList.remove('mobile-open');
+            backdrop.classList.remove('active');
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            
+            if (window.innerWidth <= 768) {
+                // Reset to mobile view
+                sidebar.classList.remove('mobile-open');
+                backdrop.classList.remove('active');
+            } else {
+                // Reset to desktop view based on sidebar state
+                if (sidebar.classList.contains('sidebar-collapsed')) {
+                    sidebar.style.width = 'var(--sidebar-width-collapsed)';
+                } else {
+                    sidebar.style.width = 'var(--sidebar-width)';
+                }
+            }
+        });
+        
+        // Initialize sidebar state on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            
+            if (window.innerWidth <= 768) {
+                // Mobile view - no need to set width
+            } else {
+                // Desktop view - default to expanded
+                sidebar.style.width = 'var(--sidebar-width)';
+                sidebar.classList.add('sidebar-expanded');
+            }
+        });
+    </script>
+   <script src="{% static 'js/toggle.js' %}"></script>
+  <script src="{% static 'js/toast.js' %}"></script>
+  <script src="{% static 'js/sheet.js' %}"></script>
+  <script src="{% static 'js/font-switch.js' %}"></script>
+
+    {% block custom_js %}{% endblock %}
+</body>
+</html>

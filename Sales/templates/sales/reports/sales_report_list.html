@@ -1,0 +1,761 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    Sales Reports
+{% endblock %}
+
+{% block page_title %}
+    Sales Reports
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .card-container {
+            display: none;
+        }
+        .card-container.visible {
+            display: block;
+        }
+            .gradient-header {
+        background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.7) 100%);
+    }
+        /* Single Card Design - Double Border like Sales Dashboard */
+        .card-design {
+            background: hsl(var(--card));
+            border: 2px solid hsl(var(--border));
+            border-radius: var(--radius);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            height: 280px; /* Fixed height */
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card-design::after {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border: 1px solid hsl(var(--primary) / 0.2);
+            border-radius: calc(var(--radius) - 4px);
+            transition: all 0.3s ease;
+        }
+        
+        .card-design:hover {
+            transform: translateY(-4px);
+            border-color: hsl(var(--primary) / 0.3);
+            box-shadow: 0 10px 25px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
+        }
+        
+        .card-design:hover::after {
+            border-color: hsl(var(--primary) / 0.4);
+        }
+        
+        /* Card content positioning */
+        .card-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+        }
+        
+        /* Enhanced icon containers */
+        .icon-container {
+            background: linear-gradient(135deg, hsl(var(--primary)/0.1), hsl(var(--primary)/0.05));
+            border: 1px solid hsl(var(--primary)/0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-design:hover .icon-container {
+            background: linear-gradient(135deg, hsl(var(--primary)/0.15), hsl(var(--primary)/0.1));
+            transform: scale(1.05);
+        }
+        
+        /* Enhanced badges */
+        .status-badge {
+            background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)/0.8));
+            color: hsl(var(--primary-foreground));
+            border-radius: calc(var(--radius) - 2px);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgb(0 0 0 / 0.1);
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+        }
+        
+        /* Enhanced search and filters */
+        .search-input {
+            background-color: hsl(var(--background));
+            border: 1px solid hsl(var(--border));
+            color: hsl(var(--foreground));
+            border-radius: var(--radius);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(8px);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: hsl(var(--primary));
+            box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+        }
+        
+        .filter-button {
+            background-color: transparent;
+            color: hsl(var(--foreground));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .filter-button:hover {
+            background-color: hsl(var(--accent));
+            color: hsl(var(--accent-foreground));
+            border-color: hsl(var(--primary)/0.3);
+            transform: translateY(-1px);
+        }
+        
+        .filter-button.active {
+            background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)/0.8));
+            color: hsl(var(--primary-foreground));
+            border-color: hsl(var(--primary));
+        }
+        
+        /* Enhanced animations */
+        .fade-in {
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+        
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px) scale(0.95);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+        .stagger-5 { animation-delay: 0.5s; }
+        .stagger-6 { animation-delay: 0.6s; }
+        
+        /* Enhanced header */
+        .gradient-text {
+            background: linear-gradient(135deg, hsl(var(--foreground)), hsl(var(--foreground)/0.7));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Enhanced search container */
+        .search-container {
+            background: linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted)/0.3));
+            border: 1px solid hsl(var(--border));
+            border-radius: calc(var(--radius) + 4px);
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+        }
+        
+        /* Enhanced grid */
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        @media (min-width: 768px) {
+            .reports-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .reports-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (min-width: 1280px) {
+            .reports-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        /* Arrow animation */
+        .arrow-icon {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .group:hover .arrow-icon {
+            transform: translateX(4px) scale(1.1);
+        }
+        
+        /* Main container background */
+        .main-container {
+            background-image: 
+                radial-gradient(circle at 25% 25%, hsl(var(--primary)/0.03) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, hsl(var(--primary)/0.03) 0%, transparent 50%);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-[hsl(var(--background))] main-container">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <header class="gradient-header text-white py-6 px-4 shadow-lg">
+        <div class="container mx-auto text-center">
+            <h1 class="text-3xl font-bold">                Sales Reports
+</h1>
+            <p class="text-sm opacity-85 mt-1">Comprehensive analytics and reporting tools to drive your sales performance and insights</p>
+        </div>
+    </header>
+
+        <!-- Enhanced Search Container -->
+       <div class="mb-12 fade-in stagger-1">
+    <div class="search-container max-w-4xl mx-auto">
+        <div class="relative mb-6">
+            <svg class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input 
+                type="text" 
+                id="searchInput" 
+                class="search-input h-11 w-full pl-10 pr-4 bg-white/90 border border-[hsl(var(--border))] rounded-full focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] shadow-sm text-[hsl(var(--foreground))] placeholder-[hsl(var(--muted-foreground))] text-sm" 
+                placeholder="Search reports and analytics..."
+            >
+        </div>
+        
+        <!-- Enhanced Filter Buttons -->
+        <div class="flex flex-wrap gap-3 justify-center">
+            <span class="text-sm text-[hsl(var(--muted-foreground))] font-medium self-center">Quick filters:</span>
+            <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="">
+                <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                All Reports
+            </button>
+            <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="Sales">
+                <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Sales
+            </button>
+            <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="Delivery">
+                <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-3-3m0 0l-3 3m3-3v12a2 2 0 01-2 2H9a2 2 0 01-2-2V7m7 0H7m0 0l-3 3m3-3l3-3" />
+                </svg>
+                Delivery
+            </button>
+            <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="Quotation">
+                <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2m-5 0a1 1 0 001 1h2a1 1 0 001-1m-6 5h12m-6 4h6" />
+                </svg>
+                Quotation
+            </button>
+            <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="Return">
+                <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                </svg>
+                Return
+            </button>
+            <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="Invoice">
+                <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01m-.01 4h.01" />
+                </svg>
+                Invoice
+            </button>
+            <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="Employee">
+                <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                Employee
+            </button>
+            <button class="filter-button px-4 py-2 h-9 text-sm flex items-center" data-filter="Dashboard">
+                <svg class="h-5 w-5 mr-2 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                </svg>
+                Dashboard
+            </button>
+        </div>
+    </div>
+</div>
+
+        <!-- Enhanced Cards Grid -->
+        <div class="reports-grid">
+            
+            <!-- Card 1: Sales Order Report -->
+            <div class="card-container visible fade-in stagger-1" data-heading="Sales Order Report" data-category="Sales">
+                <a href="{% url 'Sales:sales_report' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="icon-container h-12 w-12 rounded-xl flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                </div>
+                                <span class="status-badge px-3 py-1.5">Active</span>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Sales Order Report</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Comprehensive analysis of sales orders with detailed insights and performance metrics.
+                            </p>
+                            
+                            <div class="flex items-center text-[hsl(var(--primary))] font-medium mt-auto">
+                                <span>View Report</span>
+                                <svg class="arrow-icon ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card 2: Product Sales Report -->
+            <div class="card-container visible fade-in stagger-2" data-heading="Sales Order With Product Report" data-category="Sales">
+                <a href="{% url 'Sales:sales_report_details' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="icon-container h-12 w-12 rounded-xl flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                    </svg>
+                                </div>
+                                <span class="status-badge px-3 py-1.5">Active</span>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Product Sales Report</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Detailed product-wise sales analysis with inventory tracking and performance insights.
+                            </p>
+                            
+                            <div class="flex items-center text-[hsl(var(--primary))] font-medium mt-auto">
+                                <span>View Report</span>
+                                <svg class="arrow-icon ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card 3: Employee Summary -->
+            <div class="card-container visible fade-in stagger-3" data-heading="Sales Employee Summary" data-category="Employee">
+                <a href="{% url 'Sales:sales_employee_sales_summary' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="icon-container h-12 w-12 rounded-xl flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                </div>
+                                <span class="status-badge px-3 py-1.5">Active</span>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Employee Summary</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Track individual employee performance and sales achievements across teams.
+                            </p>
+                            
+                            <div class="flex items-center text-[hsl(var(--primary))] font-medium mt-auto">
+                                <span>View Summary</span>
+                                <svg class="arrow-icon ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card 4: Sales Dashboard -->
+            <div class="card-container visible fade-in stagger-4" data-heading="Sales Dashboard" data-category="Dashboard">
+                <a href="{% url 'Sales:dashboard' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="icon-container h-12 w-12 rounded-xl flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                                    </svg>
+                                </div>
+                                <span class="status-badge px-3 py-1.5">Live</span>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Sales Dashboard</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Real-time sales overview with interactive charts and performance indicators.
+                            </p>
+                            
+                            <div class="flex items-center text-[hsl(var(--primary))] font-medium mt-auto">
+                                <span>Open Dashboard</span>
+                                <svg class="arrow-icon ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card 5: Delivery Report -->
+            <div class="card-container visible fade-in stagger-5" data-heading="Delivery Report" data-category="Delivery">
+                <a href="{% url 'Sales:delivery_report' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="icon-container h-12 w-12 rounded-xl flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <span class="status-badge px-3 py-1.5">Active</span>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Delivery Report</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Comprehensive delivery tracking with status updates and performance analytics.
+                            </p>
+                            
+                            <div class="flex items-center text-[hsl(var(--primary))] font-medium mt-auto">
+                                <span>View Report</span>
+                                <svg class="arrow-icon ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card 6: Delivery Report Details -->
+            <div class="card-container visible fade-in stagger-6" data-heading="Delivery Report Details" data-category="Delivery">
+                <a href="{% url 'Sales:delivery_report_details' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="icon-container h-12 w-12 rounded-xl flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 21 7 21 17 21C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12H15M9 16H12" />
+                                    </svg>
+                                </div>
+                                <span class="status-badge px-3 py-1.5">Active</span>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Delivery Details</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Detailed breakdown of delivery line items with advanced filtering and analytics.
+                            </p>
+                            
+                            <div class="flex items-center text-[hsl(var(--primary))] font-medium mt-auto">
+                                <span>View Details</span>
+                                <svg class="arrow-icon ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card 7: Sales Quotation Report -->
+            <div class="card-container visible fade-in stagger-1" data-heading="Sales Quotation Report" data-category="Quotation">
+                <a href="{% url 'Sales:sales_quotation_report' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="icon-container h-12 w-12 rounded-xl flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                </div>
+                                <span class="status-badge px-3 py-1.5">Active</span>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Sales Quotation Report</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Comprehensive analysis of sales quotations with conversion rates and validity tracking.
+                            </p>
+                            
+                            <div class="flex items-center text-[hsl(var(--primary))] font-medium mt-auto">
+                                <span>View Report</span>
+                                <svg class="arrow-icon ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card 8: Sales Quotation Report Details -->
+            <div class="card-container visible fade-in stagger-2" data-heading="Sales Quotation Report Details" data-category="Quotation">
+                <a href="{% url 'Sales:sales_quotation_report_details' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="icon-container h-12 w-12 rounded-xl flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 21 7 21 17 21C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12H15M9 16H12" />
+                                    </svg>
+                                </div>
+                                <span class="status-badge px-3 py-1.5">Active</span>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Quotation Details</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Detailed breakdown of quotation line items with advanced filtering and pricing analysis.
+                            </p>
+                            
+                            <div class="flex items-center text-[hsl(var(--primary))] font-medium mt-auto">
+                                <span>View Details</span>
+                                <svg class="arrow-icon ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card 9: Return Report -->
+            <div class="card-container visible fade-in stagger-3" data-heading="Return Report" data-category="Return">
+                <a href="{% url 'Sales:return_report' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="icon-container h-12 w-12 rounded-xl flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                    </svg>
+                                </div>
+                                <span class="status-badge px-3 py-1.5">Active</span>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Return Report</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Comprehensive overview of product returns with reason analysis and trends.
+                            </p>
+                            
+                            <div class="flex items-center text-[hsl(var(--primary))] font-medium mt-auto">
+                                <span>View Report</span>
+                                <svg class="arrow-icon ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card 10: Return Report Details -->
+            <div class="card-container visible fade-in stagger-4" data-heading="Return Report Details" data-category="Return">
+                <a href="{% url 'Sales:return_report_details' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="icon-container h-12 w-12 rounded-xl flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 21 7 21 17 21C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 818 8v2M3 10l6 6m-6-6l6-6" />
+                                    </svg>
+                                </div>
+                                <span class="status-badge px-3 py-1.5">Active</span>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">Return Details</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Detailed breakdown of return line items with advanced filtering and reason codes.
+                            </p>
+                            
+                            <div class="flex items-center text-[hsl(var(--primary))] font-medium mt-auto">
+                                <span>View Details</span>
+                                <svg class="arrow-icon ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card 11: AR Invoice Report -->
+            <div class="card-container visible fade-in stagger-5" data-heading="AR Invoice Report" data-category="Invoice">
+                <a href="{% url 'Sales:ar_invoice_report' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="icon-container h-12 w-12 rounded-xl flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <span class="status-badge px-3 py-1.5">Active</span>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">AR Invoice Report</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Detailed accounts receivable invoice analysis with payment statuses and aging reports.
+                            </p>
+                            
+                            <div class="flex items-center text-[hsl(var(--primary))] font-medium mt-auto">
+                                <span>View Report</span>
+                                <svg class="arrow-icon ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card 12: AR Invoice Report Details -->
+            <div class="card-container visible fade-in stagger-6" data-heading="AR Invoice Report Details" data-category="Invoice">
+                <a href="{% url 'Sales:ar_invoice_report_details' %}" class="block group h-full">
+                    <div class="card-design">
+                        <div class="card-content">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="icon-container h-12 w-12 rounded-xl flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 21 7 21 17 21C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01" />
+                                    </svg>
+                                </div>
+                                <span class="status-badge px-3 py-1.5">Active</span>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold mb-3 text-[hsl(var(--foreground))]">AR Invoice Details</h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-6 leading-relaxed">
+                                Detailed breakdown of accounts receivable invoice line items with comprehensive analytics.
+                            </p>
+                            
+                            <div class="flex items-center text-[hsl(var(--primary))] font-medium mt-auto">
+                                <span>View Details</span>
+                                <svg class="arrow-icon ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Enhanced No Results State -->
+        <div id="noResults" class="text-center py-16 hidden">
+            <div class="max-w-md mx-auto p-8 rounded-2xl border-2 dashed border-[hsl(var(--border))] bg-gradient-to-br from-[hsl(var(--muted)/0.3)] to-[hsl(var(--muted)/0.1)]">
+                <div class="h-16 w-16 rounded-2xl bg-[hsl(var(--muted))] mx-auto mb-6 flex items-center justify-center">
+                    <svg class="h-8 w-8 text-[hsl(var(--muted-foreground))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="font-bold text-xl mb-3 text-[hsl(var(--foreground))]">No reports found</h3>
+                <p class="text-[hsl(var(--muted-foreground))] leading-relaxed">
+                    We couldn't find any reports matching your search. Try adjusting your search terms or browse all available reports.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Enhanced search functionality with category filtering
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        filterCards(searchTerm, '');
+    });
+
+    // Enhanced filter functionality
+    document.querySelectorAll('.filter-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const filterCategory = this.getAttribute('data-filter');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            // Remove active state from all buttons
+            document.querySelectorAll('.filter-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active state to clicked button
+            this.classList.add('active');
+            
+            filterCards(searchTerm, filterCategory);
+        });
+    });
+
+    function filterCards(searchTerm, category) {
+        const cards = document.querySelectorAll('.card-container');
+        const noResults = document.getElementById('noResults');
+        let visibleCount = 0;
+        
+        cards.forEach((card, index) => {
+            const heading = card.getAttribute('data-heading').toLowerCase();
+            const cardCategory = card.getAttribute('data-category') || '';
+            
+            const matchesSearch = heading.includes(searchTerm);
+            const matchesCategory = category === '' || cardCategory === category;
+            
+            if (matchesSearch && matchesCategory) {
+                card.classList.add('visible');
+                // Re-apply stagger animation
+                card.style.animationDelay = `${(visibleCount % 6) * 0.1}s`;
+                visibleCount++;
+            } else {
+                card.classList.remove('visible');
+            }
+        });
+        
+        // Show/hide no results with animation
+        if (visibleCount === 0) {
+            noResults.classList.remove('hidden');
+            noResults.style.animation = 'fadeInUp 0.5s ease-out';
+        } else {
+            noResults.classList.add('hidden');
+        }
+    }
+
+    // Add intersection observer for scroll animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Observe all cards for scroll animations
+    document.querySelectorAll('.card-container').forEach(card => {
+        observer.observe(card);
+    });
+
+    // Initialize with "All Reports" filter active
+    document.querySelector('.filter-button[data-filter=""]').classList.add('active');
+</script>
+{% endblock %}
