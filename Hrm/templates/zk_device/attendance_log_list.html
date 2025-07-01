@@ -27,8 +27,6 @@
 
 
 
-
-
     <a href="{% url 'hrm:zk_device_sync' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--accent-sync)/0.8)] to-[hsl(var(--accent-sync)/1.2)] text-[hsl(var(--accent-sync-foreground))] hover:opacity-90 h-10 px-4 py-2 shadow-md premium-button" aria-label="Sync data">
         <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M16.023 9.348H21.015V4.356" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -39,7 +37,25 @@
         {% trans "Sync Data" %}
     </a>
 
-    {% if can_export %}
+    <a href="{% url 'hrm:zk-attendance-import' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--accent-sync)/0.8)] to-[hsl(var(--accent-sync)/1.2)] text-[hsl(var(--accent-sync-foreground))] hover:opacity-90 h-10 px-4 py-2 shadow-md premium-button" aria-label="Sync data">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16.023 9.348H21.015V4.356" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16.023 9.348C15.4537 8.79776 14.7874 8.35788 14.0602 8.047C13.333 7.73612 12.557 7.55945 11.7695 7.5245C10.982 7.48955 10.1955 7.59702 9.44866 7.84165C8.70183 8.08628 8.00752 8.46328 7.404 8.952C6.80048 9.44072 6.2973 10.0336 5.91876 10.6987C5.54023 11.3637 5.2929 12.0903 5.18854 12.8417C5.08418 13.5931 5.12473 14.3562 5.30763 15.0941C5.49053 15.832 5.81233 16.5331 6.255 17.16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7.977 14.652H2.985V19.644" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7.977 14.652C8.54634 15.2022 9.21264 15.6421 9.93983 15.953C10.667 16.2639 11.443 16.4405 12.2305 16.4755C13.018 16.5104 13.8045 16.403 14.5513 16.1583C15.2982 15.9137 15.9925 15.5367 16.596 15.048C17.1995 14.5593 17.7027 13.9664 18.0812 13.3013C18.4598 12.6363 18.7071 11.9097 18.8115 11.1583C18.9158 10.4069 18.8753 9.64383 18.6924 8.90595C18.5095 8.16806 18.1877 7.46695 17.745 6.84" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Import Process Attendance" %}
+    </a>
+    <a href="{% url 'hrm:zk-overtime-import' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--accent-sync)/0.8)] to-[hsl(var(--accent-sync)/1.2)] text-[hsl(var(--accent-sync-foreground))] hover:opacity-90 h-10 px-4 py-2 shadow-md premium-button" aria-label="Sync data">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16.023 9.348H21.015V4.356" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16.023 9.348C15.4537 8.79776 14.7874 8.35788 14.0602 8.047C13.333 7.73612 12.557 7.55945 11.7695 7.5245C10.982 7.48955 10.1955 7.59702 9.44866 7.84165C8.70183 8.08628 8.00752 8.46328 7.404 8.952C6.80048 9.44072 6.2973 10.0336 5.91876 10.6987C5.54023 11.3637 5.2929 12.0903 5.18854 12.8417C5.08418 13.5931 5.12473 14.3562 5.30763 15.0941C5.49053 15.832 5.81233 16.5331 6.255 17.16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7.977 14.652H2.985V19.644" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7.977 14.652C8.54634 15.2022 9.21264 15.6421 9.93983 15.953C10.667 16.2639 11.443 16.4405 12.2305 16.4755C13.018 16.5104 13.8045 16.403 14.5513 16.1583C15.2982 15.9137 15.9925 15.5367 16.596 15.048C17.1995 14.5593 17.7027 13.9664 18.0812 13.3013C18.4598 12.6363 18.7071 11.9097 18.8115 11.1583C18.9158 10.4069 18.8753 9.64383 18.6924 8.90595C18.5095 8.16806 18.1877 7.46695 17.745 6.84" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {% trans "Import Process Overtime" %}
+    </a>
+    <!-- {% if can_export %}
     <a href="{% url 'hrm:zk_attendance_log_export' %}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--secondary)/0.8)] to-[hsl(var(--secondary)/1.2)] text-[hsl(var(--secondary-foreground))] hover:opacity-90 h-10 px-4 py-2 shadow-md premium-button" aria-label="Export to CSV">
         <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -58,7 +74,7 @@
         </svg>
         {% trans "Bulk Delete" %}
     </button>
-    {% endif %}
+    {% endif %} -->
 </div>
 {% endblock %}
 

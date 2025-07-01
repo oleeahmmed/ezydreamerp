@@ -496,7 +496,7 @@
                             <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">🔥 Advanced Processing</h4>
                             <div class="space-y-4">
                                 <div class="flex items-center">
-                                    <input type="checkbox" id="enable_dynamic_shift_detection" name="enable_dynamic_shift_detection" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <input type="checkbox" id="enable_dynamic_shift_detection" name="enable_dynamic_shift_detection" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
                                     <label for="enable_dynamic_shift_detection" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Enable Dynamic Shift Detection</label>
                                 </div>
                                 <div>
@@ -1088,7 +1088,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 hideImportProgress();
                 console.error('Import error:', error);
-                showToast('Import failed due to network error', 'error');
+                // showToast('Import failed due to network error', 'error');
             });
         }
 

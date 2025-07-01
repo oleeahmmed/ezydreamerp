@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Dashboard{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-           <!-- <script src="{% static 'js/tailwindcss34.16.js' %}"></script> -->
+           <script src="{% static 'js/tailwindcss34.16.js' %}"></script>
 
     <!-- Base theme (always included) -->
     <link rel="stylesheet" href="{% static 'css/default-theme.css' %}">
@@ -320,7 +320,7 @@
             </header>
 
             <!-- Main Content -->
-            <main class="flex-1 overflow-auto p-4">
+            <main class="flex-1 overflow-auto p-4 bg-[hsl(var(--muted))]">
                 {% block content %}
                 <div class="grid gap-4">
                     <div class="grid gap-4 md:grid-cols-3">

@@ -412,7 +412,7 @@ urlpatterns = [
     path('attendance/import/save/', AttendanceImportSaveView.as_view(), name='attendance-import-save'),   
 
         # Overtime Import (new)
-    path('overtime/import/', OvertimeImportView.as_view(), name='overtime-import'),
+    path('overtime/import/', OvertimeImportView.as_view(), name='zk-overtime-import'),
     path('overtime/import/save/', OvertimeImportSaveView.as_view(), name='overtime-import-save'),
     # Payroll Reports
     path('payroll/reports/payslip/', PayslipReportView.as_view(), name='payroll-payslip'),

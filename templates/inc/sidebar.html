@@ -73,18 +73,22 @@
             {% endif %}
 
 {% include 'permission-menu.html' %}
+{% comment "Optional note about these includes" %}
 
-{% include 'business-partner-menu.html' %}
+ {% include 'business-partner-menu.html' %}
 {% include 'global_settings_menu.html' %}
 {% include 'production-menu.html' %}
 {% include 'inventory-menu.html' %}
 {% include 'sales-menu.html' %}
 {% include 'purchase-menu.html' %}
 {% include 'finance-menu.html' %}
+
+{% include 'banking-menu.html' %} 
+
+{% endcomment %}
+
 {% include 'hrm-menu.html' %}
 {% include 'payroll-menu.html' %}
-{% include 'banking-menu.html' %}
-
 
 <div class="mt-6 pt-6 border-t border-[hsl(var(--border))]">
                     <h3 class="px-3 mb-2 text-xs font-medium text-[hsl(var(--muted-foreground))]">QUICK ACTIONS</h3>
@@ -95,15 +99,34 @@
                                     <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
                                 </svg>
                             </div>
-                            <span class="text-xs font-medium sidebar-text">New Order</span>
+                           <a href="{% url 'hrm:zk_device_sync' %}" >  <span class="text-xs font-medium sidebar-text"> </span>Device Sync  </span></a>
                         </button>
                         <button class="flex flex-col items-center justify-center p-4 rounded-lg border border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--primary))] transition-all duration-300 group premium-card">
                             <div class="flex items-center justify-center w-8 h-8 mb-2 rounded-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] transform group-hover:scale-110 transition-transform">
                                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                                </svg>
+                                </svg> 
                             </div>
-                            <span class="text-xs font-medium sidebar-text">Add User</span>
+                          <a href="{% url 'hrm:report-list' %}"  > <span class="text-xs font-medium sidebar-text"> Reports </span></a>
+                        </button>
+
+                         <button class="flex flex-col items-center justify-center p-4 rounded-lg border border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--primary))] transition-all duration-300 group premium-card">
+                            <div class="flex items-center justify-center w-8 h-8 mb-2 rounded-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] transform group-hover:scale-110 transition-transform">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg> 
+                            </div>
+                          <a href="{% url 'hrm:zk-attendance-import' %}"  > <span class="text-xs font-medium sidebar-text"> Attendance Final </span></a>
+                        </button>
+
+
+                       <button class="flex flex-col items-center justify-center p-4 rounded-lg border border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--primary))] transition-all duration-300 group premium-card">
+                            <div class="flex items-center justify-center w-8 h-8 mb-2 rounded-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] transform group-hover:scale-110 transition-transform">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg> 
+                            </div>
+                          <a href="{% url 'hrm:zk-overtime-import' %}"  > <span class="text-xs font-medium sidebar-text"> Overtime  Final </span></a>
                         </button>
                     </div>
                 </div>

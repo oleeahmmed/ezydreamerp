@@ -3,22 +3,17 @@
 
 {% block content %}
 <div class="w-full mx-auto p-3 sm:p-6">
-    <div class="rounded-2xl border-2 bg-[hsl(var(--background))] shadow-2xl p-6 sm:p-10 mb-8 premium-card relative overflow-hidden">
+    <div class="rounded-2xl border-2 bg-[hsl(var(--background-card))] shadow-2xl p-6 sm:p-10 mb-8 premium-card relative overflow-hidden">
         <!-- Enhanced Decorative Elements -->
-        <div class="absolute top-0 right-0 w-32 sm:w-40 h-32 sm:h-40 bg-gradient-to-br from-[hsl(var(--primary)/0.15)] to-transparent opacity-20 rounded-bl-full"></div>
-        <div class="absolute bottom-0 left-0 w-32 sm:w-40 h-32 sm:h-40 bg-gradient-to-tr from-[hsl(var(--primary)/0.15)] to-transparent opacity-20 rounded-tr-full"></div>
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-[hsl(var(--primary)/0.05)] to-[hsl(var(--accent)/0.05)] rounded-full blur-3xl"></div>
+        <div class="absolute top-0 right-0 w-32 sm:w-40 h-32 sm:h-40 bg-gradient-to-br from-[hsl(var(--primary)/0.08)] to-transparent opacity-20 rounded-bl-full"></div>
+        <div class="absolute bottom-0 left-0 w-32 sm:w-40 h-32 sm:h-40 bg-gradient-to-tr from-[hsl(var(--primary)/0.08)] to-transparent opacity-20 rounded-tr-full"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-[hsl(var(--primary)/0.03)] to-[hsl(var(--accent)/0.03)] rounded-full blur-3xl"></div>
         
         <!-- Enhanced Form Header -->
         <div class="mb-8 sm:mb-12 border-b border-[hsl(var(--border))] pb-6 sm:pb-8 relative z-10">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
                 <div class="flex items-center gap-4 sm:gap-6">
-                    <div class="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[hsl(var(--primary)/0.9)] to-[hsl(var(--primary)/1.1)] text-[hsl(var(--primary-foreground))] shadow-xl premium-icon">
-                        <svg class="w-8 h-8 sm:w-10 sm:h-10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2"/>
-                            <path d="M19.4 15C19.1277 15.8031 19.2583 16.6846 19.75 17.4L19.81 17.49C20.2025 17.8827 20.4111 18.4353 20.3965 19.0054C20.3819 19.5755 20.1452 20.1163 19.73 20.49C19.3148 20.8637 18.7741 21.1004 18.204 21.115C17.6339 21.1296 17.0813 20.921 16.6886 20.5285L16.6 20.47C15.8846 19.9783 15.0031 19.8477 14.2 20.12C13.4101 20.3865 12.7935 21.0031 12.527 21.793L12.5 21.913C12.3724 22.4723 12.0467 22.9654 11.5833 23.3006C11.1199 23.6358 10.5499 23.7947 9.97002 23.7479C9.39016 23.7011 8.8526 23.4519 8.44804 23.0473C8.04348 22.6428 7.79429 22.1052 7.75002 21.5254L7.75002 21.4C7.71821 20.5868 7.32511 19.8372 6.68002 19.34C5.99033 18.8016 5.09577 18.6117 4.25002 18.82C3.68325 18.9861 3.07685 18.9106 2.55811 18.6082C2.03938 18.3057 1.64908 17.8015 1.46002 17.21C1.27478 16.6266 1.30843 15.9926 1.55524 15.4332C1.80205 14.8738 2.24558 14.4303 2.80502 14.1835L2.92502 14.13C3.71416 13.7613 4.29325 13.0844 4.52502 12.27C4.79728 11.4669 4.66672 10.5854 4.17502 9.87L4.11502 9.78C3.72258 9.38734 3.51397 8.83467 3.52858 8.26458C3.54319 7.69449 3.77988 7.15372 4.19502 6.78C4.61017 6.40627 5.15094 6.16959 5.72102 6.15498C6.29111 6.14037 6.84378 6.34897 7.23644 6.74142L7.32502 6.8C8.04044 7.29168 8.92189 7.42224 9.72502 7.15C10.515 6.88347 11.1316 6.26687 11.398 5.47697L11.425 5.357C11.5526 4.79774 11.8783 4.30461 12.3417 3.96941C12.8051 3.6342 13.3751 3.47527 13.955 3.52208C14.5349 3.56889 15.0724 3.81809 15.477 4.22264C15.8815 4.6272 16.1307 5.16476 16.175 5.74462V5.87C16.2068 6.68323 16.5999 7.43277 17.245 7.93C17.9347 8.46843 18.8293 8.65829 19.675 8.45C20.2418 8.28391 20.8482 8.35941 21.3669 8.66185C21.8857 8.96428 22.276 9.46853 22.465 10.06C22.6502 10.6434 22.6166 11.2774 22.3698 11.8368C22.123 12.3962 21.6794 12.8397 21.12 13.0865L20.999 13.14C20.2099 13.5087 19.6308 14.1856 19.399 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
+   
                     <div>
                         <h3 class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent-foreground))] bg-clip-text text-transparent mb-2">{{ title }}</h3>
                         <p class="text-sm sm:text-base text-[hsl(var(--muted-foreground))] font-medium">Update your {{ model_name }} information with enhanced controls</p>
@@ -31,16 +26,16 @@
         </div>
 
         <!-- Enhanced Scrollable Responsive Tabs Navigation -->
-        <div class="relative mb-8 sm:mb-10">
+        <div class="relative mb-8 sm:mb-10 p-4 sm:p-6 rounded-2xl border-2 border-[hsl(var(--border-light))] bg-gradient-to-br from-[hsl(var(--background-tabs-start))] to-[hsl(var(--background-tabs-end))] shadow-inner-lg"> {# MODIFIED: Added custom variables for tabs background and inner shadow #}
             <!-- Scroll Left Button -->
-            <button id="scrollLeft" class="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-[hsl(var(--background))] border-2 border-[hsl(var(--border))] rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--primary))]">
+            <button id="scrollLeft" class="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-[hsl(var(--background-card))] border-2 border-[hsl(var(--border))] rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--primary))]">
                 <svg class="w-5 h-5 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))]" viewBox="0 0 24 24" fill="none">
                     <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </button>
             
             <!-- Scroll Right Button -->
-            <button id="scrollRight" class="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-[hsl(var(--background))] border-2 border-[hsl(var(--border))] rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--primary))]">
+            <button id="scrollRight" class="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-[hsl(var(--background-card))] border-2 border-[hsl(var(--border))] rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto hover:bg-[hsl(var(--accent))] hover:border-[hsl(var(--primary))]">
                 <svg class="w-5 h-5 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))]" viewBox="0 0 24 24" fill="none">
                     <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -55,7 +50,7 @@
                             id="tab-{{ fieldset.title|slugify }}"
                             role="tab"
                             data-tab="{{ fieldset.title|slugify }}"
-                            class="tab-button flex items-center gap-3 px-4 py-3.5 sm:px-6 sm:py-4 rounded-xl whitespace-nowrap transition-all duration-300 flex-shrink-0 min-w-fit shadow-md hover:shadow-lg group {% if forloop.first %}bg-gradient-to-r from-[hsl(var(--primary)/0.9)] to-[hsl(var(--primary)/1.1)] text-[hsl(var(--primary-foreground))] shadow-lg active-tab{% else %}text-[hsl(var(--muted-foreground))] bg-[hsl(var(--muted)/0.5)] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]{% endif %}"
+                            class="tab-button flex items-center gap-3 px-4 py-3.5 sm:px-6 sm:py-4 rounded-xl premium-input whitespace-nowrap transition-all duration-300 flex-shrink-0 min-w-fit shadow-md hover:shadow-lg group {% if forloop.first %}bg-gradient-to-r from-[hsl(var(--primary)/0.9)] to-[hsl(var(--primary)/1.1)] text-[hsl(var(--primary-foreground))] shadow-lg active-tab{% else %}text-[hsl(var(--muted-foreground))] bg-[hsl(var(--background-tab-inactive))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] border-2 border-[hsl(var(--border-light))]{% endif %}" {# MODIFIED: Inactive tab background and border #}
                         >
                             <div class="flex items-center justify-center transition-transform duration-300 {% if forloop.first %}scale-110{% endif %}">
                                 <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -104,8 +99,8 @@
                 </div>
                 
                 <!-- Enhanced Gradient Scroll Indicators -->
-                <div id="leftGradient" class="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[hsl(var(--background))] to-transparent pointer-events-none opacity-0 transition-opacity duration-300 z-10"></div>
-                <div id="rightGradient" class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[hsl(var(--background))] to-transparent pointer-events-none opacity-0 transition-opacity duration-300 z-10"></div>
+                <div id="leftGradient" class="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[hsl(var(--background-tabs-start))] to-transparent pointer-events-none opacity-0 transition-opacity duration-300 z-10"></div> {# MODIFIED: Updated gradient color to match new tabs wrapper background #}
+                <div id="rightGradient" class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[hsl(var(--background-tabs-end))] to-transparent pointer-events-none opacity-0 transition-opacity duration-300 z-10"></div> {# MODIFIED: Updated gradient color to match new tabs wrapper background #}
             </div>
 
             <!-- Mobile Scroll Indicators (Dots) -->
@@ -122,11 +117,10 @@
         <form method="post" enctype="multipart/form-data" class="space-y-6 sm:space-y-8 relative z-10">
             {% csrf_token %}
             
-            {% include "common/toast.html" %}
 
             <!-- Enhanced Form Errors Summary -->
             {% if form.errors %}
-            <div class="mb-6 sm:mb-8 p-4 sm:p-6 rounded-xl border-2 border-red-500 bg-gradient-to-r from-red-50 to-red-100 shadow-lg">
+            <div class="mb-6 sm:mb-8 p-4 sm:p-6 rounded-xl premium-input border-2 border-red-500 bg-gradient-to-r from-red-50 to-red-100 shadow-lg">
                 <div class="flex items-start mb-3">
                     <svg class="w-6 h-6 sm:w-7 sm:h-7 mr-3 text-red-600 mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
@@ -154,8 +148,8 @@
 
             <!-- Enhanced Content Container -->
             <div class="mt-8 sm:mt-10 relative">
-                <div class="absolute inset-0 bg-gradient-to-br from-[hsl(var(--primary)/0.03)] to-[hsl(var(--accent)/0.03)] opacity-50 blur-3xl rounded-2xl"></div>
-                <div class="relative bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted)/0.3)] border-2 border-[hsl(var(--border))] rounded-2xl p-6 sm:p-8 shadow-xl">
+                <div class="absolute inset-0 bg-gradient-to-br from-[hsl(var(--primary)/0.02)] to-[hsl(var(--accent)/0.02)] opacity-50 blur-3xl rounded-2xl"></div> {# MODIFIED: Reduced opacity for a softer glow #}
+                <div class="relative bg-[hsl(var(--background-content))] border-2 border-[hsl(var(--border))] rounded-2xl p-6 sm:p-8 shadow-xl"> {# MODIFIED: Custom variable for content background #}
                     {% for fieldset in form.fieldsets %}
                     <div
                         id="content-{{ fieldset.title|slugify }}"
@@ -172,7 +166,7 @@
                                             <input type="{{ field.field.widget.input_type }}" 
                                                 id="{{ field.id_for_label }}" 
                                                 name="{{ field.name }}"
-                                                class="peer w-full px-4 py-4 rounded-xl border-2 {% if field.errors %}border-red-500 bg-red-50{% else %}border-[hsl(var(--border))]{% endif %} bg-[hsl(var(--background))] text-[hsl(var(--foreground))] transition-all duration-300 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-4 focus:ring-[hsl(var(--primary)/0.1)] focus:bg-[hsl(var(--accent)/0.3)] placeholder-transparent {% if field.field.widget.attrs.readonly %}bg-[hsl(var(--muted))] cursor-not-allowed{% endif %} {% if is_disabled %}cursor-not-allowed opacity-70{% endif %} text-base font-medium shadow-sm hover:shadow-md group-hover:border-[hsl(var(--primary)/0.5)]" 
+                                                class="peer w-full px-4 py-4 rounded-xl premium-input border-2 {% if field.errors %}border-red-500 bg-red-50{% else %}border-[hsl(var(--border))]{% endif %} bg-[hsl(var(--background-input))] text-[hsl(var(--foreground))] transition-all duration-300 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-4 focus:ring-[hsl(var(--primary)/0.1)] focus:bg-[hsl(var(--accent)/0.05)] placeholder-transparent {% if field.field.widget.attrs.readonly %}bg-[hsl(var(--muted))] cursor-not-allowed{% endif %} {% if is_disabled %}cursor-not-allowed opacity-70{% endif %} text-base font-medium shadow-sm hover:shadow-md group-hover:border-[hsl(var(--primary)/0.5)]" 
                                                 placeholder="{{ field.label }}"
                                                 value="{{ field.value|default:'' }}"
                                                 {% if field.field.required %}required{% endif %}
@@ -182,7 +176,7 @@
                                                 {% if field.field.widget.attrs.step %}step="{{ field.field.widget.attrs.step }}"{% endif %}
                                                 {% if is_disabled %}disabled{% endif %}>
                                             <label for="{{ field.id_for_label }}" 
-                                                class="absolute left-4 -top-3 px-2 text-sm font-semibold transition-all duration-300 bg-[hsl(var(--background))] {% if field.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-3 peer-focus:text-sm peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--primary))]">
+                                                class="absolute left-4 -top-3 px-2 text-sm font-semibold transition-all duration-300 bg-[hsl(var(--background-content))] {% if field.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:-top-3 peer-focus:text-sm peer-focus:text-[hsl(var(--primary))] peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--primary))]">
                                                 {{ field.label }}{% if field.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
                                             </label>
                                             {% if field.errors %}
@@ -207,12 +201,12 @@
                                                 <input type="date" 
                                                     id="{{ field.id_for_label }}" 
                                                     name="{{ field.name }}"
-                                                    class="peer w-full px-4 py-4 rounded-xl border-2 {% if field.errors %}border-red-500 bg-red-50{% else %}border-[hsl(var(--border))]{% endif %} bg-[hsl(var(--background))] text-[hsl(var(--foreground))] transition-all duration-300 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-4 focus:ring-[hsl(var(--primary)/0.1)] focus:bg-[hsl(var(--accent)/0.3)] {% if is_disabled %}cursor-not-allowed opacity-70{% endif %} text-base font-medium shadow-sm hover:shadow-md group-hover:border-[hsl(var(--primary)/0.5)]" 
+                                                    class="peer w-full px-4 py-4 rounded-xl premium-input border-2 {% if field.errors %}border-red-500 bg-red-50{% else %}border-[hsl(var(--border))]{% endif %} bg-[hsl(var(--background-input))] text-[hsl(var(--foreground))] transition-all duration-300 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-4 focus:ring-[hsl(var(--primary)/0.1)] focus:bg-[hsl(var(--accent)/0.05)] {% if is_disabled %}cursor-not-allowed opacity-70{% endif %} text-base font-medium shadow-sm hover:shadow-md group-hover:border-[hsl(var(--primary)/0.5)]" 
                                                     value="{{ field.value|date:'Y-m-d'|default:'' }}"
                                                     {% if field.field.required %}required{% endif %}
                                                     {% if is_disabled %}disabled{% endif %}>
                                                 <label for="{{ field.id_for_label }}" 
-                                                    class="absolute left-4 -top-3 px-2 text-sm font-semibold transition-all duration-300 bg-[hsl(var(--background))] {% if field.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:text-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary))]">
+                                                    class="absolute left-4 -top-3 px-2 text-sm font-semibold transition-all duration-300 bg-[hsl(var(--background-content))] {% if field.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:text-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary))]">
                                                     {{ field.label }}{% if field.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
                                                 </label>
                                                 {% if field.errors %}
@@ -236,20 +230,20 @@
                                             <div class="relative group">
                                                 <select id="{{ field.id_for_label }}" 
                                                     name="{{ field.name }}"
-                                                    class="peer w-full px-4 py-4 rounded-xl border-2 {% if field.errors %}border-red-500 bg-red-50{% else %}border-[hsl(var(--border))]{% endif %} bg-[hsl(var(--background))] text-[hsl(var(--foreground))] transition-all duration-300 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-4 focus:ring-[hsl(var(--primary)/0.1)] focus:bg-[hsl(var(--accent)/0.3)] appearance-none {% if is_disabled %}cursor-not-allowed opacity-70{% endif %} text-base font-medium shadow-sm hover:shadow-md group-hover:border-[hsl(var(--primary)/0.5)]"
+                                                    class="peer w-full px-4 py-4 rounded-xl premium-input border-2 {% if field.errors %}border-red-500 bg-red-50{% else %}border-[hsl(var(--border))]{% endif %} bg-[hsl(var(--background-input))] text-[hsl(var(--foreground))] transition-all duration-300 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-4 focus:ring-[hsl(var(--primary)/0.1)] focus:bg-[hsl(var(--accent)/0.05)] appearance-none {% if is_disabled %}cursor-not-allowed opacity-70{% endif %} text-base font-medium shadow-sm hover:shadow-md group-hover:border-[hsl(var(--primary)/0.5)]"
                                                     {% if field.field.required %}required{% endif %}
                                                     {% if is_disabled %}disabled{% endif %}>
                                                     <option value="" disabled {% if not field.value %}selected{% endif %}></option>
                                                     {% for choice in field.field.choices %}
                                                         <option value="{{ choice.0 }}" 
-                                                            class="py-3 bg-[hsl(var(--background))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))]"
+                                                            class="py-3 bg-[hsl(var(--background-input))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))]"
                                                             {% if field.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
                                                             {{ choice.1 }}
                                                         </option>
                                                     {% endfor %}
                                                 </select>
                                                 <label for="{{ field.id_for_label }}" 
-                                                    class="absolute left-4 -top-3 px-2 text-sm font-semibold transition-all duration-300 bg-[hsl(var(--background))] {% if field.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:text-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary))]">
+                                                    class="absolute left-4 -top-3 px-2 text-sm font-semibold transition-all duration-300 bg-[hsl(var(--background-content))] {% if field.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:text-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary))]">
                                                     {{ field.label }}{% if field.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
                                                 </label>
                                                 <svg class="absolute right-4 top-5 w-5 h-5 pointer-events-none text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--primary))] transition-colors" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -277,12 +271,12 @@
                                                 <textarea id="{{ field.id_for_label }}" 
                                                     name="{{ field.name }}" 
                                                     rows="5" 
-                                                    class="peer w-full px-4 py-4 rounded-xl border-2 {% if field.errors %}border-red-500 bg-red-50{% else %}border-[hsl(var(--border))]{% endif %} bg-[hsl(var(--background))] text-[hsl(var(--foreground))] transition-all duration-300 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-4 focus:ring-[hsl(var(--primary)/0.1)] focus:bg-[hsl(var(--accent)/0.3)] placeholder-transparent {% if is_disabled %}cursor-not-allowed opacity-70{% endif %} text-base font-medium shadow-sm hover:shadow-md group-hover:border-[hsl(var(--primary)/0.5)] resize-y min-h-[120px]" 
+                                                    class="peer w-full px-4 py-4 rounded-xl premium-input border-2 {% if field.errors %}border-red-500 bg-red-50{% else %}border-[hsl(var(--border))]{% endif %} bg-[hsl(var(--background-input))] text-[hsl(var(--foreground))] transition-all duration-300 focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-4 focus:ring-[hsl(var(--primary)/0.1)] focus:bg-[hsl(var(--accent)/0.05)] placeholder-transparent {% if is_disabled %}cursor-not-allowed opacity-70{% endif %} text-base font-medium shadow-sm hover:shadow-md group-hover:border-[hsl(var(--primary)/0.5)] resize-y min-h-[120px]" 
                                                     placeholder="{{ field.label }}"
                                                     {% if field.field.required %}required{% endif %}
                                                     {% if is_disabled %}disabled{% endif %}>{{ field.value|default:'' }}</textarea>
                                                 <label for="{{ field.id_for_label }}" 
-                                                    class="absolute left-4 -top-3 px-2 text-sm font-semibold transition-all duration-300 bg-[hsl(var(--background))] {% if field.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:text-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary))]">
+                                                    class="absolute left-4 -top-3 px-2 text-sm font-semibold transition-all duration-300 bg-[hsl(var(--background-content))] {% if field.errors %}text-red-500{% else %}text-[hsl(var(--muted-foreground))]{% endif %} peer-focus:text-[hsl(var(--primary))] group-hover:text-[hsl(var(--primary))]">
                                                     {{ field.label }}{% if field.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
                                                 </label>
                                                 {% if field.errors %}
@@ -304,11 +298,11 @@
                                         {% elif field.field.widget.input_type == 'checkbox' %}
                                             {% if field.field.choices %}
                                                 <!-- Enhanced Checkbox Group -->
-                                                <fieldset class="space-y-4 bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted)/0.3)] rounded-xl p-6 border-2 {% if field.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} shadow-sm col-span-1 lg:col-span-2">
+                                                <fieldset class="space-y-4 bg-gradient-to-br from-[hsl(var(--background-checkbox-group-start))] to-[hsl(var(--background-checkbox-group-end))] rounded-xl premium-input p-6 border-2 {% if field.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} shadow-sm col-span-1 lg:col-span-2"> {# MODIFIED: Custom variables for checkbox group background #}
                                                     <legend class="text-base font-bold px-3 -ml-1 {% if field.errors %}text-red-500{% endif %} mb-4">{{ field.label }}{% if field.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}</legend>
                                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                     {% for choice in field.field.choices %}
-                                                        <div class="flex items-center p-4 rounded-xl border-2 border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--accent)/0.3)] transition-all duration-300 group cursor-pointer">
+                                                        <div class="flex items-center p-4 rounded-xl premium-input border-2 border-[hsl(var(--border))] hover:border-[hsl(var(--primary))] hover:bg-[hsl(var(--accent)/0.05)] transition-all duration-300 group cursor-pointer"> {# MODIFIED: Softer hover background for checkbox items #}
                                                             <input type="checkbox" 
                                                                 id="{{ field.id_for_label }}_{{ forloop.counter }}" 
                                                                 name="{{ field.name }}" 
@@ -337,7 +331,7 @@
                                                 </fieldset>
                                             {% else %}
                                                 <!-- Enhanced Single Checkbox / Toggle -->
-                                                <div class="flex items-center gap-4 bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted)/0.3)] rounded-xl p-6 border-2 {% if field.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} shadow-sm hover:shadow-md transition-all duration-300 group">
+                                                <div class="flex items-center gap-4 bg-gradient-to-br from-[hsl(var(--background-checkbox-start))] to-[hsl(var(--background-checkbox-end))] rounded-xl premium-input p-6 border-2 {% if field.errors %}border-red-500{% else %}border-[hsl(var(--border))]{% endif %} shadow-sm hover:shadow-md transition-all duration-300 group"> {# MODIFIED: Custom variables for single checkbox background #}
                                                     <label class="relative inline-flex items-center cursor-pointer">
                                                         <input type="checkbox" 
                                                             id="{{ field.id_for_label }}" 
@@ -357,12 +351,12 @@
                                                                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
                                                                         <path d="M12 8V12" stroke="currentColor" stroke-width="2"/>
                                                                         <path d="M12 16H12.01" stroke="currentColor" stroke-width="2"/>
-                                                                    </svg>
-                                                                    {{ error }}
-                                                                </p>
-                                                            {% endfor %}
-                                                        </div>
-                                                    {% endif %}
+                                                                </svg>
+                                                                {{ error }}
+                                                            </p>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
                                                 </div>
                                             {% endif %}
 
@@ -392,7 +386,7 @@
                                             </div>
                                         {% endif %}
                                         {% if field.help_text %}
-                                            <p class="mt-3 text-sm text-[hsl(var(--muted-foreground))] font-medium bg-[hsl(var(--muted)/0.3)] rounded-lg p-3 border border-[hsl(var(--border))]">
+                                            <p class="mt-3 text-sm text-[hsl(var(--muted-foreground))] font-medium bg-[hsl(var(--background-help-text))] rounded-lg p-3 border border-[hsl(var(--border))]"> {# MODIFIED: Custom variable for help text background #}
                                                 <svg class="w-4 h-4 inline mr-2" viewBox="0 0 24 24" fill="none">
                                                     <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
                                                     <path d="M9.09 9A3 3 0 0 1 12 6C13.66 6 15 7.34 15 9C15 10.66 13.66 12 12 12" stroke="currentColor" stroke-width="2"/>
@@ -413,24 +407,19 @@
             <!-- Enhanced Form Footer -->
             <div class="border-t-2 border-[hsl(var(--border))] pt-8 sm:pt-10 flex flex-col sm:flex-row justify-between items-center gap-6 sm:gap-8 relative z-10">
                 <div class="text-sm sm:text-base text-[hsl(var(--muted-foreground))] font-medium">
-                    <span class="flex items-center bg-gradient-to-r from-[hsl(var(--muted)/0.5)] to-[hsl(var(--accent)/0.3)] rounded-lg p-4 border border-[hsl(var(--border))]">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6 mr-3 text-green-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Your data is secure and encrypted with premium protection
-                    </span>
+            {% include "common/toast.html" %}
+
                 </div>
                 <div class="flex gap-4 sm:gap-6 w-full sm:w-auto">
                     {% if cancel_url %}
-                    <a href="{{ cancel_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-xl text-base font-semibold ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 hover:shadow-lg h-12 sm:h-14 px-6 sm:px-8 py-3 shadow-md border-2 border-[hsl(var(--border))] hover:border-[hsl(var(--primary)/0.3)]">
+                    <a href="{{ cancel_url }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-xl premium-input text-base font-semibold ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] hover:opacity-90 hover:shadow-lg h-12 sm:h-14 px-6 sm:px-8 py-3 shadow-md border-2 border-[hsl(var(--border))] hover:border-[hsl(var(--primary)/0.3)]">
                         <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none">
                             <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                         Cancel
                     </a>
                     {% endif %}
-                    <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-xl text-base font-bold ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--primary)/0.9)] to-[hsl(var(--primary)/1.1)] text-[hsl(var(--primary-foreground))] hover:opacity-90 hover:shadow-xl hover:scale-105 h-12 sm:h-14 px-6 sm:px-8 py-3 shadow-lg premium-button">
+                    <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center rounded-xl premium-input text-base font-bold ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[hsl(var(--primary)/0.9)] to-[hsl(var(--primary)/1.1)] text-[hsl(var(--primary-foreground))] hover:opacity-90 hover:shadow-xl hover:scale-105 h-12 sm:h-14 px-6 sm:px-8 py-3 shadow-lg premium-button">
                         <svg class="w-5 h-5 sm:w-6 sm:h-6 mr-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M5 12L10 17L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
@@ -444,7 +433,7 @@
         {% if stock_display %}
         <div class="mt-8 sm:mt-10 overflow-x-auto rounded-2xl border-2 border-[hsl(var(--border))] shadow-lg">
             <table class="w-full text-base text-left text-[hsl(var(--foreground))]">
-                <thead class="text-sm uppercase bg-gradient-to-r from-[hsl(var(--muted))] to-[hsl(var(--accent)/0.3)] font-bold">
+                <thead class="text-sm uppercase bg-gradient-to-r from-[hsl(var(--background-table-header-start))] to-[hsl(var(--background-table-header-end))] font-bold"> {# MODIFIED: Custom variables for table header background #}
                     <tr>
                         <th scope="col" class="px-6 sm:px-8 py-4 sm:py-5">In Stock</th>
                         <th scope="col" class="px-6 sm:px-8 py-4 sm:py-5">Committed</th>
@@ -453,7 +442,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="bg-[hsl(var(--background))] border-b-2 border-[hsl(var(--border))] hover:bg-[hsl(var(--accent)/0.1)] transition-colors">
+                    <tr class="bg-[hsl(var(--background-table-row))] border-b-2 border-[hsl(var(--border))] hover:bg-[hsl(var(--accent)/0.05)] transition-colors"> {# MODIFIED: Custom variable for table row background and softer hover #}
                         <td class="px-6 sm:px-8 py-4 sm:py-6 font-semibold">{{ stock_display.in_stock }}</td>
                         <td class="px-6 sm:px-8 py-4 sm:py-6 font-semibold">{{ stock_display.committed }}</td>
                         <td class="px-6 sm:px-8 py-4 sm:py-6 font-semibold">{{ stock_display.available }}</td>
@@ -497,7 +486,7 @@
                 if (tab.id === activeTab) {
                     // Activate tab button
                     button.classList.add('bg-gradient-to-r', 'from-[hsl(var(--primary)/0.9)]', 'to-[hsl(var(--primary)/1.1)]', 'text-[hsl(var(--primary-foreground))]', 'shadow-lg', 'active-tab');
-                    button.classList.remove('text-[hsl(var(--muted-foreground))]', 'bg-[hsl(var(--muted)/0.5)]', 'hover:bg-[hsl(var(--accent))]', 'hover:text-[hsl(var(--accent-foreground))]');
+                    button.classList.remove('text-[hsl(var(--muted-foreground))]', 'bg-[hsl(var(--background-tab-inactive))]', 'hover:bg-[hsl(var(--accent))]', 'hover:text-[hsl(var(--accent-foreground))]', 'border-2', 'border-[hsl(var(--border-light))]'); {# MODIFIED: Removed old inactive classes #}
                     button.querySelector('div:first-child').classList.add('scale-110');
                     
                     // Show content
@@ -517,7 +506,7 @@
                 } else {
                     // Deactivate tab button
                     button.classList.remove('bg-gradient-to-r', 'from-[hsl(var(--primary)/0.9)]', 'to-[hsl(var(--primary)/1.1)]', 'text-[hsl(var(--primary-foreground))]', 'shadow-lg', 'active-tab');
-                    button.classList.add('text-[hsl(var(--muted-foreground))]', 'bg-[hsl(var(--muted)/0.5)]', 'hover:bg-[hsl(var(--accent))]', 'hover:text-[hsl(var(--accent-foreground))]');
+                    button.classList.add('text-[hsl(var(--muted-foreground))]', 'bg-[hsl(var(--background-tab-inactive))]', 'hover:bg-[hsl(var(--accent))]', 'hover:text-[hsl(var(--accent-foreground))]', 'border-2', 'border-[hsl(var(--border-light))]'); {# MODIFIED: Added new inactive classes #}
                     button.querySelector('div:first-child').classList.remove('scale-110');
                     
                     // Hide content
@@ -727,6 +716,48 @@
 </script>
 
 <style>
+    /* New CSS variables for light mode background refinements */
+    :root {
+        --background-card: 0 0% 100%; /* Main card background */
+        --background-tabs-start: 240 4.8% 98%; /* Lighter muted for tabs section */
+        --background-tabs-end: 240 4.8% 95.9%; /* Muted for tabs section */
+        --background-tab-inactive: 0 0% 100%; /* Inactive tab background */
+        --background-content: 0 0% 100%; /* Tab content background */
+        --background-input: 0 0% 100%; /* Input field background */
+        --background-checkbox-group-start: 240 4.8% 98%; /* Checkbox group background start */
+        --background-checkbox-group-end: 240 4.8% 95.9%; /* Checkbox group background end */
+        --background-checkbox-start: 240 4.8% 98%; /* Single checkbox background start */
+        --background-checkbox-end: 240 4.8% 95.9%; /* Single checkbox background end */
+        --background-help-text: 240 4.8% 98%; /* Help text background */
+        --background-footer-start: 240 4.8% 98%; /* Footer info background start */
+        --background-footer-end: 240 4.8% 95.9%; /* Footer info background end */
+        --background-table-header-start: 240 4.8% 98%; /* Table header background start */
+        --background-table-header-end: 240 4.8% 95.9%; /* Table header background end */
+        --background-table-row: 0 0% 100%; /* Table row background */
+        --border-light: 240 5.9% 90%; /* A slightly lighter border for some elements */
+    }
+
+    /* Dark mode adjustments for new variables */
+    .dark {
+        --background-card: 240 10% 3.9%;
+        --background-tabs-start: 240 3.7% 10%; /* Slightly darker for tabs section */
+        --background-tabs-end: 240 3.7% 15.9%; /* Muted for tabs section */
+        --background-tab-inactive: 240 10% 3.9%;
+        --background-content: 240 10% 3.9%;
+        --background-input: 240 10% 3.9%;
+        --background-checkbox-group-start: 240 3.7% 10%;
+        --background-checkbox-group-end: 240 3.7% 15.9%;
+        --background-checkbox-start: 240 3.7% 10%;
+        --background-checkbox-end: 240 3.7% 15.9%;
+        --background-help-text: 240 3.7% 10%;
+        --background-footer-start: 240 3.7% 10%;
+        --background-footer-end: 240 3.7% 15.9%;
+        --background-table-header-start: 240 3.7% 10%;
+        --background-table-header-end: 240 3.7% 15.9%;
+        --background-table-row: 240 10% 3.9%;
+        --border-light: 240 3.7% 15.9%;
+    }
+
     /* Enhanced scrollbar hiding */
     .hide-scrollbar::-webkit-scrollbar {
         display: none;
@@ -790,6 +821,11 @@
         .grid.xl\:grid-cols-3 {
             grid-template-columns: repeat(3, 1fr);
         }
+    }
+
+    /* Custom shadow for a more premium look */
+    .shadow-inner-lg {
+        box-shadow: inset 0 2px 8px 0 rgba(0, 0, 0, 0.05); /* Softer inner shadow */
     }
 </style>
 {% endblock %}

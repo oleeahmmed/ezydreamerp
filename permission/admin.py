@@ -1,23 +1,38 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
+from django.contrib.auth.models import User, Group
+
+from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
+from unfold.admin import ModelAdmin
+
+# ডিফল্ট User এবং Group আনরেজিস্টার করুন
+admin.site.unregister(User)
+admin.site.unregister(Group)
+
+# User মডেল রেজিস্টার করুন
+@admin.register(User)
+class UserAdmin(BaseUserAdmin, ModelAdmin):
+    form = UserChangeForm  # Unfold এর সঠিক স্টাইলিং সহ ফর্ম
+    add_form = UserCreationForm
+    change_password_form = AdminPasswordChangeForm
+    list_display = ('username', 'email', 'is_staff', 'is_active')
+    list_filter = ('is_staff', 'is_active', 'groups')
+    search_fields = ('username', 'email')
+    ordering = ('username',)
+
+# Group মডেল রেজিস্টার করুন
+@admin.register(Group)
+class GroupAdmin(BaseGroupAdmin, ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+
+
 from django.contrib.auth.models import Permission
-from django.contrib.auth.admin import UserAdmin
-from django.utils.translation import gettext_lazy as _
 
-# Custom Permission Admin
-class PermissionAdmin(admin.ModelAdmin):
-    # Display the fields in the admin list view
+# Permission মডেল রেজিস্টার করুন
+@admin.register(Permission)
+class PermissionAdmin(ModelAdmin):
     list_display = ('name', 'codename', 'content_type')
-    search_fields = ['name', 'codename']
-
-    # Allow editing the permission details
-    fieldsets = (
-        (None, {
-            'fields': ('name', 'codename', 'content_type')  # Removed 'group_permissions' here
-        }),
-    )
-
-    # Make sure that permissions can be filtered and grouped
+    search_fields = ('name', 'codename')
     list_filter = ('content_type',)
-
-# Register the Permission model with the custom admin interface
-admin.site.register(Permission, PermissionAdmin)
