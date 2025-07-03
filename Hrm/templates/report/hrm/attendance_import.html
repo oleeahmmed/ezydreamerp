@@ -5,7 +5,7 @@
 {% block extra_css %}
 <link rel="stylesheet" type="text/css" href="https://printjs-4de6.kxcdn.com/print.min.css">
 <style>
-/* Use your default theme variables */
+/* Use default theme variables */
 .loader { 
     border: 3px solid hsl(var(--muted)); 
     border-top: 3px solid hsl(var(--primary)); 
@@ -19,6 +19,141 @@
 @keyframes spin { 
     0% { transform: rotate(0deg); } 
     100% { transform: rotate(360deg); } 
+}
+
+/* Filter dropdown styles */
+.filter-dropdown {
+    background: hsl(var(--popover));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.filter-option {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.filter-option:hover {
+    background: hsl(var(--accent));
+}
+
+.filter-option.active {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+}
+
+/* Copy button styles */
+.copy-btn {
+    background: hsl(var(--secondary));
+    color: hsl(var(--secondary-foreground));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.copy-btn:hover {
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+}
+
+.copy-btn.copied {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+}
+
+/* Status filter badges */
+.status-filter-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid hsl(var(--border));
+}
+
+.status-filter-badge:hover {
+    background: hsl(var(--accent));
+}
+
+.status-filter-badge.active {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+}
+
+.status-filter-badge.present {
+    background: hsl(142 76% 36%);
+    color: white;
+}
+
+.status-filter-badge.absent {
+    background: hsl(0 84% 60%);
+    color: white;
+}
+
+.status-filter-badge.late {
+    background: hsl(45 93% 47%);
+    color: white;
+}
+
+.status-filter-badge.leave {
+    background: hsl(217 91% 60%);
+    color: white;
+}
+
+.status-filter-badge.holiday {
+    background: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+}
+
+.status-filter-badge.half-day {
+    background: hsl(25 95% 53%);
+    color: white;
+}
+
+/* Toast notification */
+.toast {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 50;
+    padding: 1rem;
+    border-radius: var(--radius);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    max-width: 24rem;
+    transition: all 0.3s;
+    transform: translateX(100%);
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast.success {
+    background: hsl(142 76% 36%);
+    color: white;
+}
+
+.toast.error {
+    background: hsl(var(--destructive));
+    color: hsl(var(--destructive-foreground));
+}
+
+.toast.warning {
+    background: hsl(45 93% 47%);
+    color: white;
+}
+
+.toast.info {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
 }
 
 /* Print styles */
@@ -110,6 +245,99 @@
                         <div class="text-2xl font-bold text-gray-300">{{ summary_stats.existing_records }}</div>
                         <div class="opacity-90">Existing</div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4 no-print">
+                <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                    <!-- Status Filters -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">Filter by Status:</span>
+                        <button class="status-filter-badge active" data-status="all">
+                            All <span class="ml-1 text-xs" id="count-all">{{ summary_stats.total_records }}</span>
+                        </button>
+                        <button class="status-filter-badge present" data-status="PRE">
+                            Present <span class="ml-1 text-xs" id="count-present">{{ summary_stats.present_records }}</span>
+                        </button>
+                        <button class="status-filter-badge absent" data-status="ABS">
+                            Absent <span class="ml-1 text-xs" id="count-absent">{{ summary_stats.absent_records }}</span>
+                        </button>
+                        <button class="status-filter-badge late" data-status="LAT">
+                            Late <span class="ml-1 text-xs" id="count-late">{{ summary_stats.late_records }}</span>
+                        </button>
+                        <button class="status-filter-badge leave" data-status="LEA">
+                            Leave <span class="ml-1 text-xs" id="count-leave">{{ summary_stats.leave_records }}</span>
+                        </button>
+                        <button class="status-filter-badge holiday" data-status="HOL">
+                            Holiday <span class="ml-1 text-xs" id="count-holiday">{{ summary_stats.holiday_records }}</span>
+                        </button>
+                        <button class="status-filter-badge half-day" data-status="HAL">
+                            Half Day <span class="ml-1 text-xs" id="count-half-day">{{ summary_stats.half_day_records }}</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Search and Additional Filters -->
+                    <div class="flex items-center gap-3">
+                        <!-- Search Input -->
+                        <div class="relative">
+                            <input type="text" id="search-input" placeholder="Search employee..." 
+                                   class="w-64 px-3 py-2 pl-10 text-sm border border-gray-300 dark:border-gray-600 rounded-md 
+                                          focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                                          dark:bg-gray-700 dark:text-white dark:placeholder-gray-400">
+                            <svg class="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        
+                        <!-- Date Filter -->
+                        <select id="date-filter" class="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md 
+                                               focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                                               dark:bg-gray-700 dark:text-white">
+                            <option value="all">All Dates</option>
+                            <option value="today">Today</option>
+                            <option value="yesterday">Yesterday</option>
+                            <option value="this-week">This Week</option>
+                            <option value="last-week">Last Week</option>
+                        </select>
+                        
+                        <!-- Copy Options -->
+                        <div class="relative">
+                            <button id="copy-dropdown-btn" class="inline-flex items-center gap-2 px-3 py-2 text-sm 
+                                                          bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 
+                                                          text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 
+                                                          transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                                Copy Data
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            
+                            <div id="copy-dropdown" class="absolute right-0 mt-2 w-48 filter-dropdown hidden z-10">
+                                <button class="filter-option w-full text-left" data-copy="selected">Copy Selected Records</button>
+                                <button class="filter-option w-full text-left" data-copy="visible">Copy Visible Records</button>
+                                <button class="filter-option w-full text-left" data-copy="all">Copy All Records</button>
+                                <button class="filter-option w-full text-left" data-copy="summary">Copy Summary</button>
+                                <button class="filter-option w-full text-left" data-copy="employee-ids">Copy Employee IDs</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Clear Filters -->
+                        <button id="clear-filters-btn" class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 
+                                                       text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-600 
+                                                       transition-colors">
+                            Clear Filters
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Active Filters Display -->
+                <div id="active-filters" class="mt-3 flex flex-wrap items-center gap-2 hidden">
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Active filters:</span>
+                    <div id="active-filters-list" class="flex flex-wrap gap-2"></div>
                 </div>
             </div>
 
@@ -323,11 +551,11 @@
     </div>
 </div>
 
-<!-- Comprehensive Attendance Report Modal -->
+<!-- 🔥 COMPLETELY FIXED Modal with ALL MISSING FIELDS -->
 <div id="report-modal" class="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 backdrop-blur-sm hidden">
     <div class="bg-white dark:bg-gray-900 mx-auto mt-5 p-0 border border-gray-200 dark:border-gray-700 rounded-xl w-11/12 max-w-6xl shadow-2xl relative">
         <div class="bg-white dark:bg-gray-900 px-6 pt-6 pb-0 border-b border-gray-200 dark:border-gray-700 rounded-t-xl relative">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">🔥 Generate Comprehensive Attendance Report</h2>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">🔥 Generate Comprehensive Attendance Report - ALL FIELDS FIXED</h2>
             <button type="button" class="modal-close-btn absolute right-4 top-4 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 border-0 rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -346,6 +574,7 @@
                     <button type="button" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-tab="rules">Enhanced Rules</button>
                     <button type="button" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-tab="advanced">Advanced Options</button>
                     <button type="button" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-tab="weekend">Weekend & Breaks</button>
+                    <button type="button" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-tab="missing">🔥 New Fields</button>
                 </div>
 
                 <!-- Basic Settings Tab -->
@@ -440,15 +669,15 @@
                 <div class="tab-content hidden" id="rules">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                            <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">🔥 Working Hours Rules</h4>
+                            <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">🔥 Working Hours Rules - FIXED NAMES</h4>
                             <div class="space-y-4">
                                 <div class="flex items-center">
                                     <input type="checkbox" id="enable_minimum_working_hours_rule" name="enable_minimum_working_hours_rule" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                                     <label for="enable_minimum_working_hours_rule" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Enable Minimum Working Hours Rule</label>
                                 </div>
                                 <div>
-                                    <label for="minimum_working_hours_threshold" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Minimum Working Hours Threshold</label>
-                                    <input type="number" id="minimum_working_hours_threshold" name="minimum_working_hours_threshold" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="4.0" min="1.0" max="12.0" step="0.5">
+                                    <label for="minimum_working_hours_for_present" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">✅ Minimum Working Hours For Present</label>
+                                    <input type="number" id="minimum_working_hours_for_present" name="minimum_working_hours_for_present" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="4.0" min="1.0" max="12.0" step="0.5">
                                 </div>
                                 
                                 <div class="flex items-center">
@@ -457,23 +686,23 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label for="half_day_min_hours" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Half Day Min Hours</label>
-                                        <input type="number" id="half_day_min_hours" name="half_day_min_hours" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="2.0" min="1.0" max="4.0" step="0.5">
+                                        <label for="half_day_minimum_hours" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">✅ Half Day Minimum Hours</label>
+                                        <input type="number" id="half_day_minimum_hours" name="half_day_minimum_hours" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="2.0" min="1.0" max="4.0" step="0.5">
                                     </div>
                                     <div>
-                                        <label for="half_day_max_hours" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Half Day Max Hours</label>
-                                        <input type="number" id="half_day_max_hours" name="half_day_max_hours" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="4.0" min="2.0" max="6.0" step="0.5">
+                                        <label for="half_day_maximum_hours" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">✅ Half Day Maximum Hours</label>
+                                        <input type="number" id="half_day_maximum_hours" name="half_day_maximum_hours" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="4.0" min="2.0" max="6.0" step="0.5">
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                            <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">🔥 Validation Rules</h4>
+                            <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">🔥 Validation Rules - FIXED NAMES</h4>
                             <div class="space-y-4">
                                 <div class="flex items-center">
-                                    <input type="checkbox" id="enable_both_in_out_required_rule" name="enable_both_in_out_required_rule" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                    <label for="enable_both_in_out_required_rule" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Both Check-In & Check-Out Required</label>
+                                    <input type="checkbox" id="require_both_in_and_out" name="require_both_in_and_out" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="require_both_in_and_out" class="ml-2 text-sm text-gray-700 dark:text-gray-300">✅ Both Check-In & Check-Out Required</label>
                                 </div>
                                 
                                 <div class="flex items-center">
@@ -481,8 +710,8 @@
                                     <label for="enable_maximum_working_hours_rule" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Enable Maximum Working Hours Rule</label>
                                 </div>
                                 <div>
-                                    <label for="maximum_working_hours_threshold" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Maximum Working Hours Threshold</label>
-                                    <input type="number" id="maximum_working_hours_threshold" name="maximum_working_hours_threshold" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="12.0" min="8.0" max="24.0" step="0.5">
+                                    <label for="maximum_allowable_working_hours" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">✅ Maximum Allowable Working Hours</label>
+                                    <input type="number" id="maximum_allowable_working_hours" name="maximum_allowable_working_hours" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="12.0" min="8.0" max="24.0" step="0.5">
                                 </div>
                             </div>
                         </div>
@@ -612,6 +841,125 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 🔥 NEW TAB: Missing Fields -->
+                <div class="tab-content hidden" id="missing">
+                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4 mb-6">
+                        <h3 class="text-lg font-bold text-red-800 dark:text-red-200 mb-2">🔥 ALL MISSING FIELDS ADDED</h3>
+                        <p class="text-red-700 dark:text-red-300 text-sm">These fields were missing from the original form but are now added to match UnifiedAttendanceProcessor exactly.</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Dynamic Shift Settings -->
+                        <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">🔥 Dynamic Shift Settings</h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="dynamic_shift_fallback_to_default" name="dynamic_shift_fallback_to_default" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="dynamic_shift_fallback_to_default" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Dynamic Shift Fallback to Default</label>
+                                </div>
+                                
+                                <div>
+                                    <label for="dynamic_shift_fallback_shift_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dynamic Shift Fallback Shift ID</label>
+                                    <input type="number" id="dynamic_shift_fallback_shift_id" name="dynamic_shift_fallback_shift_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" min="1">
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="use_shift_grace_time" name="use_shift_grace_time" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="use_shift_grace_time" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Use Shift Grace Time</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Absence & Early Out Rules -->
+                        <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">🔥 Absence & Early Out Rules</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="consecutive_absence_termination_risk_days" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Consecutive Absence Termination Risk Days</label>
+                                    <input type="number" id="consecutive_absence_termination_risk_days" name="consecutive_absence_termination_risk_days" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="5" min="1" max="30">
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="enable_consecutive_absence_flagging" name="enable_consecutive_absence_flagging" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="enable_consecutive_absence_flagging" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Enable Consecutive Absence Flagging</label>
+                                </div>
+                                
+                                <div>
+                                    <label for="max_early_out_threshold_minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Early Out Threshold Minutes</label>
+                                    <input type="number" id="max_early_out_threshold_minutes" name="max_early_out_threshold_minutes" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="120" min="30" max="480">
+                                </div>
+                                
+                                <div>
+                                    <label for="max_early_out_occurrences" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Early Out Occurrences</label>
+                                    <input type="number" id="max_early_out_occurrences" name="max_early_out_occurrences" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="3" min="1" max="10">
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="enable_max_early_out_flagging" name="enable_max_early_out_flagging" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="enable_max_early_out_flagging" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Enable Max Early Out Flagging</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Advanced Rules -->
+                        <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">🔥 Advanced Rules</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="late_to_absent_days" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Late to Absent Days</label>
+                                    <input type="number" id="late_to_absent_days" name="late_to_absent_days" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="3" min="1" max="10">
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="holiday_before_after_absent" name="holiday_before_after_absent" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="holiday_before_after_absent" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Holiday Before After Absent</label>
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="weekend_before_after_absent" name="weekend_before_after_absent" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="weekend_before_after_absent" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Weekend Before After Absent</label>
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="require_holiday_presence" name="require_holiday_presence" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="require_holiday_presence" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Require Holiday Presence</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Holiday & Employee Settings -->
+                        <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-4">🔥 Holiday & Employee Settings</h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="include_holiday_analysis" name="include_holiday_analysis" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="include_holiday_analysis" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Include Holiday Analysis</label>
+                                </div>
+                                
+                                <div>
+                                    <label for="holiday_buffer_days" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Holiday Buffer Days</label>
+                                    <input type="number" id="holiday_buffer_days" name="holiday_buffer_days" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" value="1" min="0" max="5">
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="use_employee_specific_grace" name="use_employee_specific_grace" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="use_employee_specific_grace" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Use Employee Specific Grace</label>
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="use_employee_specific_overtime" name="use_employee_specific_overtime" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="use_employee_specific_overtime" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Use Employee Specific Overtime</label>
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="use_employee_expected_hours" name="use_employee_expected_hours" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <label for="use_employee_expected_hours" class="ml-2 text-sm text-gray-700 dark:text-gray-300">Use Employee Expected Hours</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
                 <!-- Submit Buttons -->
                 <div class="flex gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
@@ -619,7 +967,7 @@
                         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none">
                             <path d="M9 17h6l3 3v-3h2V5H4v12h5zm-2 0H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v9a2 2 0 01-2 2h-1l-3 3-3-3z" stroke="currentColor" stroke-width="2"/>
                         </svg>
-                        Generate Report
+                        🔥 Generate Report with ALL Fields
                     </button>
                     <button type="button" class="modal-close-btn flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium bg-gray-600 text-white hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 h-12 px-8 py-3 shadow-sm transition-all duration-200">
                         Cancel
@@ -660,7 +1008,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Store attendance records data
     let attendanceRecords = [];
-    
+
     // Initialize attendance records from template data
     {% if attendance_records %}
     attendanceRecords = [
@@ -693,6 +1041,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initializePrintFunctionality();
     initializeImportFunctionality();
     calculateSummaryTotals();
+    initializeCopyFunctionality();
+    initializeFilterFunctionality();
 
     function initializeModal() {
         // Open modal
@@ -1088,7 +1438,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 hideImportProgress();
                 console.error('Import error:', error);
-                // showToast('Import failed due to network error', 'error');
             });
         }
 
@@ -1187,55 +1536,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
             return csrfToken ? csrfToken.value : '';
         }
-
-        function showToast(message, type = 'info') {
-            // Create toast element
-            const toast = document.createElement('div');
-            toast.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transition-all duration-300 transform translate-x-full`;
-            
-            // Set toast style based on type
-            switch (type) {
-                case 'success':
-                    toast.classList.add('bg-green-500', 'text-white');
-                    break;
-                case 'error':
-                    toast.classList.add('bg-red-500', 'text-white');
-                    break;
-                case 'warning':
-                    toast.classList.add('bg-yellow-500', 'text-white');
-                    break;
-                default:
-                    toast.classList.add('bg-blue-500', 'text-white');
-            }
-            
-            toast.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <span>${message}</span>
-                    <button class="ml-4 text-white hover:text-gray-200" onclick="this.parentElement.parentElement.remove()">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-            `;
-            
-            document.body.appendChild(toast);
-            
-            // Animate in
-            setTimeout(() => {
-                toast.classList.remove('translate-x-full');
-            }, 100);
-            
-            // Auto remove after 5 seconds
-            setTimeout(() => {
-                toast.classList.add('translate-x-full');
-                setTimeout(() => {
-                    if (toast.parentElement) {
-                        toast.remove();
-                    }
-                }, 300);
-            }, 5000);
-        }
     }
 
     function calculateSummaryTotals() {
@@ -1267,6 +1567,563 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (totalOvertimeMinutesElement) {
             totalOvertimeMinutesElement.textContent = totalOvertimeMinutes + 'm';
+        }
+    }
+
+    // 🔥 COPY TO CLIPBOARD FUNCTIONALITY
+    function initializeCopyFunctionality() {
+        const copyDropdownBtn = document.getElementById('copy-dropdown-btn');
+        const copyDropdown = document.getElementById('copy-dropdown');
+        const copyOptions = document.querySelectorAll('[data-copy]');
+
+        // Toggle dropdown
+        if (copyDropdownBtn) {
+            copyDropdownBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                copyDropdown.classList.toggle('hidden');
+            });
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!copyDropdownBtn.contains(e.target) && !copyDropdown.contains(e.target)) {
+                copyDropdown.classList.add('hidden');
+            }
+        });
+
+        // Handle copy options
+        copyOptions.forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.preventDefault();
+                const copyType = this.dataset.copy;
+                handleCopyAction(copyType);
+                copyDropdown.classList.add('hidden');
+            });
+        });
+
+        function handleCopyAction(type) {
+            let textToCopy = '';
+            
+            switch (type) {
+                case 'selected':
+                    textToCopy = getSelectedRecordsText();
+                    break;
+                case 'visible':
+                    textToCopy = getVisibleRecordsText();
+                    break;
+                case 'all':
+                    textToCopy = getAllRecordsText();
+                    break;
+                case 'summary':
+                    textToCopy = getSummaryText();
+                    break;
+                case 'employee-ids':
+                    textToCopy = getEmployeeIdsText();
+                    break;
+            }
+
+            if (textToCopy) {
+                copyToClipboard(textToCopy, type);
+            } else {
+                showToast('No data to copy', 'warning');
+            }
+        }
+
+        function getSelectedRecordsText() {
+            const selectedRows = document.querySelectorAll('.row-checkbox:checked');
+            if (selectedRows.length === 0) return '';
+
+            let text = 'Employee ID\tEmployee Name\tDate\tStatus\tCheck In\tCheck Out\tWorking Hours\tLate Minutes\tOvertime\tShift\n';
+            
+            selectedRows.forEach(checkbox => {
+                const row = checkbox.closest('.attendance-row');
+                const cells = row.querySelectorAll('td');
+                const rowData = [
+                    cells[1].textContent.trim(), // Employee ID
+                    cells[2].textContent.trim(), // Employee Name
+                    cells[3].textContent.trim(), // Date
+                    cells[4].textContent.trim().replace(/\s+/g, ' '), // Status (clean up spacing)
+                    cells[5].textContent.trim(), // Check In
+                    cells[6].textContent.trim(), // Check Out
+                    cells[7].textContent.trim(), // Working Hours
+                    cells[8].textContent.trim(), // Late Minutes
+                    cells[9].textContent.trim(), // Overtime
+                    cells[10].textContent.trim() // Shift
+                ];
+                text += rowData.join('\t') + '\n';
+            });
+
+            return text;
+        }
+
+        function getVisibleRecordsText() {
+            const visibleRows = document.querySelectorAll('.attendance-row:not([style*="display: none"])');
+            if (visibleRows.length === 0) return '';
+
+            let text = 'Employee ID\tEmployee Name\tDate\tStatus\tCheck In\tCheck Out\tWorking Hours\tLate Minutes\tOvertime\tShift\n';
+            
+            visibleRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const rowData = [
+                    cells[1].textContent.trim(), // Employee ID
+                    cells[2].textContent.trim(), // Employee Name
+                    cells[3].textContent.trim(), // Date
+                    cells[4].textContent.trim().replace(/\s+/g, ' '), // Status
+                    cells[5].textContent.trim(), // Check In
+                    cells[6].textContent.trim(), // Check Out
+                    cells[7].textContent.trim(), // Working Hours
+                    cells[8].textContent.trim(), // Late Minutes
+                    cells[9].textContent.trim(), // Overtime
+                    cells[10].textContent.trim() // Shift
+                ];
+                text += rowData.join('\t') + '\n';
+            });
+
+            return text;
+        }
+
+        function getAllRecordsText() {
+            const allRows = document.querySelectorAll('.attendance-row');
+            if (allRows.length === 0) return '';
+
+            let text = 'Employee ID\tEmployee Name\tDate\tStatus\tCheck In\tCheck Out\tWorking Hours\tLate Minutes\tOvertime\tShift\n';
+            
+            allRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const rowData = [
+                    cells[1].textContent.trim(), // Employee ID
+                    cells[2].textContent.trim(), // Employee Name
+                    cells[3].textContent.trim(), // Date
+                    cells[4].textContent.trim().replace(/\s+/g, ' '), // Status
+                    cells[5].textContent.trim(), // Check In
+                    cells[6].textContent.trim(), // Check Out
+                    cells[7].textContent.trim(), // Working Hours
+                    cells[8].textContent.trim(), // Late Minutes
+                    cells[9].textContent.trim(), // Overtime
+                    cells[10].textContent.trim() // Shift
+                ];
+                text += rowData.join('\t') + '\n';
+            });
+
+            return text;
+        }
+
+        function getSummaryText() {
+            return `Attendance Import Summary
+Total Records: {{ summary_stats.total_records }}
+Present: {{ summary_stats.present_records }}
+Absent: {{ summary_stats.absent_records }}
+Late: {{ summary_stats.late_records }}
+Leave: {{ summary_stats.leave_records }}
+Holiday: {{ summary_stats.holiday_records }}
+Half Day: {{ summary_stats.half_day_records }}
+New Records: {{ summary_stats.new_records }}
+Existing Records: {{ summary_stats.existing_records }}
+Date Range: {{ start_date }} to {{ end_date }}`;
+        }
+
+        function getEmployeeIdsText() {
+            const visibleRows = document.querySelectorAll('.attendance-row:not([style*="display: none"])');
+            const employeeIds = new Set();
+            
+            visibleRows.forEach(row => {
+                const employeeId = row.querySelector('td:nth-child(2)').textContent.trim();
+                employeeIds.add(employeeId);
+            });
+
+            return Array.from(employeeIds).join(', ');
+        }
+
+        function copyToClipboard(text, type) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopySuccess(type);
+                }).catch(() => {
+                    fallbackCopyToClipboard(text, type);
+                });
+            } else {
+                fallbackCopyToClipboard(text, type);
+            }
+        }
+
+        function fallbackCopyToClipboard(text, type) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showCopySuccess(type);
+            } catch (err) {
+                showToast('Failed to copy to clipboard', 'error');
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        }
+
+        function showCopySuccess(type) {
+            const typeNames = {
+                'selected': 'Selected records',
+                'visible': 'Visible records',
+                'all': 'All records',
+                'summary': 'Summary',
+                'employee-ids': 'Employee IDs'
+            };
+            
+            showToast(`${typeNames[type]} copied to clipboard!`, 'success');
+        }
+    }
+
+    // 🔥 FILTER FUNCTIONALITY
+    function initializeFilterFunctionality() {
+        const statusFilters = document.querySelectorAll('.status-filter-badge');
+        const searchInput = document.getElementById('search-input');
+        const dateFilter = document.getElementById('date-filter');
+        const clearFiltersBtn = document.getElementById('clear-filters-btn');
+        const activeFilters = document.getElementById('active-filters');
+        const activeFiltersList = document.getElementById('active-filters-list');
+
+        let currentFilters = {
+            status: 'all',
+            search: '',
+            date: 'all'
+        };
+
+        // Status filter functionality
+        statusFilters.forEach(filter => {
+            filter.addEventListener('click', function() {
+                // Remove active class from all filters
+                statusFilters.forEach(f => f.classList.remove('active'));
+                // Add active class to clicked filter
+                this.classList.add('active');
+                
+                currentFilters.status = this.dataset.status;
+                applyFilters();
+                updateActiveFilters();
+            });
+        });
+
+        // Search functionality
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                currentFilters.search = this.value.toLowerCase();
+                applyFilters();
+                updateActiveFilters();
+            });
+        }
+
+        // Date filter functionality
+        if (dateFilter) {
+            dateFilter.addEventListener('change', function() {
+                currentFilters.date = this.value;
+                applyFilters();
+                updateActiveFilters();
+            });
+        }
+
+        // Clear filters functionality
+        if (clearFiltersBtn) {
+            clearFiltersBtn.addEventListener('click', function() {
+                // Reset all filters
+                currentFilters = { status: 'all', search: '', date: 'all' };
+                
+                // Reset UI elements
+                statusFilters.forEach(f => f.classList.remove('active'));
+                statusFilters[0].classList.add('active'); // First filter is "All"
+                if (searchInput) searchInput.value = '';
+                if (dateFilter) dateFilter.value = 'all';
+                
+                applyFilters();
+                updateActiveFilters();
+            });
+        }
+
+        function applyFilters() {
+            const rows = document.querySelectorAll('.attendance-row');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                let shouldShow = true;
+                
+                // Status filter
+                if (currentFilters.status !== 'all') {
+                    const rowStatus = row.dataset.status;
+                    if (rowStatus !== currentFilters.status) {
+                        shouldShow = false;
+                    }
+                }
+                
+                // Search filter
+                if (currentFilters.search && shouldShow) {
+                    const employeeId = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                    const employeeName = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                    
+                    if (!employeeId.includes(currentFilters.search) && 
+                        !employeeName.includes(currentFilters.search)) {
+                        shouldShow = false;
+                    }
+                }
+                
+                // Date filter
+                if (currentFilters.date !== 'all' && shouldShow) {
+                    const rowDate = new Date(row.dataset.date);
+                    const today = new Date();
+                    const yesterday = new Date(today);
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    
+                    switch (currentFilters.date) {
+                        case 'today':
+                            if (rowDate.toDateString() !== today.toDateString()) {
+                                shouldShow = false;
+                            }
+                            break;
+                        case 'yesterday':
+                            if (rowDate.toDateString() !== yesterday.toDateString()) {
+                                shouldShow = false;
+                            }
+                            break;
+                        case 'this-week':
+                            const weekStart = new Date(today);
+                            weekStart.setDate(today.getDate() - today.getDay());
+                            if (rowDate < weekStart || rowDate > today) {
+                                shouldShow = false;
+                            }
+                            break;
+                        case 'last-week':
+                            const lastWeekStart = new Date(today);
+                            lastWeekStart.setDate(today.getDate() - today.getDay() - 7);
+                            const lastWeekEnd = new Date(lastWeekStart);
+                            lastWeekEnd.setDate(lastWeekStart.getDate() + 6);
+                            if (rowDate < lastWeekStart || rowDate > lastWeekEnd) {
+                                shouldShow = false;
+                            }
+                            break;
+                    }
+                }
+                
+                // Show/hide row
+                if (shouldShow) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Update filter counts
+            updateFilterCounts();
+            
+            // Show message if no results
+            showNoResultsMessage(visibleCount === 0);
+        }
+
+        function updateFilterCounts() {
+            const visibleRows = document.querySelectorAll('.attendance-row:not([style*="display: none"])');
+            const statusCounts = {
+                all: visibleRows.length,
+                PRE: 0,
+                ABS: 0,
+                LAT: 0,
+                LEA: 0,
+                HOL: 0,
+                HAL: 0
+            };
+            
+            visibleRows.forEach(row => {
+                const status = row.dataset.status;
+                if (statusCounts.hasOwnProperty(status)) {
+                    statusCounts[status]++;
+                }
+            });
+            
+            // Update count displays
+            document.getElementById('count-all').textContent = statusCounts.all;
+            document.getElementById('count-present').textContent = statusCounts.PRE;
+            document.getElementById('count-absent').textContent = statusCounts.ABS;
+            document.getElementById('count-late').textContent = statusCounts.LAT;
+            document.getElementById('count-leave').textContent = statusCounts.LEA;
+            document.getElementById('count-holiday').textContent = statusCounts.HOL;
+            document.getElementById('count-half-day').textContent = statusCounts.HAL;
+        }
+
+        function updateActiveFilters() {
+            const activeFilterTags = [];
+            
+            if (currentFilters.status !== 'all') {
+                const statusNames = {
+                    'PRE': 'Present',
+                    'ABS': 'Absent',
+                    'LAT': 'Late',
+                    'LEA': 'Leave',
+                    'HOL': 'Holiday',
+                    'HAL': 'Half Day'
+                };
+                activeFilterTags.push({
+                    type: 'status',
+                    label: `Status: ${statusNames[currentFilters.status]}`,
+                    value: currentFilters.status
+                });
+            }
+            
+            if (currentFilters.search) {
+                activeFilterTags.push({
+                    type: 'search',
+                    label: `Search: "${currentFilters.search}"`,
+                    value: currentFilters.search
+                });
+            }
+            
+            if (currentFilters.date !== 'all') {
+                const dateNames = {
+                    'today': 'Today',
+                    'yesterday': 'Yesterday',
+                    'this-week': 'This Week',
+                    'last-week': 'Last Week'
+                };
+                activeFilterTags.push({
+                    type: 'date',
+                    label: `Date: ${dateNames[currentFilters.date]}`,
+                    value: currentFilters.date
+                });
+            }
+            
+            if (activeFilterTags.length > 0) {
+                activeFilters.classList.remove('hidden');
+                activeFiltersList.innerHTML = activeFilterTags.map(tag => `
+                    <span class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-md">
+                        ${tag.label}
+                        <button class="hover:text-blue-600 dark:hover:text-blue-400" onclick="removeFilter('${tag.type}', '${tag.value}')">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </span>
+                `).join('');
+            } else {
+                activeFilters.classList.add('hidden');
+            }
+        }
+
+        function showNoResultsMessage(show) {
+            let noResultsRow = document.getElementById('no-results-row');
+            
+            if (show) {
+                if (!noResultsRow) {
+                    const tbody = document.getElementById('attendance-tbody');
+                    noResultsRow = document.createElement('tr');
+                    noResultsRow.id = 'no-results-row';
+                    noResultsRow.innerHTML = `
+                        <td colspan="13" class="px-4 py-8 text-center text-sm border border-gray-200 dark:border-gray-600">
+                            <div class="flex flex-col items-center justify-center space-y-4">
+                                <div class="rounded-full bg-gray-100 dark:bg-gray-700 p-4">
+                                    <svg class="h-8 w-8 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none">
+                                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                </div>
+                                <div class="text-center">
+                                    <h3 class="text-base font-medium text-gray-900 dark:text-gray-100">No Records Found</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">No attendance records match your current filters.</p>
+                                </div>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(noResultsRow);
+                }
+                noResultsRow.style.display = '';
+            } else {
+                if (noResultsRow) {
+                    noResultsRow.style.display = 'none';
+                }
+            }
+        }
+
+        // Global function for removing individual filters
+        window.removeFilter = function(type, value) {
+            switch (type) {
+                case 'status':
+                    currentFilters.status = 'all';
+                    statusFilters.forEach(f => f.classList.remove('active'));
+                    statusFilters[0].classList.add('active');
+                    break;
+                case 'search':
+                    currentFilters.search = '';
+                    if (searchInput) searchInput.value = '';
+                    break;
+                case 'date':
+                    currentFilters.date = 'all';
+                    if (dateFilter) dateFilter.value = 'all';
+                    break;
+            }
+            
+            applyFilters();
+            updateActiveFilters();
+        };
+
+        // Initialize filters
+        applyFilters();
+        updateActiveFilters();
+    }
+
+    // 🔥 TOAST NOTIFICATION SYSTEM
+    function showToast(message, type = 'info') {
+        // Remove existing toasts
+        const existingToasts = document.querySelectorAll('.toast');
+        existingToasts.forEach(toast => toast.remove());
+
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        toast.innerHTML = `
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        ${getToastIcon(type)}
+                    </svg>
+                    <span>${message}</span>
+                </div>
+                <button class="ml-4 hover:opacity-75" onclick="this.parentElement.parentElement.remove()">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Animate in
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 100);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 300);
+        }, 5000);
+    }
+
+    function getToastIcon(type) {
+        switch (type) {
+            case 'success':
+                return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
+            case 'error':
+                return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
+            case 'warning':
+                return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>';
+            default:
+                return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>';
         }
     }
 });

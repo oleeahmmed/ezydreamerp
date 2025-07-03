@@ -22,7 +22,7 @@ from .unified_attendance_processor import UnifiedAttendanceProcessor
 logger = logging.getLogger(__name__)
 
 class OvertimeImportForm(forms.Form):
-    """🔥 COMPLETE Enhanced form for overtime import with ALL unified processor options."""
+    """🔥 COMPLETE Enhanced form for overtime import with ALL unified processor options - EXACT field names."""
     
     # Date Range Selection
     start_date = forms.DateField(
@@ -71,7 +71,7 @@ class OvertimeImportForm(forms.Form):
         }),
     )
     
-    # Basic Settings
+    # Basic Settings - EXACT field names from UnifiedAttendanceProcessor
     grace_minutes = forms.IntegerField(
         label=_("Grace Minutes"),
         initial=15,
@@ -100,7 +100,7 @@ class OvertimeImportForm(forms.Form):
         max_value=480,
     )
     
-    # 🔥 NEW RULE 1: Minimum Working Hours Rule
+    # 🔥 RULE 1: Minimum Working Hours Rule - EXACT field names
     enable_minimum_working_hours_rule = forms.BooleanField(
         label=_("Enable Minimum Working Hours Rule"),
         required=False,
@@ -115,7 +115,7 @@ class OvertimeImportForm(forms.Form):
         required=False,
     )
     
-    # 🔥 NEW RULE 2: Working Hours Half Day Rule
+    # 🔥 RULE 2: Working Hours Half Day Rule - EXACT field names
     enable_working_hours_half_day_rule = forms.BooleanField(
         label=_("Enable Working Hours Half Day Rule"),
         required=False,
@@ -138,14 +138,14 @@ class OvertimeImportForm(forms.Form):
         required=False,
     )
     
-    # 🔥 NEW RULE 3: Both In-Out Required Rule
+    # 🔥 RULE 3: Both In-Out Required Rule - EXACT field names
     enable_both_in_out_required_rule = forms.BooleanField(
         label=_("Both Check-In & Check-Out Required"),
         required=False,
         initial=False,
     )
     
-    # 🔥 NEW RULE 4: Maximum Working Hours Rule
+    # 🔥 RULE 4: Maximum Working Hours Rule - EXACT field names
     enable_maximum_working_hours_rule = forms.BooleanField(
         label=_("Enable Maximum Working Hours Rule"),
         required=False,
@@ -160,7 +160,7 @@ class OvertimeImportForm(forms.Form):
         required=False,
     )
     
-    # 🔥 NEW RULE 5: Dynamic Shift Detection Override Rule
+    # 🔥 RULE 5: Dynamic Shift Detection Override Rule - EXACT field names
     enable_dynamic_shift_detection = forms.BooleanField(
         label=_("Enable Dynamic Shift Detection"),
         required=False,
@@ -193,14 +193,14 @@ class OvertimeImportForm(forms.Form):
         initial=True,
     )
     
-    # 🔥 NEW RULE 6: Grace Time per Shift Instead of Global
+    # 🔥 RULE 6: Grace Time per Shift Instead of Global - EXACT field names
     use_shift_grace_time = forms.BooleanField(
         label=_("Use Shift Grace Time"),
         required=False,
         initial=False,
     )
     
-    # 🔥 NEW RULE 7: Consecutive Absence to Flag as Termination Risk
+    # 🔥 RULE 7: Consecutive Absence to Flag as Termination Risk - EXACT field names
     enable_consecutive_absence_flagging = forms.BooleanField(
         label=_("Enable Consecutive Absence Flagging"),
         required=False,
@@ -215,7 +215,7 @@ class OvertimeImportForm(forms.Form):
         required=False,
     )
     
-    # 🔥 NEW RULE 8: Max Early Out Threshold
+    # 🔥 RULE 8: Max Early Out Threshold - EXACT field names
     enable_max_early_out_flagging = forms.BooleanField(
         label=_("Enable Max Early Out Flagging"),
         required=False,
@@ -238,7 +238,7 @@ class OvertimeImportForm(forms.Form):
         required=False,
     )
     
-    # 🔥 Enhanced Overtime Configuration
+    # 🔥 Enhanced Overtime Configuration - EXACT field names
     overtime_calculation_method = forms.ChoiceField(
         label=_("Overtime Calculation Method"),
         choices=[
@@ -275,7 +275,7 @@ class OvertimeImportForm(forms.Form):
         required=False,
     )
     
-    # 🔥 Break Time Configuration
+    # 🔥 Break Time Configuration - EXACT field names
     use_shift_break_time = forms.BooleanField(
         label=_("Use Shift Break Time"),
         required=False,
@@ -300,7 +300,7 @@ class OvertimeImportForm(forms.Form):
         required=False,
     )
     
-    # Advanced Rules
+    # Advanced Rules - EXACT field names
     late_to_absent_days = forms.IntegerField(
         label=_("Late to Absent Days"),
         initial=3,
@@ -341,7 +341,7 @@ class OvertimeImportForm(forms.Form):
         required=False,
     )
     
-    # Employee Override Settings
+    # Employee Override Settings - EXACT field names
     use_employee_specific_grace = forms.BooleanField(
         label=_("Use Employee Specific Grace"),
         required=False,
@@ -360,7 +360,7 @@ class OvertimeImportForm(forms.Form):
         initial=True,
     )
     
-    # Weekend Configuration
+    # Weekend Configuration - EXACT field names
     weekend_days = forms.MultipleChoiceField(
         label=_("Weekend Days"),
         choices=[
@@ -377,7 +377,7 @@ class OvertimeImportForm(forms.Form):
         widget=forms.CheckboxSelectMultiple,
     )
     
-    # 🔥 Overtime Specific Settings
+    # 🔥 Overtime Specific Settings - EXACT field names
     require_attendance_record = forms.BooleanField(
         label=_("Require Existing Attendance Record"),
         required=False,
@@ -416,9 +416,13 @@ class OvertimeImportForm(forms.Form):
         max_value=120,
     )
 
-
+    set_approved_by_default = forms.BooleanField(
+        label=_("Set Approved By Default"),
+        required=False,
+        initial=False,
+    )
 class OvertimeImportView(LoginRequiredMixin, View):
-    """🔥 COMPLETE Overtime import view with ALL unified processor features."""
+    """🔥 COMPLETE Overtime import view with ALL unified processor features - EXACT field matching."""
     template_name = 'report/hrm/overtime_import.html'
     
     def get(self, request, *args, **kwargs):
@@ -453,7 +457,7 @@ class OvertimeImportView(LoginRequiredMixin, View):
                     'end_date': form.cleaned_data['end_date'],
                 })
                 
-                messages.success(request, _("Overtime data generated successfully for {} records. Review and import.").format(
+                messages.success(request, _("🔥 COMPLETE Overtime data generated successfully for {} records with ALL unified processor features. Review and import.").format(
                     len(report_data['overtime_records'])))
                 
             except Exception as e:
@@ -470,7 +474,7 @@ class OvertimeImportView(LoginRequiredMixin, View):
             'designations': Designation.objects.all().order_by('name'),
             'shifts': Shift.objects.all().order_by('name'),
             'title': _("🔥 COMPLETE Overtime Import with ALL Enhanced Options"),
-            'subtitle': _("Import overtime records with comprehensive processing rules, dynamic shift detection, and all unified processor features"),
+            'subtitle': _("Import overtime records with comprehensive processing rules, dynamic shift detection, and all unified processor features - EXACT field matching"),
             'data_generated': False,
         }
     
@@ -533,7 +537,7 @@ class OvertimeImportView(LoginRequiredMixin, View):
         return roster_data
     
     def generate_overtime_data_for_import(self, form_data):
-        """🔥 Generate overtime data using COMPLETE unified processor."""
+        """🔥 Generate overtime data using COMPLETE unified processor with EXACT field matching."""
         start_date = form_data['start_date']
         end_date = form_data['end_date']
         
@@ -559,9 +563,15 @@ class OvertimeImportView(LoginRequiredMixin, View):
             'no_shift_days': 0,
             'flagged_records': 0,
             'converted_records': 0,
+            'minimum_hours_rule_applied': 0,
+            'half_day_rule_applied': 0,
+            'maximum_hours_rule_applied': 0,
+            'consecutive_absence_flagged': 0,
+            'early_out_flagged': 0,
+            'termination_risk_flagged': 0,
         }
         
-        # Process employees using COMPLETE unified processor
+        # Process employees using COMPLETE unified processor with EXACT field matching
         with ThreadPoolExecutor(max_workers=5) as executor:
             future_to_employee = {
                 executor.submit(self.process_employee_overtime_complete, employee, start_date, end_date, form_data): employee 
@@ -576,7 +586,7 @@ class OvertimeImportView(LoginRequiredMixin, View):
                     for overtime_record in employee_result['overtime_records']:
                         overtime_records.append(overtime_record)
                         
-                        # Update summary stats
+                        # Update summary stats with ALL features
                         summary_stats['total_overtime_hours'] += overtime_record['hours']
                         
                         if overtime_record['is_holiday']:
@@ -604,6 +614,25 @@ class OvertimeImportView(LoginRequiredMixin, View):
                         
                         if overtime_record.get('converted', False):
                             summary_stats['converted_records'] += 1
+                        
+                        # Enhanced rule tracking
+                        if overtime_record.get('minimum_hours_rule_applied', False):
+                            summary_stats['minimum_hours_rule_applied'] += 1
+                        
+                        if overtime_record.get('half_day_rule_applied', False):
+                            summary_stats['half_day_rule_applied'] += 1
+                        
+                        if overtime_record.get('maximum_hours_rule_applied', False):
+                            summary_stats['maximum_hours_rule_applied'] += 1
+                        
+                        if overtime_record.get('consecutive_absence_flagged', False):
+                            summary_stats['consecutive_absence_flagged'] += 1
+                        
+                        if overtime_record.get('early_out_flagged', False):
+                            summary_stats['early_out_flagged'] += 1
+                        
+                        if overtime_record.get('termination_risk_flagged', False):
+                            summary_stats['termination_risk_flagged'] += 1
                     
                     # Update shift analysis stats
                     shift_analysis = employee_result.get('shift_analysis', {})
@@ -625,7 +654,7 @@ class OvertimeImportView(LoginRequiredMixin, View):
         }
     
     def process_employee_overtime_complete(self, employee, start_date, end_date, form_data):
-        """🔥 Process overtime using COMPLETE unified attendance processor."""
+        """🔥 Process overtime using COMPLETE unified attendance processor with EXACT field matching."""
         try:
             # Get ZK logs for this employee
             zk_logs = ZKAttendanceLog.objects.filter(
@@ -647,7 +676,7 @@ class OvertimeImportView(LoginRequiredMixin, View):
             # Get roster data
             roster_data = self.get_roster_data_for_employee(employee, start_date, end_date)
             
-            # Initialize the COMPLETE unified processor with ALL options
+            # Initialize the COMPLETE unified processor with ALL options and EXACT field matching
             processor = UnifiedAttendanceProcessor(form_data)
             
             # Process attendance using unified processor with ALL features
@@ -661,7 +690,7 @@ class OvertimeImportView(LoginRequiredMixin, View):
                 roster_data=roster_data
             )
             
-            # Convert daily records to overtime records
+            # Convert daily records to overtime records with ALL enhanced features
             overtime_records = []
             for daily_record in result['daily_records']:
                 overtime_record = self.convert_daily_record_to_overtime(
@@ -675,6 +704,7 @@ class OvertimeImportView(LoginRequiredMixin, View):
                 'shift_analysis': result.get('shift_analysis', {}),
                 'summary_stats': result.get('summary_stats', {}),
                 'flagged_records': result.get('flagged_records', []),
+                'rule_applications': result.get('rule_applications', {}),
             }
             
         except Exception as e:
@@ -684,11 +714,13 @@ class OvertimeImportView(LoginRequiredMixin, View):
                 'shift_analysis': {},
                 'summary_stats': {},
                 'flagged_records': [],
+                'rule_applications': {},
             }
     
     def convert_daily_record_to_overtime(self, employee, daily_record, form_data):
-        """Convert daily attendance record to overtime record with ALL features."""
+        """Convert daily attendance record to overtime record with ALL enhanced features and EXACT field matching."""
         date = daily_record['date']
+        status = 'APP' if form_data.get('set_approved_by_default') else 'PEN'
         
         # Only process records with overtime
         overtime_hours = daily_record.get('overtime_hours', 0.0)
@@ -732,7 +764,7 @@ class OvertimeImportView(LoginRequiredMixin, View):
             overtime_start = datetime.strptime("18:00", "%H:%M").time()
             overtime_end = datetime.strptime("20:00", "%H:%M").time()
         
-        # Build comprehensive reason with ALL processor info
+        # Build comprehensive reason with ALL processor info and EXACT field matching
         reason_parts = []
         
         if daily_record.get('dynamic_shift_used', False):
@@ -742,20 +774,35 @@ class OvertimeImportView(LoginRequiredMixin, View):
         if daily_record.get('converted_from_late', False):
             reason_parts.append("Converted from late")
         
-        if daily_record.get('converted_from_minimum_hours', False):
-            reason_parts.append("Converted due to minimum hours rule")
+        if daily_record.get('minimum_hours_rule_applied', False):
+            reason_parts.append("Minimum working hours rule applied")
+        
+        if daily_record.get('half_day_rule_applied', False):
+            reason_parts.append("Half day rule applied")
+        
+        if daily_record.get('maximum_hours_rule_applied', False):
+            reason_parts.append("Maximum working hours rule applied")
+        
+        if daily_record.get('both_in_out_required_rule_applied', False):
+            reason_parts.append("Both in-out required rule applied")
+        
+        if daily_record.get('consecutive_absence_flagged', False):
+            reason_parts.append("Consecutive absence flagged")
+        
+        if daily_record.get('early_out_flagged', False):
+            reason_parts.append("Early out flagged")
+        
+        if daily_record.get('termination_risk_flagged', False):
+            reason_parts.append("Termination risk flagged")
         
         if daily_record.get('excessive_working_hours_flag', False):
             reason_parts.append("Flagged for excessive hours")
-        
-        if daily_record.get('termination_risk_flag', False):
-            reason_parts.append("Termination risk flagged")
         
         if daily_record.get('excessive_early_out_flag', False):
             reason_parts.append("Excessive early out flagged")
         
         # Base reason
-        base_reason = f"Auto-calculated from attendance (Working: {daily_record.get('working_hours', 0):.1f}h, OT: {overtime_hours:.1f}h)"
+        base_reason = f"🔥 COMPLETE Auto-calculated from attendance with ALL unified processor features (Working: {daily_record.get('working_hours', 0):.1f}h, OT: {overtime_hours:.1f}h)"
         
         if reason_parts:
             full_reason = f"{base_reason} | {' | '.join(reason_parts)}"
@@ -770,7 +817,7 @@ class OvertimeImportView(LoginRequiredMixin, View):
             'end_time': overtime_end.strftime('%H:%M'),
             'hours': round(overtime_hours, 2),
             'reason': full_reason,
-            'status': 'PEN',  # Default to pending
+            'status': status, 
             'is_duplicate': is_duplicate,
             'is_holiday': daily_record.get('is_holiday', False),
             'is_weekend': daily_record.get('date').weekday() in [int(day) for day in form_data.get('weekend_days', [4])],
@@ -782,13 +829,18 @@ class OvertimeImportView(LoginRequiredMixin, View):
             'shift_match_confidence': daily_record.get('shift_match_confidence', 0.0),
             'multiple_shifts_found': daily_record.get('multiple_shifts_found', []),
             'flagged': any([
-                daily_record.get('termination_risk_flag', False),
+                daily_record.get('termination_risk_flagged', False),
                 daily_record.get('excessive_early_out_flag', False),
                 daily_record.get('excessive_working_hours_flag', False),
+                daily_record.get('consecutive_absence_flagged', False),
+                daily_record.get('early_out_flagged', False),
             ]),
             'converted': any([
                 daily_record.get('converted_from_late', False),
-                daily_record.get('converted_from_minimum_hours', False),
+                daily_record.get('minimum_hours_rule_applied', False),
+                daily_record.get('half_day_rule_applied', False),
+                daily_record.get('maximum_hours_rule_applied', False),
+                daily_record.get('both_in_out_required_rule_applied', False),
                 daily_record.get('converted_to_half_day', False),
                 daily_record.get('converted_from_incomplete_punch', False),
             ]),
@@ -798,15 +850,23 @@ class OvertimeImportView(LoginRequiredMixin, View):
             'break_time_minutes': daily_record.get('break_time_minutes', 0),
             'net_working_hours': daily_record.get('net_working_hours', 0),
             'overtime_break_minutes': daily_record.get('overtime_break_minutes', 0),
+            # Enhanced rule tracking with EXACT field names
+            'minimum_hours_rule_applied': daily_record.get('minimum_hours_rule_applied', False),
+            'half_day_rule_applied': daily_record.get('half_day_rule_applied', False),
+            'maximum_hours_rule_applied': daily_record.get('maximum_hours_rule_applied', False),
+            'both_in_out_required_rule_applied': daily_record.get('both_in_out_required_rule_applied', False),
+            'consecutive_absence_flagged': daily_record.get('consecutive_absence_flagged', False),
+            'early_out_flagged': daily_record.get('early_out_flagged', False),
+            'termination_risk_flagged': daily_record.get('termination_risk_flagged', False),
         }
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class OvertimeImportSaveView(View):
-    """Save view for overtime import data with enhanced validation."""
+    """🔥 COMPLETE Save view for overtime import data with enhanced validation and ALL features."""
     
     def post(self, request, *args, **kwargs):
-        """Handle POST request to save selected overtime data."""
+        """Handle POST request to save selected overtime data with ALL enhanced features."""
         try:
             data = json.loads(request.body)
             overtime_data = data.get('overtime_data', [])
@@ -822,6 +882,19 @@ class OvertimeImportSaveView(View):
             skipped_count = 0
             errors = []
             saved_records = []
+            
+            # Enhanced statistics tracking
+            feature_stats = {
+                'dynamic_shift_records': 0,
+                'flagged_records': 0,
+                'converted_records': 0,
+                'minimum_hours_rule_applied': 0,
+                'half_day_rule_applied': 0,
+                'maximum_hours_rule_applied': 0,
+                'consecutive_absence_flagged': 0,
+                'early_out_flagged': 0,
+                'termination_risk_flagged': 0,
+            }
             
             with transaction.atomic():
                 for record in overtime_data:
@@ -874,8 +947,8 @@ class OvertimeImportSaveView(View):
                             'start_time': start_time,
                             'end_time': end_time,
                             'hours': hours,
-                            'reason': record.get('reason', 'Imported via complete overtime import with unified processor'),
-                            'status': record.get('status', 'PEN'),
+                            'reason': record.get('reason', '🔥 COMPLETE Imported via overtime import with ALL unified processor features'),
+                            'status': record.get('status', 'APP'),
                             'remarks': record.get('remarks'),
                         }
                         
@@ -894,6 +967,34 @@ class OvertimeImportSaveView(View):
                             OvertimeRecord.objects.create(**overtime_data_dict)
                             saved_count += 1
                         
+                        # Track enhanced features
+                        if record.get('dynamic_shift_used', False):
+                            feature_stats['dynamic_shift_records'] += 1
+                        
+                        if record.get('flagged', False):
+                            feature_stats['flagged_records'] += 1
+                        
+                        if record.get('converted', False):
+                            feature_stats['converted_records'] += 1
+                        
+                        if record.get('minimum_hours_rule_applied', False):
+                            feature_stats['minimum_hours_rule_applied'] += 1
+                        
+                        if record.get('half_day_rule_applied', False):
+                            feature_stats['half_day_rule_applied'] += 1
+                        
+                        if record.get('maximum_hours_rule_applied', False):
+                            feature_stats['maximum_hours_rule_applied'] += 1
+                        
+                        if record.get('consecutive_absence_flagged', False):
+                            feature_stats['consecutive_absence_flagged'] += 1
+                        
+                        if record.get('early_out_flagged', False):
+                            feature_stats['early_out_flagged'] += 1
+                        
+                        if record.get('termination_risk_flagged', False):
+                            feature_stats['termination_risk_flagged'] += 1
+                        
                         saved_records.append({
                             'employee_id': record['employee_id'],
                             'employee_name': employee.get_full_name(),
@@ -903,6 +1004,12 @@ class OvertimeImportSaveView(View):
                             'dynamic_shift_used': record.get('dynamic_shift_used', False),
                             'flagged': record.get('flagged', False),
                             'converted': record.get('converted', False),
+                            'minimum_hours_rule_applied': record.get('minimum_hours_rule_applied', False),
+                            'half_day_rule_applied': record.get('half_day_rule_applied', False),
+                            'maximum_hours_rule_applied': record.get('maximum_hours_rule_applied', False),
+                            'consecutive_absence_flagged': record.get('consecutive_absence_flagged', False),
+                            'early_out_flagged': record.get('early_out_flagged', False),
+                            'termination_risk_flagged': record.get('termination_risk_flagged', False),
                         })
                         
                     except Exception as e:
@@ -910,6 +1017,18 @@ class OvertimeImportSaveView(View):
                         logger.error(error_msg)
                         errors.append(error_msg)
                         continue
+            
+            # Build enhanced success message
+            success_message = f"🔥 COMPLETE Import completed with ALL features! {saved_count} records saved, {updated_count} updated."
+            
+            if feature_stats['dynamic_shift_records'] > 0:
+                success_message += f" {feature_stats['dynamic_shift_records']} dynamic shifts detected."
+            
+            if feature_stats['flagged_records'] > 0:
+                success_message += f" {feature_stats['flagged_records']} records flagged."
+            
+            if feature_stats['converted_records'] > 0:
+                success_message += f" {feature_stats['converted_records']} records converted."
             
             response = {
                 'success': saved_count > 0 or updated_count > 0,
@@ -919,10 +1038,11 @@ class OvertimeImportSaveView(View):
                 'error_count': len(errors),
                 'errors': errors,
                 'saved_records': saved_records,
-                'message': _("%d records saved, %d updated, %d errors occurred") % (saved_count, updated_count, len(errors))
+                'feature_stats': feature_stats,
+                'message': success_message
             }
             
-            logger.info(f"Complete overtime import operation completed: {response['message']}")
+            logger.info(f"🔥 COMPLETE overtime import operation completed with ALL features: {response['message']}")
             return JsonResponse(response, status=200 if saved_count > 0 or updated_count > 0 else 400)
             
         except json.JSONDecodeError:

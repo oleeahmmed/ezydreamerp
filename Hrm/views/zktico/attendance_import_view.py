@@ -22,7 +22,7 @@ from .unified_attendance_processor import UnifiedAttendanceProcessor
 logger = logging.getLogger(__name__)
 
 class AttendanceImportForm(forms.Form):
-    """Enhanced form for attendance import configuration."""
+    """🔥 COMPLETELY FIXED - Enhanced form with EXACT field names matching UnifiedAttendanceProcessor."""
     
     # Date Range Selection
     start_date = forms.DateField(
@@ -71,7 +71,7 @@ class AttendanceImportForm(forms.Form):
         }),
     )
     
-    # Basic Settings
+    # Basic Configuration - EXACT MATCH with UnifiedAttendanceProcessor
     grace_minutes = forms.IntegerField(
         label=_("Grace Minutes"),
         initial=15,
@@ -100,18 +100,35 @@ class AttendanceImportForm(forms.Form):
         max_value=480,
     )
     
-    # Enhanced Rules
+    # 🔥 NEW RULE 1: Minimum Working Hours Rule - FIXED FIELD NAME
+    minimum_working_hours_for_present = forms.FloatField(
+        label=_("Minimum Working Hours For Present"),
+        initial=4.0,
+        min_value=1.0,
+        max_value=12.0,
+        required=False,
+    )
+    
     enable_minimum_working_hours_rule = forms.BooleanField(
         label=_("Enable Minimum Working Hours Rule"),
         required=False,
         initial=False,
     )
     
-    minimum_working_hours_threshold = forms.FloatField(
-        label=_("Minimum Working Hours Threshold"),
-        initial=4.0,
+    # 🔥 NEW RULE 2: Half Day Rule - FIXED FIELD NAMES
+    half_day_minimum_hours = forms.FloatField(
+        label=_("Half Day Minimum Hours"),
+        initial=2.0,
         min_value=1.0,
-        max_value=12.0,
+        max_value=4.0,
+        required=False,
+    )
+    
+    half_day_maximum_hours = forms.FloatField(
+        label=_("Half Day Maximum Hours"),
+        initial=4.0,
+        min_value=2.0,
+        max_value=6.0,
         required=False,
     )
     
@@ -121,26 +138,20 @@ class AttendanceImportForm(forms.Form):
         initial=False,
     )
     
-    half_day_max_hours = forms.FloatField(
-        label=_("Half Day Max Hours"),
-        initial=4.0,
-        min_value=2.0,
-        max_value=6.0,
-        required=False,
-    )
-    
-    half_day_min_hours = forms.FloatField(
-        label=_("Half Day Min Hours"),
-        initial=2.0,
-        min_value=1.0,
-        max_value=4.0,
-        required=False,
-    )
-    
-    enable_both_in_out_required_rule = forms.BooleanField(
+    # 🔥 NEW RULE 3: Both In/Out Required - FIXED FIELD NAME
+    require_both_in_and_out = forms.BooleanField(
         label=_("Both Check-In & Check-Out Required"),
         required=False,
         initial=False,
+    )
+    
+    # 🔥 NEW RULE 4: Maximum Working Hours - FIXED FIELD NAME
+    maximum_allowable_working_hours = forms.FloatField(
+        label=_("Maximum Allowable Working Hours"),
+        initial=12.0,
+        min_value=8.0,
+        max_value=24.0,
+        required=False,
     )
     
     enable_maximum_working_hours_rule = forms.BooleanField(
@@ -149,12 +160,211 @@ class AttendanceImportForm(forms.Form):
         initial=False,
     )
     
-    maximum_working_hours_threshold = forms.FloatField(
-        label=_("Maximum Working Hours Threshold"),
-        initial=12.0,
-        min_value=8.0,
-        max_value=24.0,
+    # 🔥 NEW RULE 5: Dynamic Shift Detection - ADDED MISSING FIELDS
+    dynamic_shift_fallback_to_default = forms.BooleanField(
+        label=_("Dynamic Shift Fallback to Default"),
         required=False,
+        initial=True,
+    )
+    
+    dynamic_shift_fallback_shift_id = forms.IntegerField(
+        label=_("Dynamic Shift Fallback Shift ID"),
+        required=False,
+        min_value=1,
+    )
+    
+    # 🔥 NEW RULE 6: Grace Time per Shift - ADDED MISSING FIELD
+    use_shift_grace_time = forms.BooleanField(
+        label=_("Use Shift Grace Time"),
+        required=False,
+        initial=False,
+    )
+    
+    # 🔥 NEW RULE 7: Consecutive Absence - ADDED MISSING FIELDS
+    consecutive_absence_termination_risk_days = forms.IntegerField(
+        label=_("Consecutive Absence Termination Risk Days"),
+        initial=5,
+        min_value=1,
+        max_value=30,
+        required=False,
+    )
+    
+    enable_consecutive_absence_flagging = forms.BooleanField(
+        label=_("Enable Consecutive Absence Flagging"),
+        required=False,
+        initial=False,
+    )
+    
+    # 🔥 NEW RULE 8: Max Early Out - ADDED MISSING FIELDS
+    max_early_out_threshold_minutes = forms.IntegerField(
+        label=_("Max Early Out Threshold Minutes"),
+        initial=120,
+        min_value=30,
+        max_value=480,
+        required=False,
+    )
+    
+    max_early_out_occurrences = forms.IntegerField(
+        label=_("Max Early Out Occurrences"),
+        initial=3,
+        min_value=1,
+        max_value=10,
+        required=False,
+    )
+    
+    enable_max_early_out_flagging = forms.BooleanField(
+        label=_("Enable Max Early Out Flagging"),
+        required=False,
+        initial=False,
+    )
+    
+    # 🔥 Enhanced Shift Detection - ADDED MISSING FIELDS
+    enable_dynamic_shift_detection = forms.BooleanField(
+        label=_("Enable Dynamic Shift Detection"),
+        required=False,
+        initial=False,
+    )
+    
+    dynamic_shift_tolerance_minutes = forms.IntegerField(
+        label=_("Dynamic Shift Tolerance Minutes"),
+        initial=30,
+        min_value=5,
+        max_value=120,
+        required=False,
+    )
+    
+    multiple_shift_priority = forms.ChoiceField(
+        label=_("Multiple Shift Priority"),
+        choices=[
+            ('least_break', _('Least Break Time')),
+            ('shortest_duration', _('Shortest Duration')),
+            ('alphabetical', _('Alphabetical')),
+            ('highest_score', _('Highest Score')),
+        ],
+        initial='least_break',
+        required=False,
+    )
+    
+    # 🔥 Advanced Overtime Configuration - ADDED MISSING FIELDS
+    overtime_calculation_method = forms.ChoiceField(
+        label=_("Overtime Calculation Method"),
+        choices=[
+            ('shift_based', _('Shift Based')),
+            ('hours_based', _('Hours Based')),
+        ],
+        initial='shift_based',
+        required=False,
+    )
+    
+    holiday_overtime_full_day = forms.BooleanField(
+        label=_("Holiday Overtime Full Day"),
+        required=False,
+        initial=True,
+    )
+    
+    weekend_overtime_full_day = forms.BooleanField(
+        label=_("Weekend Overtime Full Day"),
+        required=False,
+        initial=True,
+    )
+    
+    late_affects_overtime = forms.BooleanField(
+        label=_("Late Affects Overtime"),
+        required=False,
+        initial=False,
+    )
+    
+    separate_ot_break_time = forms.IntegerField(
+        label=_("Separate OT Break Time (Minutes)"),
+        initial=0,
+        min_value=0,
+        max_value=120,
+        required=False,
+    )
+    
+    # 🔥 Break Time Configuration - ADDED MISSING FIELDS
+    use_shift_break_time = forms.BooleanField(
+        label=_("Use Shift Break Time"),
+        required=False,
+        initial=True,
+    )
+    
+    default_break_minutes = forms.IntegerField(
+        label=_("Default Break Minutes"),
+        initial=60,
+        min_value=0,
+        max_value=180,
+        required=False,
+    )
+    
+    break_deduction_method = forms.ChoiceField(
+        label=_("Break Deduction Method"),
+        choices=[
+            ('fixed', _('Fixed')),
+            ('proportional', _('Proportional')),
+        ],
+        initial='fixed',
+        required=False,
+    )
+    
+    # 🔥 Advanced Rules - ADDED MISSING FIELDS
+    late_to_absent_days = forms.IntegerField(
+        label=_("Late to Absent Days"),
+        initial=3,
+        min_value=1,
+        max_value=10,
+        required=False,
+    )
+    
+    holiday_before_after_absent = forms.BooleanField(
+        label=_("Holiday Before After Absent"),
+        required=False,
+        initial=True,
+    )
+    
+    weekend_before_after_absent = forms.BooleanField(
+        label=_("Weekend Before After Absent"),
+        required=False,
+        initial=True,
+    )
+    
+    require_holiday_presence = forms.BooleanField(
+        label=_("Require Holiday Presence"),
+        required=False,
+        initial=False,
+    )
+    
+    include_holiday_analysis = forms.BooleanField(
+        label=_("Include Holiday Analysis"),
+        required=False,
+        initial=True,
+    )
+    
+    holiday_buffer_days = forms.IntegerField(
+        label=_("Holiday Buffer Days"),
+        initial=1,
+        min_value=0,
+        max_value=5,
+        required=False,
+    )
+    
+    # 🔥 Employee Override Settings - ADDED MISSING FIELDS
+    use_employee_specific_grace = forms.BooleanField(
+        label=_("Use Employee Specific Grace"),
+        required=False,
+        initial=True,
+    )
+    
+    use_employee_specific_overtime = forms.BooleanField(
+        label=_("Use Employee Specific Overtime"),
+        required=False,
+        initial=True,
+    )
+    
+    use_employee_expected_hours = forms.BooleanField(
+        label=_("Use Employee Expected Hours"),
+        required=False,
+        initial=True,
     )
     
     # Weekend Configuration

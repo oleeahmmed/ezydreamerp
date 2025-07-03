@@ -86,7 +86,9 @@ from .attendance.attendance_log_view import (
     AttendanceLogBulkDeleteView
 )
 
-from .attendance.reports.attendance_summary_views import (AttendanceSummaryView,EmployeeAttendanceDetailView)
+from .attendance.reports.attendance_summary_views import (AttendanceSummaryView,EmployeeAttendanceDetailView,MonthlySalarySummaryView)
+
+MonthlySalarySummaryView 
 from .attendance.reports.overtime_summary_views import (OvertimeSummaryView)
 
 from .attendance.overtime_record_view import (

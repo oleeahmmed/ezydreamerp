@@ -182,6 +182,7 @@ urlpatterns = [
     path('attendance/bulk-delete/', views.AttendanceBulkDeleteView.as_view(), name='attendance_bulk_delete'),
     path('reports/attendance-summery/', views.AttendanceSummaryView.as_view(), name='attendance_model_attendance_summery'),
     path('reports/employee_attendance_details/', views.EmployeeAttendanceDetailView.as_view(), name='attendance_model_attendance_details'),
+    path('reports/monthly_attendance_summary/', views.MonthlySalarySummaryView.as_view(), name='monthly_attendance_summary'),
 
 
     # Attendance Reports URLs
