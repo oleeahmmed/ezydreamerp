@@ -171,7 +171,7 @@ class EmployeeAllView(GenericFilterView):
 class EmployeeCreateView(PermissionRequiredMixin, CreateView):
     model = Employee
     form_class = EmployeeForm
-    template_name = 'common/tabs-form.html'
+    template_name = 'employee/employee_form_collapse.html' # Changed template
     permission_required = 'Hrm.add_employee'
     
     def get_context_data(self, **kwargs):
@@ -192,7 +192,7 @@ class EmployeeCreateView(PermissionRequiredMixin, CreateView):
 class EmployeeUpdateView(PermissionRequiredMixin, UpdateView):
     model = Employee
     form_class = EmployeeForm
-    template_name = 'common/tabs-form.html'
+    template_name = 'employee/employee_form_collapse.html' # Changed template
     permission_required = 'Hrm.change_employee'
     
     def get_context_data(self, **kwargs):
@@ -212,7 +212,7 @@ class EmployeeUpdateView(PermissionRequiredMixin, UpdateView):
 
 class EmployeeDetailView(PermissionRequiredMixin, DetailView):
     model = Employee
-    template_name = 'common/tabs-form.html'
+    template_name = 'employee/employee_form_collapse.html' # Changed template
     context_object_name = 'employee'
     permission_required = 'Hrm.view_employee'
     
@@ -262,3 +262,4 @@ class EmployeeBulkDeleteView(BaseBulkDeleteConfirmView):
     display_fields = ["employee_id", "first_name", "last_name", "department", "designation"]
     cancel_url = reverse_lazy("hrm:employee_list")
     success_url = reverse_lazy("hrm:employee_list")
+    

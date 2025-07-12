@@ -43,6 +43,17 @@ class Designation(models.Model):
         verbose_name_plural = _("Designations")
         ordering = ['name']
 
+
+class Document(models.Model):
+    """Represents a document attached to an employee."""
+    document_type = models.CharField("Document Type", max_length=100)
+    file = models.FileField("File", upload_to='employee_documents/')
+    upload_date = models.DateTimeField("Upload Date", auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.document_type} - {self.file.name}"
+
+
 class Employee(models.Model):
     """Represents an employee with personal and employment details."""
     GENDER_CHOICES = (
@@ -61,14 +72,28 @@ class Employee(models.Model):
         ('O+', 'O+'),
         ('O-', 'O-'),
     )
-    
+    EDUCATIONAL_QUALIFICATION_CHOICES = (
+        
+        ('PSC', 'PSC/Five Pass'),
+        ('JSC', 'JSC/Eight Pass'),
+        ('SSC', 'S.S.C'),
+        ('HSC', 'H.S.C'),
+        ('GRAD', 'Graduation'),
+        ('DIPLOMA', 'Diploma'),
+        ('OTHERS', 'Others'),
+    )    
     MARITAL_STATUS_CHOICES = (
         ('S', 'Single'),
         ('M', 'Married'),
         ('D', 'Divorced'),
         ('W', 'Widowed'),
     )
-    
+    RELIGION_CHOICES = (
+        ('Islam', 'Islam'),
+        ('Hinduism', 'Hinduism'),
+        ('Christianity', 'Christianity'),
+        # Add other religions as needed
+    )
     employee_id = models.CharField(_("Employee ID"), max_length=20, unique=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee_profile', 
                                 null=True, blank=True, verbose_name=_("User"))
@@ -81,6 +106,9 @@ class Employee(models.Model):
     card_no = models.CharField(max_length=20, unique=True, null=True, blank=True, verbose_name=_("Card No"))
     gender = models.CharField(_("Gender"), max_length=1, choices=GENDER_CHOICES)
     date_of_birth = models.DateField(_("Date of Birth"))
+    nid_no = models.CharField("NID No", max_length=20, unique=True,null=True, blank=True)
+    religion = models.CharField("Religion", max_length=50, choices=RELIGION_CHOICES,default="Islam")
+
     blood_group = models.CharField(_("Blood Group"), max_length=3, choices=BLOOD_GROUP_CHOICES, 
                                   null=True, blank=True)
     default_shift = models.ForeignKey('Shift', on_delete=models.SET_NULL, 
@@ -88,26 +116,46 @@ class Employee(models.Model):
                                       related_name='employees', 
                                       verbose_name='Default Shift')                                  
     marital_status = models.CharField(_("Marital Status"), max_length=1, choices=MARITAL_STATUS_CHOICES)
+    # Mailing Address Fields
+    mailing_care_of = models.CharField("Care Of", max_length=100, null=True, blank=True)
+    mailing_village_town = models.CharField("Village/Town/Road/House/Flat", max_length=200, null=True, blank=True)
+    mailing_district = models.CharField("District", max_length=100, null=True, blank=True)
+    mailing_upazila_thana = models.CharField("Upazila/Thana", max_length=100, null=True, blank=True)
+    mailing_union = models.CharField("Union", max_length=100, null=True, blank=True)
+    mailing_post_office = models.CharField("Post Office", max_length=100, null=True, blank=True)
+    mailing_post_code = models.CharField("Post Code", max_length=10, null=True, blank=True)
+    mailing_home_phone = models.CharField("Home Phone", max_length=20, null=True, blank=True)
+    mailing_mobile = models.CharField("Mobile", max_length=20, null=True, blank=True)
+    mailing_email = models.EmailField("Email", null=True, blank=True)
 
-    # Contact Information
-    email = models.EmailField(_("Email"), unique=True)
-    phone = models.CharField(_("Phone"), max_length=20)
-    emergency_contact_name = models.CharField(_("Emergency Contact Name"), max_length=100, 
-                                             null=True, blank=True)
-    emergency_contact_phone = models.CharField(_("Emergency Contact Phone"), max_length=20, 
-                                              null=True, blank=True)
+    # Permanent Address Fields
+    permanent_care_of = models.CharField("Care Of", max_length=100, null=True, blank=True)
+    permanent_village_town = models.CharField("Village/Town/Road/House/Flat", max_length=200, null=True, blank=True)
+    permanent_district = models.CharField("District", max_length=100, null=True, blank=True)
+    permanent_upazila_thana = models.CharField("Upazila/Thana", max_length=100, null=True, blank=True)
+    permanent_union = models.CharField("Union", max_length=100, null=True, blank=True)
+    permanent_post_office = models.CharField("Post Office", max_length=100, null=True, blank=True)
+    permanent_post_code = models.CharField("Post Code", max_length=10, null=True, blank=True)
+    permanent_home_phone = models.CharField("Home Phone", max_length=20, null=True, blank=True)
+    permanent_mobile = models.CharField("Mobile", max_length=20, null=True, blank=True)
+    permanent_email = models.EmailField("Email", null=True, blank=True)
+
     
-    # Address Information
-    present_address = models.TextField(_("Present Address"))
-    permanent_address = models.TextField(_("Permanent Address"))
-    
+
+    # Educational Information
+    education_qualification = models.CharField("Educational Qualification", max_length=50, choices=EDUCATIONAL_QUALIFICATION_CHOICES,null=True, blank=True)
+    major_subject = models.CharField("Major Subject/Group", max_length=100, null=True, blank=True)
+    institution = models.CharField("Institution", max_length=100, null=True, blank=True)
+    university_board = models.CharField("University/Board", max_length=100, null=True, blank=True)
+    passing_year = models.IntegerField("Passing Year", null=True, blank=True)
+    result = models.CharField("Result", max_length=50, null=True, blank=True)
+
     # Employment Information
     department = models.ForeignKey(Department, on_delete=models.CASCADE, 
                                   related_name='employees', verbose_name=_("Department"))
     designation = models.ForeignKey(Designation, on_delete=models.CASCADE, 
                                    related_name='employees', verbose_name=_("Designation"))
     joining_date = models.DateField(_("Joining Date"))
-    confirmation_date = models.DateField(_("Confirmation Date"), null=True, blank=True)
     expected_work_hours = models.PositiveIntegerField(default=8) 
     overtime_grace_minutes = models.PositiveIntegerField(default=15)    
     # Salary Information
@@ -124,8 +172,10 @@ class Employee(models.Model):
     is_active = models.BooleanField(_("Active"), default=True)
     
     # System fields
-    profile_picture = models.ImageField(_("Profile Picture"), upload_to='employee_profiles/', 
-                                       null=True, blank=True)
+    profile_picture = models.ImageField("Profile Picture", upload_to='employee_profiles/', null=True, blank=True)
+    # Document Attachments
+    documents = models.ManyToManyField(Document, related_name='employees', blank=True)
+                                       
     created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated At"), auto_now=True)
     
